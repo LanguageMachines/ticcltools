@@ -11,7 +11,10 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include "config.h"
+#ifdef HAVE_OPENMP
 #include <omp.h>
+#endif
 #include "ticcutils/StringOps.h"
 #include "ticcutils/CommandLine.h"
 #include "ticcl/unicode.h"
@@ -117,10 +120,15 @@ int main( int argc, char **argv ){
   opts.extract( 'o', outFile );
   string value;
   if ( opts.extract('t', value ) ){
+#ifdef HAVE_OPENMP
     if ( !TiCC::stringTo(value,threads) ) {
       cerr << "illegal value for -t (" << value << ")" << endl;
       exit( EXIT_FAILURE );
     }
+#else
+    cerr << "You don't have OpenMP support. Setting -t is useless!" << endl;
+    exit( EXIT_FAILURE );
+#endif
   }
   if ( opts.extract("low", value ) ){
     if ( !TiCC::stringTo(value,lowValue) ) {
@@ -231,7 +239,9 @@ int main( int argc, char **argv ){
   map<bitType,set<bitType> > result;
   vector<experiment> experiments;
   size_t expsize = init( experiments, focSet, threads );
+#ifdef HAVE_OPENMP
   omp_set_num_threads( expsize );
+#endif
 
 #pragma omp parallel for shared( experiments )
   for ( size_t i=0; i < expsize; ++i ){
