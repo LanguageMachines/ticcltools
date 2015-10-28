@@ -8,7 +8,10 @@
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
+#include "config.h"
+#ifdef HAVE_OPENMP
 #include "omp.h"
+#endif
 #include "ticcutils/StringOps.h"
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/PrettyPrint.h"
@@ -478,10 +481,15 @@ int main( int argc, char **argv ){
     }
   }
   if ( opts.extract( 't', value ) ){
+#ifdef HAVE_OPENMP
     if ( !TiCC::stringTo(value,numThreads) ) {
       cerr << "illegal value for -t (" << value << ")" << endl;
       exit( EXIT_FAILURE );
     }
+#else
+    cerr << "You don't have OpenMP supprt. The -t option is useless" << endl;
+    exit( EXIT_FAILURE );
+#endif
   }
   if ( opts.extract( "LD", value ) ){
     if ( !TiCC::stringTo(value,LDvalue) ) {
@@ -632,8 +640,9 @@ int main( int argc, char **argv ){
     }
   }
   cout << "read " << hashMap.size() << " hash values" << endl;
-
+#ifdef HAVE_OPENMP
   omp_set_num_threads( numThreads );
+#endif
 
   size_t count=0;
   ofstream os( outFile.c_str() );

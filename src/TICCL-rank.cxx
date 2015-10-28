@@ -11,14 +11,16 @@
 #include <cassert>
 #include <cstring>
 #include <cmath>
+#include "config.h"
+#ifdef HAVE_OPENMP
 #include "omp.h"
+#endif
 #include "ticcutils/StringOps.h"
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/PrettyPrint.h"
 #include "ticcl/word2vec.h"
 #include "ticcl/unicode.h"
 
-#include "config.h"
 using namespace std;
 typedef signed long int bitType;
 
@@ -289,8 +291,14 @@ void rank( ostream& os, vector<record>& records,
   if (verbose ){
 #pragma omp critical (log)
     {
-      cerr << omp_get_thread_num() << "-RANK " << records[0].variant1
+#ifdef HAVE_OPENMP
+      int numt = omp_get_thread_num();
+      cerr << numt << "-RANK " << records[0].variant1
 	   << " " << records.size() << endl;
+#else
+      cerr << "RANK " << records[0].variant1
+	   << " " << records.size() << endl;
+#endif
     }
   }
   multimap<size_t,size_t> freqmap;
@@ -887,7 +895,9 @@ int main( int argc, char **argv ){
   }
   count = 0;
 
+#ifdef HAVE_OPENMP
   omp_set_num_threads( numThreads );
+#endif
   cout << "Start the work, with " << work.size()
        << " iterations on " << numThreads << " thread(s)." << endl;
 #pragma omp parallel for schedule(dynamic,1)
@@ -917,7 +927,12 @@ int main( int argc, char **argv ){
 	tmp = ++count;
 	//
 	// omp single isn't allowed here. trick!
-	if ( omp_get_thread_num() == 0 && tmp % 10000 == 0 ){
+#ifdef HAVE_OPENMP
+	int numt = omp_get_thread_num();
+#else
+	int numt = 0;
+#endif
+	if ( numt == 0 && tmp % 10000 == 0 ){
 	  cout << ".";
 	  cout.flush();
 	  if ( tmp % 500000 == 0 ){
