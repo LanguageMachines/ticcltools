@@ -1,0 +1,109 @@
+.TH TICCL-anahash 1 "2014 sep 03"
+
+.SH NAME
+TICCL-anahash - an anagram hashing tool
+
+.SH SYNOPSYS
+
+TICCL-anahash [options] FILE
+
+.SH DESCRIPTION
+.B TICC-anahash
+processes a tab separated frequency file (for instance a *.tsv file produced by
+.B FoLiA-stats
+) and creates an anagram hash file.
+
+Each word in the input is hashed using the character values produced by
+.B TICCL-lexstat
+.
+All words with the same hash value are collected as one entry in the output
+file. They share the same bag-of-characters, are thus anagrams. Hence the name:
+anagram hashing.
+
+The inputfile is assumed to be 'clean' (see
+.B FoLiA-stats
+)
+
+.SH OPTIONS
+.B --alph
+file
+.RS
+name of the alphabet file. This file must be in the format provided by
+.B TICCL-lexstat.
+.RE
+
+.B --clip
+clip
+.RS
+cut off the alphabet at frequency 'clip' (This might already have been done on
+creation in TICCL-lexstat, but a (larger) clip can be chosen here.)
+.RE
+
+.B --background
+file
+.RS
+this specifies an additional corpus which may be merged with the frequency file
+to generate a new (.merged) frequency file. The background file may contain
+frequencies. When they are missing, 'artifrq' is used. (so the
+.B --artifrq
+option is obligatory when
+.B --background
+is used.)
+
+.RE
+
+.B --artifrq
+artifreq
+.RS
+Use 'artifreq' as an artificial high frequency we assign to (attested or
+validated) lexicon items. If the item is also observed in the corpus it will
+get frequency 'artifreq + observed corpus frequency'.
+
+If this parameter is > 0,
+.B TICCL-anahash
+will also create  a separate list of anagram values that DO NOT have the
+lexical frequency 'artifreq'.
+
+This option is only relevant if you want to run
+.B TICC-indexerNT
+later on.
+.B
+TICCL-indexerNT
+is recommended for smaller corpora, e.g. book size. It is faster than
+.B
+TICCL-indexer on smaller corpora, but much more memory demanding.
+
+So
+.B TICCL-indexer
+is indicated for use with larger corpora.
+
+.RE
+
+.B -V
+.RS
+Show VERSION
+.RE
+
+.B -v
+.RS
+be more verbose
+.RE
+
+.B -h
+.RS
+usage info
+.RE
+
+
+.SH BUGS
+possibly
+
+.SH AUTHORS
+Ko van der Sloot Timbl@uvt.nl
+
+Martin Reynaert reynaert@uvt.nl
+
+.SH SEE ALSO
+.BR TICCL-lexstat (1)
+.BR TICCL-indexer (1)
+.BR FoLiA-stats (1)

@@ -1,0 +1,82 @@
+.TH TICCL-LDcalc 1 "2014 may 08"
+
+.SH NAME
+TICCL-LDcalc - calculate stuff
+
+.SH SYNOPSYS
+
+TICCL-LDcalc [options]
+
+.SH DESCRIPTION
+.B TICCL-LDcalc
+read a confusion list file an does....
+
+.SH OPTIONS
+
+.B -a
+conflist
+.RS
+name of the confusion list file
+.RE
+
+.B -c
+charconf
+.RS
+name of the character confusion file
+.RE
+
+.B -f
+clean
+.RS
+name of the 'clean' file
+.RE
+
+.B -l
+hist
+.RS
+name of the 'historical confusions' file
+.RE
+
+.B -o
+outfile
+.RS
+store the results is 'outfile'
+.RE
+
+.B -L
+distance
+.RS
+calculate results upto an edit distance of 'distance'
+.RE
+
+.B -b
+.RS
+also look backward in 'confuslist'.
+this is needed when that list is produced by TICCL-indexerNT.
+.RE
+
+
+.B -v
+.RS
+be (very) verbose.
+.RE
+
+.B -M
+artifreq
+.RS
+ to be doen
+.RE
+
+.B -t
+threads
+.RS
+run on 'threads' parallel.
+.RE
+
+.SH BUGS
+possibly
+
+.SH AUTHORS
+Ko van der Sloot Timbl@uvt.nl
+
+Martin Reynaert reynaert@uvt.nl

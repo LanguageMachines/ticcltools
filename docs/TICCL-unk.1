@@ -1,0 +1,54 @@
+.TH TICCL-unk 1 "2014 apr 28"
+
+.SH NAME
+TICCL-unk - a frequency file cleanup tool
+
+.SH SYNOPSYS
+
+TICCL-unk [options] FILE
+
+.SH DESCRIPTION
+.B TICCL-unk
+processes a tab separated frequency file (for instance a *.tsv file produced by
+FoLiA-stats) and creates 3 new files:
+
+1. A 'clean' file of words that are expected to be within 'reach' of correction by TICCL, i.e.  
+2. An 'unk' file of words that are unknown according to the criteria, i.e. are not expected to be correctable.
+3. A 'punct' file of words that are 'clean' after stripping all leading and
+trailing punctuation. The clean variants are also added to the 'clean' file.
+
+.SH OPTIONS
+.B -a
+file
+.RS
+name of the alphabet file. This file must be in the format provided by
+TICCL-lexstat.
+.RE
+
+.B -V
+.RS
+Show VERSION
+.RE
+
+.B -c
+lexicon or corpusfile
+.RS
+additionaly read in an extra file of words (a validated lexicon or a background corpus frequency file, or a combination of both) with
+.B optional
+frequencies. When NO frequency is found, use the value of the
+.B -M
+option to set the artificial frequency for the particular lexicon item
+.RE
+
+.B -M
+artifreq
+.RS
+Use 'artifreq' or `artifical frequency' as the default value for missing freqencies. This frequency value should exceed the top frequency expected to be observed in the corpus to be cleaned.
+
+.SH BUGS
+possibly
+
+.SH AUTHORS
+Ko van der Sloot Timbl@uvt.nl
+
+Martin Reynaert reynaert@uvt.nl
