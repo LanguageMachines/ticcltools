@@ -62,8 +62,8 @@ int main( int argc, char *argv[] ){
     int err_cnt = 5;
     while ( getline( is, line ) ){
       vector<string> parts;
-      if ( TiCC::split_at( line, parts, "\t" ) != 2 ){
-	cerr << "invalid line (expected 2 tab seperated words/sentences)."
+      if ( TiCC::split_at_first_of( line, parts, "\t#" ) != 2 ){
+	cerr << "invalid line (expected 2 tab or # seperated words/sentences)."
 	     << endl;
 	if ( --err_cnt > 0 )
 	  continue;
