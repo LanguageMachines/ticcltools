@@ -141,7 +141,7 @@ void usage(){
 }
 
 int main( int argc, char *argv[] ){
-  CL_Options opts( "hVpa:t" );
+  CL_Options opts( "hVpa:t", "" );
   try {
     opts.init(argc,argv);
   }
