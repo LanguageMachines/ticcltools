@@ -329,7 +329,7 @@ int main( int argc, char *argv[] ){
   try {
     opts.set_short_options( "vVh" );
     opts.set_long_options( "acro,alph:,corpus:,artifrq:" );
-    opts.init( argc, argv );
+    opts.parse_args( argc, argv );
   }
   catch( TiCC::OptionError& e ){
     cerr << e.what() << endl;
@@ -467,6 +467,10 @@ int main( int argc, char *argv[] ){
   }
   string line;
   while ( getline( is, line ) ){
+    line = TiCC::trim( line );
+    if ( line.empty() ){
+      continue;
+    }
     vector<string> v;
     int n = TiCC::split_at( line, v, "\t" );
     if ( n < 2 ){
