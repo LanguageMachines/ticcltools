@@ -49,10 +49,6 @@ int main( int argc, char **argv ){
     exit( EXIT_FAILURE );
   }
   string progname = opts.prog_name();
-  if ( argc < 3	){
-    usage( progname );
-    exit(EXIT_FAILURE);
-  }
   if ( opts.extract('h' ) ){
     usage( progname );
     exit(EXIT_SUCCESS);
@@ -60,6 +56,10 @@ int main( int argc, char **argv ){
   if ( opts.extract('V' ) ){
     cerr << PACKAGE_STRING << endl;
     exit(EXIT_SUCCESS);
+  }
+  if ( argc < 3	){
+    usage( progname );
+    exit(EXIT_FAILURE);
   }
   bool verbose = opts.extract( 'v' );
   string anahashFile;
