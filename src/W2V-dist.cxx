@@ -1,3 +1,4 @@
+#include <map>
 #include <iostream>
 #include <fstream>
 #include "ticcutils/CommandLine.h"
@@ -11,8 +12,40 @@ void usage( const string& name ){
   cerr << name << " --data=datafile [FILES]" << endl;
 }
 
+bool fill( const string& freqsFile, map<string,size_t>& freqs ){
+  ifstream is( freqsFile );
+  if ( !is.good() ){
+    return false;
+  }
+  string line;
+  while ( getline( is, line ) ){
+    if ( line.empty() )
+      continue;
+    vector<string> parts;
+    size_t num = split(line, parts);
+    if ( num != 2 )
+      continue;
+    size_t freq;
+    if ( !stringTo( parts[1], freq ) ){
+      cerr << "error in line: '" << line << "' second part isn't an integer?"
+	   << endl;
+      continue;
+    }
+    freqs[parts[0]] = freq;
+  }
+  return true;
+}
+
+size_t lookup( const string& s, const map<string,size_t> frqs ){
+  const auto it = frqs.find( s );
+  if ( it != frqs.end() )
+    return it->second;
+  else
+    return 0;
+}
+
 int main( int argc, char *argv[] ){
-  CL_Options opts( "h", "data:" );
+  CL_Options opts( "h", "data:,freqs:" );
   try {
     opts.init(argc,argv);
   }
@@ -30,6 +63,8 @@ int main( int argc, char *argv[] ){
     cerr << "missing '--data' option" << endl;
     exit( EXIT_FAILURE );
   }
+  string freqsFile;
+  opts.extract( "freqs", freqsFile );
   auto fileNames = opts.getMassOpts();
   if ( fileNames.empty() ){
     cerr << "missing input file(s)" << endl;
@@ -38,6 +73,17 @@ int main( int argc, char *argv[] ){
   if ( !opts.empty() ) {
     cerr << "unsupported options: " << opts.toString() << endl;
     exit( EXIT_FAILURE );
+  }
+  map<string,size_t> freqs;
+  if ( !freqsFile.empty() ){
+    if ( fill( freqsFile, freqs ) ){
+      cerr << "filled a frequency hash with " << freqs.size()
+	   << " entries from " << freqsFile << endl;
+    }
+    else {
+      cerr << "problem reading freqs file: " << freqsFile << endl;
+      exit( EXIT_FAILURE );
+    }
   }
   wordvec_tester WV;
   if ( !WV.fill( dataFile ) ){
@@ -75,7 +121,15 @@ int main( int argc, char *argv[] ){
       double cosine = 0.0;
       try {
 	cosine = WV.distance( parts[0], parts[1] );
-	os << line << "\t" << cosine << endl;
+	if ( !freqs.empty() ){
+	  size_t f1 = lookup( parts[0], freqs );
+	  size_t f2 = lookup( parts[1], freqs );
+	  os << parts[0] << "\t" << f1 << "\t"
+	     << parts[1] << "\t" << f2 << "\t" << cosine << endl;
+	}
+	else {
+	  os << line << "\t" << cosine << endl;
+	}
       }
       catch( ... ){
 	os << line << "\tUNKNOWN word(s)" << endl;
