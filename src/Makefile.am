@@ -7,7 +7,7 @@ AM_CXXFLAGS = -std=c++0x -g -W -Wall -pedantic -O3
 bin_PROGRAMS = TICCL-indexer TICCL-indexerNT \
 	TICCL-LDcalc TICCL-unk TICCL-lexstat \
 	TICCL-anahash TICCL-rank TICCL-lexclean \
-	W2V-near W2V-dist
+	W2V-near W2V-dist TICCL-stats
 
 LDADD = libticcl.la
 lib_LTLIBRARIES = libticcl.la
@@ -17,10 +17,9 @@ libticcl_la_SOURCES = word2vec.cxx
 
 TICCL_indexer_SOURCES = TICCL-indexer.cxx
 TICCL_indexerNT_SOURCES = TICCL-indexerNT.cxx
-#indexerNT_SOURCES = indexerNT.cxx
-#indexerNT2_SOURCES = indexerNT2.cxx
 TICCL_LDcalc_SOURCES = TICCL-LDcalc.cxx
 TICCL_rank_SOURCES = TICCL-rank.cxx
+TICCL_stats_SOURCES = TICCL-stats.cxx
 TICCL_unk_SOURCES = TICCL-unk.cxx
 TICCL_lexstat_SOURCES = TICCL-lexstat.cxx
 TICCL_lexclean_SOURCES = TICCL-lexclean.cxx
