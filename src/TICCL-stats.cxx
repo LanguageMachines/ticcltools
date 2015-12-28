@@ -196,6 +196,7 @@ void usage( const string& name ){
   cerr << "\t-V\t show version " << endl;
   cerr << "\t-e\t expr: specify the expression all input files should match with." << endl;
   cerr << "\t-o\t name of the output file(s) prefix." << endl;
+  cerr << "\t-X\t the inputfiles are assumed to be XML." << endl;
   cerr << "\t-R\t search the dirs recursively (when appropriate)." << endl;
 }
 
