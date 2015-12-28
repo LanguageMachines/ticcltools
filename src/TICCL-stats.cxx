@@ -107,23 +107,28 @@ static int error_sink(void *mydata, xmlError *error ){
   return 1;
 }
 
-size_t tel( const xmlNode *node, bool lowercase, map<string, unsigned int>& wc ){
+size_t tel( const xmlNode *node, bool lowercase,
+	    map<string, unsigned int>& wc ){
   size_t cnt = 0;
   xmlNode *pnt = node->children;
   while ( pnt ){
     cnt += tel( pnt, lowercase, wc );
     if ( pnt->type == XML_TEXT_NODE ){
-      string word  = TiCC::XmlContent( pnt );
-      if ( lowercase ){
-	UnicodeString us = UTF8ToUnicode( word );
-	us.toLower();
-	string wrd = UnicodeToUTF8( us );
-	++wc[wrd];
+      string line  = (char*)( pnt->content );
+      vector<string> v;
+      TiCC::split( line, v );
+      for ( const auto& word : v ){
+	if ( lowercase ){
+	  UnicodeString us = UTF8ToUnicode( word );
+	  us.toLower();
+	  string wrd = UnicodeToUTF8( us );
+	  ++wc[wrd];
+	}
+	else {
+	  ++wc[word];
+	}
+	++cnt;
       }
-      else {
-	++wc[word];
-      }
-      ++cnt;
     }
     pnt = pnt->next;
   }
