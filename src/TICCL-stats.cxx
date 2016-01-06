@@ -122,10 +122,16 @@ size_t tel( const xmlNode *node, bool lowercase,
 	  UnicodeString us = UTF8ToUnicode( word );
 	  us.toLower();
 	  string wrd = UnicodeToUTF8( us );
-	  ++wc[wrd];
+#pragma omp critical
+	  {
+	    ++wc[wrd];
+	  }
 	}
 	else {
-	  ++wc[word];
+#pragma omp critical
+	  {
+	    ++wc[word];
+	  }
 	}
 	++cnt;
       }
@@ -169,10 +175,16 @@ size_t word_inventory( const string& docName,
 	UnicodeString us = UTF8ToUnicode( word );
 	us.toLower();
 	string wrd = UnicodeToUTF8( us );
-	++wc[wrd];
+#pragma omp critical
+	{
+	  ++wc[wrd];
+	}
       }
       else {
-	++wc[word];
+#pragma omp critical
+	{
+	  ++wc[word];
+	}
       }
       ++wordTotal;
     }
