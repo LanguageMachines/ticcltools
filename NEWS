@@ -1,2 +1,11 @@
+ticcltools 0.2 2016-01-14
+[Ko van der Sloot]
+* repository moved to GitHub
+* Travis support
+* first 'distributable' version
+* added TICCL-stats program
+* added W2V-near and W2V-dist programs bases on new libticcl lib
+
+
 [0.1] Ko vd Sloot
  started autoconfiscating

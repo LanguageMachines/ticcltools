@@ -1,3 +1,5 @@
+ChangeLog
+*.tar.gz
 INSTALL
 Makefile
 Makefile.in
