@@ -59,6 +59,7 @@ void usage( const string& name ){
   cerr << "\t'infile'\t is a file in TICCL-LDcalc format" << endl;
   cerr << "\t--alph 'alpha'\t an alphabet file in TICCL-lexstat format." << endl;
   cerr << "\t--charconf 'charconfus'\t a character confusion file in TICCL-lexstat format." << endl;
+  cerr << "\t--charconfreq 'name'\t Extract a character confusion frequency file" << endl;
   cerr << "\t--wordvec<wordvecfile> read in a google word2vec file." << endl;
   cerr << "\t-o 'outfile'\t name of the output file." << endl;
   cerr << "\t-t 'threads'\t number of parallel threads to execute." << endl;
@@ -562,7 +563,7 @@ int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:t:" );
-    opts.set_long_options( "alph:,debugfile:,skipcols:,charconf:,artifrq:,wordvec:,clip:,numvec:" );
+    opts.set_long_options( "alph:,debugfile:,skipcols:,charconf:,charconfreq:,artifrq:,wordvec:,clip:,numvec:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -586,6 +587,7 @@ int main( int argc, char **argv ){
   bool verbose = opts.extract( 'v' );
   string alfabetFile;
   string lexstatFile;
+  string freqOutFile;
   string wordvecFile;
   string outFile;
   string debugFile;
@@ -597,6 +599,7 @@ int main( int argc, char **argv ){
     cerr << "missing --charconf option" << endl;
     exit(EXIT_FAILURE);
   }
+  opts.extract("charconfreq",freqOutFile);
   if ( !opts.extract("alph",alfabetFile) ){
     cerr << "missing --alph option" << endl;
     exit(EXIT_FAILURE);
@@ -815,6 +818,27 @@ int main( int argc, char **argv ){
     pos = input.tellg();
   }
   cout << endl << "Done indexing" << endl;
+
+  if ( !freqOutFile.empty() ){
+    ofstream os( freqOutFile );
+    if ( os.good() ){
+      cout << "dumping character confusions into " << freqOutFile << endl;
+      multimap<size_t,bitType> sorted;
+      auto it = kwc_counts.begin();
+      while ( it != kwc_counts.end() ){
+	sorted.insert( make_pair(it->second,it->first) );
+	++it;
+      }
+      auto it2 = sorted.begin();
+      while ( it2 != sorted.end() ){
+	os << it2->second << "\t" << it2->first << endl;
+	++it2;
+      }
+    }
+    else {
+      cerr << "unable to open " << freqOutFile << endl;
+    }
+  }
 
   map<bitType,size_t> kwc2_counts;
 
