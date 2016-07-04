@@ -823,7 +823,7 @@ int main( int argc, char **argv ){
     ofstream os( freqOutFile );
     if ( os.good() ){
       cout << "dumping character confusions into " << freqOutFile << endl;
-      multimap<size_t,bitType> sorted;
+      multimap<size_t,bitType, std::greater<int> > sorted;
       auto it = kwc_counts.begin();
       while ( it != kwc_counts.end() ){
 	sorted.insert( make_pair(it->second,it->first) );
