@@ -57,16 +57,16 @@ void usage( const string& name ){
   cerr << "\t--high=<high>\t skip entries from the anagram file longer than "
        << endl;
   cerr << "\t\t'high' characters. (default=35)" << endl;
-  cerr << "\t-V show version " << endl;
+  cerr << "\t-V or --version show version " << endl;
   cerr << "\t-v verbosity " << endl;
-  cerr << "\t-h this message " << endl;
+  cerr << "\t-h or --help this message " << endl;
 }
 
 int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
-    opts.set_long_options( "charconf:,hash:,low:,high:" );
+    opts.set_long_options( "charconf:,hash:,low:,high:,help,version" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -75,11 +75,11 @@ int main( int argc, char **argv ){
     exit( EXIT_FAILURE );
   }
   string progname = opts.prog_name();
-  if ( opts.extract('h' ) ){
+  if ( opts.extract('h') || opts.extract("help") ){
     usage( progname );
     exit(EXIT_SUCCESS);
   }
-  if ( opts.extract('V' ) ){
+  if ( opts.extract('V') || opts.extract("version") ){
     cerr << PACKAGE_STRING << endl;
     exit(EXIT_SUCCESS);
   }
