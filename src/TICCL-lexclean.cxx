@@ -53,25 +53,21 @@ void create_wf_list( const map<string, unsigned int>& wc,
     exit(EXIT_FAILURE);
   }
   map<unsigned int, set<string> > wf;
-  map<string,unsigned int >::const_iterator cit = wc.begin();
-  while( cit != wc.end()  ){
-    wf[cit->second].insert( cit->first );
-    ++cit;
+  for ( const auto& cit : wc ){
+    wf[cit.second].insert( cit.first );
   }
   unsigned int sum=0;
   unsigned int types=0;
   map<unsigned int, set<string> >::const_reverse_iterator wit = wf.rbegin();
   while ( wit != wf.rend() ){
-    set<string>::const_iterator sit = wit->second.begin();
-    while ( sit != wit->second.end() ){
+    for ( const auto& s : wit->second ){
       sum += wit->first;
-      os << *sit << "\t" << wit->first;
+      os << s << "\t" << wit->first;
       if ( doperc ){
 	os << "\t" << sum << "\t" << std::setprecision(8) << 100 * double(sum)/total;
       }
       os << endl;
       ++types;
-      ++sit;
     }
     ++wit;
   }
@@ -86,10 +82,8 @@ void dump_quarantine( const string& filename,
     cerr << "failed to create outputfile '" << filename << "'" << endl;
     exit(EXIT_FAILURE);
   }
-  map<string, unsigned int>::const_iterator it = qw.begin();
-  while ( it != qw.end() ){
-    os << it->first << "\t" << it->second << endl;
-    ++it;
+  for ( const auto& it : qw ){
+    os << it.first << "\t" << it.second << endl;
   }
   cout << "created quarantine list '" << filename << "'" << endl;
   cout << "with " << qw.size() << " items. " << endl;

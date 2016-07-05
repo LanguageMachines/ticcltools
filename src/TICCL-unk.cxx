@@ -581,50 +581,38 @@ int main( int argc, char *argv[] ){
   cout << "generating output files" << endl;
   cout << "using artifrq=" << artifreq << endl;
   map<unsigned int, set<string> > wf;
-  map<string,unsigned int >::const_iterator it = clean_words.begin();
-  while( it != clean_words.end()  ){
-    wf[it->second].insert( it->first );
-    ++it;
+  for ( const auto& it : clean_words ){
+    wf[it.second].insert( it.first );
   }
   map<unsigned int, set<string> >::const_reverse_iterator wit = wf.rbegin();
   while ( wit != wf.rend() ){
-    set<string>::const_iterator sit = wit->second.begin();
-    while ( sit != wit->second.end() ){
-      cs << *sit << "\t" << wit->first << endl;
-      ++sit;
+    for ( const auto& sit : wit->second ){
+      cs << sit << "\t" << wit->first << endl;
     }
     ++wit;
   }
   cout << "created " << clean_file_name << endl;
   wf.clear();
-  it = unk_words.begin();
-  while( it != unk_words.end()  ){
-    wf[it->second].insert( it->first );
-    ++it;
+  for ( const auto& uit : unk_words ){
+    wf[uit.second].insert( uit.first );
   }
   wit = wf.rbegin();
   while ( wit != wf.rend() ){
-    set<string>::const_iterator sit = wit->second.begin();
-    while ( sit != wit->second.end() ){
-      us << *sit << "\t" << wit->first << endl;
-      ++sit;
+    for ( const auto& sit : wit->second ){
+      us << sit << "\t" << wit->first << endl;
     }
     ++wit;
   }
   cout << "created " << unk_file_name << endl;
-  map<string,string>::const_iterator it2 = punct_words.begin();
-  while ( it2 != punct_words.end() ){
-    ps << it2->first << "\t" << it2->second << endl;
-    ++it2;
+  for ( const auto pit : punct_words ){
+    ps << pit.first << "\t" << pit.second << endl;
   }
   cout << "created " << punct_file_name << endl;
 
   if ( doAcro ){
     ofstream as( acro_file_name.c_str() );
-    map<string,unsigned int>::const_iterator it3 = acro_words.begin();
-    while ( it3 != acro_words.end() ){
-      as << it3->first << "\t" << it3->second << endl;
-      ++it3;
+    for ( const auto& ait : acro_words ){
+      as << ait.first << "\t" << ait.second << endl;
     }
     cout << "created " << acro_file_name << endl;
   }

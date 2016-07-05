@@ -102,7 +102,7 @@ int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:t:" );
-    opts.set_long_options( "charconf:,hash:,low:,high:,foci:" );
+    opts.set_long_options( "charconf:,hash:,low:,high:,foci:,help,version" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -111,11 +111,11 @@ int main( int argc, char **argv ){
     exit( EXIT_FAILURE );
   }
   string progname = opts.prog_name();
-  if ( opts.extract('h' ) ){
+  if ( opts.extract('h' ) || opts.extract("help") ){
     usage( progname );
     exit(EXIT_SUCCESS);
   }
-  if ( opts.extract('V' ) ){
+  if ( opts.extract('V' ) || opts.extract("version") ){
     cerr << PACKAGE_STRING << endl;
     exit(EXIT_SUCCESS);
   }

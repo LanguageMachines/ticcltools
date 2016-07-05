@@ -58,30 +58,26 @@ void create_wf_list( const map<string, unsigned int>& wc,
     exit(EXIT_FAILURE);
   }
   map<unsigned int, set<string> > wf;
-  map<string,unsigned int >::const_iterator cit = wc.begin();
-  while( cit != wc.end()  ){
-    if ( cit->second <= clip ){
-      total -= cit->second;
+  for( const auto& cit : wc ){
+    if ( cit.second <= clip ){
+      total -= cit.second;
     }
     else {
-      wf[cit->second].insert( cit->first );
+      wf[cit.second].insert( cit.first );
     }
-    ++cit;
   }
   unsigned int sum=0;
   unsigned int types=0;
   map<unsigned int, set<string> >::const_reverse_iterator wit = wf.rbegin();
   while ( wit != wf.rend() ){
-    set<string>::const_iterator sit = wit->second.begin();
-    while ( sit != wit->second.end() ){
+    for( const auto& sit : wit->second ){
       sum += wit->first;
-      os << *sit << "\t" << wit->first;
+      os << sit << "\t" << wit->first;
       if ( doperc ){
 	os << "\t" << sum << "\t" << 100 * double(sum)/total;
       }
       os << endl;
       ++types;
-      ++sit;
     }
     ++wit;
   }
