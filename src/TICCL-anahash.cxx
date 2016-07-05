@@ -173,7 +173,7 @@ int main( int argc, char *argv[] ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVh" );
-    opts.set_long_options( "alph:,background:,artifrq:,clip:" );
+    opts.set_long_options( "alph:,background:,artifrq:,clip:,help,version" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -190,11 +190,11 @@ int main( int argc, char *argv[] ){
   string backfile;
   int clip = 0;
   size_t artifreq = 0;
-  if ( opts.extract('h' ) ){
+  if ( opts.extract('h' ) || opts.extract("help") ){
     usage( progname );
     exit(EXIT_SUCCESS);
   }
-  if ( opts.extract('V' ) ){
+  if ( opts.extract('V') || opts.extract("version") ){
     cerr << PACKAGE_STRING << endl;
     exit(EXIT_SUCCESS);
   }
