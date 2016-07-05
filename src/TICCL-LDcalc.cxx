@@ -63,9 +63,9 @@ void usage( const string& progname ){
   cerr << "\t-t <threads> Number of threads to run on." << endl;
   cerr << "\t--LD <distance> The Levensthein (or edit) distance to use" << endl;
   cerr << "\t--artifrq <artifreq> " << endl;
-  cerr << "\t-h this message " << endl;
+  cerr << "\t-h or --help this message " << endl;
   cerr << "\t-v verbose " << endl;
-  cerr << "\t-V show version " << endl;
+  cerr << "\t-V or --version show version " << endl;
   exit( EXIT_FAILURE );
 }
 
@@ -425,7 +425,7 @@ int main( int argc, char **argv ){
   try {
     opts.set_short_options( "vVho:t:" );
     opts.set_long_options( "diac:,hist:,nohld,artifrq:,LD:,hash:,clean:,"
-			   "alph:,index:" );
+			   "alph:,index:,help,version" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -438,11 +438,11 @@ int main( int argc, char **argv ){
     usage( progname );
     exit(EXIT_FAILURE);
   }
-  if ( opts.extract('h' ) ){
+  if ( opts.extract('h') || opts.extract("help") ){
     usage( progname );
     exit(EXIT_SUCCESS);
   }
-  if ( opts.extract('V' ) ){
+  if ( opts.extract('V') || opts.extract("version") ){
     cerr << PACKAGE_STRING << endl;
     exit(EXIT_SUCCESS);
   }
