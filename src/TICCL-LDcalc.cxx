@@ -58,7 +58,7 @@ void usage( const string& progname ){
   cerr << "\t--diac <diacritics file> a list of 'diacritical' confusions." << endl;
   cerr << "\t--hist <historicalfile> a list of 'historical' confusions." << endl;
   cerr << "\t--alph <alphabet> an alphabet file (as produced by TICCL-lexstat)" << endl;
-  cerr << "\t--nohld ignore -L for 'historical' confusions." << endl;
+  cerr << "\t--nohld ignore --LD for 'historical' confusions." << endl;
   cerr << "\t-o <outputfile>" << endl;
   cerr << "\t-t <threads> Number of threads to run on." << endl;
   cerr << "\t--LD <distance> The Levensthein (or edit) distance to use" << endl;
