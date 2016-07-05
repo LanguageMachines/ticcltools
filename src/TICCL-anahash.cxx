@@ -128,19 +128,15 @@ bitType hash( const string& s,
 
 void create_output( ostream& os,
 		    map<bitType, set<string> >& anagrams ){
-  map<bitType, set<string> >::const_iterator it = anagrams.begin();
-  while ( it != anagrams.end() ){
-    bitType val = it->first;
+  for ( const auto& it : anagrams ){
+    bitType val = it.first;
     os << val << "~";
-    set<string>::const_iterator sit = it->second.begin();
-    while ( sit != it->second.end() ){
-      os << *sit;
-      ++sit;
-      if ( sit != it->second.end() )
+    for ( auto const&  s : it.second ){
+      os << s;
+      if ( &s != &(*it.second.crbegin()) )
 	os << "#";
     }
     os << endl;
-    ++it;
   }
   os << endl;
 }
@@ -313,10 +309,8 @@ int main( int argc, char *argv[] ){
   }
   if ( artifreq > 0 ){
     cout << "generating foci file: " << foci_file_name << endl;
-    set<bitType>::const_iterator it = foci.begin();
-    while ( it != foci.end() ){
-      fos << *it << endl;
-      ++it;
+    for ( const auto& f : foci ){
+      fos << f << endl;
     }
   }
   if ( doMerge ){
@@ -338,10 +332,8 @@ int main( int argc, char *argv[] ){
     }
     string merge_file_name = file_name + ".merged";
     ofstream ms( merge_file_name.c_str() );
-    map<string,bitType>::const_iterator it = merged.begin();
-    while ( it != merged.end() ){
-      ms << it->first << "\t" << it->second << endl;
-      ++it;
+    for ( const auto& it : merged ){
+      ms << it.first << "\t" << it.second << endl;
     }
     cerr << "stored merged corpus in " << merge_file_name << endl;
 
