@@ -673,7 +673,7 @@ int main( int argc, char **argv ){
     exit(EXIT_FAILURE);
   }
 
-  ifstream input( inFile.c_str() );
+  ifstream input( inFile );
   if ( !input ){
     cerr << "problem opening confusie file: " << inFile << endl;
     exit(1);
@@ -727,7 +727,7 @@ int main( int argc, char **argv ){
 
 
   size_t count=0;
-  ofstream os( outFile.c_str() );
+  ofstream os( outFile );
   ofstream *db = 0;
   if ( !debugFile.empty() ){
     db = new ofstream( debugFile );
@@ -819,28 +819,8 @@ int main( int argc, char **argv ){
   }
   cout << endl << "Done indexing" << endl;
 
-  if ( !freqOutFile.empty() ){
-    ofstream os( freqOutFile );
-    if ( os.good() ){
-      cout << "dumping character confusions into " << freqOutFile << endl;
-      multimap<size_t,bitType, std::greater<int> > sorted;
-      auto it = kwc_counts.begin();
-      while ( it != kwc_counts.end() ){
-	sorted.insert( make_pair(it->second,it->first) );
-	++it;
-      }
-      auto it2 = sorted.begin();
-      while ( it2 != sorted.end() ){
-	os << it2->second << "\t" << it2->first << endl;
-	++it2;
-      }
-    }
-    else {
-      cerr << "unable to open " << freqOutFile << endl;
-    }
-  }
-
   map<bitType,size_t> kwc2_counts;
+  map<bitType,string> kwc_string;
 
   cout << "reading lexstat file " << lexstatFile
        << " and extracting pairs." << endl;
@@ -852,6 +832,7 @@ int main( int argc, char **argv ){
     }
     bitType key = TiCC::stringTo<bitType>( vec[0] );
     if ( kwc_counts[key] > 0 ){
+      kwc_string[key] = vec[1];
       UnicodeString value = UTF8ToUnicode( vec[1] );
       if ( value.length() == 5 && value[2] == '~' ){
 	if ( verbose ){
@@ -934,6 +915,37 @@ int main( int argc, char **argv ){
 	}
       }
     }
+    else {
+      cerr << "suprise!? no confusion for kwc: " << key << endl;
+    }
+  }
+
+  if ( !freqOutFile.empty() ){
+    ofstream os( freqOutFile );
+    if ( os.good() ){
+      cout << "dumping character confusions into " << freqOutFile << endl;
+      multimap<size_t,bitType, std::greater<int> > sorted;
+      auto it = kwc_counts.begin();
+      while ( it != kwc_counts.end() ){
+	sorted.insert( make_pair(it->second,it->first) );
+	++it;
+      }
+      auto it2 = sorted.begin();
+      while ( it2 != sorted.end() ){
+	string tr = kwc_string[it2->second];
+	if ( tr.empty() ){
+	  cerr << "no translation for kwc: " << it2->second << endl;
+	  os << it2->second << "\tmissing\t" << it2->first << endl;
+	}
+	else {
+	  os << it2->second << "\t" << tr << "\t" << it2->first << endl;
+	}
+	++it2;
+      }
+    }
+    else {
+      cerr << "unable to open " << freqOutFile << endl;
+    }
   }
 
   vector<wid> work;
@@ -963,7 +975,7 @@ int main( int argc, char **argv ){
 	}
       }
     }
-    ifstream in( inFile.c_str() );
+    ifstream in( inFile );
     vector<record> records;
     set<streamsize>::const_iterator it = ids.begin();
     while ( it != ids.end() ){
