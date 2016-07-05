@@ -922,30 +922,26 @@ int main( int argc, char **argv ){
     if ( os.good() ){
       cout << "dumping character confusions into " << freqOutFile << endl;
       multimap<size_t,bitType, std::greater<int> > sorted;
-      auto it = kwc_counts.begin();
-      while ( it != kwc_counts.end() ){
-	if ( it->second != 0 ){
+      for ( const auto& it: kwc_counts ){
+	if ( it.second != 0 ){
 	  // only store non-0 frequencies
-	  sorted.insert( make_pair(it->second,it->first) );
+	  sorted.insert( make_pair(it.second,it.first) );
 	}
-	++it;
       }
-      auto it2 = sorted.begin();
-      while ( it2 != sorted.end() ){
-	string tr = kwc_string[it2->second];
+      for ( const auto& it : sorted ){
+	string tr = kwc_string[it.second];
 	if ( tr.empty() ){
-	  if ( it2->second == 0 ){
-	    os << it2->second << "\ttransposition\t" << it2->first << endl;
+	  if ( it.second == 0 ){
+	    os << it.second << "\ttransposition\t" << it.first << endl;
 	  }
 	  else {
-	    cerr << "no translation for kwc: " << it2->second << endl;
-	    os << it2->second << "\tmissing\t" << it2->first << endl;
+	    cerr << "no translation for kwc: " << it.second << endl;
+	    os << it.second << "\tmissing\t" << it.first << endl;
 	  }
 	}
 	else {
-	  os << it2->second << "\t" << tr << "\t" << it2->first << endl;
+	  os << it.second << "\t" << tr << "\t" << it.first << endl;
 	}
-	++it2;
       }
     }
     else {
@@ -954,11 +950,8 @@ int main( int argc, char **argv ){
   }
 
   vector<wid> work;
-  map<string,set<streamsize> >::const_iterator it = fileIds.begin();
-  //    using TiCC::operator<<;
-  while ( it != fileIds.end() ){
-    work.push_back( wid( it->first, it->second ) );
-    ++it;
+  for ( const auto& it : fileIds ){
+    work.push_back( wid( it.first, it.second ) );
   }
   count = 0;
 
