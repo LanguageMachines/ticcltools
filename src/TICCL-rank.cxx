@@ -831,8 +831,8 @@ int main( int argc, char **argv ){
       exit( EXIT_FAILURE );
     }
     bitType key = TiCC::stringTo<bitType>( vec[0] );
+    kwc_string[key] = vec[1];
     if ( kwc_counts[key] > 0 ){
-      kwc_string[key] = vec[1];
       UnicodeString value = UTF8ToUnicode( vec[1] );
       if ( value.length() == 5 && value[2] == '~' ){
 	if ( verbose ){
@@ -915,9 +915,6 @@ int main( int argc, char **argv ){
 	}
       }
     }
-    else {
-      cerr << "suprise!? no confusion for kwc: " << key << endl;
-    }
   }
 
   if ( !freqOutFile.empty() ){
@@ -927,15 +924,23 @@ int main( int argc, char **argv ){
       multimap<size_t,bitType, std::greater<int> > sorted;
       auto it = kwc_counts.begin();
       while ( it != kwc_counts.end() ){
-	sorted.insert( make_pair(it->second,it->first) );
+	if ( it->second != 0 ){
+	  // only store non-0 frequencies
+	  sorted.insert( make_pair(it->second,it->first) );
+	}
 	++it;
       }
       auto it2 = sorted.begin();
       while ( it2 != sorted.end() ){
 	string tr = kwc_string[it2->second];
 	if ( tr.empty() ){
-	  cerr << "no translation for kwc: " << it2->second << endl;
-	  os << it2->second << "\tmissing\t" << it2->first << endl;
+	  if ( it2->second == 0 ){
+	    os << it2->second << "\ttransposition\t" << it2->first << endl;
+	  }
+	  else {
+	    cerr << "no translation for kwc: " << it2->second << endl;
+	    os << it2->second << "\tmissing\t" << it2->first << endl;
+	  }
 	}
 	else {
 	  os << it2->second << "\t" << tr << "\t" << it2->first << endl;
