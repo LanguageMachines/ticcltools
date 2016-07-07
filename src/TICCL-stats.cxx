@@ -104,32 +104,40 @@ static int error_sink(void *mydata, xmlError *error ){
 }
 
 size_t tel( const xmlNode *node, bool lowercase,
+	    size_t ngram, const string& sep,
 	    map<string, unsigned int>& wc ){
+  vector<string> buffer(ngram);
   size_t cnt = 0;
+  size_t buf_cnt = 0;
   xmlNode *pnt = node->children;
   while ( pnt ){
-    cnt += tel( pnt, lowercase, wc );
+    cnt += tel( pnt, lowercase, ngram, sep, wc );
     if ( pnt->type == XML_TEXT_NODE ){
       string line  = (char*)( pnt->content );
       vector<string> v;
       TiCC::split( line, v );
       for ( const auto& word : v ){
+	string wrd = word;
 	if ( lowercase ){
 	  UnicodeString us = UTF8ToUnicode( word );
 	  us.toLower();
-	  string wrd = UnicodeToUTF8( us );
+	  wrd = UnicodeToUTF8( us );
+	}
+	buffer[buf_cnt++] = wrd;
+	if ( buf_cnt == ngram ){
+	  buf_cnt = ngram-1;
+	  string gram;
+	  for( size_t i=0; i < ngram -1; ++i ){
+	    gram += buffer[i] + sep;
+	    buffer[i] = buffer[i+1];
+	  }
+	  gram+= buffer[ngram-1];
 #pragma omp critical
 	  {
-	    ++wc[wrd];
+	    ++wc[gram];
 	  }
+	  ++cnt;
 	}
-	else {
-#pragma omp critical
-	  {
-	    ++wc[word];
-	  }
-	}
-	++cnt;
       }
     }
     pnt = pnt->next;
@@ -139,6 +147,8 @@ size_t tel( const xmlNode *node, bool lowercase,
 
 size_t word_xml_inventory( const string& docName,
 			   bool lowercase,
+			   size_t ngram,
+			   const string& sep,
 			   map<string,unsigned int>& wc ){
   xmlDoc *d = 0;
   int cnt = 0;
@@ -152,14 +162,18 @@ size_t word_xml_inventory( const string& docName,
     return 0;
   }
   xmlNode *root = xmlDocGetRootElement( d );
-  size_t wordTotal = tel( root, lowercase, wc );
+  size_t wordTotal = tel( root, lowercase, ngram, sep, wc );
   xmlFree( d );
   return wordTotal;
 }
 
 size_t word_inventory( const string& docName,
 		       bool lowercase,
+		       size_t ngram,
+		       const string& sep,
 		       map<string,unsigned int>& wc ){
+  vector<string> buffer(ngram);
+  size_t buf_cnt = 0;
   size_t wordTotal = 0;
   ifstream is( docName );
   string line;
@@ -167,22 +181,27 @@ size_t word_inventory( const string& docName,
     vector<string> v;
     TiCC::split( line, v );
     for ( const auto& word : v ){
+      string wrd = word;
       if ( lowercase ){
 	UnicodeString us = UTF8ToUnicode( word );
 	us.toLower();
 	string wrd = UnicodeToUTF8( us );
+      }
+      buffer[buf_cnt++] = wrd;
+      if ( buf_cnt == ngram ){
+	buf_cnt = ngram-1;
+	string gram;
+	for( size_t i=0; i < ngram -1; ++i ){
+	  gram += buffer[i] + sep;
+	  buffer[i] = buffer[i+1];
+	}
+	gram += buffer[ngram-1];
 #pragma omp critical
 	{
-	  ++wc[wrd];
+	  ++wc[gram];
 	}
+	++wordTotal;
       }
-      else {
-#pragma omp critical
-	{
-	  ++wc[word];
-	}
-      }
-      ++wordTotal;
     }
   }
   return wordTotal;
@@ -198,6 +217,8 @@ void usage( const string& name ){
   cerr << "\t\t\t(entries with frequency <= this factor will be ignored). " << endl;
   cerr << "\t-p\t output percentages too. " << endl;
   cerr << "\t--lower\t Lowercase all words" << endl;
+  cerr << "\t--ngram\t create an ngram list (default 1-gram)" << endl;
+  cerr << "\t--underscore\t seperate the ngram entries with a '_' (default space)" << endl;
   cerr << "\t-t\t number_of_threads" << endl;
   cerr << "\t-h\t this message" << endl;
   cerr << "\t-v\t very verbose output." << endl;
@@ -209,7 +230,7 @@ void usage( const string& name ){
 }
 
 int main( int argc, char *argv[] ){
-  CL_Options opts( "hVvpe:t:o:RX", "clip:,lower" );
+  CL_Options opts( "hVvpe:t:o:RX", "clip:,lower,ngram:,underscore" );
   try {
     opts.init(argc,argv);
   }
@@ -242,6 +263,7 @@ int main( int argc, char *argv[] ){
   bool dopercentage = opts.extract('p');
   bool lowercase = opts.extract("lower");
   bool recursiveDirs = opts.extract( 'R' );
+  bool do_under = opts.extract( "underscore" );
   if ( !opts.extract( 'o', outputPrefix ) ){
     cerr << "an output filename prefix is required. (-o option) " << endl;
     exit(EXIT_FAILURE);
@@ -250,6 +272,14 @@ int main( int argc, char *argv[] ){
   if ( opts.extract("clip", value ) ){
     if ( !stringTo(value, clip ) ){
       cerr << "illegal value for --clip (" << value << ")" << endl;
+      exit(EXIT_FAILURE);
+    }
+  }
+  size_t ngram = 1;
+  if ( opts.extract("ngram", value ) ){
+    if ( !stringTo(value, ngram )
+	 || (ngram < 1) ){
+      cerr << "illegal value for --ngram (" << value << ")" << endl;
       exit(EXIT_FAILURE);
     }
   }
@@ -305,16 +335,20 @@ int main( int argc, char *argv[] ){
   }
   map<string,unsigned int> wc;
   unsigned int wordTotal =0;
+  string sep = " ";
+  if ( do_under ){
+    sep = "_";
+  }
 
 #pragma omp parallel for shared(fileNames,wordTotal,wc)
   for ( size_t fn=0; fn < fileNames.size(); ++fn ){
     string docName = fileNames[fn];
     unsigned int word_count =  0;
     if ( doXML ){
-      word_count = word_xml_inventory( docName, lowercase, wc );
+      word_count = word_xml_inventory( docName, lowercase, ngram, sep, wc );
     }
     else {
-      word_count = word_inventory( docName, lowercase, wc );
+      word_count = word_inventory( docName, lowercase, ngram, sep, wc );
     }
     wordTotal += word_count;
 #pragma omp critical
@@ -328,8 +362,9 @@ int main( int argc, char *argv[] ){
 	 << wordTotal << " words were found." << endl;
   }
   cout << "start calculating the results" << endl;
-  string ext = ".tsv";
-  string filename = outputPrefix + ".wordfreqlist" + ext;
+  string filename = outputPrefix + ".wordfreqlist";
+  string ng = toString(ngram);
+  filename += "." + ng + ".tsv";
   create_wf_list( wc, filename, wordTotal, clip, dopercentage );
   exit( EXIT_SUCCESS );
 }
