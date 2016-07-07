@@ -471,7 +471,11 @@ int main( int argc, char *argv[] ){
     while ( getline( extra, line ) ){
       vector<string> v;
       int n = TiCC::split_at( line, v, "\t" );
-      if ( n < 1 || n > 2 ){
+      if ( n == 0 ){
+	// empty line, just ignore
+	continue;
+      }
+      if ( n > 2 ){
 	cerr << "corpus file in strange format!" << endl;
 	cerr << "offending line: " << line << endl;
 	exit(EXIT_FAILURE);
@@ -499,6 +503,10 @@ int main( int argc, char *argv[] ){
     }
     vector<string> v;
     int n = TiCC::split_at( line, v, "\t" );
+    if ( n == 0 ){
+      // empty line. just ignore
+      continue;
+    }
     if ( n < 2 ){
       cerr << "frequency file in wrong format!" << endl;
       cerr << "offending line: " << line << endl;
