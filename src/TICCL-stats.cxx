@@ -111,9 +111,11 @@ size_t tel( const xmlNode *node, bool lowercase,
   size_t buf_cnt = 0;
   xmlNode *pnt = node->children;
   while ( pnt ){
+    //    cerr << "bekijk label: " << (char*)pnt->name << endl;
     cnt += tel( pnt, lowercase, ngram, sep, wc );
     if ( pnt->type == XML_TEXT_NODE ){
       string line  = (char*)( pnt->content );
+      //      cerr << "text: " << line << endl;
       vector<string> v;
       TiCC::split( line, v );
       for ( const auto& word : v ){
@@ -218,7 +220,7 @@ void usage( const string& name ){
   cerr << "\t-p\t output percentages too. " << endl;
   cerr << "\t--lower\t Lowercase all words" << endl;
   cerr << "\t--ngram\t create an ngram list (default 1-gram)" << endl;
-  cerr << "\t--underscore\t seperate the ngram entries with a '_' (default space)" << endl;
+  cerr << "\t--underscore\t separate the ngram entries with a '_' (default space)" << endl;
   cerr << "\t-t\t number_of_threads" << endl;
   cerr << "\t-h\t this message" << endl;
   cerr << "\t-v\t very verbose output." << endl;
