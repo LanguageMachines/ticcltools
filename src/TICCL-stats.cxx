@@ -135,7 +135,7 @@ size_t tel( const xmlNode *node, bool lowercase,
 	}
 	if ( is_emph( wrd ) ){
 	  if ( in_emph ){
-	    emph_word += sep + wrd;
+	    emph_word += "_" + wrd;
 	  }
 	  else {
 	    emph_start = wrd;
@@ -221,7 +221,7 @@ size_t word_inventory( const string& docName,
       }
       if ( is_emph( wrd ) ){
 	if ( in_emph ){
-	  emph_word += sep + wrd;
+	  emph_word += "_" + wrd;
 	}
 	else {
 	  emph_start = wrd;
