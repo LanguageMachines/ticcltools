@@ -103,16 +103,24 @@ static int error_sink(void *mydata, xmlError *error ){
   return 1;
 }
 
+bool is_emph( const string& data ){
+  return (data.size() < 2) && isalnum(data[0]);
+}
+
 size_t tel( const xmlNode *node, bool lowercase,
 	    size_t ngram, const string& sep,
-	    map<string, unsigned int>& wc ){
+	    map<string, unsigned int>& wc,
+	    set<string>& emps ){
   vector<string> buffer(ngram);
   size_t cnt = 0;
   size_t buf_cnt = 0;
+  bool in_emph = false;
+  string emph_start;
+  string emph_word;
   xmlNode *pnt = node->children;
   while ( pnt ){
     //    cerr << "bekijk label: " << (char*)pnt->name << endl;
-    cnt += tel( pnt, lowercase, ngram, sep, wc );
+    cnt += tel( pnt, lowercase, ngram, sep, wc, emps );
     if ( pnt->type == XML_TEXT_NODE ){
       string line  = (char*)( pnt->content );
       //      cerr << "text: " << line << endl;
@@ -124,6 +132,23 @@ size_t tel( const xmlNode *node, bool lowercase,
 	  UnicodeString us = UTF8ToUnicode( word );
 	  us.toLower();
 	  wrd = UnicodeToUTF8( us );
+	}
+	if ( is_emph( wrd ) ){
+	  if ( in_emph ){
+	    emph_word += sep + wrd;
+	  }
+	  else {
+	    emph_start = wrd;
+	    in_emph = true;
+	  }
+	}
+	else {
+	  if ( in_emph && !emph_word.empty() ){
+	    emps.insert( emph_start + emph_word );
+	  }
+	  in_emph = false;
+	  emph_start.clear();
+	  emph_word.clear();
 	}
 	buffer[buf_cnt++] = wrd;
 	if ( buf_cnt == ngram ){
@@ -151,7 +176,8 @@ size_t word_xml_inventory( const string& docName,
 			   bool lowercase,
 			   size_t ngram,
 			   const string& sep,
-			   map<string,unsigned int>& wc ){
+			   map<string,unsigned int>& wc,
+			   set<string>& emps ){
   xmlDoc *d = 0;
   int cnt = 0;
   xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
@@ -164,7 +190,7 @@ size_t word_xml_inventory( const string& docName,
     return 0;
   }
   xmlNode *root = xmlDocGetRootElement( d );
-  size_t wordTotal = tel( root, lowercase, ngram, sep, wc );
+  size_t wordTotal = tel( root, lowercase, ngram, sep, wc, emps );
   xmlFree( d );
   return wordTotal;
 }
@@ -173,12 +199,16 @@ size_t word_inventory( const string& docName,
 		       bool lowercase,
 		       size_t ngram,
 		       const string& sep,
-		       map<string,unsigned int>& wc ){
+		       map<string,unsigned int>& wc,
+		       set<string>& emps ){
   vector<string> buffer(ngram);
   size_t buf_cnt = 0;
   size_t wordTotal = 0;
   ifstream is( docName );
   string line;
+  bool in_emph = false;
+  string emph_start;
+  string emph_word;
   while ( getline( is, line ) ){
     vector<string> v;
     TiCC::split( line, v );
@@ -187,7 +217,24 @@ size_t word_inventory( const string& docName,
       if ( lowercase ){
 	UnicodeString us = UTF8ToUnicode( word );
 	us.toLower();
-	string wrd = UnicodeToUTF8( us );
+	wrd = UnicodeToUTF8( us );
+      }
+      if ( is_emph( wrd ) ){
+	if ( in_emph ){
+	  emph_word += sep + wrd;
+	}
+	else {
+	  emph_start = wrd;
+	  in_emph = true;
+	}
+      }
+      else {
+	if ( in_emph && !emph_word.empty() ){
+	  emps.insert( emph_start + emph_word );
+	}
+	in_emph = false;
+	emph_start.clear();
+	emph_word.clear();
       }
       buffer[buf_cnt++] = wrd;
       if ( buf_cnt == ngram ){
@@ -221,6 +268,7 @@ void usage( const string& name ){
   cerr << "\t--lower\t Lowercase all words" << endl;
   cerr << "\t--ngram\t create an ngram list (default 1-gram)" << endl;
   cerr << "\t--underscore\t separate the ngram entries with a '_' (default space)" << endl;
+  cerr << "\t--hemp=<file>. Create a historical emphasis file. " << endl;
   cerr << "\t-t\t number_of_threads" << endl;
   cerr << "\t-h\t this message" << endl;
   cerr << "\t-v\t very verbose output." << endl;
@@ -232,7 +280,7 @@ void usage( const string& name ){
 }
 
 int main( int argc, char *argv[] ){
-  CL_Options opts( "hVvpe:t:o:RX", "clip:,lower,ngram:,underscore" );
+  CL_Options opts( "hVvpe:t:o:RX", "clip:,lower,ngram:,underscore,hemp:" );
   try {
     opts.init(argc,argv);
   }
@@ -266,6 +314,8 @@ int main( int argc, char *argv[] ){
   bool lowercase = opts.extract("lower");
   bool recursiveDirs = opts.extract( 'R' );
   bool do_under = opts.extract( "underscore" );
+  string hempName;
+  opts.extract("hemp", hempName );
   if ( !opts.extract( 'o', outputPrefix ) ){
     cerr << "an output filename prefix is required. (-o option) " << endl;
     exit(EXIT_FAILURE);
@@ -342,15 +392,16 @@ int main( int argc, char *argv[] ){
     sep = "_";
   }
 
-#pragma omp parallel for shared(fileNames,wordTotal,wc)
+  set<string> hemp;
+#pragma omp parallel for shared(fileNames,wordTotal,wc,hemp)
   for ( size_t fn=0; fn < fileNames.size(); ++fn ){
     string docName = fileNames[fn];
     unsigned int word_count =  0;
     if ( doXML ){
-      word_count = word_xml_inventory( docName, lowercase, ngram, sep, wc );
+      word_count = word_xml_inventory( docName, lowercase, ngram, sep, wc, hemp );
     }
     else {
-      word_count = word_inventory( docName, lowercase, ngram, sep, wc );
+      word_count = word_inventory( docName, lowercase, ngram, sep, wc, hemp );
     }
     wordTotal += word_count;
 #pragma omp critical
@@ -364,6 +415,18 @@ int main( int argc, char *argv[] ){
 	 << wordTotal << " words were found." << endl;
   }
   cout << "start calculating the results" << endl;
+  if ( !hempName.empty() ){
+    ofstream out( hempName );
+    if ( out ){
+      for( auto const& it : hemp ){
+	out << it << endl;
+      }
+      cout << "historical emphasis stored in: " << hempName << endl;
+    }
+    else {
+      cerr << "unable to create historical emphasis file: " << hempName << endl;
+    }
+  }
   string filename = outputPrefix + ".wordfreqlist";
   string ng = toString(ngram);
   filename += "." + ng + ".tsv";
