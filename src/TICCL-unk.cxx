@@ -137,6 +137,7 @@ bool depunct( const UnicodeString& us, UnicodeString& result ){
 
 S_Class classify( const UnicodeString& word,
 		  set<UChar>& alphabet ){
+  int is_upper = 0;
   int is_digit = 0;
   int is_punct = 0;
   int is_in = 0;
@@ -156,6 +157,9 @@ S_Class classify( const UnicodeString& word,
     }
     else {
       int8_t charT = u_charType( uchar );
+      if ( ticc_isupper( charT ) ){
+	++is_upper;
+      }
       if ( alphabet.empty() ){
 	if ( verbose ){
 	  cerr << "bekijk karakter " << UnicodeString(uchar) << " van type " << toString(charT) << endl;
@@ -255,9 +259,17 @@ S_Class classify( const UnicodeString& word,
     }
     return CLEAN;
   }
+  else if ( word_len >= 4
+	    && double( is_upper )/word_len >= 0.40
+	    && double( is_upper + is_punct) /word_len >= 0.90 ){
+    if ( verbose ){
+      cerr << "UITGANG 8: Clean" << endl;
+    }
+    return CLEAN;
+  }
   else {
     if ( verbose ){
-      cerr << "UITGANG 8: UNK" << endl;
+      cerr << "UITGANG 9: UNK" << endl;
     }
     return UNK;
   }

@@ -94,7 +94,11 @@ inline bool ticc_ispunct( int8_t charT ){
 }
 
 inline bool ticc_isdigit( int8_t charT ){
-return charT == U_DECIMAL_DIGIT_NUMBER;
+  return charT == U_DECIMAL_DIGIT_NUMBER;
+}
+
+inline bool ticc_isupper( int8_t charT ){
+  return charT == U_UPPERCASE_LETTER;
 }
 
 inline bool ticc_isother( int8_t charT ){
