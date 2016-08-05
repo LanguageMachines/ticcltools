@@ -140,7 +140,7 @@ S_Class classify( const UnicodeString& word,
   int is_upper = 0;
   int is_digit = 0;
   int is_punct = 0;
-  int is_in = 0;
+  int is_letter = 0;
   int is_out = 0;
   int is_space = 0;
   int word_len = word.length();
@@ -165,7 +165,7 @@ S_Class classify( const UnicodeString& word,
 	  cerr << "bekijk karakter " << UnicodeString(uchar) << " van type " << toString(charT) << endl;
 	}
 	if ( ticc_isletter( charT ) ){
-	  ++is_in;
+	  ++is_letter;
 	}
 	else if ( ticc_isdigit( charT ) ){
 	  ++is_digit;
@@ -190,7 +190,7 @@ S_Class classify( const UnicodeString& word,
 	  if ( verbose ){
 	    cerr << "'" << UnicodeString(uchar) << "' is IN het alfabet" << endl;
 	  }
-	  ++is_in;
+	  ++is_letter;
 	}
 	else if ( charT == U_DECIMAL_DIGIT_NUMBER ){
 	  if ( verbose ){
@@ -209,7 +209,7 @@ S_Class classify( const UnicodeString& word,
   }
   //  word_len -= is_space;
   if ( verbose ){
-    cerr << "Classify: " << word << " IN=" << is_in << " OUT= " << is_out << " DIG=" << is_digit << " PUNCT=" << is_punct << endl;
+    cerr << "Classify: " << word << " IN=" << is_letter << " OUT= " << is_out << " DIG=" << is_digit << " PUNCT=" << is_punct << endl;
   }
   if ( is_digit == word_len ){
     // Filter A: gewone getallen. Worden ongemoeid gelaten, worden dus niet
@@ -220,7 +220,7 @@ S_Class classify( const UnicodeString& word,
     }
     return IGNORE;
   }
-  else if ( is_digit >= is_in + is_out ){
+  else if ( is_digit >= is_letter + is_out ){
     // Filter B: dingen als datums, floats, of combinatie getal + een of andere
     // geldaanduiding : zelfde als getallen
     // <martin> Komt erop neer dat indien meer cijfers dan iets anders.
@@ -229,13 +229,13 @@ S_Class classify( const UnicodeString& word,
     }
     return IGNORE;
   }
-  else if ( word_len >= 4 && double(is_in + is_digit)/word_len >= 0.75 ){
+  else if ( word_len >= 4 && double(is_letter + is_digit)/word_len >= 0.75 ){
     if ( verbose ){
       cerr << "UITGANG 3: Clean" << endl;
     }
     return CLEAN;
   }
-  else if (word_len == 3 && double(is_in + is_digit)/word_len >= 0.66 ){
+  else if (word_len == 3 && double(is_letter + is_digit)/word_len >= 0.66 ){
     if ( verbose ){
       cerr << "UITGANG 4: Clean" << endl;
     }
@@ -247,21 +247,22 @@ S_Class classify( const UnicodeString& word,
     }
     return CLEAN;
   }
-  else if ( word_len >= 4 && double( is_in )/word_len >= 0.75 ){
+  else if ( word_len >= 4 && double( is_letter )/word_len >= 0.75 ){
     if ( verbose ){
       cerr << "UITGANG 6: Clean" << endl;
     }
     return CLEAN;
   }
-  else if ( word_len == 3 && double( is_in )/word_len >= 0.66 ){
+  else if ( word_len == 3 && double( is_letter )/word_len >= 0.66 ){
     if ( verbose ){
       cerr << "UITGANG 7: Clean" << endl;
     }
     return CLEAN;
   }
-  else if ( word_len >= 4
-	    && double( is_upper )/word_len >= 0.40
-	    && double( is_upper + is_punct) /word_len >= 0.90 ){
+  else if ( ( word_len >= 8
+	      && (is_letter + is_punct) > (word_len - 2) )
+	    || ( word_len >= 4
+		 && (is_letter + is_punct) > (word_len - 1) ) ){
     if ( verbose ){
       cerr << "UITGANG 8: Clean" << endl;
     }
