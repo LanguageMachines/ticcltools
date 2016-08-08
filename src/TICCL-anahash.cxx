@@ -330,7 +330,7 @@ int main( int argc, char *argv[] ){
       bitType h = ::hash( word, alphabet );
       if ( ngram > 0 ){
 	vector<string> parts;
-	if ( TiCC::split_at( word, parts, "_" ) == ngram ){
+	if ( TiCC::split_at( word, parts, "_" ) ){
 	  bool accept = false;
 	  for ( auto const& part: parts ){
 	    if ( focus_words.find(part) == focus_words.end() ){
