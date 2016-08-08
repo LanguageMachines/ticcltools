@@ -293,9 +293,9 @@ int main( int argc, char *argv[] ){
   }
 
   map<string,bitType> merged;
-  cout << "start reading corpus frequency file." << endl;
   map<bitType, set<string> > anagrams;
-  set<bitType> foci;
+  set<string> focus_words;
+  cout << "start hashing from the corpus frequency file." << endl;
   string line;
   while ( getline( is, line ) ){
     vector<string> v;
@@ -309,13 +309,31 @@ int main( int argc, char *argv[] ){
     bitType h = ::hash( word, alphabet );
     anagrams[h].insert( word );
     if ( artifreq > 0 ){
+      bitType freq = TiCC::stringTo<bitType>( v[1] );
+      if ( freq == artifreq ){
+	focus_words.insert( word );
+      }
+      if ( doMerge ){
+	merged[v[0]] = freq;
+      }
+    }
+  }
+  set<bitType> foci;
+  if ( artifreq > 0 ){
+    is.clear();
+    is.seekg(ios_base::beg);
+    string line;
+    while ( getline( is, line ) ){
+      vector<string> v;
+      TiCC::split_at( line, v, "\t" );
+      string word = filter_tilde_hashtag( v[0] );
+      bitType h = ::hash( word, alphabet );
       if ( ngram > 0 ){
 	vector<string> parts;
-	if ( TiCC::split( word, parts, "_" ) == ngram ){
+	if ( TiCC::split_at( word, parts, "_" ) == ngram ){
 	  bool accept = false;
 	  for ( auto const& part: parts ){
-	    bitType freq = TiCC::stringTo<bitType>( part );
-	    if ( freq != artifreq ){
+	    if ( focus_words.find(part) == focus_words.end() ){
 	      accept = true;
 	    }
 	  }
@@ -325,19 +343,14 @@ int main( int argc, char *argv[] ){
 	}
       }
       else {
-	bitType freq = TiCC::stringTo<bitType>( v[1] );
-	if ( freq != artifreq ){
+	if ( focus_words.find(word) == focus_words.end() ){
 	  foci.insert( h );
 	}
-      }
-      if ( doMerge ){
-	bitType freq = TiCC::stringTo<bitType>( v[1] );
-	merged[v[0]] = freq;
       }
     }
   }
   if ( artifreq > 0 ){
-    cout << "generating foci file: " << foci_file_name << endl;
+    cout << "generating foci file: " << foci_file_name << " with " << foci.size() << " entries" << endl;
     for ( const auto& f : foci ){
       fos << f << endl;
     }
