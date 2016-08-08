@@ -165,7 +165,7 @@ void usage( const string& name ){
   cerr << "\t-h or --help\t this message " << endl;
   cerr << "\t--artifrq='value': if value > 0, create a separate list of anagram" << endl;
   cerr << "\t\t values that don't have the lexical frequency 'artifrq' " << endl;
-  cerr << "\t\t for n-grams, only those n-grams are written whre at least one" << endl;
+  cerr << "\t\t for n-grams, only those n-grams are written where at least one" << endl;
   cerr << "\t\t of the composing parts does not have the lexical frequency artifrq. " << endl;
   cerr << "\t--ngram=value\t When the frequency file contains n-grams. (not necessary of equal arity)" << endl;
   cerr << "\t\t we split the 'value'-grams into 1-grams and do a frequency lookup per part for the artifreq value." << endl;
