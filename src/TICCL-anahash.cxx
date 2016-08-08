@@ -155,25 +155,29 @@ string filter_tilde_hashtag( const string& w ){
 void usage( const string& name ){
   cerr << "usage:" << name << " [options] <clean frequencyfile>" << endl;
   cerr << "\t" << name << " will read a wordfrequency list (in FoLiA-stats format) " << endl;
-  cerr << "\t\t which is assumed to be 'clean'" << endl;
+  cerr << "\t\t which is assumed to be 'clean', but may consiste of n-grams with different arities." << endl;
   cerr << "\t\t The output will be an anagram hash file." << endl;
   cerr << "\t\t When a background corpus is specified, we also produce" << endl;
   cerr << "\t\t a new (merged) frequency file. " << endl;
   cerr << "\t--alph='file'\t name of the alphabet file" << endl;
   cerr << "\t--background='file'\t name of the background corpus" << endl;
   cerr << "\t--clip=<clip> : cut off of the alphabet." << endl;
-  cerr << "\t-h\t this message " << endl;
+  cerr << "\t-h or --help\t this message " << endl;
   cerr << "\t--artifrq='value': if value > 0, create a separate list of anagram" << endl;
-  cerr << "\t\t\t values that don't have the lexical frequency 'artifrq' " << endl;
-  cerr << "\t-V\t show version " << endl;
-  cerr << "\t-v\t verbose (not used) " << endl;
+  cerr << "\t\t values that don't have the lexical frequency 'artifrq' " << endl;
+  cerr << "\t\t for n-grams, only those n-grams are written whre at least one" << endl;
+  cerr << "\t\t of the composing parts does not have the lexical frequency artifrq. " << endl;
+  cerr << "\t--ngram=value\t When the frequency file contains n-grams. (not necessary of equal arity)" << endl;
+  cerr << "\t\t we split the 'value'-grams into 1-grams and do a frequency lookup per part for the artifreq value." << endl;
+  cerr << "\t-V ot --version\t show version " << endl;
+  cerr << "\t-v\t verbose (not used yet) " << endl;
 }
 
 int main( int argc, char *argv[] ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVh" );
-    opts.set_long_options( "alph:,background:,artifrq:,clip:,help,version" );
+    opts.set_long_options( "alph:,background:,artifrq:,clip:,help,version,ngram:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -190,6 +194,7 @@ int main( int argc, char *argv[] ){
   string backfile;
   int clip = 0;
   size_t artifreq = 0;
+  size_t ngram = 0;
   if ( opts.extract('h' ) || opts.extract("help") ){
     usage( progname );
     exit(EXIT_SUCCESS);
@@ -211,6 +216,12 @@ int main( int argc, char *argv[] ){
   if ( opts.extract( "artifrq", value ) ){
     if ( !TiCC::stringTo(value,artifreq) ) {
       cerr << "illegal value for --artifrq (" << value << ")" << endl;
+      exit( EXIT_FAILURE );
+    }
+  }
+  if ( opts.extract( "ngram", value ) ){
+    if ( !TiCC::stringTo(value,ngram) ) {
+      cerr << "illegal value for --ngram (" << value << ")" << endl;
       exit( EXIT_FAILURE );
     }
   }
@@ -294,15 +305,33 @@ int main( int argc, char *argv[] ){
       cerr << "offending line: " << line << endl;
       exit(EXIT_FAILURE);
     }
-    string word = filter_tilde_hashtag(v[0] );
+    string word = filter_tilde_hashtag( v[0] );
     bitType h = ::hash( word, alphabet );
     anagrams[h].insert( word );
-    if ( artifreq > 0 || doMerge ){
-      bitType freq = TiCC::stringTo<bitType>( v[1] );
-      if ( artifreq > 0 && freq != artifreq ){
-	foci.insert( h );
+    if ( artifreq > 0 ){
+      if ( ngram > 0 ){
+	vector<string> parts;
+	if ( TiCC::split( word, parts, "_" ) == ngram ){
+	  bool accept = false;
+	  for ( auto const& part: parts ){
+	    bitType freq = TiCC::stringTo<bitType>( part );
+	    if ( freq != artifreq ){
+	      accept = true;
+	    }
+	  }
+	  if ( accept ){
+	    foci.insert( h );
+	  }
+	}
+      }
+      else {
+	bitType freq = TiCC::stringTo<bitType>( v[1] );
+	if ( freq != artifreq ){
+	  foci.insert( h );
+	}
       }
       if ( doMerge ){
+	bitType freq = TiCC::stringTo<bitType>( v[1] );
 	merged[v[0]] = freq;
       }
     }
