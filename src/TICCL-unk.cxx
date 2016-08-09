@@ -539,6 +539,9 @@ int main( int argc, char *argv[] ){
     string word = v[0];
     vector<string> parts;
     TiCC::split_at( word, parts, SEPARATOR );
+    if ( parts.size() == 0 ){
+      continue;
+    }
     for ( auto const& wrd : parts ){
       S_Class cl;
       string pun;
