@@ -40,6 +40,8 @@
 
 using namespace	std;
 
+const string SEPARATOR = "_";
+
 typedef unsigned long int bitType;
 
 bitType high_five( int val ){
@@ -324,7 +326,7 @@ int main( int argc, char *argv[] ){
       bitType h = ::hash( word, alphabet );
       if ( do_ngrams ){
 	vector<string> parts;
-	if ( TiCC::split_at( word, parts, "_" ) ){
+	if ( TiCC::split_at( word, parts, SEPARATOR ) ){
 	  bool accept = false;
 	  for ( auto const& part: parts ){
 	    if ( focus_words.find(part) == focus_words.end() ){
