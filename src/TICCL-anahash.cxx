@@ -167,8 +167,8 @@ void usage( const string& name ){
   cerr << "\t\t values that don't have the lexical frequency 'artifrq' " << endl;
   cerr << "\t\t for n-grams, only those n-grams are written where at least one" << endl;
   cerr << "\t\t of the composing parts does not have the lexical frequency artifrq. " << endl;
-  cerr << "\t--ngram=value\t When the frequency file contains n-grams. (not necessary of equal arity)" << endl;
-  cerr << "\t\t we split the 'value'-grams into 1-grams and do a frequency lookup per part for the artifreq value." << endl;
+  cerr << "\t--ngrams\t When the frequency file contains n-grams. (not necessary of equal arity)" << endl;
+  cerr << "\t\t we split them into 1-grams and do a frequency lookup per part for the artifreq value." << endl;
   cerr << "\t-V ot --version\t show version " << endl;
   cerr << "\t-v\t verbose (not used yet) " << endl;
 }
@@ -177,7 +177,7 @@ int main( int argc, char *argv[] ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVh" );
-    opts.set_long_options( "alph:,background:,artifrq:,clip:,help,version,ngram:" );
+    opts.set_long_options( "alph:,background:,artifrq:,clip:,help,version,ngrams" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -194,7 +194,6 @@ int main( int argc, char *argv[] ){
   string backfile;
   int clip = 0;
   size_t artifreq = 0;
-  size_t ngram = 0;
   if ( opts.extract('h' ) || opts.extract("help") ){
     usage( progname );
     exit(EXIT_SUCCESS);
@@ -219,12 +218,7 @@ int main( int argc, char *argv[] ){
       exit( EXIT_FAILURE );
     }
   }
-  if ( opts.extract( "ngram", value ) ){
-    if ( !TiCC::stringTo(value,ngram) ) {
-      cerr << "illegal value for --ngram (" << value << ")" << endl;
-      exit( EXIT_FAILURE );
-    }
-  }
+  bool do_ngrams = opts.extract( "ngrams" );
   if ( !opts.empty() ){
     cerr << "unsupported options : " << opts.toString() << endl;
     usage(progname);
@@ -310,7 +304,7 @@ int main( int argc, char *argv[] ){
     anagrams[h].insert( word );
     if ( artifreq > 0 ){
       bitType freq = TiCC::stringTo<bitType>( v[1] );
-      if ( freq == artifreq ){
+      if ( freq >= artifreq ){
 	focus_words.insert( word );
       }
       if ( doMerge ){
@@ -328,7 +322,7 @@ int main( int argc, char *argv[] ){
       TiCC::split_at( line, v, "\t" );
       string word = filter_tilde_hashtag( v[0] );
       bitType h = ::hash( word, alphabet );
-      if ( ngram > 0 ){
+      if ( do_ngrams ){
 	vector<string> parts;
 	if ( TiCC::split_at( word, parts, "_" ) ){
 	  bool accept = false;
