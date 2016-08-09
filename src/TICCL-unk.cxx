@@ -41,11 +41,16 @@
 using namespace	std;
 //#define DEBUG
 
+const string SEPARATOR = "_";
+
 bool verbose = false;
 
-enum S_Class { UNK, PUNCT, IGNORE, CLEAN };
+enum S_Class { UNDEF, UNK, PUNCT, IGNORE, CLEAN };
 ostream& operator<<( ostream& os, const S_Class& cl ){
   switch ( cl ){
+  case UNDEF:
+    os << "Undefined";
+    break;
   case CLEAN:
     os << "Clean";
     break;
@@ -527,17 +532,93 @@ int main( int argc, char *argv[] ){
     }
     unsigned int freq = TiCC::stringTo<unsigned int>(v[1]);
 
-    string pun;
+    S_Class end_cl = UNDEF;
+
+    string end_pun;
+
     string word = v[0];
-    S_Class cl;
-    if ( clean_words.find( word ) != clean_words.end() ){
-      // no need to do a lot of work for already clean words
-      cl = CLEAN;
+    vector<string> parts;
+    TiCC::split_at( word, parts, SEPARATOR );
+    for ( auto const& wrd : parts ){
+      S_Class cl;
+      string pun;
+      if ( clean_words.find( wrd ) != clean_words.end() ){
+	// no need to do a lot of work for already clean words
+	cl = CLEAN;
+      }
+      else {
+	cl = classify( wrd, alphabet, pun );
+      }
+      switch( cl ){
+      case IGNORE:
+	if ( end_cl == UNDEF ){
+	  end_cl = IGNORE;
+	}
+	else if ( end_cl == IGNORE ){
+	}
+	else if ( end_cl == CLEAN ){
+	}
+	else if ( end_cl == UNK ){
+	}
+	else if ( end_cl == PUNCT ){
+	}
+	break;
+      case CLEAN:
+	if ( end_cl == UNDEF ){
+	  end_cl = CLEAN;
+	}
+	else if ( end_cl == IGNORE ){
+	  end_cl = CLEAN;
+	}
+	else if ( end_cl == CLEAN ){
+	}
+	else if ( end_cl == UNK ){
+	}
+	else if ( end_cl == PUNCT ){
+	}
+	break;
+      case PUNCT:
+	if ( end_cl == UNDEF ){
+	  end_cl = PUNCT;
+	}
+	else if ( end_cl == IGNORE ){
+	  end_cl = PUNCT;
+	}
+	else if ( end_cl == CLEAN ){
+	  end_cl = PUNCT;
+	}
+	else if ( end_cl == UNK ){
+	}
+	else if ( end_cl == PUNCT ){
+	}
+	break;
+      case UNK:
+	if ( end_cl == UNDEF ){
+	  end_cl = UNK;
+	}
+	else if ( end_cl == IGNORE ){
+	  end_cl = UNK;
+	}
+	else if ( end_cl == CLEAN ){
+	  end_cl = UNK;
+	}
+	else if ( end_cl == UNK ){
+	}
+	else if ( end_cl == PUNCT ){
+	  end_cl = UNK;
+	}
+	break;
+      case UNDEF:
+	throw logic_error( "undef value returned by classify()" );
+      }
+      if ( pun.empty() ){
+	pun = wrd;
+      }
+      end_pun += pun + SEPARATOR;
     }
-    else {
-      cl = classify( word, alphabet, pun );
-    }
-    switch ( cl ){
+    end_pun = TiCC::trim_back( end_pun, SEPARATOR );
+
+    switch ( end_cl ){
     case IGNORE:
       break;
     case CLEAN:
@@ -582,21 +663,23 @@ int main( int argc, char *argv[] ){
       break;
     case PUNCT:
       {
-	punct_words[word] = pun;
-	clean_words[pun] += freq;
-	string punc = pun + ".";
+	punct_words[word] = end_pun;
+	clean_words[end_pun] += freq;
+	string punc = end_pun + ".";
 	string stripped;
 	if ( doAcro && isAcro( punc,stripped ) ){
 	  if ( verbose ){
-	    cerr << "PUNCT ACRO: " << word << "/" << pun << "/" << stripped << endl;
+	    cerr << "PUNCT ACRO: " << word << "/" << end_pun << "/" << stripped << endl;
 	  }
-	  acro_words[pun] += 1;
+	  acro_words[end_pun] += 1;
 	}
 	else if ( verbose ){
 	  cerr << "PUNCT word: " << word << endl;
 	}
       }
       break;
+    case UNDEF:
+      throw logic_error( "this is realy odd" );
     }
   }
   cout << "generating output files" << endl;
