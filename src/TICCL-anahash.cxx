@@ -166,7 +166,7 @@ void usage( const string& name ){
   cerr << "\t--clip=<clip> : cut off of the alphabet." << endl;
   cerr << "\t-h or --help\t this message " << endl;
   cerr << "\t--artifrq='value': if value > 0, create a separate list of anagram" << endl;
-  cerr << "\t\t values that don't have the lexical frequency 'artifrq' " << endl;
+  cerr << "\t\t values that have a lexical frequency < 'artifrq' " << endl;
   cerr << "\t\t for n-grams, only those n-grams are written where at least one" << endl;
   cerr << "\t\t of the composing parts does not have the lexical frequency artifrq. " << endl;
   cerr << "\t--ngrams\t When the frequency file contains n-grams. (not necessary of equal arity)" << endl;
@@ -289,11 +289,12 @@ int main( int argc, char *argv[] ){
   }
 
   map<string,bitType> merged;
+  map<string,bitType> freq_list;
   map<bitType, set<string> > anagrams;
-  set<string> focus_words;
   cout << "start hashing from the corpus frequency file." << endl;
   string line;
   while ( getline( is, line ) ){
+    // we build a frequency list
     vector<string> v;
     int n = TiCC::split_at( line, v, "\t" );
     if ( n != 2 ){
@@ -304,32 +305,26 @@ int main( int argc, char *argv[] ){
     string word = filter_tilde_hashtag( v[0] );
     bitType h = ::hash( word, alphabet );
     anagrams[h].insert( word );
-    if ( artifreq > 0 ){
-      bitType freq = TiCC::stringTo<bitType>( v[1] );
-      if ( freq >= artifreq ){
-	focus_words.insert( word );
-      }
-      if ( doMerge ){
-	merged[v[0]] = freq;
-      }
+    bitType freq = TiCC::stringTo<bitType>( v[1] );
+    freq_list[word] = freq;
+    if ( doMerge && artifreq > 0  ){
+      merged[v[0]] = freq;
     }
   }
+
   set<bitType> foci;
   if ( artifreq > 0 ){
-    is.clear();
-    is.seekg(ios_base::beg);
-    string line;
-    while ( getline( is, line ) ){
-      vector<string> v;
-      TiCC::split_at( line, v, "\t" );
-      string word = filter_tilde_hashtag( v[0] );
+    for ( const auto& it : freq_list ){
+      string word = it.first;
       bitType h = ::hash( word, alphabet );
       if ( do_ngrams ){
 	vector<string> parts;
 	if ( TiCC::split_at( word, parts, SEPARATOR ) ){
 	  bool accept = false;
 	  for ( auto const& part: parts ){
-	    if ( focus_words.find(part) == focus_words.end() ){
+	    const auto fit = freq_list.find(part);
+	    if ( fit != freq_list.end()
+		 && fit->second < artifreq ){
 	      accept = true;
 	    }
 	  }
@@ -339,7 +334,8 @@ int main( int argc, char *argv[] ){
 	}
       }
       else {
-	if ( focus_words.find(word) == focus_words.end() ){
+	bitType freq = it.second;
+	if ( freq < artifreq ){
 	  foci.insert( h );
 	}
       }
