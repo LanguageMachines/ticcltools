@@ -322,10 +322,17 @@ int main( int argc, char *argv[] ){
 	if ( TiCC::split_at( word, parts, SEPARATOR ) ){
 	  bool accept = false;
 	  for ( auto const& part: parts ){
-	    const auto fit = freq_list.find(part);
-	    if ( fit != freq_list.end()
-		 && fit->second < artifreq ){
-	      accept = true;
+	    const auto u_it = freq_list.find(part);
+	    if ( u_it != freq_list.end()
+		 && u_it->second < artifreq ){
+	      UnicodeString u_part = UTF8ToUnicode( part );
+	      u_part.toLower();
+	      string l_part  = UnicodeToUTF8( u_part );
+	      const auto l_it = freq_list.find(l_part);
+	      if ( l_it != freq_list.end()
+		   && l_it->second < artifreq ){
+		accept = true;
+	      }
 	    }
 	  }
 	  if ( accept ){
@@ -336,7 +343,14 @@ int main( int argc, char *argv[] ){
       else {
 	bitType freq = it.second;
 	if ( freq < artifreq ){
-	  foci.insert( h );
+	  UnicodeString u_part = UTF8ToUnicode( word );
+	  u_part.toLower();
+	  string l_part  = UnicodeToUTF8( u_part );
+	  const auto l_it = freq_list.find(l_part);
+	  if ( l_it != freq_list.end()
+	       && l_it->second < artifreq ){
+	    foci.insert( h );
+	  }
 	}
       }
     }
