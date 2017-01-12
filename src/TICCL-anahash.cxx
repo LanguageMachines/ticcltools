@@ -146,9 +146,9 @@ void create_output( ostream& os,
 string filter_tilde_hashtag( const string& w ){
   // assume that we cannot break UTF8 by replacing # or ~ by _
   string result = w;
-  for ( size_t i=0; i < result.length(); ++i ){
-    if ( result[i] == '~' || result[i] == '#' ){
-      result[i] = '_';
+  for ( auto& l : result ){
+    if ( l == '~' || l == '#' ){
+      l = '_';
     }
   }
   return result;
@@ -243,14 +243,14 @@ int main( int argc, char *argv[] ){
     exit(EXIT_FAILURE);
   }
   string file_name = fileNames[0];
-  ifstream is( file_name.c_str() );
+  ifstream is( file_name );
   if ( !is ){
     cerr << "unable to open corpus frequency file: " << file_name << endl;
     exit(EXIT_FAILURE);
   }
   bool doMerge = false;
   if ( !backfile.empty() ){
-    ifstream bs( backfile.c_str() );
+    ifstream bs( backfile );
     if ( !bs ){
       cerr << "unable to open background frequency file: " << backfile << endl;
       exit(EXIT_FAILURE);
@@ -261,7 +261,7 @@ int main( int argc, char *argv[] ){
     cerr << "We need an alphabet file!" << endl;
     exit(EXIT_FAILURE);
   }
-  ifstream as( alphafile.c_str() );
+  ifstream as( alphafile );
   if ( !as ){
     cerr << "unable to open alphabet file: " << alphafile << endl;
     exit(EXIT_FAILURE);
@@ -273,7 +273,7 @@ int main( int argc, char *argv[] ){
   }
 
   string out_file_name = file_name + ".anahash";
-  ofstream os( out_file_name.c_str() );
+  ofstream os( out_file_name );
   if ( !os ){
     cerr << "unable to open output file: " << out_file_name << endl;
     exit(EXIT_FAILURE);
@@ -281,7 +281,7 @@ int main( int argc, char *argv[] ){
   ofstream fos;
   string foci_file_name = file_name + ".corpusfoci";
   if ( artifreq > 0 ){
-    fos.open( foci_file_name.c_str() );
+    fos.open( foci_file_name );
     if ( !fos ){
       cerr << "unable to open foci file: " << foci_file_name << endl;
       exit(EXIT_FAILURE);
@@ -363,7 +363,7 @@ int main( int argc, char *argv[] ){
   }
   if ( doMerge ){
     cerr << "merge background corpus: " << backfile << endl;
-    ifstream bs( backfile.c_str() );
+    ifstream bs( backfile );
     while ( getline( bs, line ) ){
       vector<string> v;
       int n = TiCC::split_at( line, v, "\t" );
@@ -379,7 +379,7 @@ int main( int argc, char *argv[] ){
       merged[v[0]] += freq;
     }
     string merge_file_name = file_name + ".merged";
-    ofstream ms( merge_file_name.c_str() );
+    ofstream ms( merge_file_name );
     for ( const auto& it : merged ){
       ms << it.first << "\t" << it.second << endl;
     }
