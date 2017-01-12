@@ -423,7 +423,7 @@ int main( int argc, char *argv[] ){
     exit(EXIT_FAILURE);
   }
   string file_name = fileNames[0];
-  ifstream is( file_name.c_str() );
+  ifstream is( file_name );
   if ( !is ){
     cerr << "unable to find or open frequency file: " << file_name << endl;
     exit(EXIT_FAILURE);
@@ -431,7 +431,7 @@ int main( int argc, char *argv[] ){
   set<UChar> alphabet;
 
   if ( !alphafile.empty() ){
-    ifstream as( alphafile.c_str() );
+    ifstream as( alphafile );
     if ( !as ){
       cerr << "unable to open alphabet file: " << alphafile << endl;
       exit(EXIT_FAILURE);
@@ -447,23 +447,23 @@ int main( int argc, char *argv[] ){
   string punct_file_name = file_name + ".punct";
   string acro_file_name = file_name + ".acro";
 
-  ofstream cs( clean_file_name.c_str() );
+  ofstream cs( clean_file_name );
   if ( !cs ){
     cerr << "unable to open output file: " << clean_file_name << endl;
     exit(EXIT_FAILURE);
   }
-  ofstream us( unk_file_name.c_str() );
+  ofstream us( unk_file_name );
   if ( !us ){
     cerr << "unable to open output file: " << unk_file_name << endl;
     exit(EXIT_FAILURE);
   }
-  ofstream ps( punct_file_name.c_str() );
+  ofstream ps( punct_file_name );
   if ( !ps ){
     cerr << "unable to open output file: " << punct_file_name << endl;
     exit(EXIT_FAILURE);
   }
   if ( doAcro ){
-    ofstream as( acro_file_name.c_str() );
+    ofstream as( acro_file_name );
     if ( !as ){
       cerr << "unable to open output file: " << acro_file_name << endl;
       exit(EXIT_FAILURE);
@@ -480,7 +480,7 @@ int main( int argc, char *argv[] ){
 	   << "(--artifrq option)" << endl;
       exit(EXIT_FAILURE);
     }
-    ifstream extra( corpusfile.c_str() );
+    ifstream extra( corpusfile );
     if ( !extra ){
       cerr << "unable to open corpus file: " << corpusfile << endl;
       exit(EXIT_FAILURE);
@@ -717,7 +717,7 @@ int main( int argc, char *argv[] ){
   cout << "created " << punct_file_name << endl;
 
   if ( doAcro ){
-    ofstream as( acro_file_name.c_str() );
+    ofstream as( acro_file_name );
     for ( const auto& ait : acro_words ){
       as << ait.first << "\t" << ait.second << endl;
     }

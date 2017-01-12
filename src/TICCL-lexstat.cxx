@@ -56,7 +56,7 @@ bitType high_five( int val ){
 void create_output( string& name, const map<UChar,size_t>& chars,
 		    string& orig, map<string,bitType>& hashes,
 		    int clip ){
-  ofstream os( name.c_str() );
+  ofstream os( name );
   if ( !os ){
     cerr << "unable to open output file: " << name << endl;
     exit(EXIT_FAILURE);
@@ -102,7 +102,7 @@ void create_output( string& name, const map<UChar,size_t>& chars,
 void create_dia_file( const string& filename,
 		      const map<UChar,size_t>& chars,
 		      const map<string,bitType>& hashes ){
-  ofstream os( filename.c_str() );
+  ofstream os( filename );
   map<UChar,size_t>::const_iterator it = chars.begin();
   while ( it != chars.end() ){
     UnicodeString us;
@@ -177,7 +177,7 @@ void generate_confusion( const string& name,
 			 const map<string,bitType>& chars,
 			 int depth,
 			 bool full ){
-  ofstream os( name.c_str() );
+  ofstream os( name );
   if ( !os ){
     cerr << "unable to open output file: " << name << endl;
     exit(EXIT_FAILURE);
@@ -332,10 +332,8 @@ void generate_confusion( const string& name,
 	    meld_botsing( confusions, start );
 	  }
 	  os << start;
-	  for ( set<string>::const_iterator it=unique.begin();
-		it != unique.end();
-	      ++it ){
-	    os << "#" << *it;
+	  for ( const auto& un : unique ){
+	    os << "#" << un;
 	  }
 	  os << endl;
 	  unique.clear();
@@ -437,7 +435,7 @@ int main( int argc, char *argv[] ){
     exit( EXIT_FAILURE );
   }
   string file_name = fileNames[0];
-  ifstream is( file_name.c_str() );
+  ifstream is( file_name );
   if ( !is ){
     cerr << "unable to open dictionary file: " << file_name << endl;
     exit(EXIT_FAILURE);
