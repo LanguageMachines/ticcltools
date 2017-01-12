@@ -47,7 +47,7 @@ void create_wf_list( const map<string, unsigned int>& wc,
 		     const string& filename, unsigned int totalIn,
 		     bool doperc ){
   unsigned int total = totalIn;
-  ofstream os( filename.c_str() );
+  ofstream os( filename );
   if ( !os ){
     cerr << "failed to create outputfile '" << filename << "'" << endl;
     exit(EXIT_FAILURE);
@@ -77,7 +77,7 @@ void create_wf_list( const map<string, unsigned int>& wc,
 
 void dump_quarantine( const string& filename,
 		      const map<string, unsigned int>& qw ){
-  ofstream os( filename.c_str() );
+  ofstream os( filename );
   if ( !os ){
     cerr << "failed to create outputfile '" << filename << "'" << endl;
     exit(EXIT_FAILURE);
@@ -100,7 +100,7 @@ bool isClean( const string& s, const set<UChar>& alp ){
 
 bool fillAlpha( const string& file, set<UChar>& alphabet ){
   string line;
-  ifstream is( file.c_str() );
+  ifstream is( file );
   while ( getline( is, line ) ){
     if ( line.size() == 0 || line[0] == '#' ){
       continue;
@@ -188,9 +188,8 @@ int main( int argc, char *argv[] ){
   }
   map<string,unsigned int> wc;
   map<string,unsigned int> qw;
-  for ( size_t fn=0; fn < fileNames.size(); ++fn ){
-    string docName = fileNames[fn];
-    ifstream is( docName.c_str() );
+  for ( const auto& docName : fileNames ){
+    ifstream is( docName );
     string line;
     unsigned int word_total = 0;
     while ( getline( is, line ) ){

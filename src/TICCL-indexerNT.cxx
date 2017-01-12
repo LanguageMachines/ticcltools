@@ -174,7 +174,7 @@ int main( int argc, char **argv ){
     exit(EXIT_FAILURE);
   }
 
-  ifstream ch( anahashFile.c_str() );
+  ifstream ch( anahashFile );
   if ( !ch ){
     cerr << "problem opening anagram hash file: " << anahashFile << endl;
     exit(1);
@@ -191,19 +191,19 @@ int main( int argc, char **argv ){
     outFile += ".indexNT";
   }
 
-  ofstream of( outFile.c_str() );
+  ofstream of( outFile );
   if ( !of ){
     cerr << "problem opening output file: " << outFile << endl;
     exit(1);
   }
 
-  ifstream conf( confFile.c_str() );
+  ifstream conf( confFile );
   if ( !conf ){
     cerr << "problem opening character confusion file: " << confFile << endl;
     exit(1);
   }
 
-  ifstream foc( fociFile.c_str() );
+  ifstream foc( fociFile );
   if ( !foc ){
     cerr << "problem opening foci file: " << fociFile << endl;
     exit(1);

@@ -81,11 +81,12 @@ bitType high_five( int val ){
 unsigned int ldCompare( const UnicodeString& s1, const UnicodeString& s2 ){
   const size_t len1 = s1.length(), len2 = s2.length();
   vector<unsigned int> col(len2+1), prevCol(len2+1);
-  for (unsigned int i = 0; i < prevCol.size(); i++)
+  for ( unsigned int i = 0; i < prevCol.size(); ++i ){
     prevCol[i] = i;
-  for (unsigned int i = 0; i < len1; i++) {
+  }
+  for ( unsigned int i = 0; i < len1; ++i ) {
     col[0] = i+1;
-    for (unsigned int j = 0; j < len2; j++)
+    for ( unsigned int j = 0; j < len2; ++j )
       col[j+1] = min( min( 1 + col[j], 1 + prevCol[1 + j]),
 		      prevCol[j] + (s1[i]==s2[j] ? 0 : 1) );
     col.swap(prevCol);
@@ -587,7 +588,7 @@ int main( int argc, char **argv ){
 
   set<bitType> histMap;
   if ( !histconfFile.empty() ){
-    ifstream ff( histconfFile.c_str() );
+    ifstream ff( histconfFile );
     if ( !ff ){
       cerr << "problem opening " << histconfFile << endl;
       exit(1);
@@ -614,7 +615,7 @@ int main( int argc, char **argv ){
 
   set<bitType> diaMap;
   if ( !diaconfFile.empty() ){
-    ifstream ff( diaconfFile.c_str() );
+    ifstream ff( diaconfFile );
     if ( !ff ){
       cerr << "problem opening " << diaconfFile << endl;
       exit(1);
@@ -639,12 +640,12 @@ int main( int argc, char **argv ){
     }
   }
 
-  ifstream indexf( indexFile.c_str() );
+  ifstream indexf( indexFile );
   if ( !indexf ){
     cerr << "problem opening: " << indexFile << endl;
     exit(1);
   }
-  ifstream anaf( anahashFile.c_str() );
+  ifstream anaf( anahashFile );
   if ( !anaf ){
     cerr << "problem opening anagram hashes file: " << anahashFile << endl;
     exit(1);
@@ -672,7 +673,7 @@ int main( int argc, char **argv ){
 #endif
 
   size_t count=0;
-  ofstream os( outFile.c_str() );
+  ofstream os( outFile );
   set<bitType> handledTrans;
   while ( getline( indexf, line ) ){
     if ( verbose ){

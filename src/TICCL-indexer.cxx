@@ -114,12 +114,12 @@ int main( int argc, char **argv ){
     usage(progname);
     exit(EXIT_FAILURE);
   }
-  ifstream ana( anahashFile.c_str() );
+  ifstream ana( anahashFile );
   if ( !ana ){
     cerr << "problem opening anagram hashfile: " << anahashFile << endl;
     exit(1);
   }
-  ifstream conf( confFile.c_str() );
+  ifstream conf( confFile );
   if ( !conf ){
     cerr << "problem opening charconfusion file: " << confFile << endl;
     exit(1);
@@ -136,7 +136,7 @@ int main( int argc, char **argv ){
     outFile += ".index";
   }
 
-  ofstream of( outFile.c_str() );
+  ofstream of( outFile );
   if ( !of ){
     cerr << "problem opening outputfile: " << outFile << endl;
     exit(1);
