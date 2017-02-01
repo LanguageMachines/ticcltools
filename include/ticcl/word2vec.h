@@ -17,6 +17,9 @@ class wordvec_tester {
 	       size_t,
 	       std::vector<word_dist>& ) const;
   double distance( const std::string&, const std::string& ) const;
+  bool analogy( const std::vector<std::string>&,
+		size_t,
+		std::vector<word_dist>& );
   size_t size() const { return vocab.size(); };
   size_t dimension() const { return _dim; };
  private:

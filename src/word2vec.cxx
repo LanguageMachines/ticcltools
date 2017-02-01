@@ -59,7 +59,7 @@ bool wordvec_tester::fill( const string& name ){
 bool wordvec_tester::lookup( const string& sentence, size_t num_vec,
 			     vector<word_dist>& result ) const {
   result.clear();
-  //  cerr << "looking up: '" << word << "'" << endl;
+  //  cerr << "looking up: '" << sentence << "'" << endl;
   vector<string> words;
   size_t num_words = TiCC::split( sentence, words );
   if ( num_words < 1 ){
@@ -70,7 +70,7 @@ bool wordvec_tester::lookup( const string& sentence, size_t num_vec,
   // create an aggregated vector of all the words
   vector<float> vec( _dim, 0 );
   for ( size_t b = 0; b < num_words; ++b ) {
-    unordered_map<string,vector<float>>::const_iterator it = vocab.find( words[b] );
+    auto const it = vocab.find( words[b] );
     if ( it == vocab.end() ){
       //      cerr << "couldn't find " << words[a] << endl;
       return false;
@@ -101,6 +101,70 @@ bool wordvec_tester::lookup( const string& sentence, size_t num_vec,
 	hit = true;
     }
     if ( hit ) continue;
+    float dist = 0;
+    for ( size_t a = 0; a < _dim; ++a ){
+      dist += vec[a] * it.second[a];
+    }
+    for ( size_t a = 0; a < num_vec; ++a ) {
+      if (dist > result[a].d ) {
+	// larger so shift the rest to the back
+	// and insert
+	for ( size_t d = num_vec - 1; d > a; d--) {
+	  result[d] = result[d-1];
+	}
+	result[a].w = it.first;
+	result[a].d = dist;
+	break;
+      }
+    }
+  }
+  return true;
+}
+
+bool wordvec_tester::analogy( const vector<string>& words,
+			      size_t num_vec,
+			      vector<word_dist>& result ){
+  result.clear();
+    // create an aggregated vector of all the words
+  vector<float> vec( _dim, 0 );
+
+  auto const& it0 = vocab.find( words[0] );
+  if ( it0 == vocab.end() ){
+    //      cerr << "couldn't find " << words[0] << endl;
+    return false;
+  }
+  auto const& it1 = vocab.find( words[1] );
+  if ( it1 == vocab.end() ){
+    //      cerr << "couldn't find " << words[1] << endl;
+    return false;
+  }
+  auto const& it2 = vocab.find( words[2] );
+  if ( it2 == vocab.end() ){
+    //      cerr << "couldn't find " << words[2] << endl;
+    return false;
+  }
+
+  for ( size_t a = 0; a < _dim; ++a ){
+    vec[a] += it1->second[a] - it0->second[a] + it2->second[a];
+  }
+
+  // normalize the created vector
+  float len = 0;
+  for ( size_t a = 0; a < _dim; ++a ) {
+    len += vec[a] * vec[a];
+  }
+  len = sqrt(len);
+  for ( size_t a = 0; a < _dim; ++a ) {
+    vec[a] /= len;
+  }
+
+  // now compare with ALL the vectors in de vocabulary
+  // keep de 'num_vec' largest
+  result.resize( num_vec, {"", 0.0 } );
+  for ( const auto& it: vocab ) {
+    if ( it.first == it0->first || it.first == it1->first || it.first == it2->first ){
+      continue;
+    }
     float dist = 0;
     for ( size_t a = 0; a < _dim; ++a ){
       dist += vec[a] * it.second[a];
