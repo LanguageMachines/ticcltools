@@ -31,7 +31,7 @@ int main( int argc, char *argv[] ){
     cerr << "missing '--data' option" << endl;
     exit( EXIT_FAILURE );
   }
-  int NN = 20;
+  int NN = 40;
   string value;
   if ( opts.extract( 'n', value ) ){
     NN = stringTo<int>(value);
@@ -75,18 +75,28 @@ int main( int argc, char *argv[] ){
       if  ( cnt != 3 ){
 	cerr << "only " << cnt << " words found on this line. 3 needed" << endl;
 	if ( --err_cnt == 0 ){
-	  cerr << "to0 many errors in this file: " << name << endl;
+	  cerr << "too many errors in this file: " << name << endl;
 	  break;
 	}
 	continue;
       }
+      os << "Word Analogy for: " << words[0] << " " << words[1] << " " << words[2] << endl;
       vector<word_dist> results;
       if ( !WV.analogy( words, NN, results ) ){
 	cerr << "failed" << endl;
       }
       else {
+	os << "\t\tWord\t\t\tDistance" << endl;
+	os << "-----------------------------------------------------" << endl;
 	for ( auto const& r : results ){
-	  os << r.w << " " << r.d << endl;
+	  string tabs = "\t";
+	  if ( r.w.size() < 8 ){
+	    tabs += "\t\t";
+	  }
+	  else	if ( r.w.size() < 15 ){
+	    tabs += "\t";
+	  }
+	  os << "\t\t" << r.w << tabs << r.d << endl;
 	}
       }
     }

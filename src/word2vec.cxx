@@ -9,6 +9,7 @@ using namespace std;
 bool wordvec_tester::fill( const string& name ){
   FILE *f = fopen( name.c_str(), "rb");
   if (f == NULL) {
+    cerr << "unable to open " << name << endl;
     return false;
   }
   size_t words = 0;
@@ -125,6 +126,10 @@ bool wordvec_tester::analogy( const vector<string>& words,
 			      size_t num_vec,
 			      vector<word_dist>& result ){
   result.clear();
+  if ( words.size() != 3 ){
+    cerr << "normalize needs 3 words, not " << words.size() << endl;
+    return false;
+  }
     // create an aggregated vector of all the words
   vector<float> vec( _dim, 0 );
 
@@ -162,7 +167,10 @@ bool wordvec_tester::analogy( const vector<string>& words,
   // keep de 'num_vec' largest
   result.resize( num_vec, {"", 0.0 } );
   for ( const auto& it: vocab ) {
-    if ( it.first == it0->first || it.first == it1->first || it.first == it2->first ){
+    if ( it.first == it0->first
+	 || it.first == it1->first
+	 || it.first == it2->first ){
+      //      cerr << "skip " << it.first << endl;
       continue;
     }
     float dist = 0;
