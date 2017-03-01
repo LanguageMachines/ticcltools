@@ -9,11 +9,11 @@ using namespace std;
 using namespace TiCC;
 
 void usage( const string& name ){
-  cerr << name << " --data=datafile [FILES]" << endl;
+  cerr << name << " --vectors=vectorfile [FILES]" << endl;
 }
 
 int main( int argc, char *argv[] ){
-  CL_Options opts( "hn:", "data:" );
+  CL_Options opts( "hn:", "vectors:" );
   try {
     opts.init(argc,argv);
   }
@@ -26,9 +26,9 @@ int main( int argc, char *argv[] ){
     usage( opts.prog_name() );
     exit( EXIT_SUCCESS );
   }
-  string dataFile;
-  if ( !opts.extract( "data", dataFile ) ){
-    cerr << "missing '--data' option" << endl;
+  string vectorsFile;
+  if ( !opts.extract( "vectors", vectorsFile ) ){
+    cerr << "missing '--vectors' option" << endl;
     exit( EXIT_FAILURE );
   }
   int NN = 40;
@@ -46,8 +46,8 @@ int main( int argc, char *argv[] ){
     exit( EXIT_FAILURE );
   }
   wordvec_tester WV;
-  if ( !WV.fill( dataFile ) ){
-    cerr << "fill failed from " << dataFile << endl;
+  if ( !WV.fill( vectorsFile ) ){
+    cerr << "fill failed from " << vectorsFile << endl;
     exit(EXIT_FAILURE);
   }
   else

@@ -9,7 +9,7 @@ using namespace std;
 using namespace TiCC;
 
 void usage( const string& name ){
-  cerr << name << " --data=datafile [FILES]" << endl;
+  cerr << name << " --vectors=vectorfile [FILES]" << endl;
 }
 
 bool fill( const string& freqsFile, map<string,size_t>& freqs ){
@@ -45,7 +45,7 @@ size_t lookup( const string& s, const map<string,size_t> frqs ){
 }
 
 int main( int argc, char *argv[] ){
-  CL_Options opts( "h", "data:,freqs:" );
+  CL_Options opts( "h", "vectors:,freqs:" );
   try {
     opts.init(argc,argv);
   }
@@ -58,9 +58,9 @@ int main( int argc, char *argv[] ){
     usage( opts.prog_name() );
     exit( EXIT_SUCCESS );
   }
-  string dataFile;
-  if ( !opts.extract( "data", dataFile ) ){
-    cerr << "missing '--data' option" << endl;
+  string vectorsFile;
+  if ( !opts.extract( "vector", vectorsFile ) ){
+    cerr << "missing '--vectors' option" << endl;
     exit( EXIT_FAILURE );
   }
   string freqsFile;
@@ -86,8 +86,8 @@ int main( int argc, char *argv[] ){
     }
   }
   wordvec_tester WV;
-  if ( !WV.fill( dataFile ) ){
-    cerr << "fill failed from " << dataFile << endl;
+  if ( !WV.fill( vectorsFile ) ){
+    cerr << "fill failed from " << vectorsFile << endl;
     exit(EXIT_FAILURE);
   }
   else
