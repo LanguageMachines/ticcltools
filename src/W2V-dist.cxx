@@ -59,7 +59,7 @@ int main( int argc, char *argv[] ){
     exit( EXIT_SUCCESS );
   }
   string vectorsFile;
-  if ( !opts.extract( "vector", vectorsFile ) ){
+  if ( !opts.extract( "vectors", vectorsFile ) ){
     cerr << "missing '--vectors' option" << endl;
     exit( EXIT_FAILURE );
   }
