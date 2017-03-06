@@ -64,16 +64,16 @@ int main( int argc, char *argv[] ){
       cerr << "failed to open: " << outname << endl;
       continue;
     }
-    int err_cnt = 5;
+    int err_cnt = 10;
     string line;
     while ( getline( is, line ) ){
       vector<string> words;
-      int cnt = TiCC::split( line, words );
+      int cnt = TiCC::split_at_first_of( line, words, "\t#" );
       if ( cnt == 1 && words[0] == "EXIT" ){
 	break;
       }
       if  ( cnt != 3 ){
-	cerr << "only " << cnt << " words found on this line. 3 needed" << endl;
+	cerr << "problem: " << cnt << " words found on this line. Exactly 3 needed" << endl;
 	if ( --err_cnt == 0 ){
 	  cerr << "too many errors in this file: " << name << endl;
 	  break;
