@@ -1,10 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
-# $Id: configure.ac 16569 2013-10-07 15:28:10Z sloot $
-# $URL $
 
 AC_PREREQ(2.61)
-AC_INIT([ticcltools],[0.3],[lamasoftware@science.ru.nl])
+AC_INIT([ticcltools],[0.4],[lamasoftware@science.ru.nl])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([.])
 AC_CONFIG_MACRO_DIR([m4])

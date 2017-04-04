@@ -1,3 +1,9 @@
+ticcltools 0.3 2017-04-04
+[Ko van der Sloot]
+* first official release.
+  - added functions to test on Word2Vec datafiles
+  - refactoring and modernizing stuff all around
+
 ticcltools 0.3 2016-01-21
 * upload ready
 ticcltools 0.2 2016-01-14
