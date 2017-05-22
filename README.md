@@ -1,9 +1,9 @@
 TICCLTOOLS
 ==================
 
-TicclTools is a colection of programs to process datafiles as used in Ticcl.
-
-These datafiles are in general large, and sometimes complex.
+TicclTools is a collection of programs to process datafiles, together they constitute the bulk of TICCL: Text Induced
+Corpus-Cleanup. This software is invoked by the pipeline system PICCL: https://github.com/LanguageMachines/PICCL ,
+consult there for installation and usage instructions unless you really want to invoke the individual tools manually.
 
 The main programs in this colection are:
 - TICCL-indexer and TICCL-indexerNT
