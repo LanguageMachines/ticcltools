@@ -471,6 +471,7 @@ int main( int argc, char *argv[] ){
   }
 
   map<string,unsigned int> clean_words;
+  map<UnicodeString,unsigned int> decap_clean_words;
   map<string,unsigned int> unk_words;
   map<string,unsigned int> acro_words;
   map<string,string> punct_words;
@@ -511,6 +512,9 @@ int main( int argc, char *argv[] ){
 	freq = artifreq;
       }
       clean_words[v[0]] += freq;
+      UnicodeString us = UTF8ToUnicode( v[0] );
+      us.toLower();
+      decap_clean_words[us] += freq;
     }
   }
   string line;
@@ -546,10 +550,12 @@ int main( int argc, char *argv[] ){
     for ( auto const& wrd : parts ){
       S_Class cl;
       string pun;
-      if ( clean_words.find( wrd ) != clean_words.end() ){
+      UnicodeString us = UTF8ToUnicode( wrd );
+      us.toLower();
+      if ( decap_clean_words.find( us ) != decap_clean_words.end() ){
 	// no need to do a lot of work for already clean words
-	cl = CLEAN;
 	++lexclean;
+	cl = CLEAN;
       }
       else {
 	cl = classify( wrd, alphabet, pun );
