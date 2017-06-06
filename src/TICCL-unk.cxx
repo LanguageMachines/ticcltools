@@ -626,7 +626,7 @@ int main( int argc, char *argv[] ){
       break;
     case CLEAN:
       {
-	clean_words[word] += freq;
+	clean_words[word] += artifreq + freq;
 	string stripped;
 	if ( doAcro && isAcro( word, stripped ) ){
 	  if ( verbose ){
