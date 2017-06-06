@@ -542,12 +542,14 @@ int main( int argc, char *argv[] ){
     if ( parts.size() == 0 ){
       continue;
     }
+    unsigned int lexclean = 0;
     for ( auto const& wrd : parts ){
       S_Class cl;
       string pun;
       if ( clean_words.find( wrd ) != clean_words.end() ){
 	// no need to do a lot of work for already clean words
 	cl = CLEAN;
+	++lexclean;
       }
       else {
 	cl = classify( wrd, alphabet, pun );
@@ -626,7 +628,10 @@ int main( int argc, char *argv[] ){
       break;
     case CLEAN:
       {
-	clean_words[word] += artifreq + freq;
+	clean_words[word] += freq;
+	if ( lexclean == parts.size() ){
+	  clean_words[word] += artifreq;
+	}
 	string stripped;
 	if ( doAcro && isAcro( word, stripped ) ){
 	  if ( verbose ){
