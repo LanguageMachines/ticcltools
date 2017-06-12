@@ -681,7 +681,8 @@ int main( int argc, char **argv ){
     }
     vector<string> parts;
     if ( TiCC::split_at( line, parts, "#" ) != 2 ){
-      cerr << "ARGL: " << line << endl;
+      cerr << "FATAL ERROR in indexfile: unable to split in 2 parts at #"
+	   << endl << "line was" << endl << line << endl;
       exit( EXIT_FAILURE);
     }
     else {
