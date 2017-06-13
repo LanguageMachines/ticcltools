@@ -48,6 +48,7 @@
 using namespace std;
 typedef signed long int bitType;
 
+string progname;
 int verbose = 0;
 
 void usage( const string& progname ){
@@ -442,11 +443,12 @@ int main( int argc, char **argv ){
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
+    progname = opts.prog_name();
     cerr << e.what() << endl;
-    usage( argv[0] );
+    usage( progname );
     exit( EXIT_FAILURE );
   }
-  string progname = opts.prog_name();
+  progname = opts.prog_name();
   if ( argc < 2	){
     usage( progname );
     exit(EXIT_FAILURE);
@@ -456,7 +458,7 @@ int main( int argc, char **argv ){
     exit(EXIT_SUCCESS);
   }
   if ( opts.extract('V') || opts.extract("version") ){
-    cerr << "LDcalc: " << PACKAGE_STRING << endl;
+    cerr << progname << ": " << PACKAGE_STRING << endl;
     exit(EXIT_SUCCESS);
   }
   while ( opts.extract( 'v' ) ){
@@ -474,7 +476,7 @@ int main( int argc, char **argv ){
   bool backward = false;
   bool noKHCld = opts.extract("nohld");
   if ( !opts.extract( "index", indexFile ) ){
-    cerr << "LDcalc: missing --index option" << endl;
+    cerr << progname << ": missing --index option" << endl;
     exit( EXIT_FAILURE );
   }
   if ( TiCC::match_back( indexFile, ".index" ) ){
@@ -484,23 +486,23 @@ int main( int argc, char **argv ){
     backward = true;
   }
   else {
-    cerr << "LDcalc: --index files must have extension: '.index' or '.indexNT' "
+    cerr << progname << ": --index files must have extension: '.index' or '.indexNT' "
 	 << endl;
     exit( EXIT_FAILURE );
   }
   if ( !opts.extract( "hash", anahashFile ) ){
-    cerr << "LDcalc: missing --hash option" << endl;
+    cerr << progname << ": missing --hash option" << endl;
     exit( EXIT_FAILURE );
   }
   if ( !opts.extract( "clean", frequencyFile ) ){
-    cerr << "LDcalc: missing --clean option" << endl;
+    cerr << progname << ": missing --clean option" << endl;
     exit( EXIT_FAILURE );
   }
   opts.extract( "alph", alfabetFile );
   opts.extract( "hist", histconfFile );
   if ( opts.extract( "diac", diaconfFile ) ){
     if ( !TiCC::match_back( diaconfFile, ".diac" ) ){
-      cerr << "LDcalc: invalid extension for --diac file '" << diaconfFile
+      cerr << progname << ": invalid extension for --diac file '" << diaconfFile
 	   << "' (must be .diac) " << endl;
       exit(EXIT_FAILURE);
     }
@@ -518,33 +520,33 @@ int main( int argc, char **argv ){
 
   if ( opts.extract( "artifrq", value ) ){
     if ( !TiCC::stringTo(value,artifreq) ) {
-      cerr << "LDcalc: illegal value for --artifrq (" << value << ")" << endl;
+      cerr << progname << ": illegal value for --artifrq (" << value << ")" << endl;
       exit( EXIT_FAILURE );
     }
   }
   if ( opts.extract( 't', value ) ){
 #ifdef HAVE_OPENMP
     if ( !TiCC::stringTo(value,numThreads) ) {
-      cerr << "LDcalc: illegal value for -t (" << value << ")" << endl;
+      cerr << progname << ": illegal value for -t (" << value << ")" << endl;
       exit( EXIT_FAILURE );
     }
 #else
-    cerr << "LDcalc: You don't have OpenMP support. The -t option is useless" << endl;
+    cerr << progname << ": You don't have OpenMP support. The -t option is useless" << endl;
     exit( EXIT_FAILURE );
 #endif
   }
   if ( opts.extract( "LD", value ) ){
     if ( !TiCC::stringTo(value,LDvalue) ) {
-      cerr << "LDcalc: illegal value for --LD (" << value << ")" << endl;
+      cerr << progname << ": illegal value for --LD (" << value << ")" << endl;
       exit( EXIT_FAILURE );
     }
     if ( LDvalue < 1 || LDvalue > 10 ){
-      cerr << "LDcalc: invalid LD value: " << LDvalue << " (1-10 is OK)" << endl;
+      cerr << progname << ": invalid LD value: " << LDvalue << " (1-10 is OK)" << endl;
       exit( EXIT_FAILURE );
     }
   }
   if ( !opts.empty() ){
-    cerr << "LDcalc: unsupported options : " << opts.toString() << endl;
+    cerr << progname << ": unsupported options : " << opts.toString() << endl;
     usage(progname);
     exit(EXIT_FAILURE);
   }
@@ -553,31 +555,31 @@ int main( int argc, char **argv ){
   if ( !alfabetFile.empty() ){
     ifstream lexicon( alfabetFile );
     if ( !lexicon ){
-      cerr << "LDcalc: problem opening alfabet file: " << alfabetFile << endl;
+      cerr << progname << ": problem opening alfabet file: " << alfabetFile << endl;
       exit(EXIT_FAILURE);
     }
-    cout << "LDcalc: reading alphabet: " << alfabetFile << endl;
+    cout << progname << ": reading alphabet: " << alfabetFile << endl;
     string line;
     while ( getline( lexicon, line ) ){
       if ( line.size() == 0 || line[0] == '#' )
 	continue;
       vector<string> vec;
       if ( TiCC::split( line, vec ) != 3 ){
-	cerr << "LDcalc: invalid line '" << line << "' in " << alfabetFile << endl;
+	cerr << progname << ": invalid line '" << line << "' in " << alfabetFile << endl;
 	exit( EXIT_FAILURE );
       }
       UnicodeString key = UTF8ToUnicode(vec[0]);
       alfabet.insert(key[0]);
     }
   }
-  cout << "LDcalc: read " << alfabet.size() << " letters with frequencies" << endl;
+  cout << progname << ": read " << alfabet.size() << " letters with frequencies" << endl;
 
   ifstream ff( frequencyFile  );
   if ( !ff ){
-    cerr << "LDcalc: problem opening " << frequencyFile << endl;
+    cerr << progname << ": problem opening " << frequencyFile << endl;
     exit(EXIT_FAILURE);
   }
-  cout << "LDcalc: reading clean file: " << frequencyFile << endl;
+  cout << progname << ": reading clean file: " << frequencyFile << endl;
   map<string, size_t> freqMap;
   map<UnicodeString, size_t> low_freqMap;
   string line;
@@ -597,8 +599,8 @@ int main( int argc, char **argv ){
       low_freqMap[us] +=freq;
     }
   }
-  cout << "LDcalc: read " << freqMap.size() << " clean words with frequencies" << endl;
-  cout << "LDcalc: skipped " << ign << " n-grams" << endl;
+  cout << progname << ": read " << freqMap.size() << " clean words with frequencies" << endl;
+  cout << progname << ": skipped " << ign << " n-grams" << endl;
 
   set<bitType> histMap;
   if ( !histconfFile.empty() ){
@@ -618,12 +620,12 @@ int main( int argc, char **argv ){
       histMap.insert(val);
     }
     if ( histMap.size() == 0 ){
-      cerr << "LDcalc: the historical confusions file " << histconfFile
+      cerr << progname << ": the historical confusions file " << histconfFile
 	   << " doesn't seem to be in the right format." << endl
 	   << " should contain lines like: 10331739614#f~s" << endl;
     }
     else {
-      cout << "LDcalc: read " << histMap.size() << " historical confusions." << endl;
+      cout << progname << ": read " << histMap.size() << " historical confusions." << endl;
     }
   }
 
@@ -631,7 +633,7 @@ int main( int argc, char **argv ){
   if ( !diaconfFile.empty() ){
     ifstream ff( diaconfFile );
     if ( !ff ){
-      cerr << "LDcalc: problem opening " << diaconfFile << endl;
+      cerr << progname << ": problem opening " << diaconfFile << endl;
       exit(EXIT_FAILURE);
     }
     string line;
@@ -645,24 +647,24 @@ int main( int argc, char **argv ){
       diaMap.insert(val);
     }
     if ( diaMap.size() == 0 ){
-      cerr << "LDcalc: the diacritical confusions file " << histconfFile
+      cerr << progname << ": the diacritical confusions file " << histconfFile
 	   << " doesn't seem to be in the right format." << endl
 	   << " should contain lines like: 10331739614#e~é" << endl;
       exit(EXIT_FAILURE);
     }
     else {
-      cout << "LDcalc: read " << diaMap.size() << " diacritical confusions." << endl;
+      cout << progname << ": read " << diaMap.size() << " diacritical confusions." << endl;
     }
   }
 
   ifstream indexf( indexFile );
   if ( !indexf ){
-    cerr << "LDcalc: problem opening: " << indexFile << endl;
+    cerr << progname << ": problem opening: " << indexFile << endl;
     exit(EXIT_FAILURE);
   }
   ifstream anaf( anahashFile );
   if ( !anaf ){
-    cerr << "LDcalc: problem opening anagram hashes file: " << anahashFile << endl;
+    cerr << progname << ": problem opening anagram hashes file: " << anahashFile << endl;
     exit(EXIT_FAILURE);
   }
   map<bitType,set<string> > hashMap;
@@ -673,7 +675,7 @@ int main( int argc, char **argv ){
     else {
       vector<string> v2;
       if ( TiCC::split_at( v1[1], v2, "#" ) < 1 ){
-	cerr << "LDcalc: strange line: " << line << endl
+	cerr << progname << ": strange line: " << line << endl
 	     << " in anagram hashes file" << endl;
 	exit(EXIT_FAILURE);
       }
@@ -684,7 +686,7 @@ int main( int argc, char **argv ){
       }
     }
   }
-  cout << "LDcalc: read " << hashMap.size() << " hash values" << endl;
+  cout << progname << ": read " << hashMap.size() << " hash values" << endl;
 #ifdef HAVE_OPENMP
   omp_set_num_threads( numThreads );
 #endif
@@ -696,7 +698,7 @@ int main( int argc, char **argv ){
   int err_cnt = 0;
   while ( getline( indexf, line ) ){
     if ( err_cnt > 9 ){
-      cerr << "LDcalc: FATAL ERROR: too many problems in indexfile: " << indexFile
+      cerr << progname << ": FATAL ERROR: too many problems in indexfile: " << indexFile
 	   << " terminated" << endl;
       exit( EXIT_FAILURE);
     }
@@ -710,7 +712,7 @@ int main( int argc, char **argv ){
     }
     vector<string> parts;
     if ( TiCC::split_at( line, parts, "#" ) != 2 ){
-      cerr << "LDcalc: ERROR in line " << line_nr
+      cerr << progname << ": ERROR in line " << line_nr
 	   << " of indexfile: unable to split in 2 parts at #"
 	   << endl << "line was" << endl << line << endl;
       ++err_cnt;
@@ -729,7 +731,7 @@ int main( int argc, char **argv ){
 	cerr << "extract parts from " << rest << endl;
       }
       if ( TiCC::split_at( rest, parts, "," ) < 1 ){
-	cerr << "LDcalc: ERROR in line " << line_nr
+	cerr << progname << ": ERROR in line " << line_nr
 	     << " of indexfile: unable to split in parts separated by ','"
 	     << endl << "line was" << endl << line << endl;
 	++err_cnt;
@@ -756,7 +758,7 @@ int main( int argc, char **argv ){
 	  map<bitType,set<string> >::const_iterator sit1 = hashMap.find(key);
 	  if ( sit1 == hashMap.end() ){
 #pragma omp critical
-	    cerr << "LDcalc: WARNING: found a key '" << key
+	    cerr << progname << ": WARNING: found a key '" << key
 		 << "' in the input that isn't present in the hashes." << endl;
 	    continue;
 	  }
@@ -785,7 +787,7 @@ int main( int argc, char **argv ){
 	  if ( sit2 == hashMap.end() ){
 	    if ( verbose ){
 #pragma omp critical
-	      cerr << "LDcalc: WARNING: found a key '" << key
+	      cerr << progname << ": WARNING: found a key '" << key
 		   << "' in the input that, when added to '" << mainKey
 		   << "' isn't present in the hashes." << endl;
 	    }
@@ -804,7 +806,7 @@ int main( int argc, char **argv ){
 	    if ( sit2 == hashMap.end() ){
 	      if ( verbose ){
 #pragma omp critical
-		cerr << "LDcalc: WARNING: found a key '" << key
+		cerr << progname << ": WARNING: found a key '" << key
 		     << "' in the input that, when substracked from '"
 		     << mainKey << "' isn't present in the hashes." << endl;
 	      }
@@ -819,6 +821,6 @@ int main( int argc, char **argv ){
       }
     }
   }
-  cout << "LDcalc: Done" << endl;
+  cout << progname << ": Done" << endl;
 
 }
