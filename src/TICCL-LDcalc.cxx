@@ -118,7 +118,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
   while ( it1 != s.end() ) {
     string str1 = *it1;
     if ( verbose > 2 ){
-#pragma omp critical
+#pragma omp critical (debugout)
       {
 	cout << "string 1 " << str1 << endl;
       }
@@ -126,7 +126,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
     map<string,size_t>::const_iterator fit = freqMap.find( str1 );
     if ( fit == freqMap.end() ){
       if ( verbose > 1 ){
-#pragma omp critical
+#pragma omp critical (debugout)
 	{
 	  cout << "not found in freq file " << str1 << endl;
 	}
@@ -140,7 +140,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
     while ( it2 != s.end() ) {
       string str2 = *it2;
       if ( verbose > 2 ){
-#pragma omp critical
+#pragma omp critical (debugout)
 	{
 	  cout << "string 2 " << str2 << endl;
 	}
@@ -148,7 +148,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
       map<string,size_t>::const_iterator fit = freqMap.find( str2 );
       if ( fit == freqMap.end() ){
 	if ( verbose > 1 ){
-#pragma omp critical
+#pragma omp critical (debugout)
 	  {
 	    cout << "not found in freq file " << str2 << endl;
 	  }
@@ -212,7 +212,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
       }
       if ( !isClean( candidate, alfabet ) ){
 	if ( verbose > 1 ){
-#pragma omp critical
+#pragma omp critical (debugout)
 	  {
 	    cout << "ignore dirty candidate " << candidate << endl;
 	  }
@@ -224,7 +224,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
       if ( ld != 2 ){
 	if ( !( isKHC && noKHCld ) ){
 	  if ( verbose > 1 ){
-#pragma omp critical
+#pragma omp critical (debugout)
 	    {
 	      cout << " LD != 2 " << str1 << "," << str2 << endl;
 	    }
@@ -261,7 +261,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	+ TiCC::toString(cls) + "~" + canon + "~"
 	+ FLoverlap + "~" + LLoverlap + "~"
 	+ KHC;
-#pragma omp critical
+#pragma omp critical (output)
       {
 	os << result << endl;
       }
@@ -288,7 +288,7 @@ void compareSets( ostream& os, unsigned int ldValue,
   while ( it1 != s1.end() ) {
     string str1 = *it1;
     if ( verbose > 2 ){
-#pragma omp critical
+#pragma omp critical (debugout)
       {
 	cout << "string 1 " << str1 << endl;
       }
@@ -296,7 +296,7 @@ void compareSets( ostream& os, unsigned int ldValue,
     map<string,size_t>::const_iterator fit = freqMap.find( str1 );
     if ( fit == freqMap.end() ){
       if ( verbose > 1 ){
-#pragma omp critical
+#pragma omp critical (debugout)
 	{
 	  cout << "not found in freq file " << str1 << endl;
 	}
@@ -311,7 +311,7 @@ void compareSets( ostream& os, unsigned int ldValue,
     while ( it2 != s2.end() ) {
       string str2 = *it2;
       if ( verbose > 2 ){
-#pragma omp critical
+#pragma omp critical (debugout)
 	{
 	  cout << "string 2 " << str2 << endl;
 	}
@@ -319,7 +319,7 @@ void compareSets( ostream& os, unsigned int ldValue,
       fit = freqMap.find( str2 );
       if ( fit == freqMap.end() ){
 	if ( verbose > 1 ){
-#pragma omp critical
+#pragma omp critical (debugout)
 	  {
 	    cout << "not found in freq file " << str2 << endl;
 	  }
@@ -335,7 +335,7 @@ void compareSets( ostream& os, unsigned int ldValue,
       if ( ld > ldValue ){
 	if ( !( isKHC && noKHCld ) ){
 	  if ( verbose > 2 ){
-#pragma omp critical
+#pragma omp critical (debugout)
 	    {
 	      cout << " LD too high " << str1 << "," << str2 << endl;
 	    }
@@ -377,7 +377,7 @@ void compareSets( ostream& os, unsigned int ldValue,
       }
       if ( !isClean( candidate, alfabet ) ){
 	if ( verbose > 1 ){
-#pragma omp critical
+#pragma omp critical (debugout)
 	  {
 	    cout << "ignore dirty candidate " << candidate << endl;
 	  }
@@ -388,7 +388,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 
       if ( out_low_freq1 >= freqTreshold && !isDIAC ){
 	if ( verbose > 2 ){
-#pragma omp critical
+#pragma omp critical (debugout)
 	  {
 	    cout << "lexical word " << out_str1 << endl;
 	  }
@@ -424,7 +424,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 	+ TiCC::toString(cls) + "~" + canon + "~"
 	+ FLoverlap + "~" + LLoverlap + "~"
 	+ KHC;
-#pragma omp critical
+#pragma omp critical (output)
       {
 	os << result << endl;
       }
@@ -752,12 +752,12 @@ int main( int argc, char **argv ){
 	  string keyS = parts[i];
 	  bitType key = TiCC::stringTo<bitType>(keyS);
 	  if ( verbose > 1 ){
-#pragma omp critical
+#pragma omp critical (debugout)
 	    cout << "bekijk key1 " << key << endl;
 	  }
 	  map<bitType,set<string> >::const_iterator sit1 = hashMap.find(key);
 	  if ( sit1 == hashMap.end() ){
-#pragma omp critical
+#pragma omp critical (debugout)
 	    cerr << progname << ": WARNING: found a key '" << key
 		 << "' in the input that isn't present in the hashes." << endl;
 	    continue;
@@ -765,7 +765,7 @@ int main( int argc, char **argv ){
 	  if ( sit1->second.size() > 0
 	       && LDvalue >= 2 ){
 	    bool do_trans = false;
-#pragma omp critical
+#pragma omp critical (debugout)
 	    {
 	      set<bitType>::const_iterator it = handledTrans.find( key );
 	      if ( it == handledTrans.end() ){
@@ -780,13 +780,13 @@ int main( int argc, char **argv ){
 	    }
 	  }
 	  if ( verbose > 1 ){
-#pragma omp critical
+#pragma omp critical (debugout)
 	    cout << "bekijk key2 " << mainKey + key << endl;
 	  }
 	  map<bitType, set<string> >::const_iterator sit2 = hashMap.find(mainKey+key);
 	  if ( sit2 == hashMap.end() ){
 	    if ( verbose ){
-#pragma omp critical
+#pragma omp critical (debugout)
 	      cerr << progname << ": WARNING: found a key '" << key
 		   << "' in the input that, when added to '" << mainKey
 		   << "' isn't present in the hashes." << endl;
@@ -799,13 +799,13 @@ int main( int argc, char **argv ){
 		       artifreq, isKHC, noKHCld, isDIAC );
 	  if ( backward ){
 	    if ( verbose > 1 ){
-#pragma omp critical
+#pragma omp critical (debugout)
 	      cout << "BACKWARD bekijk key2 " << key - mainKey << endl;
 	    }
 	    map<bitType,set<string> >::const_iterator sit2 = hashMap.find(key-mainKey);
 	    if ( sit2 == hashMap.end() ){
 	      if ( verbose ){
-#pragma omp critical
+#pragma omp critical (debugout)
 		cerr << progname << ": WARNING: found a key '" << key
 		     << "' in the input that, when substracked from '"
 		     << mainKey << "' isn't present in the hashes." << endl;
