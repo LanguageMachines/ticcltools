@@ -25,10 +25,12 @@ matrix:
       compiler: clang
       addons:
         apt:
+          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-3.9']
          packages:
-            - libiomp-dev
+           - clang-3.9
+           - libiomp-dev
       env:
-        - COMPILER=clang++
+        - COMPILER=clang++-3.9
         - CXXFLAGS="-fopenmp=libiomp5"
 
 before_install:
