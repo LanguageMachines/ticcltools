@@ -202,7 +202,7 @@ int main( int argc, char **argv ){
     cerr << "problem opening output file: " << outFile << endl;
     exit(1);
   }
-  ofstream of2( outFile + ".R", ios_base::binary );
+  ofstream of2( outFile + ".R" );
   if ( !of2 ){
     cerr << "problem opening output file: " << outFile + ".R" << endl;
     exit(1);
@@ -341,8 +341,12 @@ int main( int argc, char **argv ){
     uint64_t expectedsize = rit.second.getSizeInBytes();
     cerr << "EXPECTED size = " << expectedsize << endl;
     char *serializedbytes = new char [expectedsize];
-    rit.second.write(serializedbytes);
+    uint64_t uit = rit.second.write(serializedbytes);
+    cerr << "WROTE size = " << uit << endl;
     of2 << serializedbytes << endl;
+    cerr << "DUMPED:" << TiCC::format_nonascii( serializedbytes ) << endl;
+    Roaring64Map test = Roaring64Map::read( serializedbytes );
+    //    assert( test == rit.second );
     delete [] serializedbytes;
   }
 }
