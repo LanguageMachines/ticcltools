@@ -68,6 +68,8 @@ PKG_CHECK_MODULES([ticcutils], [ticcutils >= 0.6] )
 CXXFLAGS="$ticcutils_CFLAGS $CXXFLAGS"
 LIBS="$ticcutils_LIBS $LIBS"
 
+LIBS="$LIBS -lroaring"
+
 AC_CONFIG_FILES([
   Makefile
   m4/Makefile
