@@ -670,8 +670,8 @@ int main( int argc, char **argv ){
     }
   }
 
-  //  ios_base::openmode mode = (roaring?ios_base::binary:ios_base::in);
-  ifstream indexf( indexFile );
+  ios_base::openmode mode = (roaring?ios_base::binary:ios_base::in);
+  ifstream indexf( indexFile, mode );
   if ( !indexf ){
     cerr << progname << ": problem opening: " << indexFile << endl;
     exit(EXIT_FAILURE);
@@ -710,138 +710,113 @@ int main( int argc, char **argv ){
   set<bitType> handledTrans;
   size_t line_nr = 0;
   int err_cnt = 0;
-  while ( getline( indexf, line ) ){
-    if ( err_cnt > 9 ){
-      cerr << progname << ": FATAL ERROR: too many problems in indexfile: " << indexFile
-	   << " terminated" << endl;
-      exit( EXIT_FAILURE);
+  while ( indexf ){
+    if ( ++count % 1000 == 0 ){
+      cout << ".";
+      cout.flush();
+      if ( count % 50000 == 0 ){
+	cout << endl << count << endl;;
+      }
     }
     ++line_nr;
-    if ( verbose > 1 ){
-      cerr << "examine " << line << endl;
+    bitType mainKey;
+    indexf >> mainKey;
+    if ( indexf.eof() ){
+      break;
     }
-    line = TiCC::trim(line);
-    if ( line.empty() ){
-      continue;
+    cerr << "found mainKey: " << mainKey << endl;
+    string mainKeyS = toString( mainKey );
+    char hekje;
+    indexf >> hekje;
+    cerr << "found hekje: " << hekje << endl;
+    uint64_t len;
+    indexf >> len;
+    cerr << "found len: " << len << endl;
+    indexf.get(hekje);
+    char *array = new char[len];
+    indexf.read(array,len);
+    cerr << "found array: " << TiCC::format_nonascii(string(array,len)) << endl;
+    Roaring64Map r_m = Roaring64Map::read( array );
+    delete [] array;
+    bool isKHC = false;
+    if ( histMap.find( mainKey ) != histMap.end() ){
+      isKHC = true;
+    }
+    bool isDIAC = false;
+    if ( diaMap.find( mainKey ) != diaMap.end() ){
+      isDIAC = true;
     }
     vector<string> parts;
-    if ( TiCC::split_at( line, parts, "#" ) != 2 ){
-      cerr << progname << ": ERROR in line " << line_nr
-	   << " of indexfile: unable to split in 2 parts at #"
-	   << endl << "line was" << endl << line << endl;
-      ++err_cnt;
-    }
-    else {
-      string mainKeyS = parts[0];
-      if ( ++count % 1000 == 0 ){
-	cout << ".";
-	cout.flush();
-	if ( count % 50000 == 0 ){
-	  cout << endl << count << endl;;
-	}
+    string result;
+#pragma omp parallel for schedule(dynamic,1)
+    for ( size_t i=0; i < parts.size(); ++i ){
+      string keyS = parts[i];
+      bitType key = TiCC::stringTo<bitType>(keyS);
+      if ( verbose > 1 ){
+#pragma omp critical (debugout)
+	cout << "bekijk key1 " << key << endl;
       }
-      string rest = parts[1];
-      if ( verbose > 1 && !roaring ){
-	cerr << "extract parts from " << rest << endl;
-      }
-      Roaring64Map r_m;
-      if ( roaring ){
-	cerr << "the main key =" << mainKeyS << endl;
-	cerr << "the rest =" << TiCC::format_nonascii(rest) << endl;
-	r_m = Roaring64Map::read( rest.data() );
-      }
-      else if ( TiCC::split_at( rest, parts, "," ) < 1 ){
-	cerr << progname << ": ERROR in line " << line_nr
-	     << " of indexfile: unable to split in parts separated by ','"
-	     << endl << "line was" << endl << line << endl;
-	++err_cnt;
+      map<bitType,set<string> >::const_iterator sit1 = hashMap.find(key);
+      if ( sit1 == hashMap.end() ){
+#pragma omp critical (debugout)
+	cerr << progname << ": WARNING: found a key '" << key
+	     << "' in the input that isn't present in the hashes." << endl;
 	continue;
       }
-      if ( roaring ){
-	cerr << "not implemented yet" << endl;
-      }
-      else {
-	bitType mainKey = TiCC::stringTo<bitType>(mainKeyS);
-	bool isKHC = false;
-	if ( histMap.find( mainKey ) != histMap.end() ){
-	  isKHC = true;
-	}
-	bool isDIAC = false;
-	if ( diaMap.find( mainKey ) != diaMap.end() ){
-	  isDIAC = true;
-	}
-	string result;
-#pragma omp parallel for schedule(dynamic,1)
-	for ( size_t i=0; i < parts.size(); ++i ){
-	  string keyS = parts[i];
-	  bitType key = TiCC::stringTo<bitType>(keyS);
-	  if ( verbose > 1 ){
+      if ( sit1->second.size() > 0
+	   && LDvalue >= 2 ){
+	bool do_trans = false;
 #pragma omp critical (debugout)
-	    cout << "bekijk key1 " << key << endl;
+	{
+	  set<bitType>::const_iterator it = handledTrans.find( key );
+	  if ( it == handledTrans.end() ){
+	    handledTrans.insert( key );
+	    do_trans = true;
 	  }
-	  map<bitType,set<string> >::const_iterator sit1 = hashMap.find(key);
-	  if ( sit1 == hashMap.end() ){
+	}
+	if ( do_trans ){
+	  handleTranspositions( os, sit1->second,
+				freqMap, low_freqMap, alfabet,
+				artifreq, isKHC, noKHCld, isDIAC );
+	}
+      }
+      if ( verbose > 1 ){
+#pragma omp critical (debugout)
+	cout << "bekijk key2 " << mainKey + key << endl;
+      }
+      map<bitType, set<string> >::const_iterator sit2 = hashMap.find(mainKey+key);
+      if ( sit2 == hashMap.end() ){
+	if ( verbose ){
+#pragma omp critical (debugout)
+	  cerr << progname << ": WARNING: found a key '" << key
+	       << "' in the input that, when added to '" << mainKey
+	       << "' isn't present in the hashes." << endl;
+	}
+	continue;
+      }
+      compareSets( os, LDvalue, mainKeyS,
+		   sit1->second, sit2->second,
+		   freqMap, low_freqMap, alfabet,
+		   artifreq, isKHC, noKHCld, isDIAC );
+      if ( backward ){
+	if ( verbose > 1 ){
+#pragma omp critical (debugout)
+	  cout << "BACKWARD bekijk key2 " << key - mainKey << endl;
+	}
+	map<bitType,set<string> >::const_iterator sit2 = hashMap.find(key-mainKey);
+	if ( sit2 == hashMap.end() ){
+	  if ( verbose ){
 #pragma omp critical (debugout)
 	    cerr << progname << ": WARNING: found a key '" << key
-		 << "' in the input that isn't present in the hashes." << endl;
-	    continue;
+		 << "' in the input that, when substracked from '"
+		 << mainKey << "' isn't present in the hashes." << endl;
 	  }
-	  if ( sit1->second.size() > 0
-	       && LDvalue >= 2 ){
-	    bool do_trans = false;
-#pragma omp critical (debugout)
-	    {
-	      set<bitType>::const_iterator it = handledTrans.find( key );
-	      if ( it == handledTrans.end() ){
-		handledTrans.insert( key );
-		do_trans = true;
-	      }
-	    }
-	    if ( do_trans ){
-	      handleTranspositions( os, sit1->second,
-				    freqMap, low_freqMap, alfabet,
-				    artifreq, isKHC, noKHCld, isDIAC );
-	    }
-	  }
-	  if ( verbose > 1 ){
-#pragma omp critical (debugout)
-	    cout << "bekijk key2 " << mainKey + key << endl;
-	  }
-	  map<bitType, set<string> >::const_iterator sit2 = hashMap.find(mainKey+key);
-	  if ( sit2 == hashMap.end() ){
-	    if ( verbose ){
-#pragma omp critical (debugout)
-	      cerr << progname << ": WARNING: found a key '" << key
-		   << "' in the input that, when added to '" << mainKey
-		   << "' isn't present in the hashes." << endl;
-	    }
-	    continue;
-	  }
-	  compareSets( os, LDvalue, mainKeyS,
-		       sit1->second, sit2->second,
-		       freqMap, low_freqMap, alfabet,
-		       artifreq, isKHC, noKHCld, isDIAC );
-	  if ( backward ){
-	    if ( verbose > 1 ){
-#pragma omp critical (debugout)
-	      cout << "BACKWARD bekijk key2 " << key - mainKey << endl;
-	    }
-	    map<bitType,set<string> >::const_iterator sit2 = hashMap.find(key-mainKey);
-	    if ( sit2 == hashMap.end() ){
-	      if ( verbose ){
-#pragma omp critical (debugout)
-		cerr << progname << ": WARNING: found a key '" << key
-		     << "' in the input that, when substracked from '"
-		     << mainKey << "' isn't present in the hashes." << endl;
-	      }
-	      continue;
-	    }
-	    compareSets( os, LDvalue, mainKeyS,
-			 sit1->second, sit2->second,
-			 freqMap, low_freqMap, alfabet,
-			 artifreq, isKHC, noKHCld, isDIAC );
-	  }
+	  continue;
 	}
+	compareSets( os, LDvalue, mainKeyS,
+		     sit1->second, sit2->second,
+		     freqMap, low_freqMap, alfabet,
+		     artifreq, isKHC, noKHCld, isDIAC );
       }
     }
   }
