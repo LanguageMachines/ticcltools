@@ -317,6 +317,9 @@ int main( int argc, char *argv[] ){
     for ( const auto& it : freq_list ){
       string word = it.first;
       bitType h = ::hash( word, alphabet );
+      if ( h == 232970232094 ){
+	cerr << "AHA!" << h << endl;
+      }
       if ( do_ngrams ){
 	vector<string> parts;
 	if ( TiCC::split_at( word, parts, SEPARATOR ) ){
@@ -329,8 +332,8 @@ int main( int argc, char *argv[] ){
 	      u_part.toLower();
 	      string l_part  = UnicodeToUTF8( u_part );
 	      const auto l_it = freq_list.find(l_part);
-	      if ( l_it != freq_list.end()
-		   && l_it->second < artifreq ){
+	      if ( l_it == freq_list.end()
+		   || l_it->second < artifreq ){
 		accept = true;
 	      }
 	    }
@@ -347,8 +350,8 @@ int main( int argc, char *argv[] ){
 	  u_part.toLower();
 	  string l_part  = UnicodeToUTF8( u_part );
 	  const auto l_it = freq_list.find(l_part);
-	  if ( l_it != freq_list.end()
-	       && l_it->second < artifreq ){
+	  if ( l_it == freq_list.end()
+	       || l_it->second < artifreq ){
 	    foci.insert( h );
 	  }
 	}
