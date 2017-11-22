@@ -317,9 +317,6 @@ int main( int argc, char *argv[] ){
     for ( const auto& it : freq_list ){
       string word = it.first;
       bitType h = ::hash( word, alphabet );
-      if ( h == 232970232094 ){
-	cerr << "AHA!" << h << endl;
-      }
       if ( do_ngrams ){
 	vector<string> parts;
 	if ( TiCC::split_at( word, parts, SEPARATOR ) ){
