@@ -709,7 +709,6 @@ int main( int argc, char **argv ){
   ofstream os( outFile );
   set<bitType> handledTrans;
   size_t line_nr = 0;
-  int err_cnt = 0;
   while ( indexf ){
     if ( ++count % 1000 == 0 ){
       cout << ".";
@@ -724,18 +723,14 @@ int main( int argc, char **argv ){
     if ( indexf.eof() ){
       break;
     }
-    cerr << "found mainKey: " << mainKey << endl;
-    string mainKeyS = toString( mainKey );
+    string mainKeyS = TiCC::toString( mainKey );
     char hekje;
     indexf >> hekje;
-    cerr << "found hekje: " << hekje << endl;
     uint64_t len;
     indexf >> len;
-    cerr << "found len: " << len << endl;
     indexf.get(hekje);
     char *array = new char[len];
     indexf.read(array,len);
-    cerr << "found array: " << TiCC::format_nonascii(string(array,len)) << endl;
     Roaring64Map r_m = Roaring64Map::read( array );
     delete [] array;
     bool isKHC = false;
@@ -746,12 +741,9 @@ int main( int argc, char **argv ){
     if ( diaMap.find( mainKey ) != diaMap.end() ){
       isDIAC = true;
     }
-    vector<string> parts;
-    string result;
-#pragma omp parallel for schedule(dynamic,1)
-    for ( size_t i=0; i < parts.size(); ++i ){
-      string keyS = parts[i];
-      bitType key = TiCC::stringTo<bitType>(keyS);
+    for ( auto const& it : r_m ){
+      //      cerr << it << endl;
+      bitType key = it;
       if ( verbose > 1 ){
 #pragma omp critical (debugout)
 	cout << "bekijk key1 " << key << endl;
@@ -820,6 +812,6 @@ int main( int argc, char **argv ){
       }
     }
   }
-  cout << progname << ": Done" << endl;
+  cout << progname << ": Done, results in:" << outFile << endl;
 
 }
