@@ -1,4 +1,4 @@
-#!/bin/sh
+#/bin/sh
 
 if [ "$1" != "" ]
 then
@@ -34,7 +34,7 @@ then
     exit
 fi
 echo "checking UNK results...."
-diff $outdir/TESTDP035.tsv.punct $refdir/punct &> /dev/null
+diff $outdir/TESTDP035.tsv.punct $refdir/punct >& /dev/null
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-UNK punct results"
@@ -53,7 +53,7 @@ fi
 
 echo "checking ANAHASH results...."
 sort $outdir/TESTDP035.tsv.clean.corpusfoci > /tmp/foci
-diff /tmp/foci $refdir/foci &> /dev/null
+diff /tmp/foci $refdir/foci >& /dev/null
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-anahash foci results"
@@ -72,7 +72,7 @@ fi
 
 echo "checking INDEXER results...."
 sort $outdir/TESTDP035.tsv.clean.indexNT > /tmp/indexNT
-diff /tmp/indexNT $refdir/indexNT &> /dev/null
+diff /tmp/indexNT $refdir/indexNT >& /dev/null
 
 if [ $? -ne 0 ]
 then
@@ -92,7 +92,7 @@ fi
 
 echo "checking LDCALC results...."
 sort $outdir/TESTDP035.tsv.clean.ldcalc  > /tmp/ldcalc
-diff /tmp/ldcalc $refdir/ldcalc &> /dev/null
+diff /tmp/ldcalc $refdir/ldcalc >& /dev/null
 
 if [ $? -ne 0 ]
 then
@@ -113,7 +113,7 @@ fi
 echo "checking RANK results...."
 
 sort $outdir/TESTDP035.tsv.clean.ldcalc.ranked > /tmp/rank.sorted
-diff /tmp/rank.sorted $refdir/rank.sorted &> /dev/null
+diff /tmp/rank.sorted $refdir/rank.sorted >& /dev/null
 if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"
