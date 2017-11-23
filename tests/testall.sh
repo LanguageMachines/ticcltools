@@ -30,11 +30,18 @@ $bindir/TICCL-unk --corpus $datadir/nuTICCL.OldandINLlexandINLNamesAspell.v2.COL
 
 if [ $? -ne 0 ]
 then
-    echo failed after TICCL-unk
+    echo "failed in TICCL-unk"
     exit
-else
-    echo start TICLL-anahash
 fi
+echo "checking UNK results...."
+diff $outdir/TESTDP035.tsv.punct $refdir/punct &> /dev/null
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-UNK punct results"
+    exit
+fi
+
+echo "start TICLL-anahash"
 
 $bindir/TICCL-anahash --alph $datadir/nld.aspell.dict.lc.chars --artifrq 100000000 $outdir/TESTDP035.tsv.clean
 
@@ -46,34 +53,54 @@ fi
 
 echo "checking ANAHASH results...."
 sort $outdir/TESTDP035.tsv.clean.corpusfoci > /tmp/foci
-diff /tmp/foci $refdir/foci
+diff /tmp/foci $refdir/foci &> /dev/null
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-anahash foci results"
     exit
 fi
 
-echo "start TICLL-indexerNT"
+echo "start TICCL-indexerNT"
 
-$bindir/TICCL-indexerNT -t 30 --hash $outdir/TESTDP035.tsv.clean.anahash --charconf $datadir/nld.aspell.dict.c20.d2.confusion --foci $outdir/TESTDP035.tsv.clean.corpusfoci -o .tsv.clean.confuslist
-
-if [ $? -ne 0 ]
-then
-    echo failed after TICCL-indexerNT
-    exit
-else
-    echo start TICLL-LDcalc
-fi
-
-$bindir/TICCL-LDcalc --index .tsv.clean.confuslist.indexNT --hash $outdir/TESTDP035.tsv.clean.anahash --clean $outdir/TESTDP035.tsv.clean --LD 2 -t 30 --artifrq 100000000 -o $outdir/TESTDP035.tsv.clean.ldcalc
+$bindir/TICCL-indexerNT -t 30 --hash $outdir/TESTDP035.tsv.clean.anahash --charconf $datadir/nld.aspell.dict.c20.d2.confusion --foci $outdir/TESTDP035.tsv.clean.corpusfoci
 
 if [ $? -ne 0 ]
 then
-    echo failed after TICCL-LDcalc
+    echo "failed in TICCL-indexerNT"
     exit
-else
-    echo start TICLL-rank
 fi
+
+echo "checking INDEXER results...."
+sort $outdir/TESTDP035.tsv.clean.indexNT > /tmp/indexNT
+diff /tmp/indexNT $refdir/indexNT &> /dev/null
+
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-indexer results"
+    exit
+fi
+
+echo "start TICLL-LDcalc"
+
+$bindir/TICCL-LDcalc --index $outdir/TESTDP035.tsv.clean.indexNT --hash $outdir/TESTDP035.tsv.clean.anahash --clean $outdir/TESTDP035.tsv.clean --LD 2 -t 30 --artifrq 100000000 -o $outdir/TESTDP035.tsv.clean.ldcalc
+
+if [ $? -ne 0 ]
+then
+    echo "failed in TICCL-LDcalc"
+    exit
+fi
+
+echo "checking LDCALC results...."
+sort $outdir/TESTDP035.tsv.clean.ldcalc  > /tmp/ldcalc
+diff /tmp/ldcalc $refdir/ldcalc &> /dev/null
+
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-ldcalc results"
+    exit
+fi
+
+echo "start TICLL-rank"
 
 $bindir/TICCL-rank -t 30 --alph $datadir/nld.aspell.dict.lc.chars --charconf $datadir/nld.aspell.dict.c20.d2.confusion -o $outdir/TESTDP035.tsv.clean.ldcalc.ranked --debugfile $outdir/.TESTDP035.tsv.clean.ldcalc.debug.ranked --artifrq 0 --clip 5 --skipcols=10,11 $outdir/TESTDP035.tsv.clean.ldcalc 2> $outdir/.TESTDP035.RANK.stderr
 
@@ -86,7 +113,7 @@ fi
 echo "checking RANK results...."
 
 sort $outdir/TESTDP035.tsv.clean.ldcalc.ranked > /tmp/rank.sorted
-diff /tmp/rank.sorted $refdir/rank.sorted
+diff /tmp/rank.sorted $refdir/rank.sorted &> /dev/null
 if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"
