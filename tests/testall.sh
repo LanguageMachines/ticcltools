@@ -1,0 +1,96 @@
+#!/bin/sh
+
+if [ "$1" != "" ]
+then
+    outsub=$1
+else
+    outsub=zzz
+fi
+
+bindir=/home/sloot/usr/local/bin
+outdir=OUT/$outsub/TICCL
+refdir=OUTreference/OK
+datadir=DATA
+
+echo start TICLL-stuff
+
+$bindir/FoLiA-stats -R -s -t 30 -e folia.xml$ --lang=none --class=OCR --ngram 1 -o $outdir/TESTDP035 --hemp=$outdir/TESTDP035.hemp FOLIA/
+
+if [ $? -ne 0 ]
+then
+    echo failed after FoLiA-stats
+    exit
+fi
+
+echo start TICLL-unk
+
+cp $outdir/TESTDP035.wordfreqlist.tsv $outdir/TESTDP035.tsv
+
+$bindir/TICCL-unk --corpus $datadir/nuTICCL.OldandINLlexandINLNamesAspell.v2.COL1.tsv --artifrq 100000000 $outdir/TESTDP035.tsv
+
+if [ $? -ne 0 ]
+then
+    echo failed after TICCL-unk
+    exit
+else
+    echo start TICLL-anahash
+fi
+
+$bindir/TICCL-anahash --alph $datadir/nld.aspell.dict.lc.chars --artifrq 100000000 $outdir/TESTDP035.tsv.clean
+
+if [ $? -ne 0 ]
+then
+    echo failed after TICCL-anahash
+    exit
+fi
+
+echo "checking ANAHASH results...."
+sort $outdir/TESTDP035.tsv.clean.corpusfoci > /tmp/foci
+diff /tmp/foci $refdir/foci
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-anahash foci results"
+    exit
+fi
+
+echo "start TICLL-indexerNT"
+
+$bindir/TICCL-indexerNT -t 30 --hash $outdir/TESTDP035.tsv.clean.anahash --charconf $datadir/nld.aspell.dict.c20.d2.confusion --foci $outdir/TESTDP035.tsv.clean.corpusfoci -o .tsv.clean.confuslist
+
+if [ $? -ne 0 ]
+then
+    echo failed after TICCL-indexerNT
+    exit
+else
+    echo start TICLL-LDcalc
+fi
+
+$bindir/TICCL-LDcalc --index .tsv.clean.confuslist.indexNT --hash $outdir/TESTDP035.tsv.clean.anahash --clean $outdir/TESTDP035.tsv.clean --LD 2 -t 30 --artifrq 100000000 -o $outdir/TESTDP035.tsv.clean.ldcalc
+
+if [ $? -ne 0 ]
+then
+    echo failed after TICCL-LDcalc
+    exit
+else
+    echo start TICLL-rank
+fi
+
+$bindir/TICCL-rank -t 30 --alph $datadir/nld.aspell.dict.lc.chars --charconf $datadir/nld.aspell.dict.c20.d2.confusion -o $outdir/TESTDP035.tsv.clean.ldcalc.ranked --debugfile $outdir/.TESTDP035.tsv.clean.ldcalc.debug.ranked --artifrq 0 --clip 5 --skipcols=10,11 $outdir/TESTDP035.tsv.clean.ldcalc 2> $outdir/.TESTDP035.RANK.stderr
+
+if [ $? -ne 0 ]
+then
+    echo failed after TICLL-rank
+    exit
+fi
+
+echo "checking RANK results...."
+
+sort $outdir/TESTDP035.tsv.clean.ldcalc.ranked > /tmp/rank.sorted
+diff /tmp/rank.sorted $refdir/rank.sorted
+if [ $? -ne 0 ]
+then
+    echo "differences in TICLL-rank results"
+    exit
+else
+    echo OK!
+fi

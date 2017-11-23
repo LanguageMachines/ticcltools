@@ -33,6 +33,7 @@
 #include <fstream>
 
 #include "ticcutils/StringOps.h"
+#include "ticcutils/FileUtils.h"
 #include "ticcutils/CommandLine.h"
 #include "ticcl/unicode.h"
 
@@ -250,8 +251,7 @@ int main( int argc, char *argv[] ){
   }
   bool doMerge = false;
   if ( !backfile.empty() ){
-    ifstream bs( backfile );
-    if ( !bs ){
+    if ( !TiCC::isFile( backfile) ){
       cerr << "unable to open background frequency file: " << backfile << endl;
       exit(EXIT_FAILURE);
     }
@@ -273,16 +273,13 @@ int main( int argc, char *argv[] ){
   }
 
   string out_file_name = file_name + ".anahash";
-  ofstream os( out_file_name );
-  if ( !os ){
+  if ( !TiCC::createPath( out_file_name ) ){
     cerr << "unable to open output file: " << out_file_name << endl;
     exit(EXIT_FAILURE);
   }
-  ofstream fos;
   string foci_file_name = file_name + ".corpusfoci";
   if ( artifreq > 0 ){
-    fos.open( foci_file_name );
-    if ( !fos ){
+    if ( !TiCC::createPath( foci_file_name ) ){
       cerr << "unable to open foci file: " << foci_file_name << endl;
       exit(EXIT_FAILURE);
     }
@@ -329,8 +326,8 @@ int main( int argc, char *argv[] ){
 	      u_part.toLower();
 	      string l_part  = UnicodeToUTF8( u_part );
 	      const auto l_it = freq_list.find(l_part);
-	      if ( l_it != freq_list.end()
-		   && l_it->second < artifreq ){
+	      if ( l_it == freq_list.end()
+		   || l_it->second < artifreq ){
 		accept = true;
 	      }
 	    }
@@ -347,8 +344,8 @@ int main( int argc, char *argv[] ){
 	  u_part.toLower();
 	  string l_part  = UnicodeToUTF8( u_part );
 	  const auto l_it = freq_list.find(l_part);
-	  if ( l_it != freq_list.end()
-	       && l_it->second < artifreq ){
+	  if ( l_it == freq_list.end()
+	       || l_it->second < artifreq ){
 	    foci.insert( h );
 	  }
 	}
@@ -357,6 +354,7 @@ int main( int argc, char *argv[] ){
   }
   if ( artifreq > 0 ){
     cout << "generating foci file: " << foci_file_name << " with " << foci.size() << " entries" << endl;
+    ofstream fos( foci_file_name );
     for ( const auto& f : foci ){
       fos << f << endl;
     }
@@ -388,6 +386,7 @@ int main( int argc, char *argv[] ){
   }
 
   cout << "generating output file: " << out_file_name << endl;
+  ofstream os( out_file_name );
   create_output( os, anagrams );
 
   cout << "done!" << endl;
