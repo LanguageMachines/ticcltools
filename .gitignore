@@ -38,9 +38,11 @@ src/Makefile
 src/Makefile.in
 src/*.o
 src/TICCL-LDcalc
+src/TICCL-LDcalc-roaring
 src/TICCL-anahash
 src/TICCL-indexer
 src/TICCL-indexerNT
+src/TICCL-indexerNT-roaring
 src/TICCL-lexclean
 src/TICCL-lexstat
 src/TICCL-rank
