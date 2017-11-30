@@ -1,4 +1,4 @@
-#!/bin/sh
+#/bin/sh
 
 if [ "$1" != "" ]
 then
@@ -30,11 +30,18 @@ $bindir/TICCL-unk --corpus $datadir/nuTICCL.OldandINLlexandINLNamesAspell.v2.COL
 
 if [ $? -ne 0 ]
 then
-    echo failed after TICCL-unk
+    echo "failed in TICCL-unk"
     exit
-else
-    echo start TICLL-anahash
 fi
+echo "checking UNK results...."
+diff $outdir/TESTDP035.tsv.punct $refdir/punct >& /dev/null
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-UNK punct results"
+    exit
+fi
+
+echo "start TICLL-anahash"
 
 $bindir/TICCL-anahash --alph $datadir/nld.aspell.dict.lc.chars --artifrq 100000000 $outdir/TESTDP035.tsv.clean
 
@@ -46,14 +53,14 @@ fi
 
 echo "checking ANAHASH results...."
 sort $outdir/TESTDP035.tsv.clean.corpusfoci > /tmp/foci
-diff /tmp/foci $refdir/foci
+diff /tmp/foci $refdir/foci >& /dev/null
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-anahash foci results"
     exit
 fi
 
-echo "start TICLL-indexerNT"
+echo "start TICCL-indexerNT"
 
 $bindir/TICCL-indexerNT -t 30 --hash $outdir/TESTDP035.tsv.clean.anahash --charconf $datadir/nld.aspell.dict.c20.d2.confusion --foci $outdir/TESTDP035.tsv.clean.corpusfoci
 
@@ -65,11 +72,12 @@ fi
 
 echo "checking INDEXER results...."
 sort $outdir/TESTDP035.tsv.clean.indexNT > /tmp/indexNT
-diff /tmp/indexNT $refdir/indexNT
+diff /tmp/indexNT $refdir/indexNT >& /dev/null
 
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-indexer results"
+    echo "using diff /tmp/indexNT $refdir/indexNT"
     exit
 fi
 
@@ -85,14 +93,15 @@ fi
 
 echo "checking LDCALC results...."
 sort $outdir/TESTDP035.tsv.clean.ldcalc  > /tmp/ldcalc
-diff /tmp/ldcalc $refdir/ldcalc
+
+diff /tmp/ldcalc $refdir/ldcalc >& /dev/null
 
 if [ $? -ne 0 ]
 then
-    echo "differences in Ticcl-indexer results"
+    echo "differences in Ticcl-ldcalc results"
+    ech "using: diff /tmp/ldcalc $refdir/ldcalc"
     exit
 fi
-
 
 echo "start TICLL-rank"
 
@@ -107,7 +116,7 @@ fi
 echo "checking RANK results...."
 
 sort $outdir/TESTDP035.tsv.clean.ldcalc.ranked > /tmp/rank.sorted
-diff /tmp/rank.sorted $refdir/rank.sorted
+diff /tmp/rank.sorted $refdir/rank.sorted >& /dev/null
 if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"

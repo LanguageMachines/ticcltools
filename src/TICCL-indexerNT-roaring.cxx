@@ -51,6 +51,8 @@
 using namespace std;
 typedef uint64_t bitType;
 
+#define TRANSPOSE_TEST 1
+
 void usage( const string& name ){
   cerr << name << endl;
   cerr << "options: " << endl;
@@ -197,6 +199,10 @@ int main( int argc, char **argv ){
   else if ( !TiCC::match_back( outFile, ".indexNT.R" ) ){
     outFile += ".indexNT.R";
   }
+#ifdef TRANSPOSE_TEST
+  outFile += ".T";
+#endif
+
   ofstream of( outFile );
   if ( !of ){
     cerr << "problem opening output file: " << outFile << endl;
@@ -269,16 +275,18 @@ int main( int argc, char **argv ){
   bitType max = *confSet.rbegin();
   cout <<"max value = " << max << endl;
 
-  map<bitType,set<bitType> > result;
   map<bitType,Roaring64Map> r_result;
 
   vector<experiment> experiments;
   size_t expsize = init( experiments, focSet, threads );
 #ifdef HAVE_OPENMP
-  omp_set_num_threads( expsize );
+  omp_set_num_threads( threads );
 #endif
 
-#pragma omp parallel for shared( experiments )
+  cout << "created " << expsize << " separate experiments" << endl;
+
+  size_t count = 0;
+#pragma omp parallel for shared(experiments, count)
   for ( size_t i=0; i < expsize; ++i ){
     set<bitType>::const_iterator it1 = experiments[i].start;
     while ( it1 != experiments[i].finish ){
@@ -293,8 +301,20 @@ int main( int argc, char **argv ){
 	  set<bitType>::const_iterator sit = confSet.find( diff );
 	  if ( sit != confSet.end() ){
 #pragma omp critical
-	    result[diff].insert(*it2);
-	    r_result[diff].add( *it2 );
+	    {
+#ifdef TRANSPOSE_TEST
+	      r_result[*it2].add( diff );
+#else
+	      r_result[diff].add( *it2 );
+#endif
+	      if ( ++count % 1000 == 0 ){
+		cout << ".";
+		cout.flush();
+		if ( count % 50000 == 0 ){
+		  cout << endl << count << endl;;
+		}
+	      }
+	    }
 	  }
 	  ++it2;
 	}
@@ -307,8 +327,20 @@ int main( int argc, char **argv ){
 	  set<bitType>::const_iterator sit = confSet.find( diff );
 	  if ( sit != confSet.end() ){
 #pragma omp critical
-	    result[diff].insert(*it1);
-	    r_result[diff].add( *it1 );
+	    {
+#ifdef TRANSPOSE_TEST
+	      r_result[*it1].add( diff );
+#else
+	      r_result[diff].add( *it1 );
+#endif
+	      if ( ++count % 1000 == 0 ){
+		cout << ".";
+		cout.flush();
+		if ( count % 50000 == 0 ){
+		  cout << endl << count << endl;;
+		}
+	      }
+	    }
 	  }
 	  ++it3;
 	}
