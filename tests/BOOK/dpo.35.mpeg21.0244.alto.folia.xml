@@ -1,0 +1,957 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FoLiA xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://ilk.uvt.nl/folia" xml:id="dpo.35.mpeg21.0244.alto" generator="libfolia-v0.11">
+  <metadata type="native">
+    <annotations>
+      <string-annotation annotator="alto" datetime="2014-01-22T22:55:40" set="alto"/>
+    </annotations>
+  </metadata>
+  <text xml:id="dpo.35.mpeg21.0244.alto.text">
+    <p xml:id="dpo.35.mpeg21.0244.alto.text.p.TextBlock1">
+      <t class="OCR">DERTIGSTE ZAMENSPRAAK,</t>
+      <str xml:id="String1">
+        <t class="OCR" offset="0">DERTIGSTE</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String1" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String2">
+        <t class="OCR" offset="10">ZAMENSPRAAK,</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String2" type="str"/>
+        </alignment>
+      </str>
+    </p>
+    <p xml:id="dpo.35.mpeg21.0244.alto.text.p.TextBlock2">
+      <t class="OCR">over</t>
+      <str xml:id="String3">
+        <t class="OCR" offset="0">over</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String3" type="str"/>
+        </alignment>
+      </str>
+    </p>
+    <p xml:id="dpo.35.mpeg21.0244.alto.text.p.TextBlock3">
+      <t class="OCR">RUSLAND.</t>
+      <str xml:id="String4">
+        <t class="OCR" offset="0">RUSLAND.</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String4" type="str"/>
+        </alignment>
+      </str>
+    </p>
+    <p xml:id="dpo.35.mpeg21.0244.alto.text.p.TextBlock4">
+      <t class="OCR">1 V. Wat weet Gy.van Rusland?</t>
+      <str xml:id="String5">
+        <t class="OCR" offset="0">1</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String5" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String6">
+        <t class="OCR" offset="2">V.</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String6" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String7">
+        <t class="OCR" offset="5">Wat</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String7" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String8">
+        <t class="OCR" offset="9">weet</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String8" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String9">
+        <t class="OCR" offset="14">Gy.van</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String9" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String10">
+        <t class="OCR" offset="21">Rusland?</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String10" type="str"/>
+        </alignment>
+      </str>
+    </p>
+    <p xml:id="dpo.35.mpeg21.0244.alto.text.p.TextBlock5">
+      <t class="OCR">A Dat dit Ryk ongemeen groot is, zeer koud op fommige plaatzen', en bewoond van een Volk, dat zich var. de oude Slaven afkomllig rekent, nu Rusfen genoemd, denkelyk naar de Rosfen, een woest Schytisch Volk.</t>
+      <str xml:id="String11">
+        <t class="OCR" offset="0">A</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String11" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String12">
+        <t class="OCR" offset="2">Dat</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String12" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String13">
+        <t class="OCR" offset="6">dit</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String13" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String14">
+        <t class="OCR" offset="10">Ryk</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String14" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String15">
+        <t class="OCR" offset="14">ongemeen</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String15" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String16">
+        <t class="OCR" offset="23">groot</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String16" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String17">
+        <t class="OCR" offset="29">is,</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String17" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String18">
+        <t class="OCR" offset="33">zeer</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String18" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String19">
+        <t class="OCR" offset="38">koud</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String19" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String20">
+        <t class="OCR" offset="43">op</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String20" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String21">
+        <t class="OCR" offset="46">fommige</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String21" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String22">
+        <t class="OCR" offset="54">plaatzen',</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String22" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String23">
+        <t class="OCR" offset="65">en</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String23" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String24">
+        <t class="OCR" offset="68">bewoond</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String24" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String25">
+        <t class="OCR" offset="76">van</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String25" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String26">
+        <t class="OCR" offset="80">een</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String26" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String27">
+        <t class="OCR" offset="84">Volk,</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String27" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String28">
+        <t class="OCR" offset="90">dat</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String28" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String29">
+        <t class="OCR" offset="94">zich</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String29" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String30">
+        <t class="OCR" offset="99">var.</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String30" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String31">
+        <t class="OCR" offset="104">de</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String31" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String32">
+        <t class="OCR" offset="107">oude</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String32" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String33">
+        <t class="OCR" offset="112">Slaven</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String33" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String34">
+        <t class="OCR" offset="119">afkomllig</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String34" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String35">
+        <t class="OCR" offset="129">rekent,</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String35" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String36">
+        <t class="OCR" offset="137">nu</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String36" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String37">
+        <t class="OCR" offset="140">Rusfen</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String37" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String38">
+        <t class="OCR" offset="147">genoemd,</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String38" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String39">
+        <t class="OCR" offset="156">denkelyk</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String39" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String40">
+        <t class="OCR" offset="165">naar</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String40" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String41">
+        <t class="OCR" offset="170">de</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String41" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String42">
+        <t class="OCR" offset="173">Rosfen,</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String42" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String43">
+        <t class="OCR" offset="181">een</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String43" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String44">
+        <t class="OCR" offset="185">woest</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String44" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String45">
+        <t class="OCR" offset="191">Schytisch</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String45" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String46">
+        <t class="OCR" offset="201">Volk.</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String46" type="str"/>
+        </alignment>
+      </str>
+    </p>
+    <p xml:id="dpo.35.mpeg21.0244.alto.text.p.TextBlock6">
+      <t class="OCR">2 V. Wanneer is dat Land bevolkt?</t>
+      <str xml:id="String47">
+        <t class="OCR" offset="0">2</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String47" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String48">
+        <t class="OCR" offset="2">V.</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String48" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String49">
+        <t class="OCR" offset="5">Wanneer</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String49" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String50">
+        <t class="OCR" offset="13">is</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String50" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String51">
+        <t class="OCR" offset="16">dat</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String51" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String52">
+        <t class="OCR" offset="20">Land</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String52" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String53">
+        <t class="OCR" offset="25">bevolkt?</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String53" type="str"/>
+        </alignment>
+      </str>
+    </p>
+    <p xml:id="dpo.35.mpeg21.0244.alto.text.p.TextBlock7">
+      <t class="OCR">A. Dit is onbekend; en deszelfs Historie fchuilt in het donker tot de IX Eeuw, federt welken tyd wy eenigen hunner Vorften kennen tot in de XIII Eeuw; doch deezer Gefchiedenis is voor ons van geen groot belang.</t>
+      <str xml:id="String54">
+        <t class="OCR" offset="0">A.</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String54" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String55">
+        <t class="OCR" offset="3">Dit</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String55" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String56">
+        <t class="OCR" offset="7">is</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String56" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String57">
+        <t class="OCR" offset="10">onbekend;</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String57" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String58">
+        <t class="OCR" offset="20">en</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String58" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String59">
+        <t class="OCR" offset="23">deszelfs</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String59" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String60">
+        <t class="OCR" offset="32">Historie</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String60" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String61">
+        <t class="OCR" offset="41">fchuilt</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String61" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String62">
+        <t class="OCR" offset="49">in</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String62" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String63">
+        <t class="OCR" offset="52">het</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String63" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String64">
+        <t class="OCR" offset="56">donker</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String64" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String65">
+        <t class="OCR" offset="63">tot</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String65" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String66">
+        <t class="OCR" offset="67">de</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String66" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String67">
+        <t class="OCR" offset="70">IX</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String67" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String68">
+        <t class="OCR" offset="73">Eeuw,</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String68" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String69">
+        <t class="OCR" offset="79">federt</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String69" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String70">
+        <t class="OCR" offset="86">welken</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String70" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String71">
+        <t class="OCR" offset="93">tyd</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String71" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String72">
+        <t class="OCR" offset="97">wy</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String72" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String73">
+        <t class="OCR" offset="100">eenigen</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String73" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String74">
+        <t class="OCR" offset="108">hunner</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String74" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String75">
+        <t class="OCR" offset="115">Vorften</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String75" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String76">
+        <t class="OCR" offset="123">kennen</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String76" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String77">
+        <t class="OCR" offset="130">tot</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String77" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String78">
+        <t class="OCR" offset="134">in</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String78" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String79">
+        <t class="OCR" offset="137">de</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String79" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String80">
+        <t class="OCR" offset="140">XIII</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String80" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String81">
+        <t class="OCR" offset="145">Eeuw;</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String81" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String82">
+        <t class="OCR" offset="151">doch</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String82" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String83">
+        <t class="OCR" offset="156">deezer</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String83" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String84">
+        <t class="OCR" offset="163">Gefchiedenis</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String84" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String85">
+        <t class="OCR" offset="176">is</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String85" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String86">
+        <t class="OCR" offset="179">voor</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String86" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String87">
+        <t class="OCR" offset="184">ons</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String87" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String88">
+        <t class="OCR" offset="188">van</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String88" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String89">
+        <t class="OCR" offset="192">geen</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String89" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String90">
+        <t class="OCR" offset="197">groot</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String90" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String91">
+        <t class="OCR" offset="203">belang.</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String91" type="str"/>
+        </alignment>
+      </str>
+    </p>
+    <p xml:id="dpo.35.mpeg21.0244.alto.text.p.TextBlock8">
+      <t class="OCR">3 V. Naar wien noemt men hen Moscoviters ?</t>
+      <str xml:id="String92">
+        <t class="OCR" offset="0">3</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String92" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String93">
+        <t class="OCR" offset="2">V.</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String93" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String94">
+        <t class="OCR" offset="5">Naar</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String94" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String95">
+        <t class="OCR" offset="10">wien</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String95" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String96">
+        <t class="OCR" offset="15">noemt</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String96" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String97">
+        <t class="OCR" offset="21">men</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String97" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String98">
+        <t class="OCR" offset="25">hen</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String98" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String99">
+        <t class="OCR" offset="29">Moscoviters</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String99" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String100">
+        <t class="OCR" offset="41">?</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String100" type="str"/>
+        </alignment>
+      </str>
+    </p>
+    <p xml:id="dpo.35.mpeg21.0244.alto.text.p.TextBlock9">
+      <t class="OCR">A. Naar de Stad Moscow, waar de Vorflelyke Zetel en 't lichaam van den heiligen News si die eerst hun Koning was, maar daarna een Monnik werdt, overgebragt is in den jaare 1300, federt Welken tyd zy ook Moscoviters zyn genoemd.</t>
+      <str xml:id="String101">
+        <t class="OCR" offset="0">A.</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String101" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String102">
+        <t class="OCR" offset="3">Naar</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String102" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String103">
+        <t class="OCR" offset="8">de</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String103" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String104">
+        <t class="OCR" offset="11">Stad</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String104" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String105">
+        <t class="OCR" offset="16">Moscow,</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String105" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String106">
+        <t class="OCR" offset="24">waar</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String106" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String107">
+        <t class="OCR" offset="29">de</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String107" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String108">
+        <t class="OCR" offset="32">Vorflelyke</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String108" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String109">
+        <t class="OCR" offset="43">Zetel</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String109" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String110">
+        <t class="OCR" offset="49">en</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String110" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String111">
+        <t class="OCR" offset="52">'t</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String111" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String112">
+        <t class="OCR" offset="55">lichaam</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String112" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String113">
+        <t class="OCR" offset="63">van</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String113" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String114">
+        <t class="OCR" offset="67">den</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String114" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String115">
+        <t class="OCR" offset="71">heiligen</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String115" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String116">
+        <t class="OCR" offset="80">News</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String116" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String117">
+        <t class="OCR" offset="85">si</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String117" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String118">
+        <t class="OCR" offset="88">die</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String118" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String119">
+        <t class="OCR" offset="92">eerst</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String119" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String120">
+        <t class="OCR" offset="98">hun</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String120" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String121">
+        <t class="OCR" offset="102">Koning</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String121" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String122">
+        <t class="OCR" offset="109">was,</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String122" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String123">
+        <t class="OCR" offset="114">maar</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String123" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String124">
+        <t class="OCR" offset="119">daarna</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String124" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String125">
+        <t class="OCR" offset="126">een</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String125" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String126" class="OCR">
+        <t class="OCR" offset="130">Monnik</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String126" type="str"/>
+          <aref id="String127" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String128">
+        <t class="OCR" offset="137">werdt,</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String128" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String129">
+        <t class="OCR" offset="144">overgebragt</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String129" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String130">
+        <t class="OCR" offset="156">is</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String130" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String131">
+        <t class="OCR" offset="159">in</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String131" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String132">
+        <t class="OCR" offset="162">den</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String132" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String133">
+        <t class="OCR" offset="166">jaare</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String133" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String134">
+        <t class="OCR" offset="172">1300,</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String134" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String135">
+        <t class="OCR" offset="178">federt</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String135" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String136">
+        <t class="OCR" offset="185">Welken</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String136" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String137">
+        <t class="OCR" offset="192">tyd</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String137" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String138">
+        <t class="OCR" offset="196">zy</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String138" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String139">
+        <t class="OCR" offset="199">ook</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String139" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String140">
+        <t class="OCR" offset="203">Moscoviters</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String140" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String141">
+        <t class="OCR" offset="215">zyn</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String141" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String142">
+        <t class="OCR" offset="219">genoemd.</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String142" type="str"/>
+        </alignment>
+      </str>
+    </p>
+    <p xml:id="dpo.35.mpeg21.0244.alto.text.p.TextBlock10">
+      <t class="OCR">4 V. Wie deedt deezer Natie eenen grooten dienst?</t>
+      <str xml:id="String143">
+        <t class="OCR" offset="0">4</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String143" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String144">
+        <t class="OCR" offset="2">V.</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String144" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String145">
+        <t class="OCR" offset="5">Wie</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String145" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String146">
+        <t class="OCR" offset="9">deedt</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String146" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String147">
+        <t class="OCR" offset="15">deezer</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String147" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String148">
+        <t class="OCR" offset="22">Natie</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String148" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String149">
+        <t class="OCR" offset="28">eenen</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String149" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String150">
+        <t class="OCR" offset="34">grooten</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String150" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String151">
+        <t class="OCR" offset="42">dienst?</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String151" type="str"/>
+        </alignment>
+      </str>
+    </p>
+    <p xml:id="dpo.35.mpeg21.0244.alto.text.p.TextBlock11">
+      <t class="OCR">A. Iwait</t>
+      <str xml:id="String152">
+        <t class="OCR" offset="0">A.</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String152" type="str"/>
+        </alignment>
+      </str>
+      <str xml:id="String153">
+        <t class="OCR" offset="3">Iwait</t>
+        <alignment xlink:href="http://resolver.kb.nl/resolve?urn=dpo:35:mpeg21:0244:alto" xlink:type="simple">
+          <aref id="String153" type="str"/>
+        </alignment>
+      </str>
+    </p>
+  </text>
+</FoLiA>
+
