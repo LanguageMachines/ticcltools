@@ -273,9 +273,7 @@ int main( int argc, char **argv ){
   size_t expsize = init( experiments, focSet, threads );
 
   cout << "created " << expsize << " separate experiments" << endl;
-  cout << "need to do to at most "
-       << focSet.size() % threads * hashSet.size() * expsize
-       << " iterations" << endl;
+
 #ifdef HAVE_OPENMP
   omp_set_num_threads( threads );
 #endif
