@@ -56,6 +56,12 @@ AC_ARG_WITH(roaring,
 	 LIBS="$LIBS -L$withval/lib -lroaring"],
         [LIBS="$LIBS -lroaring"] )
 
+AC_SEARCH_LIBS( [roaring_bitmap_create], [roaring],[
+   AC_DEFINE(HAVE_ROARING, 1 , Define to 1 if you have roaring stuff )], [
+  AC_MSG_NOTICE([No CRoaring library found. Roaring versions of some programs disabled])
+   AC_DEFINE(HAVE_ROARING, 0 , Define to 1 if you have roaring stuff )
+   ] )
+
 PKG_PROG_PKG_CONFIG
 if test "x$PKG_CONFIG_PATH" = x; then
     export PKG_CONFIG_PATH="/usr/lib/pkgconfig:$prefix/lib/pkgconfig"
