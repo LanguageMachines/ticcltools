@@ -51,7 +51,7 @@
 using namespace std;
 typedef uint64_t bitType;
 
-#define TRANSPOSE_TEST 1
+//#define TRANSPOSE_TEST 1
 
 void usage( const string& name ){
   cerr << name << endl;
