@@ -7,7 +7,7 @@ else
     outsub=zzz
 fi
 
-bindir=/home/sloot/usr/local/bin
+bindir=/exp/sloot/usr/local/bin
 outdir=OUT/$outsub/TICCL
 refdir=OUTreference/OK
 datadir=DATA
