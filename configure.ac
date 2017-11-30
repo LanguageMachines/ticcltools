@@ -49,6 +49,13 @@ AC_C_INLINE
 
 # Checks for library functions.
 
+AC_ARG_WITH(roaring,
+	[  --with-roaring=DIR       use CRoaring installed in <DIR>;
+          note that you can install roaring in a non-default directory],
+        [CXXFLAGS="$CXXFLAGS -I $withval"
+	 LIBS="$LIBS -L$withval/lib -lroaring"],
+        [LIBS="$LIBS -lroaring"] )
+
 PKG_PROG_PKG_CONFIG
 if test "x$PKG_CONFIG_PATH" = x; then
     export PKG_CONFIG_PATH="/usr/lib/pkgconfig:$prefix/lib/pkgconfig"
@@ -67,8 +74,6 @@ LIBS="$XML2_LIBS $LIBS"
 PKG_CHECK_MODULES([ticcutils], [ticcutils >= 0.6] )
 CXXFLAGS="$ticcutils_CFLAGS $CXXFLAGS"
 LIBS="$ticcutils_LIBS $LIBS"
-
-LIBS="$LIBS -lroaring"
 
 AC_CONFIG_FILES([
   Makefile
