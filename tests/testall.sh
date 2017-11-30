@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/bash
 
 if [ "$1" != "" ]
 then
@@ -7,12 +7,31 @@ else
     outsub=zzz
 fi
 
-bindir=/home/sloot/usr/local/bin
+bindir=/exp/sloot/usr/local/bin
 outdir=OUT/$outsub/TICCL
 refdir=OUTreference/OK
 datadir=DATA
 
 echo start TICLL-stuff
+
+$bindir/TICCL-lexstat --clip=20 --LD=2 $datadir/nld.aspell.dict
+
+echo "checking lexstat results...."
+diff $datadir/nld.aspell.dict.lc.chars $refdir/dict.lc.chars >& /dev/null
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-lexstat .lc results"
+    exit
+fi
+
+diff $datadir/nld.aspell.dict.clip20.ld2.charconfus $refdir/charconfus >& /dev/null
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-lexstat .confusion results"
+    exit
+fi
+
+echo "start FoLiA-stats..."
 
 $bindir/FoLiA-stats -R -s -t 30 -e folia.xml$ --lang=none --class=OCR --ngram 1 -o $outdir/TESTDP035 --hemp=$outdir/TESTDP035.hemp FOLIA/
 
@@ -26,7 +45,7 @@ echo start TICLL-unk
 
 cp $outdir/TESTDP035.wordfreqlist.tsv $outdir/TESTDP035.tsv
 
-$bindir/TICCL-unk --corpus $datadir/nuTICCL.OldandINLlexandINLNamesAspell.v2.COL1.tsv --artifrq 100000000 $outdir/TESTDP035.tsv
+$bindir/TICCL-unk --corpus $datadir/INLandAspell.corpus --artifrq 100000000 $outdir/TESTDP035.tsv
 
 if [ $? -ne 0 ]
 then
@@ -62,7 +81,7 @@ fi
 
 echo "start TICCL-indexerNT"
 
-$bindir/TICCL-indexerNT -t 30 --hash $outdir/TESTDP035.tsv.clean.anahash --charconf $datadir/nld.aspell.dict.c20.d2.confusion --foci $outdir/TESTDP035.tsv.clean.corpusfoci
+$bindir/TICCL-indexerNT -t 30 --hash $outdir/TESTDP035.tsv.clean.anahash --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus --foci $outdir/TESTDP035.tsv.clean.corpusfoci
 
 if [ $? -ne 0 ]
 then
@@ -105,7 +124,7 @@ fi
 
 echo "start TICLL-rank"
 
-$bindir/TICCL-rank -t 30 --alph $datadir/nld.aspell.dict.lc.chars --charconf $datadir/nld.aspell.dict.c20.d2.confusion -o $outdir/TESTDP035.tsv.clean.ldcalc.ranked --debugfile $outdir/.TESTDP035.tsv.clean.ldcalc.debug.ranked --artifrq 0 --clip 5 --skipcols=10,11 $outdir/TESTDP035.tsv.clean.ldcalc 2> $outdir/.TESTDP035.RANK.stderr
+$bindir/TICCL-rank -t 30 --alph $datadir/nld.aspell.dict.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/TESTDP035.tsv.clean.ldcalc.ranked --debugfile $outdir/.TESTDP035.tsv.clean.ldcalc.debug.ranked --artifrq 0 --clip 5 --skipcols=10,11 $outdir/TESTDP035.tsv.clean.ldcalc 2> $outdir/.TESTDP035.RANK.stderr
 
 if [ $? -ne 0 ]
 then
