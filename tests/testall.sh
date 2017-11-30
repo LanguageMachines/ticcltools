@@ -7,7 +7,7 @@ else
     outsub=zzz
 fi
 
-bindir=/exp/sloot/usr/local/bin
+bindir=/home/sloot/usr/local/bin
 outdir=OUT/$outsub/TICCL
 refdir=OUTreference/OK
 datadir=DATA
@@ -17,14 +17,14 @@ echo start TICLL-stuff
 $bindir/TICCL-lexstat --clip=20 --LD=2 $datadir/nld.aspell.dict
 
 echo "checking lexstat results...."
-diff $datadir/nld.aspell.dict.lc.chars $refdir/dict.lc.chars >& /dev/null
+diff $datadir/nld.aspell.dict.lc.chars $refdir/dict.lc.chars > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-lexstat .lc results"
     exit
 fi
 
-diff $datadir/nld.aspell.dict.clip20.ld2.charconfus $refdir/charconfus >& /dev/null
+diff $datadir/nld.aspell.dict.clip20.ld2.charconfus $refdir/charconfus > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-lexstat .confusion results"
