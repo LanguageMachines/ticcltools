@@ -54,7 +54,7 @@ AC_ARG_WITH(roaring,
           note that you can install roaring in a non-default directory],
         [CXXFLAGS="$CXXFLAGS -I $withval"
 	 LIBS="$LIBS -L$withval/lib -lroaring"],
-        [LIBS="$LIBS -lroaring"] )
+        [LIBS="$LIBS -L$prefix/lib -lroaring"] )
 
 AC_SEARCH_LIBS( [roaring_bitmap_create], [roaring],[
    AC_DEFINE(HAVE_ROARING, 1 , Define to 1 if you have roaring stuff )], [
