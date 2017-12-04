@@ -54,9 +54,7 @@ fi
 
 echo start TICLL-unk
 
-cp $outdir/TESTDP035.wordfreqlist.tsv $outdir/TESTDP035.tsv
-
-$bindir/TICCL-unk --corpus $datadir/INLandAspell.corpus --artifrq 100000000 $outdir/TESTDP035.tsv
+$bindir/TICCL-unk --corpus $datadir/INLandAspell.corpus --artifrq 100000000 -o $outdir/TESTDP035 $outdir/TESTDP035.wordfreqlist.tsv
 
 if [ $? -ne 0 ]
 then
@@ -64,16 +62,17 @@ then
     exit
 fi
 echo "checking UNK results...."
-diff $outdir/TESTDP035.tsv.punct $refdir/punct > /dev/null 2>&1
+diff $outdir/TESTDP035.punct $refdir/punct > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-UNK punct results"
+    echo "using: diff $outdir/TESTDP035.wordfreqlist.tsv.punct $refdir/punct"
     exit
 fi
 
 echo "start TICLL-anahash"
 
-$bindir/TICCL-anahash --alph $outdir/aspell.lc.chars --artifrq 100000000 $outdir/TESTDP035.tsv.clean
+$bindir/TICCL-anahash --alph $outdir/aspell.lc.chars --artifrq 100000000 $outdir/TESTDP035.clean
 
 if [ $? -ne 0 ]
 then
@@ -82,7 +81,7 @@ then
 fi
 
 echo "checking ANAHASH results...."
-sort $outdir/TESTDP035.tsv.clean.corpusfoci > /tmp/foci
+sort $outdir/TESTDP035.clean.corpusfoci > /tmp/foci
 diff /tmp/foci $refdir/foci > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
@@ -92,7 +91,7 @@ fi
 
 echo "start TICCL-indexerNT"
 
-$bindir/TICCL-indexerNT -t 30 --hash $outdir/TESTDP035.tsv.clean.anahash --charconf $outdir/aspell.clip20.ld2.charconfus --foci $outdir/TESTDP035.tsv.clean.corpusfoci
+$bindir/TICCL-indexerNT -t 30 --hash $outdir/TESTDP035.clean.anahash --charconf $outdir/aspell.clip20.ld2.charconfus --foci $outdir/TESTDP035.clean.corpusfoci
 
 if [ $? -ne 0 ]
 then
@@ -101,7 +100,7 @@ then
 fi
 
 echo "checking INDEXER results...."
-sort $outdir/TESTDP035.tsv.clean.indexNT > /tmp/indexNT
+sort $outdir/TESTDP035.clean.indexNT > /tmp/indexNT
 diff /tmp/indexNT $refdir/indexNT > /dev/null 2>&1
 
 if [ $? -ne 0 ]
@@ -113,7 +112,7 @@ fi
 
 echo "start TICLL-LDcalc"
 
-$bindir/TICCL-LDcalc --index $outdir/TESTDP035.tsv.clean.indexNT --hash $outdir/TESTDP035.tsv.clean.anahash --clean $outdir/TESTDP035.tsv.clean --LD 2 -t 30 --artifrq 100000000 -o $outdir/TESTDP035.tsv.clean.ldcalc
+$bindir/TICCL-LDcalc --index $outdir/TESTDP035.clean.indexNT --hash $outdir/TESTDP035.clean.anahash --clean $outdir/TESTDP035.clean --LD 2 -t 30 --artifrq 100000000 -o $outdir/TESTDP035.clean.ldcalc
 
 if [ $? -ne 0 ]
 then
@@ -122,7 +121,7 @@ then
 fi
 
 echo "checking LDCALC results...."
-sort $outdir/TESTDP035.tsv.clean.ldcalc  > /tmp/ldcalc
+sort $outdir/TESTDP035.clean.ldcalc  > /tmp/ldcalc
 
 diff /tmp/ldcalc $refdir/ldcalc > /dev/null 2>&1
 
@@ -135,7 +134,7 @@ fi
 
 echo "start TICLL-rank"
 
-$bindir/TICCL-rank -t 30 --alph $outdir/aspell.lc.chars --charconf $outdir/aspell.clip20.ld2.charconfus -o $outdir/TESTDP035.tsv.clean.ldcalc.ranked --debugfile $outdir/.TESTDP035.tsv.clean.ldcalc.debug.ranked --artifrq 0 --clip 5 --skipcols=10,11 $outdir/TESTDP035.tsv.clean.ldcalc 2> $outdir/.TESTDP035.RANK.stderr
+$bindir/TICCL-rank -t 30 --alph $outdir/aspell.lc.chars --charconf $outdir/aspell.clip20.ld2.charconfus -o $outdir/TESTDP035.ldcalc.ranked --debugfile $outdir/.TESTDP035.ldcalc.debug.ranked --artifrq 0 --clip 5 --skipcols=10,11 $outdir/TESTDP035.clean.ldcalc 2> $outdir/.TESTDP035.RANK.stderr
 
 if [ $? -ne 0 ]
 then
@@ -145,7 +144,7 @@ fi
 
 echo "checking RANK results...."
 
-sort $outdir/TESTDP035.tsv.clean.ldcalc.ranked > /tmp/rank.sorted
+sort $outdir/TESTDP035.ldcalc.ranked > /tmp/rank.sorted
 diff /tmp/rank.sorted $refdir/rank.sorted > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
