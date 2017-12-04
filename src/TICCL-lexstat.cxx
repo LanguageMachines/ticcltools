@@ -397,7 +397,7 @@ int main( int argc, char *argv[] ){
   }
 
   string output_name;
-  if ( opts.extract( "o", output_name ) ){
+  if ( opts.extract( 'o', output_name ) ){
     if (!TiCC::createPath( output_name ) ){
       cerr << "cannot create output file: '" << output_name << "'" << endl;
       exit( EXIT_FAILURE );

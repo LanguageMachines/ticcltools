@@ -371,7 +371,7 @@ void usage( const string& name ){
 int main( int argc, char *argv[] ){
   TiCC::CL_Options opts;
   try {
-    opts.set_short_options( "vVh" );
+    opts.set_short_options( "vVho:" );
     opts.set_long_options( "acro,alph:,corpus:,artifrq:" );
     opts.parse_args( argc, argv );
   }
@@ -407,6 +407,8 @@ int main( int argc, char *argv[] ){
       exit( EXIT_FAILURE );
     }
   }
+  string output_name;
+  opts.extract( 'o', output_name );
   if ( !opts.empty() ){
     cerr << "unsupported options : " << opts.toString() << endl;
     usage(progname);
@@ -428,24 +430,13 @@ int main( int argc, char *argv[] ){
     cerr << "unable to find or open frequency file: " << file_name << endl;
     exit(EXIT_FAILURE);
   }
-  set<UChar> alphabet;
-
-  if ( !alphafile.empty() ){
-    ifstream as( alphafile );
-    if ( !as ){
-      cerr << "unable to open alphabet file: " << alphafile << endl;
-      exit(EXIT_FAILURE);
-    }
-    if ( !fillAlpha( as, alphabet ) ){
-      cerr << "serious problems reading alphabet file: " << alphafile << endl;
-      exit(EXIT_FAILURE);
-    }
+  if ( output_name.empty() ){
+    output_name = file_name;
   }
-
-  string unk_file_name = file_name + ".unk";
-  string clean_file_name = file_name + ".clean";
-  string punct_file_name = file_name + ".punct";
-  string acro_file_name = file_name + ".acro";
+  string unk_file_name = output_name + ".unk";
+  string clean_file_name = output_name + ".clean";
+  string punct_file_name = output_name + ".punct";
+  string acro_file_name = output_name + ".acro";
 
   ofstream cs( clean_file_name );
   if ( !cs ){
@@ -466,6 +457,20 @@ int main( int argc, char *argv[] ){
     ofstream as( acro_file_name );
     if ( !as ){
       cerr << "unable to open output file: " << acro_file_name << endl;
+      exit(EXIT_FAILURE);
+    }
+  }
+
+  set<UChar> alphabet;
+
+  if ( !alphafile.empty() ){
+    ifstream as( alphafile );
+    if ( !as ){
+      cerr << "unable to open alphabet file: " << alphafile << endl;
+      exit(EXIT_FAILURE);
+    }
+    if ( !fillAlpha( as, alphabet ) ){
+      cerr << "serious problems reading alphabet file: " << alphafile << endl;
       exit(EXIT_FAILURE);
     }
   }
