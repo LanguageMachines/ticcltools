@@ -7,7 +7,17 @@ else
     outsub=zzz
 fi
 
-bindir=/exp/sloot/usr/local/bin
+bindir=/home/sloot/usr/local/bin
+
+if [ !-e $bindir ]
+then
+   bindir=/exp/sloot/usr/local/bin
+   if [ !-e $bindir ]
+   then
+       echo "cannot find executables "
+       exit
+   fi
+fi
 outdir=OUT/$outsub/TICCL
 refdir=OUTreference/OK
 datadir=DATA
