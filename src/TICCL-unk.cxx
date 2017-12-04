@@ -357,6 +357,7 @@ void usage( const string& name ){
   cerr << "\t\t words list and a list of words having leading/trailing "
        << endl;
   cerr << "\t\t punctuation paired with their clean variants." << endl;
+  cerr << "\t-o 'name'\t create outputfile(s) with prefix 'name'" << endl;
   cerr << "\t--alph='file'\t name of the alphabet file" << endl;
   cerr << "\t--corpus='file'\t validated lexicon file" << endl;
   cerr << "\t--artifrq='value'\t the default value for missing frequencies"
