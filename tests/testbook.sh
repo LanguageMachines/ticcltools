@@ -4,7 +4,7 @@ if [ "$1" != "" ]
 then
     outsub=$1
 else
-    outsub=zzz
+    outsub=book
 fi
 
 bindir=/home/sloot/usr/local/bin
