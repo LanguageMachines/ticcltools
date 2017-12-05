@@ -43,7 +43,7 @@
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/PrettyPrint.h"
 #include "ticcl/unicode.h"
-#include "roaring/cpp/roaring64map.hh"
+#include "roaring/roaring64map.hh"
 #include "config.h"
 
 using namespace std;

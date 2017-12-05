@@ -45,7 +45,7 @@
 #include "ticcutils/StringOps.h"
 #include "ticcutils/CommandLine.h"
 #include "ticcl/unicode.h"
-#include "roaring/cpp/roaring64map.hh"
+#include "roaring/roaring64map.hh"
 #include "config.h"
 
 using namespace std;
