@@ -1,10 +1,17 @@
 AM_CPPFLAGS = -I@top_srcdir@/include
 AM_CXXFLAGS = -std=c++11 -g -W -Wall -pedantic -O3
 
+if ROAR
 bin_PROGRAMS = TICCL-indexer TICCL-indexerNT TICCL-indexerNT-roaring \
 	TICCL-LDcalc TICCL-LDcalc-roaring TICCL-unk TICCL-lexstat \
 	TICCL-anahash TICCL-rank TICCL-lexclean \
 	W2V-near W2V-dist W2V-analogy TICCL-stats
+else
+bin_PROGRAMS = TICCL-indexer TICCL-indexerNT \
+	TICCL-LDcalc TICCL-unk TICCL-lexstat \
+	TICCL-anahash TICCL-rank TICCL-lexclean \
+	W2V-near W2V-dist W2V-analogy TICCL-stats
+endif
 
 LDADD = libticcl.la
 lib_LTLIBRARIES = libticcl.la
