@@ -53,14 +53,19 @@ AC_ARG_WITH(roaring,
 	[  --with-roaring=DIR       use CRoaring installed in <DIR>;
           note that you can install roaring in a non-default directory],
         [CXXFLAGS="$CXXFLAGS -I $withval"
-	 LIBS="$LIBS -L$withval/lib -lroaring"],
-        [LIBS="$LIBS -L$prefix/lib -lroaring"] )
+	 LIBS="$LIBS -L$withval/lib"],
+        [LIBS="$LIBS -L$prefix/lib"] )
 
-AC_SEARCH_LIBS( [roaring_bitmap_create], [roaring],[
-   AC_DEFINE(HAVE_ROARING, 1 , Define to 1 if you have roaring stuff )], [
-  AC_MSG_NOTICE([No CRoaring library found. Roaring versions of some programs disabled])
-   AC_DEFINE(HAVE_ROARING, 0 , Define to 1 if you have roaring stuff )
-   ] )
+AC_SEARCH_LIBS( [roaring_bitmap_create],
+		[roaring],
+		[AC_DEFINE(HAVE_ROARING, 1 , Define to 1 if you have roaring stuff )
+		 AM_CONDITIONAL([ROAR], [test 1 = 1])
+		 LIBS="$LIBS -lroaring"
+		 ],
+  		[AC_MSG_NOTICE([No CRoaring library found. Roaring versions of some programs disabled])
+   		AC_DEFINE(HAVE_ROARING, 0 , Define to 1 if you have roaring stuff )
+		   AM_CONDITIONAL([ROAR], [test 1 = 0])]
+ 	     )
 
 PKG_PROG_PKG_CONFIG
 if test "x$PKG_CONFIG_PATH" = x; then
