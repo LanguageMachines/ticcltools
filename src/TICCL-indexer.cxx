@@ -239,6 +239,8 @@ int main( int argc, char **argv ){
 	if ( focSet.find( v1 ) == focSet.end()
 	     && focSet.find( v1 ) == focSet.end() ){
 	  // both values out of focus
+	  ++it1;
+	  ++it2;
 	  continue;
 	}
       }
