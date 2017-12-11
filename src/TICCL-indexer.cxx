@@ -57,6 +57,8 @@ void usage( const string& name ){
   cerr << "\t--high=<high>\t skip entries from the anagram file longer than "
        << endl;
   cerr << "\t\t'high' characters. (default=35)" << endl;
+  cerr << "\t--foci=<focifile>\tname of the file produced by the --artifrq parameter of TICCL-anahash." << endl;
+  cerr << "\t\tThis file is used to limit the searchspace" << endl;
   cerr << "\t-V or --version show version " << endl;
   cerr << "\t-v verbosity " << endl;
   cerr << "\t-h or --help this message " << endl;
@@ -66,7 +68,7 @@ int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
-    opts.set_long_options( "charconf:,hash:,low:,high:,help,version" );
+    opts.set_long_options( "charconf:,hash:,low:,high:,help,version,foci:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -90,11 +92,13 @@ int main( int argc, char **argv ){
   bool verbose = opts.extract( 'v' );
   string anahashFile;
   string confFile;
+  string fociFile;
   string outFile;
   int lowValue = 5;
   int highValue = 35;
   opts.extract( "hash", anahashFile );
   opts.extract( "charconf", confFile );
+  opts.extract( "foci", fociFile );
   opts.extract( 'o', outFile );
   string value;
   if ( opts.extract("low", value ) ){
@@ -124,6 +128,23 @@ int main( int argc, char **argv ){
     cerr << "problem opening charconfusion file: " << confFile << endl;
     exit(1);
   }
+
+  set<bitType> focSet;
+  if ( !fociFile.empty() ){
+    ifstream foc( fociFile );
+    if ( !foc ){
+      cerr << "problem opening foci file: " << fociFile << endl;
+      exit(1);
+    }
+    while ( foc ){
+      bitType bit;
+      foc >> bit;
+      foc.ignore( INT_MAX, '\n' );
+      focSet.insert( bit );
+    }
+    cout << "read " << focSet.size() << " foci values" << endl;
+  }
+
   if ( outFile.empty() ){
     outFile = anahashFile;
     string::size_type pos = outFile.rfind(".");
@@ -212,7 +233,16 @@ int main( int argc, char **argv ){
     bool first = true;
     while ( it1 != anaSet.end() && it2 != anaSet.end() ){
       bitType v1 = *it1;
-      bitType v2 = *it2 - totalShift;
+      bitType v2 = *it2;
+      if ( !focSet.empty() ){
+	// do we have to focus?
+	if ( focSet.find( v1 ) == focSet.end()
+	     && focSet.find( v1 ) == focSet.end() ){
+	  // both values out of focus
+	  continue;
+	}
+      }
+      v2 -= totalShift;
       if ( v1 == v2 ){
 	if ( doKomma ){
 	  of << ",";
