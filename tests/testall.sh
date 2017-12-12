@@ -18,6 +18,7 @@ then
        exit
    fi
 fi
+
 outdir=OUT/$outsub/TICCL
 refdir=OUTreference/OK
 datadir=DATA
