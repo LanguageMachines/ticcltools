@@ -234,38 +234,38 @@ int main( int argc, char **argv ){
     while ( it1 != anaSet.end() && it2 != anaSet.end() ){
       bitType v1 = *it1;
       bitType v2 = *it2;
+      bool foc = true;
       if ( !focSet.empty() ){
 	// do we have to focus?
-	if ( focSet.find( v1 ) == focSet.end()
-	     && focSet.find( v1 ) == focSet.end() ){
-	  // both values out of focus
-	  ++it1;
-	  ++it2;
-	  continue;
-	}
+	foc = !( focSet.find( v1 ) == focSet.end()
+		 && focSet.find( v2 ) == focSet.end() );
+	// both values out of focus
       }
       v2 -= totalShift;
       if ( v1 == v2 ){
-	if ( doKomma ){
-	  of << ",";
+	if ( foc ){
+	  if ( doKomma ){
+	    of << ",";
+	  }
+	  else {
+	    doKomma = true;
+	  }
+	  if ( first ){
+	    // avoid empty entries
+	    of << bit << "#";
+	    first = false;
+	  }
+	  of << v1;
 	}
-	else {
-	  doKomma = true;
-	}
-	if ( first ){
-	  // avoid empty entries
-	  of << bit << "#";
-	  first = false;
-	}
-	of << v1;
 	++it1;
 	++it2;
       }
       else if ( v1 < v2 ){
 	++it1;
       }
-      else
+      else {
 	++it2;
+      }
     }
     if ( !first )
       of << endl;
