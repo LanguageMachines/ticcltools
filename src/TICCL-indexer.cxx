@@ -26,6 +26,7 @@
 */
 #include <unistd.h>
 #include <set>
+#include <map>
 #include <limits>
 #include <algorithm>
 #include <vector>
@@ -63,6 +64,43 @@ void usage( const string& name ){
   cerr << "\t-v verbosity " << endl;
   cerr << "\t-h or --help this message " << endl;
 }
+
+
+void handle_one_conf( bitType confusie, bitType& vorige, bitType& totalShift,
+		      const set<bitType>& anaSet, const set<bitType>& focSet,
+		      map<bitType,set<bitType>>& result ){
+  bitType diff = confusie - vorige;
+  totalShift += diff;
+  auto it1 = anaSet.begin();
+  auto it2 = anaSet.begin();
+  while ( it1 != anaSet.end() && it2 != anaSet.end() ){
+    bitType v1 = *it1;
+    bitType v2 = *it2;
+    bool foc = true;
+    if ( !focSet.empty() ){
+      // do we have to focus?
+      foc = !( focSet.find( v1 ) == focSet.end()
+	       && focSet.find( v2 ) == focSet.end() );
+      // both values out of focus
+    }
+    v2 -= totalShift;
+    if ( v1 == v2 ){
+      if ( foc ){
+	result[confusie].insert(v1);
+      }
+      ++it1;
+      ++it2;
+    }
+    else if ( v1 < v2 ){
+      ++it1;
+    }
+    else {
+      ++it2;
+    }
+  }
+  vorige = confusie;
+}
+
 
 int main( int argc, char **argv ){
   TiCC::CL_Options opts;
@@ -216,60 +254,30 @@ int main( int argc, char **argv ){
   bitType vorige = 0;
   cout << "processing all confusion values" << endl;
   bitType totalShift = 0;
+  map<bitType,set<bitType> > result;
   count = 0;
   for ( const auto& bit : confSet ){
-    bitType diff = bit - vorige;
-    totalShift += diff;
     if ( ++count % 100 == 0 ){
       cout << ".";
       cout.flush();
       if ( count % 5000 == 0 ){
-	cout << endl << count << endl;;
+	cout << endl << count << endl;
       }
     }
-    auto it1 = anaSet.begin();
-    auto it2 = anaSet.begin();
-    bool doKomma = false;
-    bool first = true;
-    while ( it1 != anaSet.end() && it2 != anaSet.end() ){
-      bitType v1 = *it1;
-      bitType v2 = *it2;
-      bool foc = true;
-      if ( !focSet.empty() ){
-	// do we have to focus?
-	foc = !( focSet.find( v1 ) == focSet.end()
-		 && focSet.find( v2 ) == focSet.end() );
-	// both values out of focus
-      }
-      v2 -= totalShift;
-      if ( v1 == v2 ){
-	if ( foc ){
-	  if ( doKomma ){
-	    of << ",";
-	  }
-	  else {
-	    doKomma = true;
-	  }
-	  if ( first ){
-	    // avoid empty entries
-	    of << bit << "#";
-	    first = false;
-	  }
-	  of << v1;
-	}
-	++it1;
-	++it2;
-      }
-      else if ( v1 < v2 ){
-	++it1;
-      }
-      else {
-	++it2;
+    handle_one_conf( bit, vorige, totalShift, anaSet, focSet, result );
+  }
+
+  for ( auto const& rit : result ){
+    of << rit.first << "#";
+    set<bitType>::const_iterator it = rit.second.begin();
+    while ( it != rit.second.end() ){
+      of << *it;
+      ++it;
+      if ( it != rit.second.end() ){
+	of << ",";
       }
     }
-    if ( !first )
-      of << endl;
-    vorige = bit;
+    of << endl;
   }
 
 }
