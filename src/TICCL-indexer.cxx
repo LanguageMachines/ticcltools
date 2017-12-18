@@ -42,6 +42,9 @@
 #include "ticcl/unicode.h"
 
 #include "config.h"
+#ifdef HAVE_OPENMP
+#include "omp.h"
+#endif
 
 using namespace std;
 typedef signed long int bitType;
@@ -60,52 +63,106 @@ void usage( const string& name ){
   cerr << "\t\t'high' characters. (default=35)" << endl;
   cerr << "\t--foci=<focifile>\tname of the file produced by the --artifrq parameter of TICCL-anahash." << endl;
   cerr << "\t\tThis file is used to limit the searchspace" << endl;
+  cerr << "\t-t <threads>\t\trun on 'threads' threads." << endl;
   cerr << "\t-V or --version show version " << endl;
   cerr << "\t-v verbosity " << endl;
   cerr << "\t-h or --help this message " << endl;
 }
 
+struct experiment {
+  set<bitType>::const_iterator start;
+  set<bitType>::const_iterator finish;
+};
 
-void handle_one_conf( bitType confusie, bitType& vorige, bitType& totalShift,
-		      const set<bitType>& anaSet, const set<bitType>& focSet,
-		      map<bitType,set<bitType>>& result ){
-  bitType diff = confusie - vorige;
-  totalShift += diff;
-  auto it1 = anaSet.begin();
-  auto it2 = anaSet.begin();
-  while ( it1 != anaSet.end() && it2 != anaSet.end() ){
-    bitType v1 = *it1;
-    bitType v2 = *it2;
-    bool foc = true;
-    if ( !focSet.empty() ){
-      // do we have to focus?
-      foc = !( focSet.find( v1 ) == focSet.end()
-	       && focSet.find( v2 ) == focSet.end() );
-      // both values out of focus
-    }
-    v2 -= totalShift;
-    if ( v1 == v2 ){
-      if ( foc ){
-	result[confusie].insert(v1);
+
+void handle_confs( const experiment& exp,
+		   size_t& count,
+		   const set<bitType>& anaSet, const set<bitType>& focSet,
+		   map<bitType,set<bitType>>& result ){
+  bitType vorige = 0;
+  bitType totalShift = 0;
+  auto sit = exp.start;
+  while ( sit != exp.finish ){
+#pragma omp critical(count)
+    {
+      if ( ++count % 100 == 0 ){
+	cout << ".";
+	cout.flush();
+	if ( count % 5000 == 0 ){
+	  cout << endl << count << endl;
+	}
       }
-      ++it1;
-      ++it2;
     }
-    else if ( v1 < v2 ){
-      ++it1;
+    bitType confusie = *sit;
+    bitType diff = confusie - vorige;
+    totalShift += diff;
+    auto it1 = anaSet.begin();
+    auto it2 = anaSet.begin();
+    while ( it1 != anaSet.end() && it2 != anaSet.end() ){
+      bitType v1 = *it1;
+      bitType v2 = *it2;
+      bool foc = true;
+      if ( !focSet.empty() ){
+	// do we have to focus?
+	foc = !( focSet.find( v1 ) == focSet.end()
+		 && focSet.find( v2 ) == focSet.end() );
+	// both values out of focus
+      }
+      v2 -= totalShift;
+      if ( v1 == v2 ){
+	if ( foc ){
+#pragma omp critical(update)
+	  {
+	    result[confusie].insert(v1);
+	  }
+	}
+	++it1;
+	++it2;
+      }
+      else if ( v1 < v2 ){
+	++it1;
+      }
+      else {
+	++it2;
+      }
     }
-    else {
-      ++it2;
-    }
+    vorige = confusie;
+    ++sit;
   }
-  vorige = confusie;
 }
 
+size_t init( vector<experiment>& exps,
+	     const set<bitType>& hashes,
+	     size_t threads ){
+  exps.clear();
+  size_t partsize = hashes.size() / threads;
+  if ( partsize < 1 ){
+    experiment e;
+    e.start = hashes.begin();
+    e.finish = hashes.end();
+    exps.push_back( e );
+    return 1;
+  }
+  set<bitType>::const_iterator s = hashes.begin();
+  for ( size_t i=0; i < threads; ++i ){
+    experiment e;
+    e.start = s;
+    for ( size_t j=0; j < partsize && s != hashes.end(); ++j ){
+      ++s;
+    }
+    e.finish = s;
+    exps.push_back( e );
+  }
+  if ( s != hashes.end() ){
+    exps[exps.size()-1].finish = hashes.end();
+  }
+  return threads;
+}
 
 int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
-    opts.set_short_options( "vVho:" );
+    opts.set_short_options( "vVho:t:" );
     opts.set_long_options( "charconf:,hash:,low:,high:,help,version,foci:" );
     opts.init( argc, argv );
   }
@@ -134,6 +191,7 @@ int main( int argc, char **argv ){
   string outFile;
   int lowValue = 5;
   int highValue = 35;
+  int threads = 1;
   opts.extract( "hash", anahashFile );
   opts.extract( "charconf", confFile );
   opts.extract( "foci", fociFile );
@@ -151,6 +209,18 @@ int main( int argc, char **argv ){
       exit( EXIT_FAILURE );
     }
   }
+  if ( opts.extract('t', value ) ){
+#ifdef HAVE_OPENMP
+    if ( !TiCC::stringTo(value,threads) ) {
+      cerr << "illegal value for -t (" << value << ")" << endl;
+      exit( EXIT_FAILURE );
+    }
+#else
+    cerr << "You don't have OpenMP support. Setting -t is useless!" << endl;
+    exit( EXIT_FAILURE );
+#endif
+  }
+
   if ( !opts.empty() ){
     cerr << "unsupported options : " << opts.toString() << endl;
     usage(progname);
@@ -251,20 +321,19 @@ int main( int argc, char **argv ){
   }
   cout << "read " << confSet.size() << " confusion values" << endl;
 
-  bitType vorige = 0;
+  vector<experiment> experiments;
+  size_t expsize = init( experiments, confSet, threads );
+#ifdef HAVE_OPENMP
+  omp_set_num_threads( expsize );
+#endif
+
+
   cout << "processing all confusion values" << endl;
-  bitType totalShift = 0;
   map<bitType,set<bitType> > result;
   count = 0;
-  for ( const auto& bit : confSet ){
-    if ( ++count % 100 == 0 ){
-      cout << ".";
-      cout.flush();
-      if ( count % 5000 == 0 ){
-	cout << endl << count << endl;
-      }
-    }
-    handle_one_conf( bit, vorige, totalShift, anaSet, focSet, result );
+#pragma omp parallel for shared( experiments )
+  for ( size_t i=0; i < expsize; ++i ){
+    handle_confs( experiments[i], count, anaSet, focSet, result );
   }
 
   for ( auto const& rit : result ){
