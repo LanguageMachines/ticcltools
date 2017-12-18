@@ -9,10 +9,10 @@ fi
 
 bindir=/home/sloot/usr/local/bin
 
-if [ !-e $bindir ]
+if [ ! -d $bindir ]
 then
    bindir=/exp/sloot/usr/local/bin
-   if [ !-e $bindir ]
+   if [ ! -d $bindir ]
    then
        echo "cannot find executables "
        exit
