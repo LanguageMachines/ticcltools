@@ -95,24 +95,23 @@ then
     exit
 fi
 
-echo "start TICCL-indexerNT"
+echo "start TICCL-indexer"
 
-$bindir/TICCL-indexerNT -t 30 --hash $outdir/TESTDP035.tsv.clean.anahash --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus --foci $outdir/TESTDP035.tsv.clean.corpusfoci
+$bindir/TICCL-indexer -t 30 --hash $outdir/TESTDP035.tsv.clean.anahash --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus --foci $outdir/TESTDP035.tsv.clean.corpusfoci
 
 if [ $? -ne 0 ]
 then
-    echo "failed in TICCL-indexerNT"
+    echo "failed in TICCL-indexer"
     exit
 fi
 
 echo "checking INDEXER results...."
-sort $outdir/TESTDP035.tsv.clean.indexNT > /tmp/indexNT
-diff /tmp/indexNT $refdir/indexNT > /dev/null 2>&1
+diff $outdir/TESTDP035.tsv.clean.index $refdir/index > /dev/null 2>&1
 
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-indexer results"
-    echo "using diff /tmp/indexNT $refdir/indexNT"
+    echo "using diff $outdir/TESTDP035.tsv.clean.index $refdir/index"
     exit
 fi
 

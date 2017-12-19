@@ -92,7 +92,7 @@ fi
 
 echo "start TICCL-indexerNT"
 
-$bindir/TICCL-indexer -t 30 --hash $outdir/TESTDP035.clean.anahash --charconf $outdir/aspell.clip20.ld2.charconfus --foci $outdir/TESTDP035.clean.corpusfoci
+$bindir/TICCL-indexerNT -t 30 --hash $outdir/TESTDP035.clean.anahash --charconf $outdir/aspell.clip20.ld2.charconfus --foci $outdir/TESTDP035.clean.corpusfoci
 
 if [ $? -ne 0 ]
 then
