@@ -90,30 +90,29 @@ then
     exit
 fi
 
-echo "start TICCL-indexerNT"
+echo "start TICCL-indexer"
 
-$bindir/TICCL-indexerNT -t 30 --hash $outdir/TESTDP035.clean.anahash --charconf $outdir/aspell.clip20.ld2.charconfus --foci $outdir/TESTDP035.clean.corpusfoci
+$bindir/TICCL-indexer -t 30 --hash $outdir/TESTDP035.clean.anahash --charconf $outdir/aspell.clip20.ld2.charconfus --foci $outdir/TESTDP035.clean.corpusfoci
 
 if [ $? -ne 0 ]
 then
-    echo "failed in TICCL-indexerNT"
+    echo "failed in TICCL-indexer"
     exit
 fi
 
 echo "checking INDEXER results...."
-sort $outdir/TESTDP035.clean.indexNT > /tmp/indexNT
-diff /tmp/indexNT $refdir/indexNT > /dev/null 2>&1
+diff $outdir/TESTDP035.clean.index $refdir/index > /dev/null 2>&1
 
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-indexer results"
-    echo "using diff /tmp/indexNT $refdir/indexNT"
+    echo "using diff $outdir/TESTDP035.clean.index $refdir/index"
     exit
 fi
 
 echo "start TICLL-LDcalc"
 
-$bindir/TICCL-LDcalc --index $outdir/TESTDP035.clean.indexNT --hash $outdir/TESTDP035.clean.anahash --clean $outdir/TESTDP035.clean --LD 2 -t 30 --artifrq 100000000 -o $outdir/TESTDP035.clean.ldcalc
+$bindir/TICCL-LDcalc --index $outdir/TESTDP035.clean.index --hash $outdir/TESTDP035.clean.anahash --clean $outdir/TESTDP035.clean --LD 2 -t 30 --artifrq 100000000 -o $outdir/TESTDP035.clean.ldcalc
 
 if [ $? -ne 0 ]
 then

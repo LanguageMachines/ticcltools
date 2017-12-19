@@ -117,7 +117,7 @@ fi
 
 echo "start TICLL-LDcalc"
 
-$bindir/TICCL-LDcalc --index $outdir/TESTDP035.tsv.clean.indexNT --hash $outdir/TESTDP035.tsv.clean.anahash --clean $outdir/TESTDP035.tsv.clean --LD 2 -t 30 --artifrq 100000000 -o $outdir/TESTDP035.tsv.clean.ldcalc
+$bindir/TICCL-LDcalc --index $outdir/TESTDP035.tsv.clean.index --hash $outdir/TESTDP035.tsv.clean.anahash --clean $outdir/TESTDP035.tsv.clean --LD 2 -t 30 --artifrq 100000000 -o $outdir/TESTDP035.tsv.clean.ldcalc
 
 if [ $? -ne 0 ]
 then
