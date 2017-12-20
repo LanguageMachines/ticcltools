@@ -101,13 +101,12 @@ then
 fi
 
 echo "checking INDEXER results...."
-sort $outdir/TESTDP035.clean.indexNT > /tmp/indexNT
-diff /tmp/indexNT $refdir/indexNT > /dev/null 2>&1
+diff $outdir/TESTDP035.clean.indexNT $refdir/indexNT > /dev/null 2>&1
 
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-indexer results"
-    echo "using diff /tmp/indexNT $refdir/indexNT"
+    echo "using diff $outdir/TESTDP035.clean.indexNT $refdir/indexNT"
     exit
 fi
 
