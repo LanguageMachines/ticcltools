@@ -34,6 +34,7 @@
 
 #include "ticcutils/StringOps.h"
 #include "ticcutils/CommandLine.h"
+#include "ticcutils/FileUtils.h"
 #include "ticcl/unicode.h"
 
 #include "config.h"
@@ -358,6 +359,7 @@ void usage( const string& name ){
   cerr << "\t" << name << " will create a lowercased character frequency" << endl
        << "\t\t list from a dictionary file." << endl;
   cerr << "\t-h\t this message " << endl;
+  cerr << "\t-o 'name'\t create outputfile(s) with prefix 'name'" << endl;
   cerr << "\t--diac produces an extra diacritics confusion file (extension .diac)" << endl;
   cerr << "\t--clip 'clip' truncates the character file at frequency 'clip'" << endl;
   cerr << "\t--LD depth 1, 2 or 3. (default 2): The characterlength of the confusions." << endl;
@@ -370,7 +372,7 @@ void usage( const string& name ){
 int main( int argc, char *argv[] ){
   TiCC::CL_Options opts;
   try {
-    opts.set_short_options( "vVh" );
+    opts.set_short_options( "vVho:" );
     opts.set_long_options( "LD:,clip:,diac,all" );
     opts.init( argc, argv );
   }
@@ -394,6 +396,13 @@ int main( int argc, char *argv[] ){
     exit(EXIT_FAILURE);
   }
 
+  string output_name;
+  if ( opts.extract( 'o', output_name ) ){
+    if (!TiCC::createPath( output_name ) ){
+      cerr << "cannot create output file: '" << output_name << "'" << endl;
+      exit( EXIT_FAILURE );
+    }
+  }
   int depth = 2;
   string depthS = "2";
   int clip = -1;
@@ -441,10 +450,13 @@ int main( int argc, char *argv[] ){
     exit(EXIT_FAILURE);
   }
   string orig = TiCC::basename( file_name );
-  string lc_file_name = file_name + ".lc.chars";
-  string conf_file_name = file_name + ".clip" + clipS + ".ld" + depthS + ".charconfus";
+  if ( output_name.empty() ){
+    output_name = file_name;
+  }
+  string lc_file_name = output_name + ".lc.chars";
+  string confusion_file_name = output_name + ".clip" + clipS + ".ld" + depthS + ".charconfus";
   if ( stripdia ){
-    diafile = file_name + ".lc.diac";
+    diafile = output_name + ".lc.diac";
   }
 
   map<UChar,size_t> chars;
@@ -464,7 +476,7 @@ int main( int argc, char *argv[] ){
     create_dia_file( diafile, lchars, hashes );
   }
   if ( depth > 0 ){
-    generate_confusion( conf_file_name, hashes, depth, full );
+    generate_confusion( confusion_file_name, hashes, depth, full );
   }
   cout << "done!" << endl;
 }

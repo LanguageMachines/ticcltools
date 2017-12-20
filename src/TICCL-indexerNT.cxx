@@ -50,6 +50,8 @@
 using namespace std;
 typedef signed long int bitType;
 
+//#define TRANSPOSE_TEST 1
+
 void usage( const string& name ){
   cerr << name << endl;
   cerr << "options: " << endl;
@@ -73,7 +75,9 @@ struct experiment {
   set<bitType>::const_iterator finish;
 };
 
-size_t init( vector<experiment>& exps, const set<bitType>& hashes, size_t threads ){
+size_t init( vector<experiment>& exps,
+	     const set<bitType>& hashes,
+	     size_t threads ){
   exps.clear();
   size_t partsize = hashes.size() / threads;
   if ( partsize < 1 ){
@@ -96,6 +100,69 @@ size_t init( vector<experiment>& exps, const set<bitType>& hashes, size_t thread
     exps[exps.size()-1].finish = hashes.end();
   }
   return threads;
+}
+
+void handle_exp( const experiment& exp,
+		 size_t& count,
+		 const set<bitType>& hashSet,
+		 const set<bitType>& confSet,
+		 map<bitType,set<bitType>>& result ){
+  bitType max = *confSet.rbegin();
+  set<bitType>::const_iterator it1 = exp.start;
+  while ( it1 != exp.finish ){
+#pragma omp critical
+    {
+      if ( ++count % 100 == 0 ){
+	cout << ".";
+	cout.flush();
+	if ( count % 5000 == 0 ){
+	  cout << endl << count << endl;;
+	}
+      }
+    }
+    set<bitType>::const_iterator it3 = hashSet.find( *it1 );
+    if ( it3 != hashSet.end() ){
+      set<bitType>::const_reverse_iterator it2( it3 );
+      ++it2;
+      while ( it2 != hashSet.rend() ){
+	bitType diff = *it1 - *it2;
+	if ( diff > max )
+	  break;
+	set<bitType>::const_iterator sit = confSet.find( diff );
+	if ( sit != confSet.end() ){
+#pragma omp critical
+	  {
+#ifdef TRANSPOSE_TEST
+	    result[*it2].insert(diff);
+#else
+	    result[diff].insert(*it2);
+#endif
+	  }
+	}
+	++it2;
+      }
+      // it3 is already set at hashSet.find( *it1 );
+      ++it3;
+      while ( it3 != hashSet.end() ){
+	bitType diff = *it3 - *it1;
+	if ( diff > max )
+	  break;
+	set<bitType>::const_iterator sit = confSet.find( diff );
+	if ( sit != confSet.end() ){
+#pragma omp critical
+	  {
+#ifdef TRANSPOSE_TEST
+	    result[*it1].insert(diff);
+#else
+	    result[diff].insert(*it1);
+#endif
+	  }
+	}
+	++it3;
+      }
+    }
+    ++it1;
+  }
 }
 
 int main( int argc, char **argv ){
@@ -191,6 +258,10 @@ int main( int argc, char **argv ){
     outFile += ".indexNT";
   }
 
+#ifdef TRANSPOSE_TEST
+  outFile += ".";
+#endif
+
   ofstream of( outFile );
   if ( !of ){
     cerr << "problem opening output file: " << outFile << endl;
@@ -259,51 +330,21 @@ int main( int argc, char **argv ){
     }
   }
   cout << "read " << confSet.size() << " character confusion values" << endl;
-  bitType max = *confSet.rbegin();
-  cout <<"max value = " << max << endl;
 
-  map<bitType,set<bitType> > result;
   vector<experiment> experiments;
   size_t expsize = init( experiments, focSet, threads );
+
+  cout << "created " << expsize << " separate experiments" << endl;
+
 #ifdef HAVE_OPENMP
   omp_set_num_threads( expsize );
 #endif
 
-#pragma omp parallel for shared( experiments )
+  size_t count = 0;
+  map<bitType,set<bitType> > result;
+#pragma omp parallel for shared( experiments, count, result )
   for ( size_t i=0; i < expsize; ++i ){
-    set<bitType>::const_iterator it1 = experiments[i].start;
-    while ( it1 != experiments[i].finish ){
-      set<bitType>::const_iterator it3 = hashSet.find( *it1 );
-      if ( it3 != hashSet.end() ){
-	set<bitType>::const_reverse_iterator it2( it3 );
-	++it2;
-	while ( it2 != hashSet.rend() ){
-	  bitType diff = *it1 - *it2;
-	  if ( diff > max )
-	    break;
-	  set<bitType>::const_iterator sit = confSet.find( diff );
-	  if ( sit != confSet.end() ){
-#pragma omp critical
-	    result[diff].insert(*it2);
-	  }
-	  ++it2;
-	}
-	// it3 is already set at hashSet.find( *it1 );
-	++it3;
-	while ( it3 != hashSet.end() ){
-	  bitType diff = *it3 - *it1;
-	  if ( diff > max )
-	    break;
-	  set<bitType>::const_iterator sit = confSet.find( diff );
-	  if ( sit != confSet.end() ){
-#pragma omp critical
-	    result[diff].insert(*it1);
-	  }
-	  ++it3;
-	}
-      }
-      ++it1;
-    }
+    handle_exp( experiments[i], count, hashSet, confSet, result );
   }
 
   for ( auto const& rit : result ){
@@ -318,4 +359,5 @@ int main( int argc, char **argv ){
     }
     of << endl;
   }
+
 }

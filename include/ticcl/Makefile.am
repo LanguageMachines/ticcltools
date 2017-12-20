@@ -1,1 +1,1 @@
-pkginclude_HEADERS = unicode.h
+pkginclude_HEADERS = unicode.h word2vec.h

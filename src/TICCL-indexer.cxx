@@ -101,12 +101,15 @@ void handle_confs( const experiment& exp,
     while ( it1 != anaSet.end() && it2 != anaSet.end() ){
       bitType v1 = *it1;
       bitType v2 = *it2;
+      bitType v2_save = v2;
       v2 -= totalShift;
       if ( v1 == v2 ){
 	bool foc = true;
 	if ( !focSet.empty() ){
-	  // do we have to focus? if no focSet, then always...
-	  foc = focSet.find( v1 ) != focSet.end();
+	  // do we have to focus?
+	  foc = !( focSet.find( v1 ) == focSet.end()
+		   && focSet.find( v2_save ) == focSet.end() );
+	  // both values out of focus
 	}
 	if ( foc ){
 #pragma omp critical(update)

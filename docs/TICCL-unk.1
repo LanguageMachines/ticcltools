@@ -1,17 +1,17 @@
-.TH TICCL-unk 1 "2016 jul 05"
+.TH TICCL\-unk 1 "2017 dec 04"
 
 .SH NAME
-TICCL-unk - a frequency file cleanup tool
+TICCL\-unk \- a frequency file cleanup tool
 
 .SH SYNOPSIS
 
-TICCL-unk [options] FILE
+TICCL\-unk [options] FILE
 
 .SH DESCRIPTION
 
-.B TICCL-unk
+.B TICCL\-unk
 processes a tab separated frequency file (for instance a *.tsv file produced by
-FoLiA-stats) and creates 3 new files:
+FoLiA\-stats) and creates 3 new files:
 
 1. A 'clean' file of words that are expected to be within 'reach' of correction by TICCL, i.e.
 
@@ -21,37 +21,43 @@ FoLiA-stats) and creates 3 new files:
 trailing punctuation. The clean variants are also added to the 'clean' file.
 
 .SH OPTIONS
-.B --alph
+.B \-\-alph
 file
 .RS
 name of the alphabet file. This file must be in the format provided by
-TICCL-lexstat.
+TICCL\-lexstat.
 .RE
 
-.B -V
+.B \-V
 or
-.B --version
+.B \-\-version
 .RS
 Show VERSION
 .RE
 
-.B --corpus
+.B \-\-corpus
 lexicon or corpusfile
 .RS
 additionaly read in an extra file of words (a validated lexicon or a background corpus frequency file, or a combination of both) with
 .B optional
 frequencies. When NO frequency is found, use the value of the
-.B --artifrq
+.B \-\-artifrq
 option to set the artificial frequency for the particular lexicon item
 .RE
 
-.B --artfrq
+.B \-o
+prefix
+.RS
+Base the output file name(s) on 'outfile'. Normally the name of the inputfile is used. Use this also when the directory of the inputfile is read\-only
+.RE
+
+.B \-\-artifrq
 artifreq
 .RS
 Use 'artifreq' or `artifical frequency' as the default value for missing freqencies. This frequency value should exceed the top frequency expected to be observed in the corpus to be cleaned.
 .RE
 
-.B --acro
+.B \-\-acro
 file
 .RS
 name of an acronyms file that will be generated. (experimental)
