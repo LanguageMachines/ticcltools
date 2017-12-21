@@ -543,8 +543,10 @@ int main( int argc, char *argv[] ){
 	   << " content='" << line << "'" << endl;
       if ( ++err_cnt > 10 ){
 	cerr << "frequency file seems to be in wrong format!" << endl;
+	cerr << "too many errors, bailing out" << endl;
 	exit(EXIT_FAILURE);
       }
+      continue;
     }
     unsigned int freq = TiCC::stringTo<unsigned int>(v[1]);
 
