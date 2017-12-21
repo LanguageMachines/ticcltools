@@ -49,6 +49,10 @@ AC_C_INLINE
 
 # Checks for library functions.
 
+if test "x$prefix" = "xNONE"; then
+   prefix="/usr/local"
+fi
+
 AC_ARG_WITH(roaring,
 	[  --with-roaring=DIR       use CRoaring installed in <DIR>;
           note that you can install roaring in a non-default directory],
