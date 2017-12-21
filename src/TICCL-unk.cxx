@@ -524,7 +524,10 @@ int main( int argc, char *argv[] ){
     }
   }
   string line;
+  size_t line_cnt = 0 ;
+  size_t err_cnt = 0;
   while ( getline( is, line ) ){
+    ++line_cnt;
     line = TiCC::trim( line );
     if ( line.empty() ){
       continue;
@@ -536,9 +539,12 @@ int main( int argc, char *argv[] ){
       continue;
     }
     if ( n < 2 ){
-      cerr << "frequency file in wrong format!" << endl;
-      cerr << "offending line: " << line << endl;
-      exit(EXIT_FAILURE);
+      cerr << "error in line #" << line_cnt
+	   << " content='" << line << "'" << endl;
+      if ( ++err_cnt > 10 ){
+	cerr << "frequency file seems to be in wrong format!" << endl;
+	exit(EXIT_FAILURE);
+      }
     }
     unsigned int freq = TiCC::stringTo<unsigned int>(v[1]);
 
