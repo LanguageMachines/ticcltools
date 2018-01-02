@@ -1,11 +1,9 @@
-# $Id: Makefile.am 7708 2011-01-05 13:47:18Z sloot $
-# $URL: https://ilk.uvt.nl/svn/trunk/sources/Timbl6/Makefile.am $
 
 ACLOCAL_AMFLAGS =-I m4 --install
 
 SUBDIRS = include src m4 docs
 
-EXTRA_DIST = bootstrap.sh AUTHORS TODO NEWS
+EXTRA_DIST = bootstrap.sh AUTHORS TODO NEWS README.md
 
 ChangeLog: NEWS
 	git pull; git2cl > ChangeLog
