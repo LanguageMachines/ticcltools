@@ -85,8 +85,8 @@ void create_wf_list( const map<string, unsigned int>& wc,
 #pragma omp critical
   {
     cout << "created WordFreq list '" << filename << "'" << endl
-	 << "with " << total << " words and " << types << " types. "
-	 << " tokens and " << types << " types. TTR= " << (double)types/total
+	 << "with " << total << " tokens and " << types
+	 << " types. TTR= " << (double)types/total
 	 << ", the angle is " << atan((double)types/total)*180/M_PI
 	 << " degrees";
     if ( clip > 0 ){
