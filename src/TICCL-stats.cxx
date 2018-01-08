@@ -25,6 +25,7 @@
 
 */
 
+#include <cmath>
 #include <string>
 #include <map>
 #include <vector>
@@ -83,13 +84,14 @@ void create_wf_list( const map<string, unsigned int>& wc,
   }
 #pragma omp critical
   {
-    cout << "created WordFreq list '" << filename << "'";
+    cout << "created WordFreq list '" << filename << "'" << endl
+	 << "with " << total << " words and " << types << " types. "
+	 << " tokens and " << types << " types. TTR= " << (double)types/total
+	 << ", the angle is " << atan((double)types/total)*180/M_PI
+	 << " degrees";
     if ( clip > 0 ){
-      cout << endl << "with " << total << " words and " << types << " types. (" << totalIn - total
-	   << " of the original " << totalIn << " words were clipped.)" << endl;
-    }
-    else {
-      cout << " for " << total << " word tokens." << endl;
+      cout << "(" << totalIn - total << " of the original " << totalIn
+	   << " words were clipped.)" << endl;
     }
   }
 }
