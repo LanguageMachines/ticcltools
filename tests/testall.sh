@@ -128,7 +128,7 @@ diff /tmp/ldcalc $refdir/ldcalc > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-ldcalc results"
-    ech "using: diff /tmp/ldcalc $refdir/ldcalc"
+    echo "using: diff /tmp/ldcalc $refdir/ldcalc"
     exit
 fi
 
@@ -149,6 +149,7 @@ diff /tmp/rank.sorted $refdir/rank.sorted > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"
+    echo "using: diff /tmp/rank.sorted $refdir/rank.sorted"
     exit
 else
     echo OK!
