@@ -128,12 +128,12 @@ fi
 echo "checking LDCALC results...."
 sort $outdir/TESTDP035.tsv.clean.ldcalc  > /tmp/ldcalc
 
-diff /tmp/ldcalc $refdir/ldcalc > /dev/null 2>&1
+diff /tmp/ldcalc $refdir/ldcalc.NT > /dev/null 2>&1
 
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-ldcalc results"
-    echo "using: diff /tmp/ldcalc $refdir/ldcalc"
+    echo "using: diff /tmp/ldcalc $refdir/ldcalc.NT"
     exit
 fi
 
@@ -150,11 +150,11 @@ fi
 echo "checking RANK results...."
 
 sort $outdir/TESTDP035.tsv.clean.ldcalc.ranked > /tmp/rank.sorted
-diff /tmp/rank.sorted $refdir/rank.sorted > /dev/null 2>&1
+diff /tmp/rank.sorted $refdir/rank.NT.sorted > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"
-    echo "using: diff /tmp/rank.sorted $refdir/rank.sorted"
+    echo "using: diff /tmp/rank.sorted $refdir/rank.NT.sorted"
     exit
 else
     echo OK!
