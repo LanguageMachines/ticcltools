@@ -36,7 +36,7 @@
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/StringOps.h"
 #include "ticcutils/FileUtils.h"
-#include "ticcl/unicode.h"
+#include "ticcutils/Unicode.h"
 
 #include "config.h"
 
@@ -90,7 +90,7 @@ void dump_quarantine( const string& filename,
 }
 
 bool isClean( const string& s, const set<UChar>& alp ){
-  UnicodeString us = UTF8ToUnicode( s );
+  UnicodeString us = TiCC::UnicodeFromUTF8( s );
   for ( int i=0; i < us.length(); ++i ){
     if ( alp.find( us[i] ) == alp.end() )
       return false;
@@ -111,7 +111,7 @@ bool fillAlpha( const string& file, set<UChar>& alphabet ){
       cerr << "unsupported format for alphabet file" << endl;
       exit(EXIT_FAILURE);
     }
-    UnicodeString us = UTF8ToUnicode( v[0] );
+    UnicodeString us = TiCC::UnicodeFromUTF8( v[0] );
     us.toLower();
     alphabet.insert( us[0] );
     us.toUpper();

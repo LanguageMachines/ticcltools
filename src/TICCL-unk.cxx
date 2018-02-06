@@ -34,6 +34,7 @@
 
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/StringOps.h"
+#include "ticcutils/Unicode.h"
 #include "ticcl/unicode.h"
 
 #include "config.h"
@@ -81,7 +82,7 @@ bool fillAlpha( istream& is, set<UChar>& alphabet ){
       cerr << "unsupported format for alphabet file" << endl;
       exit(EXIT_FAILURE);
     }
-    UnicodeString us = UTF8ToUnicode( v[0] );
+    UnicodeString us = TiCC::UnicodeFromUTF8( v[0] );
     us.toLower();
     alphabet.insert( us[0] );
     us.toUpper();
@@ -100,7 +101,7 @@ bool fillSimpleAlpha( istream& is, set<UChar>& alphabet ){
     vector<string> vec;
     TiCC::split( line, vec );
     line = vec[0];
-    UnicodeString us = UTF8ToUnicode( line );
+    UnicodeString us = TiCC::UnicodeFromUTF8( line );
     us.toLower();
     for( int i=0; i < us.length(); ++i )
       alphabet.insert( us[i] );
@@ -285,7 +286,7 @@ S_Class classify( const string& word, set<UChar>& alphabet,
 		  string& punct ){
   S_Class result = CLEAN;
   punct.clear();
-  UnicodeString us = UTF8ToUnicode( word );
+  UnicodeString us = TiCC::UnicodeFromUTF8( word );
   UnicodeString ps;
   if ( depunct( us, ps  ) ){
     if ( ps.length() == 0 ){
@@ -299,7 +300,7 @@ S_Class classify( const string& word, set<UChar>& alphabet,
       result = classify( ps, alphabet );
       if ( result != IGNORE ){
 	if ( result == CLEAN ){
-	  punct = UnicodeToUTF8( ps );
+	  punct = TiCC::UnicodeToUTF8( ps );
 	  result = PUNCT;
 	}
 	else
@@ -318,10 +319,10 @@ S_Class classify( const string& word, set<UChar>& alphabet,
 
 bool isAcro( const string& word, string& stripped ){
   stripped = "";
-  UnicodeString us = UTF8ToUnicode( word );
+  UnicodeString us = TiCC::UnicodeFromUTF8( word );
   if ( u_ispunct( us[0] ) ){
     us = UnicodeString( us, 1 );
-    stripped = UnicodeToUTF8(us);
+    stripped = TiCC::UnicodeToUTF8(us);
   }
   if ( us.length() < 6 ){
     UnicodeString Us = us;
@@ -518,7 +519,7 @@ int main( int argc, char *argv[] ){
 	freq = artifreq;
       }
       clean_words[v[0]] += freq;
-      UnicodeString us = UTF8ToUnicode( v[0] );
+      UnicodeString us = TiCC::UnicodeFromUTF8( v[0] );
       us.toLower();
       decap_clean_words[us] += freq;
     }
@@ -564,7 +565,7 @@ int main( int argc, char *argv[] ){
     for ( auto const& wrd : parts ){
       S_Class cl;
       string pun;
-      UnicodeString us = UTF8ToUnicode( wrd );
+      UnicodeString us = TiCC::UnicodeFromUTF8( wrd );
       us.toLower();
       if ( decap_clean_words.find( us ) != decap_clean_words.end() ){
 	// no need to do a lot of work for already clean words

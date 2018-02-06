@@ -6,16 +6,6 @@
 #include "unicode/uchar.h"
 #include <unicode/translit.h>
 
-inline UnicodeString UTF8ToUnicode( const std::string& s ){
-  return UnicodeString::fromUTF8( s );
-}
-
-inline std::string UnicodeToUTF8( const UnicodeString& s ){
-  std::string result;
-  s.toUTF8String(result);
-  return result;
-}
-
 inline std::string toString( int8_t c ){
   switch ( c ){
   case 0:

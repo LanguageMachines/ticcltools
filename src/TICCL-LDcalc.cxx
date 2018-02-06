@@ -42,6 +42,7 @@
 #include "ticcutils/StringOps.h"
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/PrettyPrint.h"
+#include "ticcutils/Unicode.h"
 #include "ticcl/unicode.h"
 #include "config.h"
 
@@ -157,9 +158,9 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	continue;
       }
       size_t freq2 = fit->second;
-      UnicodeString us1 = UTF8ToUnicode( str1 );
+      UnicodeString us1 = TiCC::UnicodeFromUTF8( str1 );
       us1.toLower();
-      UnicodeString us2 = UTF8ToUnicode( str2 );
+      UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
       us2.toLower();
 
       size_t out_freq1;
@@ -305,7 +306,7 @@ void compareSets( ostream& os, unsigned int ldValue,
       continue;
     }
     size_t freq1 = fit->second;
-    UnicodeString us1 = UTF8ToUnicode( str1 );
+    UnicodeString us1 = TiCC::UnicodeFromUTF8( str1 );
     us1.toLower();
     set<string>::const_iterator it2 = s2.begin();
     while ( it2 != s2.end() ) {
@@ -329,7 +330,7 @@ void compareSets( ostream& os, unsigned int ldValue,
       }
 
       size_t freq2 = fit->second;
-      UnicodeString us2 = UTF8ToUnicode( str2 );
+      UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
       us2.toLower();
       unsigned int ld = ldCompare( us1, us2 );
       if ( ld > ldValue ){
@@ -568,7 +569,7 @@ int main( int argc, char **argv ){
 	cerr << progname << ": invalid line '" << line << "' in " << alfabetFile << endl;
 	exit( EXIT_FAILURE );
       }
-      UnicodeString key = UTF8ToUnicode(vec[0]);
+      UnicodeString key = TiCC::UnicodeFromUTF8(vec[0]);
       alfabet.insert(key[0]);
     }
   }
@@ -594,7 +595,7 @@ int main( int argc, char **argv ){
       string s = v1[0];
       size_t freq = TiCC::stringTo<size_t>( v1[1] );
       freqMap[s] = freq;
-      UnicodeString us = UTF8ToUnicode( s );
+      UnicodeString us = TiCC::UnicodeFromUTF8( s );
       us.toLower();
       low_freqMap[us] +=freq;
     }

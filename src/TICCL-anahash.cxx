@@ -35,6 +35,7 @@
 #include "ticcutils/StringOps.h"
 #include "ticcutils/FileUtils.h"
 #include "ticcutils/CommandLine.h"
+#include "ticcutils/Unicode.h"
 #include "ticcl/unicode.h"
 
 #include "config.h"
@@ -71,7 +72,7 @@ bool fillAlpha( istream& is,
     }
     int freq = TiCC::stringTo<int>( v[1] );
     if ( freq > clip ){
-      UnicodeString us = UTF8ToUnicode( v[0] );
+      UnicodeString us = TiCC::UnicodeFromUTF8( v[0] );
       bitType hash = TiCC::stringTo<bitType>( v[2] );
       alphabet[us[0]] = hash;
     }
@@ -88,7 +89,7 @@ bitType hash( const string& s,
     HonderdHash = high_five( 100 );
     HonderdEenHash = high_five( 101 );
   }
-  UnicodeString us = UTF8ToUnicode( s );
+  UnicodeString us = TiCC::UnicodeFromUTF8( s );
   us.toLower();
   bitType result = 0;
   bool multPunct = false;
@@ -322,9 +323,9 @@ int main( int argc, char *argv[] ){
 	    const auto u_it = freq_list.find(part);
 	    if ( u_it != freq_list.end()
 		 && u_it->second < artifreq ){
-	      UnicodeString u_part = UTF8ToUnicode( part );
+	      UnicodeString u_part = TiCC::UnicodeFromUTF8( part );
 	      u_part.toLower();
-	      string l_part  = UnicodeToUTF8( u_part );
+	      string l_part  = TiCC::UnicodeToUTF8( u_part );
 	      const auto l_it = freq_list.find(l_part);
 	      if ( l_it == freq_list.end()
 		   || l_it->second < artifreq ){
@@ -340,9 +341,9 @@ int main( int argc, char *argv[] ){
       else {
 	bitType freq = it.second;
 	if ( freq < artifreq ){
-	  UnicodeString u_part = UTF8ToUnicode( word );
+	  UnicodeString u_part = TiCC::UnicodeFromUTF8( word );
 	  u_part.toLower();
-	  string l_part  = UnicodeToUTF8( u_part );
+	  string l_part  = TiCC::UnicodeToUTF8( u_part );
 	  const auto l_it = freq_list.find(l_part);
 	  if ( l_it == freq_list.end()
 	       || l_it->second < artifreq ){

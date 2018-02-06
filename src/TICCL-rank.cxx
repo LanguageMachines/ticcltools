@@ -44,8 +44,9 @@
 #include "ticcutils/StringOps.h"
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/PrettyPrint.h"
-#include "ticcl/word2vec.h"
+#include "ticcutils/Unicode.h"
 #include "ticcl/unicode.h"
+#include "ticcl/word2vec.h"
 
 using namespace std;
 typedef signed long int bitType;
@@ -137,9 +138,9 @@ record::record( const string& line,
     freq1 = TiCC::stringTo<size_t>(parts[1]);
     low_freq1 = TiCC::stringTo<size_t>(parts[2]);
     variant2 = parts[3];
-    UnicodeString us = UTF8ToUnicode( variant2 );
+    UnicodeString us = TiCC::UnicodeFromUTF8( variant2 );
     us.toLower();
-    lowervariant2 = UnicodeToUTF8( us );
+    lowervariant2 = TiCC::UnicodeToUTF8( us );
     variant_rank = -2000;
     freq2 = TiCC::stringTo<size_t>(parts[4]);
     f2len = parts[4].length();
@@ -778,7 +779,7 @@ int main( int argc, char **argv ){
       cerr << "invalid line '" << line << "' in " << alfabetFile << endl;
       exit( EXIT_FAILURE );
     }
-    UnicodeString key = UTF8ToUnicode(vec[0]);
+    UnicodeString key = TiCC::UnicodeFromUTF8(vec[0]);
     bitType value = TiCC::stringTo<bitType>( vec[2] );
     alfabet[key[0]] = value;
   }
@@ -833,7 +834,7 @@ int main( int argc, char **argv ){
     bitType key = TiCC::stringTo<bitType>( vec[0] );
     kwc_string[key] = vec[1];
     if ( kwc_counts[key] > 0 ){
-      UnicodeString value = UTF8ToUnicode( vec[1] );
+      UnicodeString value = TiCC::UnicodeFromUTF8( vec[1] );
       if ( value.length() == 5 && value[2] == '~' ){
 	if ( verbose ){
 	  cerr << "bekijk tweetal: " << value << " met freq=" << kwc_counts[key]

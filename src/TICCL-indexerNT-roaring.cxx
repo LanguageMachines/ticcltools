@@ -44,7 +44,7 @@
 #endif
 #include "ticcutils/StringOps.h"
 #include "ticcutils/CommandLine.h"
-#include "ticcl/unicode.h"
+#include "ticcutils/Unicode.h"
 #include "roaring/roaring64map.hh"
 #include "config.h"
 
@@ -232,7 +232,7 @@ int main( int argc, char **argv ){
       bitType bit = TiCC::stringTo<bitType>( parts[0] );
       vector<string> parts2;
       if ( TiCC::split_at( parts[1], parts2, "#" ) > 0 ){
-	UnicodeString firstItem = UTF8ToUnicode( parts2[0] );
+	UnicodeString firstItem = TiCC::UnicodeFromUTF8( parts2[0] );
 	if ( firstItem.length() >= lowValue &&
 	     firstItem.length() <= highValue ){
 	  hashSet.insert( bit );

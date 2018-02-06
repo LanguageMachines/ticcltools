@@ -36,7 +36,7 @@
 #include "ticcutils/FileUtils.h"
 #include "ticcutils/StringOps.h"
 #include "ticcutils/XMLtools.h"
-#include "ticcl/unicode.h"
+#include "ticcutils/Unicode.h"
 
 #include "config.h"
 #ifdef HAVE_OPENMP
@@ -131,9 +131,9 @@ size_t tel( const xmlNode *node, bool lowercase,
       for ( const auto& word : v ){
 	string wrd = word;
 	if ( lowercase ){
-	  UnicodeString us = UTF8ToUnicode( word );
+	  UnicodeString us = TiCC::UnicodeFromUTF8( word );
 	  us.toLower();
-	  wrd = UnicodeToUTF8( us );
+	  wrd = TiCC::UnicodeToUTF8( us );
 	}
 	if ( is_emph( wrd ) ){
 	  if ( in_emph ){
@@ -217,9 +217,9 @@ size_t word_inventory( const string& docName,
     for ( const auto& word : v ){
       string wrd = word;
       if ( lowercase ){
-	UnicodeString us = UTF8ToUnicode( word );
+	UnicodeString us = TiCC::UnicodeFromUTF8( word );
 	us.toLower();
-	wrd = UnicodeToUTF8( us );
+	wrd = TiCC::UnicodeToUTF8( us );
       }
       if ( is_emph( wrd ) ){
 	if ( in_emph ){

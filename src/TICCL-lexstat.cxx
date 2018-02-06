@@ -35,6 +35,7 @@
 #include "ticcutils/StringOps.h"
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/FileUtils.h"
+#include "ticcutils/Unicode.h"
 #include "ticcl/unicode.h"
 
 #include "config.h"
@@ -56,7 +57,7 @@ bitType high_five( int val ){
 
 void create_output( string& name, const map<UChar,size_t>& chars,
 		    string& orig, map<string,bitType>& hashes,
-		    int clip ){
+		    int clip, string& separator ){
   ofstream os( name );
   if ( !os ){
     cerr << "unable to open output file: " << name << endl;
@@ -83,13 +84,20 @@ void create_output( string& name, const map<UChar,size_t>& chars,
   os << "# $\tunknown_characters\t" << hash << endl;
   start = 102;
   int out_cnt = 2; // the 2 wildcard chars
+  if ( !separator.empty() ){
+    ++out_cnt;
+    hash = high_five( start );
+    hashes.insert( make_pair( separator, hash ) );
+    os << "# " << separator << "\tseparator\t\t" << hash << endl;
+    start = 103;
+  }
   multimap<size_t,UChar>::const_reverse_iterator rit = reverse.rbegin();
   while ( rit != reverse.rend() ){
     if ( clip >= 0 && rit->first < (size_t)clip )
       break;
     hash = high_five( start );
     UnicodeString us( rit->second );
-    string s = UnicodeToUTF8(us);
+    string s = TiCC::UnicodeToUTF8(us);
     hashes.insert( make_pair( s, hash ) );
     os << s << "\t" << rit->first << "\t" << hash << endl;
     ++out_cnt;
@@ -110,7 +118,7 @@ void create_dia_file( const string& filename,
     us += it->first;
     UnicodeString ss = filterDiacritics( us );
     if ( ss != us ){
-      map<string,bitType>::const_iterator hit = hashes.find( UnicodeToUTF8(us));
+      map<string,bitType>::const_iterator hit = hashes.find( TiCC::UnicodeToUTF8(us));
       if ( hit == hashes.end() ){
 	if ( verbose ){
 	  cerr << "problem: " << us << " not in the hashes?" << endl;
@@ -119,7 +127,7 @@ void create_dia_file( const string& filename,
 	continue;
       }
       bitType h1 = hit->second;
-      hit = hashes.find( UnicodeToUTF8(ss));
+      hit = hashes.find( TiCC::UnicodeToUTF8(ss) );
       if ( hit == hashes.end() ){
 	if ( verbose ){
 	  cerr << "problem: " << ss << " not in the hashes?" << endl;
@@ -355,25 +363,27 @@ void generate_confusion( const string& name,
 }
 
 void usage( const string& name ){
-  cerr << "Usage: " << name << " [options] dictionary" << endl;
+  cerr << "Usage:\t" << name << " [options] dictionary" << endl;
   cerr << "\t" << name << " will create a lowercased character frequency" << endl
-       << "\t\t list from a dictionary file." << endl;
+       << "\t\tlist from a dictionary file," << endl
+       << "\t\tand a character confusion file, based on that list." << endl;
   cerr << "\t-h\t this message " << endl;
   cerr << "\t-o 'name'\t create outputfile(s) with prefix 'name'" << endl;
   cerr << "\t--diac produces an extra diacritics confusion file (extension .diac)" << endl;
   cerr << "\t--clip 'clip' truncates the character file at frequency 'clip'" << endl;
-  cerr << "\t--LD depth 1, 2 or 3. (default 2): The characterlength of the confusions." << endl;
-  cerr << "\t\t When LD=0 only a frequency list is generated." << endl;
-  cerr << "\t--all : full output. Show ALL variants in the confusions file." << endl;
-  cerr << "\t\t Normally only the first is shown." << endl;
-  cerr << "\t-V\t show version " << endl;
+  cerr << "\t--LD depth 1, 2 or 3. (default 2) The characterlength of the confusions." << endl;
+  cerr << "\t\tWhen LD=0 only a frequency list is generated." << endl;
+  cerr << "\t--separator=<sep> Add the 'sep' symbol to the alphabet." << endl;
+  cerr << "\t--all\tfull output. Show ALL variants in the confusions file." << endl;
+  cerr << "\t\tNormally only the first is shown." << endl;
+  cerr << "\t-V\tshow version " << endl;
 }
 
 int main( int argc, char *argv[] ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
-    opts.set_long_options( "LD:,clip:,diac,all" );
+    opts.set_long_options( "LD:,clip:,diac,all,separator:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -428,6 +438,15 @@ int main( int argc, char *argv[] ){
       exit(EXIT_FAILURE);
     }
   }
+  string separator;
+  if ( opts.extract( "separator", separator ) ){
+    UnicodeString us = TiCC::UnicodeFromUTF8( separator );
+    if ( us.length() != 1 ){
+      cerr << "invalid separator, should be 1 unicode point!" << endl;
+      exit( EXIT_FAILURE );
+    }
+  }
+
   if ( !opts.empty() ){
     cerr << "unsupported options : " << opts.toString() << endl;
     usage(progname);
@@ -463,7 +482,7 @@ int main( int argc, char *argv[] ){
   map<UChar,size_t> lchars;
   string line;
   while ( getline( is, line ) ){
-    UnicodeString us = UTF8ToUnicode( line );
+    UnicodeString us = TiCC::UnicodeFromUTF8( line );
     us.toLower();
     for ( int i = 0; i < us.length(); ++i ){
       ++lchars[us[i]];
@@ -471,7 +490,7 @@ int main( int argc, char *argv[] ){
   }
   cout << "done reading" << endl;
   map<string,bitType> hashes;
-  create_output( lc_file_name, lchars, orig, hashes, clip );
+  create_output( lc_file_name, lchars, orig, hashes, clip, separator );
   if ( stripdia ){
     create_dia_file( diafile, lchars, hashes );
   }
