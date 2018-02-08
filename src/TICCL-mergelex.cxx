@@ -49,7 +49,7 @@ using namespace	TiCC;
 bool verbose = false;
 
 void create_wf_list( const map<string, unsigned int>& wc,
-		     const string& filename, unsigned int totalIn, bool doperc ){
+		     const string& filename, unsigned int total_in, bool doperc ){
   ofstream os( filename );
   if ( !os ){
     cerr << "failed to create outputfile '" << filename << "'" << endl;
@@ -67,7 +67,7 @@ void create_wf_list( const map<string, unsigned int>& wc,
       sum += wit->first;
       os << sit << "\t" << wit->first;
       if ( doperc ){
-	os << "\t" << sum << "\t" << 100 * double(sum)/totalIn;
+	os << "\t" << sum << "\t" << 100 * double(sum)/total_in;
       }
       os << endl;
       ++types;
@@ -77,16 +77,16 @@ void create_wf_list( const map<string, unsigned int>& wc,
 #pragma omp critical
   {
     cout << "created WordFreq list '" << filename << "'" << endl
-	 << "with " << totalIn << " tokens and " << types
-	 << " types. TTR= " << (double)types/totalIn
-	 << ", the angle is " << atan((double)types/totalIn)*180/M_PI
+	 << "with " << total_in << " tokens and " << types
+	 << " types. TTR= " << (double)types/total_in
+	 << ", the angle is " << atan((double)types/total_in)*180/M_PI
 	 << " degrees" << endl;
   }
 }
 
-size_t read_words( const string& docName, map<string,unsigned int>& wc ){
-  size_t wordTotal = 0;
-  ifstream is( docName );
+size_t read_words( const string& doc_name, map<string,unsigned int>& wc ){
+  size_t word_total = 0;
+  ifstream is( doc_name );
   string line;
   while ( getline( is, line ) ){
     vector<string> v;
@@ -100,9 +100,9 @@ size_t read_words( const string& docName, map<string,unsigned int>& wc ){
     {
       wc[wrd] += frq;
     }
-    wordTotal += frq;
+    word_total += frq;
   }
-  return wordTotal;
+  return word_total;
 }
 
 
@@ -138,10 +138,10 @@ int main( int argc, char *argv[] ){
     exit(EXIT_FAILURE);
   }
 #ifdef HAVE_OPENMP
-  int numThreads = 1;
+  int num_of_threads = 1;
 #endif
   string expression;
-  string outputPrefix;
+  string out_prefix;
   if ( opts.extract('V' ) ){
     cerr << PACKAGE_STRING << endl;
     exit(EXIT_SUCCESS);
@@ -152,14 +152,14 @@ int main( int argc, char *argv[] ){
   }
   verbose = opts.extract( 'v' );
   bool recursiveDirs = opts.extract( 'R' );
-  if ( !opts.extract( 'o', outputPrefix ) ){
+  if ( !opts.extract( 'o', out_prefix ) ){
     cerr << "an output filename prefix is required. (-o option) " << endl;
     exit(EXIT_FAILURE);
   }
   string value;
   if ( opts.extract('t', value ) ){
 #ifdef HAVE_OPENMP
-    if ( !stringTo(value, numThreads ) ){
+    if ( !stringTo(value, num_of_threads ) ){
       cerr << "illegal value for -t (" << value << ")" << endl;
       exit(EXIT_FAILURE);
     }
@@ -177,56 +177,70 @@ int main( int argc, char *argv[] ){
   }
 
 #ifdef HAVE_OPENMP
-  if ( numThreads != 1 )
-    omp_set_num_threads( numThreads );
+  if ( num_of_threads != 1 )
+    omp_set_num_threads( num_of_threads );
 #endif
 
-  vector<string> massOpts = opts.getMassOpts();
-  if ( massOpts.empty() ){
+  vector<string> mass_opts = opts.getMassOpts();
+  if ( mass_opts.empty() ){
     cerr << "no file or dir specified!" << endl;
     exit(EXIT_FAILURE);
   }
-  string name = massOpts[0];
-  vector<string> fileNames = searchFilesMatch( name, expression, recursiveDirs );
-  size_t toDo = fileNames.size();
-  if ( toDo == 0 ){
+  vector<string> file_names;
+  string dir_name;
+  if ( mass_opts.size() > 1 ){
+    // assume a list of files
+    file_names = mass_opts;
+  }
+  else {
+    dir_name = mass_opts[0];
+    try {
+      file_names = searchFilesMatch( dir_name, expression, recursiveDirs );
+    }
+    catch ( const exception& e ){
+      cerr << e.what() << endl;
+      exit(EXIT_FAILURE);
+    }
+  }
+  size_t to_do = file_names.size();
+  if ( to_do == 0 ){
     cerr << "no matching files found" << endl;
     exit(EXIT_SUCCESS);
   }
 
-  string::size_type pos = outputPrefix.find( "." );
-  if ( pos != string::npos && pos == outputPrefix.length()-1 ){
+  string::size_type pos = out_prefix.find( "." );
+  if ( pos != string::npos && pos == out_prefix.length()-1 ){
     // outputname ends with a .
-    outputPrefix = outputPrefix.substr(0,pos);
+    out_prefix = out_prefix.substr(0,pos);
   }
-  pos = outputPrefix.find( "/" );
-  if ( pos != string::npos && pos == outputPrefix.length()-1 ){
+  pos = out_prefix.find( "/" );
+  if ( pos != string::npos && pos == out_prefix.length()-1 ){
     // outputname ends with a /
-    outputPrefix += "ticclstats";
+    out_prefix += "ticclstats";
   }
 
-  if ( toDo > 1 ){
-    cout << "start processing of " << toDo << " files " << endl;
+  if ( to_do > 1 ){
+    cout << "start processing of " << to_do << " files " << endl;
   }
   map<string,unsigned int> wc;
-  unsigned int wordTotal =0;
-#pragma omp parallel for shared(fileNames,wordTotal,wc)
-  for ( size_t fn=0; fn < fileNames.size(); ++fn ){
-    string docName = fileNames[fn];
-    unsigned int word_count = read_words( docName, wc );
-    wordTotal += word_count;
+  unsigned int word_total =0;
+#pragma omp parallel for shared(file_names,word_total,wc)
+  for ( size_t fn=0; fn < file_names.size(); ++fn ){
+    string doc_name = file_names[fn];
+    unsigned int word_count = read_words( doc_name, wc );
+    word_total += word_count;
 #pragma omp critical
     {
-      cout << "Processed :" << docName << " with " << word_count << " words,"
-	   << " still " << --toDo << " files to go." << endl;
+      cout << "Processed :" << doc_name << " with " << word_count << " words,"
+	   << " still " << --to_do << " files to go." << endl;
     }
   }
-  if ( toDo > 1 ){
-    cout << "done processsing directory '" << name << "' in total "
-	 << wordTotal << " words were found." << endl;
+  if ( !dir_name.empty() ){
+    cout << "done processsing directory '" << dir_name << "' in total "
+	 << word_total << " words were found." << endl;
   }
   cout << "start outputting the results" << endl;
-  string filename = outputPrefix + ".wordfreqlist.tsv";
-  create_wf_list( wc, filename, wordTotal, dopercentage );
+  string file_name = out_prefix + ".wordfreqlist.tsv";
+  create_wf_list( wc, file_name, word_total, dopercentage );
   exit( EXIT_SUCCESS );
 }
