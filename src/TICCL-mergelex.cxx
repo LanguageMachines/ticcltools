@@ -49,8 +49,7 @@ using namespace	TiCC;
 bool verbose = false;
 
 void create_wf_list( const map<string, unsigned int>& wc,
-		     const string& filename, unsigned int totalIn ){
-  unsigned int total = totalIn;
+		     const string& filename, unsigned int totalIn, bool doperc ){
   ofstream os( filename );
   if ( !os ){
     cerr << "failed to create outputfile '" << filename << "'" << endl;
@@ -66,7 +65,11 @@ void create_wf_list( const map<string, unsigned int>& wc,
   while ( wit != wf.rend() ){
     for( const auto& sit : wit->second ){
       sum += wit->first;
-      os << sit << "\t" << wit->first << endl;
+      os << sit << "\t" << wit->first;
+      if ( doperc ){
+	os << "\t" << sum << "\t" << 100 * double(sum)/totalIn;
+      }
+      os << endl;
       ++types;
     }
     ++wit;
@@ -74,9 +77,9 @@ void create_wf_list( const map<string, unsigned int>& wc,
 #pragma omp critical
   {
     cout << "created WordFreq list '" << filename << "'" << endl
-	 << "with " << total << " tokens and " << types
-	 << " types. TTR= " << (double)types/total
-	 << ", the angle is " << atan((double)types/total)*180/M_PI
+	 << "with " << totalIn << " tokens and " << types
+	 << " types. TTR= " << (double)types/totalIn
+	 << ", the angle is " << atan((double)types/totalIn)*180/M_PI
 	 << " degrees" << endl;
   }
 }
@@ -107,7 +110,9 @@ void usage( const string& name ){
   cerr << "Usage: " << name << " [options] file/dir" << endl;
   cerr << "\t TICCL-mergelex will create a merged lexicond from range of" << endl;
   cerr << "\t lexicon files in TICCL-lexstat or FoLiA-stats format." << endl;
-  cerr << "\t The output will be a 2 columned tab separated file, extension: *tsv " << endl;
+  cerr << "The output will be a 2 or 4 columned tab separated file, extension: *tsv " << endl;
+  cerr << "\t (4 columns when -p is specified)" << endl;
+  cerr << "\t-p\t output percentages too. " << endl;
   cerr << "\t-t\t number_of_threads" << endl;
   cerr << "\t-h\t this message" << endl;
   cerr << "\t-v\t very verbose output." << endl;
@@ -118,7 +123,7 @@ void usage( const string& name ){
 }
 
 int main( int argc, char *argv[] ){
-  CL_Options opts( "hVve:t:o:R", "" );
+  CL_Options opts( "hVve:t:o:Rp", "" );
   try {
     opts.init(argc,argv);
   }
@@ -164,6 +169,7 @@ int main( int argc, char *argv[] ){
 #endif
   }
   opts.extract('e', expression );
+  bool dopercentage = opts.extract('p');
   if ( !opts.empty() ){
     cerr << "unsupported options : " << opts.toString() << endl;
     usage(progname);
@@ -221,6 +227,6 @@ int main( int argc, char *argv[] ){
   }
   cout << "start outputting the results" << endl;
   string filename = outputPrefix + ".wordfreqlist.tsv";
-  create_wf_list( wc, filename, wordTotal );
+  create_wf_list( wc, filename, wordTotal, dopercentage );
   exit( EXIT_SUCCESS );
 }
