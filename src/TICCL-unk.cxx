@@ -317,6 +317,26 @@ S_Class classify( const string& word, set<UChar>& alphabet,
   return result;
 }
 
+bool isAcro( const vector<string>& parts, string& result ){
+  static string pattern =  "(?:de|het|een)" + SEPARATOR + "([A-Z]+)-(?:[a-z]*)";
+  static TiCC::UnicodeRegexMatcher acro_detect( TiCC::UnicodeFromUTF8(pattern), "newline_splitter" );
+  if ( parts.size() != 2 ){
+    return false;
+  }
+  UnicodeString us = TiCC::UnicodeFromUTF8( parts[0] + SEPARATOR + parts[1] );
+  UnicodeString pre, post;
+  //  acro_detect.set_debug(1);
+  //  cerr << "IS ACRO: test pattern = " << acro_detect.Pattern() << endl;
+  //  cerr << "op " << us << endl;
+  if ( acro_detect.match_all( us, pre, post ) ){
+    //    cerr << "IT Mached!" << endl;
+    result = TiCC::UnicodeToUTF8(acro_detect.get_match( 0 ));
+    cerr << "FOUND regexp acronym: " << result << endl;
+    return true;
+  }
+  return false;
+}
+
 bool isAcro( const string& word, string& stripped ){
   stripped = "";
   UnicodeString us = TiCC::UnicodeFromUTF8( word );
@@ -654,11 +674,18 @@ int main( int argc, char *argv[] ){
 	  clean_words[word] += artifreq;
 	}
 	string stripped;
+	string acro;
 	if ( doAcro && isAcro( word, stripped ) ){
 	  if ( verbose ){
 	    cerr << "CLEAN ACRO: " << word << "/" << stripped << endl;
 	  }
 	  acro_words[word] += 1;
+	}
+	else if ( doAcro && isAcro( parts, acro ) ){
+	  if ( verbose ){
+	    cerr << "CLEAN ACRO: (regex)" << word << "/" << acro << endl;
+	  }
+	  acro_words[acro] += 1;
 	}
 	else if ( verbose ){
 	  cerr << "CLEAN word: " << word << endl;
@@ -668,6 +695,7 @@ int main( int argc, char *argv[] ){
     case UNK:
       {
 	string stripped;
+	string acro;
 	if ( doAcro && isAcro( word, stripped ) ){
 	  if ( verbose ){
 	    cerr << "UNK ACRO: " << word << "/" << stripped << endl;
@@ -681,6 +709,12 @@ int main( int argc, char *argv[] ){
 	    clean_words[word] += freq;
 	    acro_words[word] += 1;
 	  }
+	}
+	else if ( doAcro && isAcro( parts, acro ) ){
+	  if ( verbose ){
+	    cerr << "UNK ACRO: " << word << "/" << acro << endl;
+	  }
+	  acro_words[acro] += 1;
 	}
 	else {
 	  if ( verbose ){
@@ -696,11 +730,18 @@ int main( int argc, char *argv[] ){
 	clean_words[end_pun] += freq;
 	string punc = end_pun + ".";
 	string stripped;
+	string acro;
 	if ( doAcro && isAcro( punc,stripped ) ){
 	  if ( verbose ){
 	    cerr << "PUNCT ACRO: " << word << "/" << end_pun << "/" << stripped << endl;
 	  }
 	  acro_words[end_pun] += 1;
+	}
+	else if ( doAcro && isAcro( parts, acro ) ){
+	  if ( verbose ){
+	    cerr << "PUNCT ACRO: (regex) " << word << "/" << acro << endl;
+	  }
+	  acro_words[acro] += 1;
 	}
 	else if ( verbose ){
 	  cerr << "PUNCT word: " << word << endl;
