@@ -83,12 +83,36 @@ inline bool ticc_ispunct( int8_t charT ){
 	   charT == U_DASH_PUNCTUATION );
 }
 
+inline bool ticc_ispunct( UChar uc ){
+  int8_t charT =  u_charType( uc );
+  return ticc_ispunct( charT );
+}
+
 inline bool ticc_isdigit( int8_t charT ){
   return charT == U_DECIMAL_DIGIT_NUMBER;
 }
 
+inline bool ticc_isdigit( UChar uc ){
+  int8_t charT =  u_charType( uc );
+  return ticc_isdigit( charT );
+}
+
 inline bool ticc_isupper( int8_t charT ){
   return charT == U_UPPERCASE_LETTER;
+}
+
+inline bool ticc_isupper( UChar uc ){
+  int8_t charT =  u_charType( uc );
+  return ticc_isupper( charT );
+}
+
+inline bool ticc_islower( int8_t charT ){
+  return charT == U_LOWERCASE_LETTER;
+}
+
+inline bool ticc_islower( UChar uc ){
+  int8_t charT =  u_charType( uc );
+  return ticc_islower( charT );
 }
 
 inline bool ticc_isother( int8_t charT ){
@@ -102,9 +126,19 @@ inline bool ticc_isother( int8_t charT ){
 	   charT == U_CONTROL_CHAR );
 }
 
+inline bool ticc_isother( UChar uc ){
+  int8_t charT =  u_charType( uc );
+  return ticc_isother( charT );
+}
+
 inline bool ticc_isletter( int8_t charT ){
   return ( charT == U_LOWERCASE_LETTER ||
 	   charT == U_UPPERCASE_LETTER );
+}
+
+inline bool ticc_isletter( UChar uc ){
+  int8_t charT =  u_charType( uc );
+  return ticc_isletter( charT );
 }
 
 inline UnicodeString filterDiacritics( const UnicodeString& in ) {

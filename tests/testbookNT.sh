@@ -74,6 +74,27 @@ then
     echo "using: diff $outdir/TESTDP035.tsv.punct $refdir/punct"
     exit
 fi
+diff $outdir/TESTDP035.tsv.unk $refdir/unk > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-UNK unk results"
+    echo "using: diff $outdir/TESTDP035.tsv.unk $refdir/unk"
+    exit
+fi
+diff $outdir/TESTDP035.tsv.clean $refdir/clean > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-UNK clean results"
+    echo "using: diff $outdir/TESTDP035.tsv.clean $refdir/clean"
+    exit
+fi
+diff $outdir/TESTDP035.tsv.acro $refdir/acro > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-UNK acro results"
+    echo "using: diff $outdir/TESTDP035.tsv.acro $refdir/acro"
+    exit
+fi
 
 echo "start TICLL-anahash"
 

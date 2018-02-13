@@ -34,6 +34,7 @@
 
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/StringOps.h"
+#include "ticcutils/FileUtils.h"
 #include "ticcutils/Unicode.h"
 #include "ticcl/unicode.h"
 
@@ -337,22 +338,28 @@ bool isAcro( const vector<string>& parts, string& result ){
   return false;
 }
 
-bool isAcro( const string& word, string& stripped ){
-  stripped = "";
-  UnicodeString us = TiCC::UnicodeFromUTF8( word );
-  if ( u_ispunct( us[0] ) ){
-    us = UnicodeString( us, 1 );
-    stripped = TiCC::UnicodeToUTF8(us);
+bool all_letters( const UnicodeString& us ) {
+  for ( int i=0; i < us.length(); ++i ){
+    if ( !ticc_isletter( us[i] ) ){
+      return false;
+    }
   }
+  return true;
+}
+
+bool isAcro( const string& word ){
+  UnicodeString us = TiCC::UnicodeFromUTF8( word );
   if ( us.length() < 6 ){
     UnicodeString Us = us;
     if ( Us.toUpper() == us ){
-      return true;
+      if ( all_letters( us ) ){
+	return true;
+      }
     }
   }
   bool isOK = true;
   for ( int i=0; i < us.length(); ++i ){
-    if ( u_ispunct( us[i] ) ){
+    if ( ticc_ispunct( us[i] ) ){
       if ( isOK ){
 	return false;
       }
@@ -391,6 +398,17 @@ void usage( const string& name ){
 }
 
 int main( int argc, char *argv[] ){
+  // string test = "•——";
+  // cerr << "isAcro(" << test << ")=" << isAcro( test ) << endl;
+  // test = "D£";
+  // cerr << "isAcro(" << test << ")=" << isAcro( test ) << endl;
+  // test = "5^>";
+  // cerr << "isAcro(" << test << ")=" << isAcro( test ) << endl;
+  // test = "AAP";
+  // cerr << "isAcro(" << test << ")=" << isAcro( test ) << endl;
+  // test = "£<5S";
+  // cerr << "isAcro(" << test << ")=" << isAcro( test ) << endl;
+  // return EXIT_FAILURE;
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
@@ -460,24 +478,23 @@ int main( int argc, char *argv[] ){
   string punct_file_name = output_name + ".punct";
   string acro_file_name = output_name + ".acro";
 
-  ofstream cs( clean_file_name );
-  if ( !cs ){
+  if ( !TiCC::createPath( clean_file_name ) ){
     cerr << "unable to open output file: " << clean_file_name << endl;
     exit(EXIT_FAILURE);
   }
-  ofstream us( unk_file_name );
-  if ( !us ){
+  ofstream cs( clean_file_name );
+  if ( !TiCC::createPath( unk_file_name ) ){
     cerr << "unable to open output file: " << unk_file_name << endl;
     exit(EXIT_FAILURE);
   }
-  ofstream ps( punct_file_name );
-  if ( !ps ){
+  ofstream us( unk_file_name );
+  if ( !TiCC::createPath( punct_file_name ) ){
     cerr << "unable to open output file: " << punct_file_name << endl;
     exit(EXIT_FAILURE);
   }
+  ofstream ps( punct_file_name );
   if ( doAcro ){
-    ofstream as( acro_file_name );
-    if ( !as ){
+    if ( !TiCC::createPath( acro_file_name ) ){
       cerr << "unable to open output file: " << acro_file_name << endl;
       exit(EXIT_FAILURE);
     }
@@ -673,11 +690,10 @@ int main( int argc, char *argv[] ){
 	if ( lexclean == parts.size() ){
 	  clean_words[word] += artifreq;
 	}
-	string stripped;
 	string acro;
-	if ( doAcro && isAcro( word, stripped ) ){
+	if ( doAcro && isAcro( word ) ){
 	  if ( verbose ){
-	    cerr << "CLEAN ACRO: " << word << "/" << stripped << endl;
+	    cerr << "CLEAN ACRO: " << word << endl;
 	  }
 	  acro_words[word] += 1;
 	}
@@ -694,21 +710,13 @@ int main( int argc, char *argv[] ){
       break;
     case UNK:
       {
-	string stripped;
 	string acro;
-	if ( doAcro && isAcro( word, stripped ) ){
+	if ( doAcro && isAcro( word ) ){
 	  if ( verbose ){
-	    cerr << "UNK ACRO: " << word << "/" << stripped << endl;
+	    cerr << "UNK ACRO: " << word << endl;
 	  }
-	  if ( !stripped.empty() ){
-	    punct_words[word] = stripped;
-	    clean_words[stripped] += freq;
-	    acro_words[stripped] += 1;
-	  }
-	  else {
-	    clean_words[word] += freq;
-	    acro_words[word] += 1;
-	  }
+	  clean_words[word] += freq;
+	  acro_words[word] += 1;
 	}
 	else if ( doAcro && isAcro( parts, acro ) ){
 	  if ( verbose ){
@@ -728,12 +736,10 @@ int main( int argc, char *argv[] ){
       {
 	punct_words[word] = end_pun;
 	clean_words[end_pun] += freq;
-	string punc = end_pun + ".";
-	string stripped;
 	string acro;
-	if ( doAcro && isAcro( punc,stripped ) ){
+	if ( doAcro && isAcro( end_pun ) ){
 	  if ( verbose ){
-	    cerr << "PUNCT ACRO: " << word << "/" << end_pun << "/" << stripped << endl;
+	    cerr << "PUNCT ACRO: " << word << "/" << end_pun << endl;
 	  }
 	  acro_words[end_pun] += 1;
 	}
