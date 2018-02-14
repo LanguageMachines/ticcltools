@@ -27,7 +27,7 @@ datadir=DATA
 
 echo start TICLL-unk
 
-$bindir/TICCL-unk --corpus $datadir/INLandAspell.corpus --artifrq 100000000 --acro -o$outdir/smallunktest $testdir/smallunktest.tsv
+$bindir/TICCL-unk --corpus $datadir/INLandAspell.corpus --artifrq 100000000 --acro -o$outdir/smallunktest -v $testdir/smallunktest.tsv
 
 if [ $? -ne 0 ]
 then

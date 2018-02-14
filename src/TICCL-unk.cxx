@@ -338,9 +338,9 @@ bool isAcro( const vector<string>& parts, string& result ){
   return false;
 }
 
-bool all_letters( const UnicodeString& us ) {
+bool acro_letters( const UnicodeString& us ) {
   for ( int i=0; i < us.length(); ++i ){
-    if ( !ticc_isletter( us[i] ) ){
+    if ( ticc_isother( us[i] ) ){
       return false;
     }
   }
@@ -352,7 +352,7 @@ bool isAcro( const string& word ){
   if ( us.length() < 6 ){
     UnicodeString Us = us;
     if ( Us.toUpper() == us ){
-      if ( all_letters( us ) ){
+      if ( acro_letters( us ) ){
 	return true;
       }
     }
@@ -687,7 +687,8 @@ int main( int argc, char *argv[] ){
     case CLEAN:
       {
 	clean_words[word] += freq;
-	if ( lexclean == parts.size() ){
+	if ( clean_words[word] < artifreq
+	     && lexclean == parts.size() ){
 	  clean_words[word] += artifreq;
 	}
 	string acro;
