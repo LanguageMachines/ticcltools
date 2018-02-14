@@ -349,14 +349,6 @@ bool acro_letters( const UnicodeString& us ) {
 
 bool isAcro( const string& word ){
   UnicodeString us = TiCC::UnicodeFromUTF8( word );
-  if ( us.length() < 6 ){
-    UnicodeString Us = us;
-    if ( Us.toUpper() == us ){
-      if ( acro_letters( us ) ){
-	return true;
-      }
-    }
-  }
   bool isOK = true;
   for ( int i=0; i < us.length(); ++i ){
     if ( ticc_ispunct( us[i] ) ){
