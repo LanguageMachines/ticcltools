@@ -319,8 +319,9 @@ S_Class classify( const string& word, set<UChar>& alphabet,
 }
 
 bool isAcro( const vector<string>& parts, string& result ){
-  static string pattern =  "(?:de|het|een)" + SEPARATOR + "([A-Z]+)-(?:[a-z]*)";
-  static TiCC::UnicodeRegexMatcher acro_detect( TiCC::UnicodeFromUTF8(pattern), "newline_splitter" );
+  static string pattern =  "(?:de|het|een)" + SEPARATOR + "(\\p{Lu}+)-(?:\\p{L}*)";
+  static TiCC::UnicodeRegexMatcher acro_detect( TiCC::UnicodeFromUTF8(pattern), "acro_detector" );
+  result.clear();
   if ( parts.size() != 2 ){
     return false;
   }
@@ -338,35 +339,19 @@ bool isAcro( const vector<string>& parts, string& result ){
   return false;
 }
 
-bool acro_letters( const UnicodeString& us ) {
-  for ( int i=0; i < us.length(); ++i ){
-    if ( ticc_isother( us[i] ) ){
-      return false;
-    }
-  }
-  return true;
-}
-
 bool isAcro( const string& word ){
+  static string pattern2 = "^(\\p{Lu}{1,2}\\.{1,2}(\\p{Lu}{1,2}\\.{1,2})*)(\\p{Lu}{0,2})$";
+  static TiCC::UnicodeRegexMatcher acro_detect2( TiCC::UnicodeFromUTF8(pattern2), "dot_alter" );
+  UnicodeString pre, post;
+  //  acro_detect2.set_debug(1);
   UnicodeString us = TiCC::UnicodeFromUTF8( word );
-  bool isOK = true;
-  for ( int i=0; i < us.length(); ++i ){
-    if ( ticc_ispunct( us[i] ) ){
-      if ( isOK ){
-	return false;
-      }
-      else {
-	isOK = true;
-      }
-    }
-    else if ( u_isupper( us[i] ) && isOK ){
-      isOK = false;
-    }
-    else {
-      return false;
-    }
-  };
-  return true;
+  //  cerr << "IS ACRO: test pattern = " << acro_detect2.Pattern() << endl;
+  //  cerr << "op " << us << endl;
+  if ( acro_detect2.match_all( us, pre, post ) ){
+    //    cerr << "FOUND regexp acronym: " << word << endl;
+    return true;
+  }
+  return false;
 }
 
 void usage( const string& name ){
@@ -390,16 +375,16 @@ void usage( const string& name ){
 }
 
 int main( int argc, char *argv[] ){
-  // string test = "•——";
-  // cerr << "isAcro(" << test << ")=" << isAcro( test ) << endl;
-  // test = "D£";
-  // cerr << "isAcro(" << test << ")=" << isAcro( test ) << endl;
-  // test = "5^>";
-  // cerr << "isAcro(" << test << ")=" << isAcro( test ) << endl;
-  // test = "AAP";
-  // cerr << "isAcro(" << test << ")=" << isAcro( test ) << endl;
-  // test = "£<5S";
-  // cerr << "isAcro(" << test << ")=" << isAcro( test ) << endl;
+  // string result;
+  // vector<string> tests = {"•——", "5^>", "AAP", "A.N.W.B", "A.N.W.B.", "AA.N.W.BB.", "AA.N...W.BB..." };
+  // for ( const auto& test : tests ){
+  //   if ( isAcro( test ) ){
+  //     cerr << "isAcro(" << test << ")" << endl;
+  //   }
+  //   else {
+  //     cerr << "NO acro: " << test << endl;
+  //   }
+  // }
   // return EXIT_FAILURE;
   TiCC::CL_Options opts;
   try {
@@ -732,7 +717,7 @@ int main( int argc, char *argv[] ){
 	string acro;
 	if ( doAcro && isAcro( end_pun ) ){
 	  if ( verbose ){
-	    cerr << "PUNCT ACRO: " << word << "/" << end_pun << endl;
+	    cerr << "PUNCT ACRO: " << end_pun << endl;
 	  }
 	  acro_words[end_pun] += 1;
 	}
