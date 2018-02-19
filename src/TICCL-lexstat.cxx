@@ -36,7 +36,6 @@
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/FileUtils.h"
 #include "ticcutils/Unicode.h"
-#include "ticcl/unicode.h"
 
 #include "config.h"
 
@@ -116,7 +115,7 @@ void create_dia_file( const string& filename,
   while ( it != chars.end() ){
     UnicodeString us;
     us += it->first;
-    UnicodeString ss = filterDiacritics( us );
+    UnicodeString ss = TiCC::filter_diacritics( us );
     if ( ss != us ){
       map<string,bitType>::const_iterator hit = hashes.find( TiCC::UnicodeToUTF8(us));
       if ( hit == hashes.end() ){

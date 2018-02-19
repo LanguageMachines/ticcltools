@@ -141,21 +141,4 @@ inline bool ticc_isletter( UChar uc ){
   return ticc_isletter( charT );
 }
 
-inline UnicodeString filterDiacritics( const UnicodeString& in ) {
-  static Transliterator *trans = 0;
-  if ( trans == 0 ){
-    UErrorCode stat = U_ZERO_ERROR;
-    trans = Transliterator::createInstance( "NFD; [:M:] Remove; NFC",
-					    UTRANS_FORWARD,
-					    stat );
-    if ( U_FAILURE( stat ) ){
-      throw std::runtime_error( "init transliterator FAILED !" );
-    }
-  }
-  UnicodeString result = in;
-  trans->transliterate( result );
-  return result;
-}
-
-
 #endif //  TICCL_UNICODE_H
