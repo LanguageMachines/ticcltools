@@ -4,7 +4,6 @@
 #include "unicode/unistr.h"
 #include "unicode/ustream.h"
 #include "unicode/uchar.h"
-#include <unicode/translit.h>
 
 inline std::string toString( int8_t c ){
   switch ( c ){
