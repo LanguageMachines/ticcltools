@@ -1,14 +1,14 @@
 ticcltools 0.5 2018-02-19
 [Ko van der Sloot]
 * updated configuration. also for Mac OSX
-* use of more ticcutils stuff: diacriticsfiler
+* use of more ticcutils stuff: diacritics filter
 * added a TICCL-mergelex program
 * the OMP_THREAD_LIMIT environment variable was ignored sometimes
 * TICCL-unk:
    - fixed a problem in artifreq handling
    - changed acronym detection (work in  progress)
    - added -o option
-  TICCL-lesstat:
+  TICCL-lexstat:
    - added TTR output
    - added -o option
   TICCL-indexer
