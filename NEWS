@@ -1,3 +1,25 @@
+ticcltools 0.5 2018-02-19
+[Ko van der Sloot]
+* updated configuration. also for Mac OSX
+* use of more ticcutils stuff: diacriticsfiler
+* added a TICCL-mergelex program
+* the OMP_THREAD_LIMIT environment variable was ignored sometimes
+* TICCL-unk:
+   - fixed a problem in artifreq handling
+   - changed acronym detection (work in  progress)
+   - added -o option
+  TICCL-lesstat:
+   - added TTR output
+   - added -o option
+  TICCL-indexer
+  - now also handles --foci file. with some speed-up
+  - added a -t option
+  TICCL-LDcalc:
+  - be less picky on a few wrong lines in the data
+* added some tests
+* when libroaring is installed we built roaring versions of some modules (experimental)
+* updated man pages
+
 ticcltools 0.4 2017-04-04
 [Ko van der Sloot]
 * first official release.
