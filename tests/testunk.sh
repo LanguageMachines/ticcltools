@@ -64,4 +64,44 @@ then
     exit
 fi
 
+echo start TWEEDE TICLL-unk run
+
+$bindir/TICCL-unk --alph $datadir/nld.aspell.dict.lc.chars --acro -o$outdir/unktest2 $testdir/unktest.tsv
+
+if [ $? -ne 0 ]
+then
+    echo "failed in TICCL-unk"
+    exit
+fi
+echo "checking UNK results...."
+diff $outdir/unktest2.punct $refdir/punct2 > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-UNK punct2 results"
+    echo "using: diff $outdir/unktest2.punct $refdir/punct2"
+    exit
+fi
+diff $outdir/unktest2.unk $refdir/unk2 > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-UNK unk2 results"
+    echo "using: diff $outdir/unktest2.unk $refdir/unk2"
+    exit
+fi
+diff $outdir/unktest2.clean $refdir/clean2 > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-UNK clean2 results"
+    echo "using: diff $outdir/unktest2.clean $refdir/clean2"
+    exit
+fi
+diff $outdir/unktest2.acro $refdir/acro2 > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-UNK acro2 results"
+    echo "using: diff $outdir/unktest2.acro $refdir/acro2"
+    exit
+fi
+
+
 echo OK!
