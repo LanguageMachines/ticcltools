@@ -333,7 +333,7 @@ bool isAcro( const vector<string>& parts, string& result ){
   if ( acro_detect.match_all( us, pre, post ) ){
     //    cerr << "IT Mached!" << endl;
     result = TiCC::UnicodeToUTF8(acro_detect.get_match( 0 ));
-    cerr << "FOUND regexp acronym: " << result << endl;
+    //    cerr << "FOUND regexp acronym: " << result << endl;
     return true;
   }
   return false;
