@@ -354,6 +354,16 @@ bool isAcro( const string& word ){
   return false;
 }
 
+UnicodeString filter_punct( const UnicodeString& us ){
+  UnicodeString result;
+  for ( int i=0; i < us.length(); ++i ){
+    if ( !ticc_ispunct(us[i]) ){
+      result += us[i];
+    }
+  }
+  return result;
+}
+
 void usage( const string& name ){
   cerr << name << " [options] frequencyfile" << endl;
   cerr << "\t" << name << " will filter a wordfrequency list (in FoLiA-stats format) " << endl;
@@ -494,7 +504,8 @@ int main( int argc, char *argv[] ){
   map<string,unsigned int> clean_words;
   map<UnicodeString,unsigned int> decap_clean_words;
   map<string,unsigned int> unk_words;
-  map<string,unsigned int> acro_words;
+  map<string,unsigned int> punct_acro_words;
+  map<string,unsigned int> compound_acro_words;
   map<string,string> punct_words;
   if ( !corpusfile.empty() ){
     if ( artifreq == 0 ){
@@ -673,13 +684,13 @@ int main( int argc, char *argv[] ){
 	  if ( verbose ){
 	    cerr << "CLEAN ACRO: " << word << endl;
 	  }
-	  acro_words[word] += freq;
+	  punct_acro_words[word] += freq;
 	}
 	else if ( doAcro && isAcro( parts, acro ) ){
 	  if ( verbose ){
 	    cerr << "CLEAN ACRO: (regex)" << word << "/" << acro << endl;
 	  }
-	  acro_words[acro] += freq;
+	  compound_acro_words[acro] += freq;
 	}
 	else if ( verbose ){
 	  cerr << "CLEAN word: " << word << endl;
@@ -694,13 +705,13 @@ int main( int argc, char *argv[] ){
 	    cerr << "UNK ACRO: " << word << endl;
 	  }
 	  clean_words[word] += freq;
-	  acro_words[word] += freq;
+	  punct_acro_words[word] += freq;
 	}
 	else if ( doAcro && isAcro( parts, acro ) ){
 	  if ( verbose ){
 	    cerr << "UNK ACRO: " << word << "/" << acro << endl;
 	  }
-	  acro_words[acro] += freq;
+	  compound_acro_words[acro] += freq;
 	}
 	else {
 	  if ( verbose ){
@@ -719,13 +730,13 @@ int main( int argc, char *argv[] ){
 	  if ( verbose ){
 	    cerr << "PUNCT ACRO: " << end_pun << endl;
 	  }
-	  acro_words[end_pun] += freq;
+	  punct_acro_words[end_pun] += freq;
 	}
 	else if ( doAcro && isAcro( parts, acro ) ){
 	  if ( verbose ){
 	    cerr << "PUNCT ACRO: (regex) " << word << "/" << acro << endl;
 	  }
-	  acro_words[acro] += freq;
+	  compound_acro_words[acro] += freq;
 	}
 	else if ( verbose ){
 	  cerr << "PUNCT word: " << word << endl;
@@ -762,18 +773,32 @@ int main( int argc, char *argv[] ){
     ++wit;
   }
   cout << "created " << unk_file_name << endl;
-  for ( const auto pit : punct_words ){
-    ps << pit.first << "\t" << pit.second << endl;
-  }
-  cout << "created " << punct_file_name << endl;
 
   if ( doAcro ){
+    for ( const auto& ait : punct_acro_words ){
+      UnicodeString us = TiCC::UnicodeFromUTF8(ait.first);
+      us = filter_punct( us );
+      string acro = TiCC::UnicodeToUTF8( us );
+      if ( compound_acro_words.find( acro ) != compound_acro_words.end() ){
+	// the 'dotted' word is a true acronym
+	// add to the list
+	compound_acro_words[ait.first] += ait.second;
+      }
+      else {
+	// mishit: add to the punct file??
+	//	punct_words[ait.first] += ait.first;
+	cerr << "refuse: " << ait.first << endl;
+      }
+    }
     ofstream as( acro_file_name );
-    for ( const auto& ait : acro_words ){
+    for ( const auto& ait : compound_acro_words ){
       as << ait.first << "\t" << ait.second << endl;
     }
     cout << "created " << acro_file_name << endl;
   }
-
+  for ( const auto pit : punct_words ){
+    ps << pit.first << "\t" << pit.second << endl;
+  }
+  cout << "created " << punct_file_name << endl;
   cout << "done!" << endl;
 }
