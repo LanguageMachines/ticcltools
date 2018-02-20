@@ -142,7 +142,7 @@ bool depunct( const UnicodeString& us, UnicodeString& result ){
 }
 
 bool is_roman( const UnicodeString& word ){
-  static string pattern = "^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$$";
+  static string pattern = "^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$";
   static TiCC::UnicodeRegexMatcher roman_detect( TiCC::UnicodeFromUTF8(pattern), "roman" );
   UnicodeString pre, post;
   bool debug = false; //(word == "IX");
