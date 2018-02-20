@@ -787,7 +787,7 @@ int main( int argc, char *argv[] ){
       else {
 	// mishit: add to the punct file??
 	//	punct_words[ait.first] += ait.first;
-	cerr << "refuse: " << ait.first << endl;
+	//	cerr << "refuse: " << ait.first << endl;
       }
     }
     ofstream as( acro_file_name );
