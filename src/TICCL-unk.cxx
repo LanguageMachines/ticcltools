@@ -141,6 +141,24 @@ bool depunct( const UnicodeString& us, UnicodeString& result ){
   }
 }
 
+bool is_roman( const UnicodeString& word ){
+  static string pattern = "^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$$";
+  static TiCC::UnicodeRegexMatcher roman_detect( TiCC::UnicodeFromUTF8(pattern), "roman" );
+  UnicodeString pre, post;
+  bool debug = false; //(word == "IX");
+  roman_detect.set_debug(debug);
+  if ( debug ){
+    cerr << "IS Roman: test pattern = " << roman_detect.Pattern() << endl;
+    cerr << "op " << word << endl;
+  }
+  if ( roman_detect.match_all( word, pre, post ) ){
+    if ( debug ){
+      cerr << "FOUND roman number: " << word << endl;
+    }
+    return true;
+  }
+  return false;
+}
 
 S_Class classify( const UnicodeString& word,
 		  set<UChar>& alphabet ){
@@ -155,6 +173,9 @@ S_Class classify( const UnicodeString& word,
 #ifdef DEBUG
     cerr << "UITGANG 0: Ignore" << endl;
 #endif
+    return IGNORE;
+  }
+  if ( is_roman( word ) ){
     return IGNORE;
   }
   for ( int i=0; i < word_len; ++i ){
