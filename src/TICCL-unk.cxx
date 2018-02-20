@@ -376,7 +376,7 @@ void usage( const string& name ){
 
 int main( int argc, char *argv[] ){
   // string result;
-  // vector<string> tests = {"•——", "5^>", "AAP", "A.N.W.B", "A.N.W.B.", "AA.N.W.BB.", "AA.N...W.BB..." };
+  // vector<string> tests = {"•——", "5^>", "AAP", "A.N.W.B", "A.N.W.B.", "AA.N.W.BB.", "AA.N...W.BB...", "V.S", "V.S." };
   // for ( const auto& test : tests ){
   //   if ( isAcro( test ) ){
   //     cerr << "isAcro(" << test << ")" << endl;
@@ -673,13 +673,13 @@ int main( int argc, char *argv[] ){
 	  if ( verbose ){
 	    cerr << "CLEAN ACRO: " << word << endl;
 	  }
-	  acro_words[word] += 1;
+	  acro_words[word] += freq;
 	}
 	else if ( doAcro && isAcro( parts, acro ) ){
 	  if ( verbose ){
 	    cerr << "CLEAN ACRO: (regex)" << word << "/" << acro << endl;
 	  }
-	  acro_words[acro] += 1;
+	  acro_words[acro] += freq;
 	}
 	else if ( verbose ){
 	  cerr << "CLEAN word: " << word << endl;
@@ -694,13 +694,13 @@ int main( int argc, char *argv[] ){
 	    cerr << "UNK ACRO: " << word << endl;
 	  }
 	  clean_words[word] += freq;
-	  acro_words[word] += 1;
+	  acro_words[word] += freq;
 	}
 	else if ( doAcro && isAcro( parts, acro ) ){
 	  if ( verbose ){
 	    cerr << "UNK ACRO: " << word << "/" << acro << endl;
 	  }
-	  acro_words[acro] += 1;
+	  acro_words[acro] += freq;
 	}
 	else {
 	  if ( verbose ){
@@ -719,13 +719,13 @@ int main( int argc, char *argv[] ){
 	  if ( verbose ){
 	    cerr << "PUNCT ACRO: " << end_pun << endl;
 	  }
-	  acro_words[end_pun] += 1;
+	  acro_words[end_pun] += freq;
 	}
 	else if ( doAcro && isAcro( parts, acro ) ){
 	  if ( verbose ){
 	    cerr << "PUNCT ACRO: (regex) " << word << "/" << acro << endl;
 	  }
-	  acro_words[acro] += 1;
+	  acro_words[acro] += freq;
 	}
 	else if ( verbose ){
 	  cerr << "PUNCT word: " << word << endl;
