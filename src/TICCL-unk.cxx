@@ -113,18 +113,31 @@ bool fillSimpleAlpha( istream& is, set<UChar>& alphabet ){
   return true;
 }
 
+bool is_ticcl_punct( UChar uc ){
+  if ( uc == '^' ){
+    return true;
+  }
+  int8_t charT =  u_charType( uc );
+  return ( charT == U_OTHER_PUNCTUATION ||
+	   charT == U_INITIAL_PUNCTUATION ||
+	   charT == U_FINAL_PUNCTUATION ||
+	   charT == U_CONNECTOR_PUNCTUATION ||
+	   charT == U_START_PUNCTUATION ||
+	   charT == U_END_PUNCTUATION );
+}
+
 bool depunct( const UnicodeString& us, UnicodeString& result ){
   result.remove();
   int i = 0;
   for ( ; i < us.length(); ++i ){
     // skip leading punctuation and spaces
-    if ( !( u_ispunct( us[i] ) || u_isspace( us[i] ) ) )
+    if ( !( is_ticcl_punct( us[i] ) || u_isspace( us[i] ) ) )
       break;
   }
   int j = us.length()-1;
   for ( ; j >= 0; j-- ){
     // skip trailing punctuation and spaces
-    if ( !( u_ispunct( us[j] ) || u_isspace( us[j] ) ) )
+    if ( !( is_ticcl_punct( us[j] ) || u_isspace( us[j] ) ) )
       break;
   }
   if ( i == 0 && j == us.length()-1 ){
@@ -320,13 +333,21 @@ S_Class classify( const string& word, set<UChar>& alphabet,
     }
     else {
       result = classify( ps, alphabet );
+      if ( verbose ){
+	cerr << "classify: " << result << endl;
+      }
       if ( result != IGNORE ){
 	if ( result == CLEAN ){
+	  if ( verbose ){
+	    cerr << "transpose CLEAN word (" <<  us << ") to PUNCT ("
+		 << ps << ")" << endl;
+	  }
 	  punct = TiCC::UnicodeToUTF8( ps );
 	  result = PUNCT;
 	}
-	else
+	else {
 	  result = UNK;
+	}
       }
     }
   }
@@ -620,6 +641,9 @@ int main( int argc, char *argv[] ){
       else {
 	cl = classify( wrd, alphabet, pun );
       }
+      if ( verbose ){
+	cerr << "end_cl=" << end_cl << " ADD " << cl << endl;
+      }
       switch( cl ){
       case IGNORE:
 	if ( end_cl == UNDEF ){
@@ -628,10 +652,12 @@ int main( int argc, char *argv[] ){
 	else if ( end_cl == IGNORE ){
 	}
 	else if ( end_cl == CLEAN ){
+	  end_cl = IGNORE;
 	}
 	else if ( end_cl == UNK ){
 	}
 	else if ( end_cl == PUNCT ){
+	  end_cl = IGNORE;
 	}
 	break;
       case CLEAN:
@@ -639,7 +665,7 @@ int main( int argc, char *argv[] ){
 	  end_cl = CLEAN;
 	}
 	else if ( end_cl == IGNORE ){
-	  end_cl = CLEAN;
+	  end_cl = IGNORE;
 	}
 	else if ( end_cl == CLEAN ){
 	}
@@ -653,7 +679,7 @@ int main( int argc, char *argv[] ){
 	  end_cl = PUNCT;
 	}
 	else if ( end_cl == IGNORE ){
-	  end_cl = PUNCT;
+	  end_cl = IGNORE;
 	}
 	else if ( end_cl == CLEAN ){
 	  end_cl = PUNCT;
@@ -668,7 +694,7 @@ int main( int argc, char *argv[] ){
 	  end_cl = UNK;
 	}
 	else if ( end_cl == IGNORE ){
-	  end_cl = UNK;
+	  end_cl = IGNORE;
 	}
 	else if ( end_cl == CLEAN ){
 	  end_cl = UNK;
@@ -681,6 +707,9 @@ int main( int argc, char *argv[] ){
 	break;
       case UNDEF:
 	throw logic_error( "undef value returned by classify()" );
+      }
+      if ( verbose ){
+	cerr << "resulting end_cl=" << end_cl << endl;
       }
       if ( pun.empty() ){
 	pun = wrd;
