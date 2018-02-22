@@ -622,13 +622,41 @@ int main( int argc, char *argv[] ){
     string end_pun;
 
     string word = v[0];
+    if ( verbose ){
+      cerr << endl << "Run UNK on : " << word << endl;
+    }
     vector<string> parts;
     TiCC::split_at( word, parts, SEPARATOR );
     if ( parts.size() == 0 ){
       continue;
     }
+    else if ( parts.size() == 2
+	 && word.size() < 6 ){
+      if ( verbose ){
+	cerr << "to short bigram: " << word << endl;
+      }
+      continue;
+    }
+    else if ( parts.size() == 3
+	      && word.size() < 8 ){
+      if ( verbose ){
+	cerr << "to short trigram: " << word << endl;
+      }
+      continue;
+    }
     unsigned int lexclean = 0;
     for ( auto const& wrd : parts ){
+      if ( parts.size() > 1
+	   && wrd.size() == 1
+	   && (!isalnum(wrd[0]) && wrd[0] != '-' ) ){
+	end_cl = IGNORE;
+	if ( verbose ){
+	  cerr << "1 letter part: " << wrd << " ==> " << end_cl << endl;
+	}
+      }
+      if ( end_cl == IGNORE ){
+	break;
+      }
       S_Class cl;
       string pun;
       UnicodeString us = TiCC::UnicodeFromUTF8( wrd );
@@ -646,17 +674,13 @@ int main( int argc, char *argv[] ){
       }
       switch( cl ){
       case IGNORE:
-	if ( end_cl == UNDEF ){
-	  end_cl = IGNORE;
+	if ( end_cl == CLEAN
+	     && parts.size() > 2
+	     && &wrd == &parts[1]
+	     && wrd.size() == 1
+	     && wrd[0] == '-' ){
 	}
-	else if ( end_cl == IGNORE ){
-	}
-	else if ( end_cl == CLEAN ){
-	  end_cl = IGNORE;
-	}
-	else if ( end_cl == UNK ){
-	}
-	else if ( end_cl == PUNCT ){
+	else {
 	  end_cl = IGNORE;
 	}
 	break;
@@ -664,12 +688,10 @@ int main( int argc, char *argv[] ){
 	if ( end_cl == UNDEF ){
 	  end_cl = CLEAN;
 	}
-	else if ( end_cl == IGNORE ){
-	  end_cl = IGNORE;
-	}
 	else if ( end_cl == CLEAN ){
 	}
 	else if ( end_cl == UNK ){
+	  end_cl = IGNORE;
 	}
 	else if ( end_cl == PUNCT ){
 	}
@@ -678,13 +700,11 @@ int main( int argc, char *argv[] ){
 	if ( end_cl == UNDEF ){
 	  end_cl = PUNCT;
 	}
-	else if ( end_cl == IGNORE ){
-	  end_cl = IGNORE;
-	}
 	else if ( end_cl == CLEAN ){
 	  end_cl = PUNCT;
 	}
 	else if ( end_cl == UNK ){
+	  end_cl = IGNORE;
 	}
 	else if ( end_cl == PUNCT ){
 	}
@@ -693,16 +713,11 @@ int main( int argc, char *argv[] ){
 	if ( end_cl == UNDEF ){
 	  end_cl = UNK;
 	}
-	else if ( end_cl == IGNORE ){
+	else if ( end_cl == UNK ){
 	  end_cl = IGNORE;
 	}
 	else if ( end_cl == CLEAN ){
-	  end_cl = UNK;
-	}
-	else if ( end_cl == UNK ){
-	}
-	else if ( end_cl == PUNCT ){
-	  end_cl = UNK;
+	  end_cl = IGNORE;
 	}
 	break;
       case UNDEF:
