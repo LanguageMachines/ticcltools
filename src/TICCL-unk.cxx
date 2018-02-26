@@ -206,7 +206,7 @@ bool is_roman( const UnicodeString& word ){
 }
 
 S_Class classify( const UnicodeString& word,
-		  set<UChar>& alphabet ){
+		  const set<UChar>& alphabet ){
   int is_upper = 0;
   int is_digit = 0;
   int is_punct = 0;
@@ -349,7 +349,7 @@ S_Class classify( const UnicodeString& word,
   }
 }
 
-S_Class classify( const string& word, set<UChar>& alphabet,
+S_Class classify( const string& word, const set<UChar>& alphabet,
 		  string& punct ){
   S_Class result = CLEAN;
   punct.clear();
@@ -435,6 +435,235 @@ UnicodeString filter_punct( const UnicodeString& us ){
     }
   }
   return result;
+}
+
+S_Class classify_n_gram( const vector<string>& parts,
+			 string& end_pun,
+			 unsigned int& lexclean,
+			 const map<UnicodeString,unsigned int>& decap_clean_words,
+			 const set<UChar>& alphabet ){
+  S_Class end_cl = UNDEF;
+  for ( auto const& wrd : parts ){
+    if ( parts.size() > 1
+	 && wrd.size() == 1
+	 && (!isalnum(wrd[0]) && wrd[0] != '-' ) ){
+      end_cl = IGNORE;
+      if ( verbose ){
+	cerr << "1 letter part: " << wrd << " ==> " << end_cl << endl;
+      }
+    }
+    if ( end_cl == IGNORE ){
+      break;
+    }
+    S_Class cl;
+    string pun;
+    UnicodeString us = TiCC::UnicodeFromUTF8( wrd );
+    us.toLower();
+    if ( decap_clean_words.find( us ) != decap_clean_words.end() ){
+      // no need to do a lot of work for already clean words
+      ++lexclean;
+      cl = CLEAN;
+    }
+    else {
+      cl = classify( wrd, alphabet, pun );
+    }
+    if ( verbose ){
+      cerr << "end_cl=" << end_cl << " ADD " << cl << endl;
+    }
+    switch( cl ){
+    case IGNORE:
+      if ( end_cl == CLEAN
+	   && parts.size() > 2
+	   && &wrd == &parts[1]
+	   && wrd.size() == 1
+	   && wrd[0] == '-' ){
+      }
+      else {
+	end_cl = IGNORE;
+      }
+      break;
+    case CLEAN:
+      if ( end_cl == UNDEF ){
+	end_cl = CLEAN;
+      }
+      else if ( end_cl == CLEAN ){
+      }
+      else if ( end_cl == UNK ){
+	end_cl = IGNORE;
+      }
+      else if ( end_cl == PUNCT ){
+      }
+      break;
+    case PUNCT:
+      if ( end_cl == UNDEF ){
+	end_cl = PUNCT;
+      }
+      else if ( end_cl == CLEAN ){
+	end_cl = PUNCT;
+      }
+      else if ( end_cl == UNK ){
+	end_cl = IGNORE;
+      }
+      else if ( end_cl == PUNCT ){
+      }
+      break;
+    case UNK:
+      if ( end_cl == UNDEF ){
+	end_cl = UNK;
+      }
+      else if ( end_cl == UNK ){
+	end_cl = IGNORE;
+      }
+      else if ( end_cl == CLEAN ){
+	end_cl = IGNORE;
+      }
+      break;
+    case UNDEF:
+      throw logic_error( "undef value returned by classify()" );
+    }
+    if ( verbose ){
+      cerr << "resulting end_cl=" << end_cl << endl;
+    }
+    if ( pun.empty() ){
+      pun = wrd;
+    }
+    end_pun += pun + SEPARATOR;
+  }
+  end_pun = TiCC::trim_back( end_pun, SEPARATOR );
+  return end_cl;
+}
+
+void classify_one_entry( const string& orig_word, unsigned int freq,
+			 map<string,unsigned int>& clean_words,
+			 const map<UnicodeString,unsigned int>& decap_clean_words,
+			 map<string,unsigned int>& unk_words,
+			 map<string,string>& punct_words,
+			 map<string,unsigned int>& punct_acro_words,
+			 map<string,unsigned int>& compound_acro_words,
+			 bool doAcro,
+			 const set<UChar>& alphabet,
+			 size_t artifreq ){
+
+  UnicodeString us = TiCC::UnicodeFromUTF8( orig_word );
+  UnicodeString nus;
+  bool de_hyphenated = normalize_hyphens( us, nus );
+  string word = TiCC::UnicodeToUTF8( nus );
+  if ( verbose ){
+    cerr << endl << "Run UNK on : " << word << endl;
+    if ( de_hyphenated ){
+      cerr << "Original dehyphened : " << orig_word << endl << endl;
+    }
+  }
+  vector<string> parts;
+  TiCC::split_at( word, parts, SEPARATOR );
+  if ( parts.size() == 0 ){
+    return;
+  }
+  else if ( parts.size() == 2
+	    && word.size() < 6 ){
+    if ( verbose ){
+      cerr << "to short bigram: " << word << endl;
+    }
+    return;
+  }
+  else if ( parts.size() == 3
+	    && word.size() < 8 ){
+    if ( verbose ){
+      cerr << "to short trigram: " << word << endl;
+    }
+    return;
+  }
+  unsigned int lexclean = 0;
+  string end_pun;
+  S_Class end_cl = classify_n_gram( parts, end_pun,
+				    lexclean, decap_clean_words, alphabet );
+
+  switch ( end_cl ){
+  case IGNORE:
+    break;
+  case CLEAN:
+    {
+      clean_words[word] += freq;
+      if ( clean_words[word] < artifreq
+	   && lexclean == parts.size() ){
+	clean_words[word] += artifreq;
+      }
+      if ( de_hyphenated ){
+	punct_words[orig_word] = word;
+      }
+      set<string> acros;
+      if ( doAcro && isAcro( word ) ){
+	if ( verbose ){
+	  cerr << "CLEAN ACRO: " << word << endl;
+	}
+	punct_acro_words[word] += freq;
+      }
+      else if ( doAcro && isAcro( parts, acros ) ){
+	for ( const auto& acro : acros ){
+	  if ( verbose ){
+	    cerr << "CLEAN ACRO: (regex)" << word << "/" << acro << endl;
+	  }
+	  compound_acro_words[acro] += freq;
+	}
+      }
+      else if ( verbose ){
+	cerr << "CLEAN word: " << word << endl;
+      }
+    }
+    break;
+  case UNK:
+    {
+      set<string> acros;
+      if ( doAcro && isAcro( word ) ){
+	if ( verbose ){
+	  cerr << "UNK ACRO: " << word << endl;
+	}
+	clean_words[word] += freq;
+	punct_acro_words[word] += freq;
+      }
+      else if ( doAcro && isAcro( parts, acros ) ){
+	for ( const auto& acro : acros ){
+	  if ( verbose ){
+	    cerr << "UNK ACRO: " << word << "/" << acro << endl;
+	  }
+	  compound_acro_words[acro] += freq;
+	}
+      }
+      else {
+	if ( verbose ){
+	  cerr << "UNK word: " << orig_word << endl;
+	}
+	unk_words[orig_word] += freq;
+      }
+    }
+    break;
+  case PUNCT:
+    {
+      punct_words[orig_word] = end_pun;
+      clean_words[end_pun] += freq;
+      set<string> acros;
+      if ( doAcro && isAcro( end_pun ) ){
+	if ( verbose ){
+	  cerr << "PUNCT ACRO: " << end_pun << endl;
+	}
+	punct_acro_words[end_pun] += freq;
+      }
+      else if ( doAcro && isAcro( parts, acros ) ){
+	for ( const auto& acro : acros ){
+	  if ( verbose ){
+	    cerr << "PUNCT ACRO: (regex) " << word << "/" << acro << endl;
+	  }
+	  compound_acro_words[acro] += freq;
+	}
+      }
+      else if ( verbose ){
+	cerr << "PUNCT word: " << word << endl;
+      }
+    }
+    break;
+  case UNDEF:
+    throw logic_error( "this is realy odd" );
+  }
 }
 
 void usage( const string& name ){
@@ -669,217 +898,15 @@ int main( int argc, char *argv[] ){
       }
       continue;
     }
-    unsigned int freq = TiCC::stringTo<unsigned int>(v[1]);
-
-    S_Class end_cl = UNDEF;
-
-    string end_pun;
 
     string orig_word = v[0];
-    UnicodeString us = TiCC::UnicodeFromUTF8( orig_word );
-    UnicodeString nus;
-    bool de_hyphenated = normalize_hyphens( us, nus );
-    string word = TiCC::UnicodeToUTF8( nus );
-    if ( verbose ){
-      cerr << endl << "Run UNK on : " << word << endl;
-      if ( de_hyphenated ){
-	cerr << "Original dehyphened : " << orig_word << endl << endl;
-      }
-    }
-    vector<string> parts;
-    TiCC::split_at( word, parts, SEPARATOR );
-    if ( parts.size() == 0 ){
-      continue;
-    }
-    else if ( parts.size() == 2
-	 && word.size() < 6 ){
-      if ( verbose ){
-	cerr << "to short bigram: " << word << endl;
-      }
-      continue;
-    }
-    else if ( parts.size() == 3
-	      && word.size() < 8 ){
-      if ( verbose ){
-	cerr << "to short trigram: " << word << endl;
-      }
-      continue;
-    }
-    unsigned int lexclean = 0;
-    for ( auto const& wrd : parts ){
-      if ( parts.size() > 1
-	   && wrd.size() == 1
-	   && (!isalnum(wrd[0]) && wrd[0] != '-' ) ){
-	end_cl = IGNORE;
-	if ( verbose ){
-	  cerr << "1 letter part: " << wrd << " ==> " << end_cl << endl;
-	}
-      }
-      if ( end_cl == IGNORE ){
-	break;
-      }
-      S_Class cl;
-      string pun;
-      UnicodeString us = TiCC::UnicodeFromUTF8( wrd );
-      us.toLower();
-      if ( decap_clean_words.find( us ) != decap_clean_words.end() ){
-	// no need to do a lot of work for already clean words
-	++lexclean;
-	cl = CLEAN;
-      }
-      else {
-	cl = classify( wrd, alphabet, pun );
-      }
-      if ( verbose ){
-	cerr << "end_cl=" << end_cl << " ADD " << cl << endl;
-      }
-      switch( cl ){
-      case IGNORE:
-	if ( end_cl == CLEAN
-	     && parts.size() > 2
-	     && &wrd == &parts[1]
-	     && wrd.size() == 1
-	     && wrd[0] == '-' ){
-	}
-	else {
-	  end_cl = IGNORE;
-	}
-	break;
-      case CLEAN:
-	if ( end_cl == UNDEF ){
-	  end_cl = CLEAN;
-	}
-	else if ( end_cl == CLEAN ){
-	}
-	else if ( end_cl == UNK ){
-	  end_cl = IGNORE;
-	}
-	else if ( end_cl == PUNCT ){
-	}
-	break;
-      case PUNCT:
-	if ( end_cl == UNDEF ){
-	  end_cl = PUNCT;
-	}
-	else if ( end_cl == CLEAN ){
-	  end_cl = PUNCT;
-	}
-	else if ( end_cl == UNK ){
-	  end_cl = IGNORE;
-	}
-	else if ( end_cl == PUNCT ){
-	}
-	break;
-      case UNK:
-	if ( end_cl == UNDEF ){
-	  end_cl = UNK;
-	}
-	else if ( end_cl == UNK ){
-	  end_cl = IGNORE;
-	}
-	else if ( end_cl == CLEAN ){
-	  end_cl = IGNORE;
-	}
-	break;
-      case UNDEF:
-	throw logic_error( "undef value returned by classify()" );
-      }
-      if ( verbose ){
-	cerr << "resulting end_cl=" << end_cl << endl;
-      }
-      if ( pun.empty() ){
-	pun = wrd;
-      }
-      end_pun += pun + SEPARATOR;
-    }
-    end_pun = TiCC::trim_back( end_pun, SEPARATOR );
+    unsigned int freq = TiCC::stringTo<unsigned int>(v[1]);
 
-    switch ( end_cl ){
-    case IGNORE:
-      break;
-    case CLEAN:
-      {
-	clean_words[word] += freq;
-	if ( clean_words[word] < artifreq
-	     && lexclean == parts.size() ){
-	  clean_words[word] += artifreq;
-	}
-	if ( de_hyphenated ){
-	  punct_words[orig_word] = word;
-	}
-	set<string> acros;
-	if ( doAcro && isAcro( word ) ){
-	  if ( verbose ){
-	    cerr << "CLEAN ACRO: " << word << endl;
-	  }
-	  punct_acro_words[word] += freq;
-	}
-	else if ( doAcro && isAcro( parts, acros ) ){
-	  for ( const auto& acro : acros ){
-	    if ( verbose ){
-	      cerr << "CLEAN ACRO: (regex)" << word << "/" << acro << endl;
-	    }
-	    compound_acro_words[acro] += freq;
-	  }
-	}
-	else if ( verbose ){
-	  cerr << "CLEAN word: " << word << endl;
-	}
-      }
-      break;
-    case UNK:
-      {
-	set<string> acros;
-	if ( doAcro && isAcro( word ) ){
-	  if ( verbose ){
-	    cerr << "UNK ACRO: " << word << endl;
-	  }
-	  clean_words[word] += freq;
-	  punct_acro_words[word] += freq;
-	}
-	else if ( doAcro && isAcro( parts, acros ) ){
-	  for ( const auto& acro : acros ){
-	    if ( verbose ){
-	      cerr << "UNK ACRO: " << word << "/" << acro << endl;
-	    }
-	    compound_acro_words[acro] += freq;
-	  }
-	}
-	else {
-	  if ( verbose ){
-	    cerr << "UNK word: " << orig_word << endl;
-	  }
-	  unk_words[orig_word] += freq;
-	}
-      }
-      break;
-    case PUNCT:
-      {
-	punct_words[orig_word] = end_pun;
-	clean_words[end_pun] += freq;
-	set<string> acros;
-	if ( doAcro && isAcro( end_pun ) ){
-	  if ( verbose ){
-	    cerr << "PUNCT ACRO: " << end_pun << endl;
-	  }
-	  punct_acro_words[end_pun] += freq;
-	}
-	else if ( doAcro && isAcro( parts, acros ) ){
-	  for ( const auto& acro : acros ){
-	    if ( verbose ){
-	      cerr << "PUNCT ACRO: (regex) " << word << "/" << acro << endl;
-	    }
-	    compound_acro_words[acro] += freq;
-	  }
-	}
-	else if ( verbose ){
-	  cerr << "PUNCT word: " << word << endl;
-	}
-      }
-      break;
-    case UNDEF:
-      throw logic_error( "this is realy odd" );
-    }
+    classify_one_entry( orig_word, freq,
+			clean_words, decap_clean_words,
+			unk_words, punct_words,
+			punct_acro_words, compound_acro_words,
+			doAcro, alphabet, artifreq );
   }
   cout << "generating output files" << endl;
   cout << "using artifrq=" << artifreq << endl;
