@@ -5,11 +5,20 @@ de_el_n	1
 de_el_in	1
 de_zee_uit	1
 een_,		1
+,_een		1
 week_1		1
+1_week		1
+_in_deze_,	1
 ,_in_deze	1
-waar_de-		1
-waarom_,		1
 de_-_zelfde	1
+-_de_zelfde	1
+de_zelfde_-	1
+waar_de-		1
+waar-_de-		1
+waar--_de-		1
+waar_de--		1
+waar_de--,		1
+waar:_de--		1
 V.S.	3
 K.N.I.L.	4
 (taxatie_66),	1
@@ -18,6 +27,7 @@ K.N.I.L.	4
 (taxatie_zestig)	1
 'voor_een_kW"atóërtje?öpgehaald'^^^	1
 'voor_de_,	1
+'voor_de_,'	1
 ge-_split	1
 ge_-_split	1
 !$#!a%@@Q&@	1
@@ -25,3 +35,4 @@ goed_!$#!%@@&@	1
 !$#aa!%@o@&@	1
 !$#aa!%_@o@&@	1
 goed_!$#aa!%_@o@&@	1
+•a$%——	1
