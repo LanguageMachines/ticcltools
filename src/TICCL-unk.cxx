@@ -154,6 +154,38 @@ bool depunct( const UnicodeString& us, UnicodeString& result ){
   }
 }
 
+bool is_ticcl_dash( UChar uc ){
+  int8_t charT =  u_charType( uc );
+  return ( charT == U_DASH_PUNCTUATION );
+}
+
+bool normalize_hyphens( const UnicodeString& us, UnicodeString& result ){
+  result.remove();
+  bool dash_found = false;
+  for ( int i=0; i < us.length(); ++i ){
+    if ( is_ticcl_dash( us[i] ) ){
+      //    cerr << "found a " << us[i] << endl;
+      if ( dash_found ){
+	continue;
+      }
+      else {
+	dash_found = true;
+      }
+    }
+    else {
+      dash_found = false;
+    }
+    if ( dash_found ){
+      result += "-";
+    }
+    else {
+      result += us[i];
+    }
+  }
+  //cerr << "return: " << result << endl;
+  return result != us;
+}
+
 bool is_roman( const UnicodeString& word ){
   static string pattern = "^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$";
   static TiCC::UnicodeRegexMatcher roman_detect( TiCC::UnicodeFromUTF8(pattern), "roman" );
@@ -436,7 +468,29 @@ int main( int argc, char *argv[] ){
   //     cerr << "NO acro: " << test << endl;
   //   }
   // }
+
+  // vector<UnicodeString> dashed = { "em—dash", "en–dash",
+  // 				   "bar―", "bar―――",
+  // 				   "3em⸻dash",
+  // 				   "FullWidth－HyphenMinus",
+  // 				   "vertical︱Emdash" };
+  // vector<UnicodeString> nrmlzd = { "em-dash", "en-dash",
+  // 				   "bar-", "bar-",
+  // 				   "3em-dash",
+  // 				   "FullWidth-HyphenMinus", "vertical-Emdash" };
+  // for ( size_t i=0 ; i < dashed.size(); ++i ){
+  //   UnicodeString nus;
+  //   if ( normalize_hyphens( dashed[i], nus ) ){
+  //     if ( nus != nrmlzd[i] ){
+  // 	cerr << "FAILED: " << dashed[i] << " ==> " << nrmlzd[i] << endl;
+  //     }
+  //   }
+  //   else {
+  //     cerr << "Not normalized: " << dashed[i] << " ==> " << nus << endl;
+  //   }
+  // }
   // return EXIT_FAILURE;
+
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
@@ -621,9 +675,16 @@ int main( int argc, char *argv[] ){
 
     string end_pun;
 
-    string word = v[0];
+    string orig_word = v[0];
+    UnicodeString us = TiCC::UnicodeFromUTF8( orig_word );
+    UnicodeString nus;
+    bool de_hyphenated = normalize_hyphens( us, nus );
+    string word = TiCC::UnicodeToUTF8( nus );
     if ( verbose ){
       cerr << endl << "Run UNK on : " << word << endl;
+      if ( de_hyphenated ){
+	cerr << "Original dehyphened : " << orig_word << endl << endl;
+      }
     }
     vector<string> parts;
     TiCC::split_at( word, parts, SEPARATOR );
@@ -743,6 +804,9 @@ int main( int argc, char *argv[] ){
 	     && lexclean == parts.size() ){
 	  clean_words[word] += artifreq;
 	}
+	if ( de_hyphenated ){
+	  punct_words[orig_word] = word;
+	}
 	set<string> acros;
 	if ( doAcro && isAcro( word ) ){
 	  if ( verbose ){
@@ -783,15 +847,15 @@ int main( int argc, char *argv[] ){
 	}
 	else {
 	  if ( verbose ){
-	    cerr << "UNK word: " << word << endl;
+	    cerr << "UNK word: " << orig_word << endl;
 	  }
-	  unk_words[word] += freq;
+	  unk_words[orig_word] += freq;
 	}
       }
       break;
     case PUNCT:
       {
-	punct_words[word] = end_pun;
+	punct_words[orig_word] = end_pun;
 	clean_words[end_pun] += freq;
 	set<string> acros;
 	if ( doAcro && isAcro( end_pun ) ){
