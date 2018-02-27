@@ -271,6 +271,12 @@ S_Class classify( const UnicodeString& word,
 	  }
 	  ++is_digit;
 	}
+	else if ( uchar == '.' ){
+	  if ( verbose ){
+	    cerr << "'" << UnicodeString(uchar) << "' is PUNCT" << endl;
+	  }
+	  ++is_punct;
+	}
 	else {
 	  if ( verbose ){
 	    cerr << "'" << UnicodeString(uchar) << "' is OUT het alfabet" << endl;
@@ -639,14 +645,14 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
     break;
   case PUNCT:
     {
-      punct_words[orig_word] = end_pun;
-      clean_words[end_pun] += freq;
       set<string> acros;
       if ( doAcro && isAcro( end_pun ) ){
 	if ( verbose ){
 	  cerr << "PUNCT ACRO: " << end_pun << endl;
 	}
 	punct_acro_words[end_pun] += freq;
+	punct_words[end_pun] = word;
+	clean_words[word] += freq;
       }
       else if ( doAcro && isAcro( parts, acros ) ){
 	for ( const auto& acro : acros ){
@@ -656,8 +662,12 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
 	  compound_acro_words[acro] += freq;
 	}
       }
-      else if ( verbose ){
-	cerr << "PUNCT word: " << word << endl;
+      else {
+	clean_words[end_pun] += freq;
+	punct_words[orig_word] = end_pun;
+	if ( verbose ){
+	  cerr << "PUNCT word: " << word << endl;
+	}
       }
     }
     break;
