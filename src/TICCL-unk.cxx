@@ -159,7 +159,10 @@ bool is_ticcl_dash( UChar uc ){
   return ( charT == U_DASH_PUNCTUATION );
 }
 
-bool normalize_hyphens( const UnicodeString& us, UnicodeString& result ){
+static TiCC::UniFilter filter;
+
+bool normalize_hyphens( const UnicodeString& in, UnicodeString& result ){
+  UnicodeString us = filter.filter( in );
   result.remove();
   bool dash_found = false;
   for ( int i=0; i < us.length(); ++i ){
@@ -183,7 +186,7 @@ bool normalize_hyphens( const UnicodeString& us, UnicodeString& result ){
     }
   }
   //cerr << "return: " << result << endl;
-  return result != us;
+  return result != in;
 }
 
 bool is_roman( const UnicodeString& word ){
@@ -697,6 +700,9 @@ void usage( const string& name ){
 }
 
 int main( int argc, char *argv[] ){
+  filter.init( "æ >ae; Æ > AE; œ > oe; Œ > OE; ĳ > ij; Ĳ > IJ; ﬂ > fl;"
+	       "ﬀ > ff; ﬃ > ffi; ﬄ > ffl; ﬅ > st; ß > ss;",
+	       "ligature_filter" );
   // string result;
   // vector<string> tests = {"•——", "5^>", "AAP", "A.N.W.B", "A.N.W.B.", "AA.N.W.BB.", "AA.N...W.BB...", "V.S", "V.S." };
   // for ( const auto& test : tests ){
