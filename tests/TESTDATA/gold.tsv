@@ -1,43 +1,43 @@
-de_el	1
-de_zee	1
-een_zee	1
-de_el_n	1
-de_el_in	1
-de_zee_uit	1
-een_,		1
-,_een		1
-week_1		1
-1_week		1
-_in_deze_,	1
-,_in_deze	1
-de_-_zelfde	1
-de_—_zelfde	1
-de_－_zelfde	1
-de_⸻_zelfde	1
--_de_zelfde	1
-de_zelfde_-	1
-waar_de-		1
-waar-_de-		1
-waar--_de-		1
-waar_de--		1
-waar_de--,		1
-waar:_de--		1
-V.S.	3
-K.N.I.L.	4
-(taxatie_66),	1
-(taxatie_zestig),	1
-(taxatie_66)	1
-(taxatie_zestig)	1
-'voor_een_kW"atóërtje?öpgehaald'^^^	1
-'voor_de_,	1
-'voor_de_,'	1
-ge-_split	1
-ge_-_split	1
-ge_－_split	1
-ge_⸻_split	1
-!$#!a%@@Q&@	1
-goed_!$#!%@@&@	1
-!$#aa!%@o@&@	1
-!$#aa!%_@o@&@	1
-goed_!$#aa!%_@o@&@	1
-•a$%——	1
+de_el	1 #nergens, OK!
+de_zee	1 #C (= clean)
+een_zee	1 #C
+de_el_n	1 #nergens, OK!
+de_el_in	1 #C
+de_zee_uit	1 #C
+een_,		1 #nergens, OK!
+,_een		1 #nergens, OK!
+week_1		1 #nergens, OK!
+1_week		1 #nergens, OK!
+_in_deze_,	1 #nergens, OK!
+,_in_deze	1 #nergens, OK!
+de_-_zelfde	1 #C
+de_—_zelfde	1 #P (punct) en dan gecleanede in C
+de_－_zelfde	1 #P (punct) en	dan gecleanede in C
+de_⸻_zelfde	1 #P (punct) en	dan gecleanede in C
+-_de_zelfde	1 #nergens, OK!
+de_zelfde_-	1 #nergens, OK!
+waar_de-		1 #C
+waar-_de-		1 #C
+waar--_de-		1 #P (punct) en dan gecleanede in C
+waar_de--		1 #P (punct) en dan gecleanede in C
+waar_de--,		1 #P (punct) en dan gecleanede in C
+waar:_de--		1 #P (punct) en dan gecleanede in C
+V.S.	3 #C
+K.N.I.L.	4 #C
+(taxatie_66),	1 #nergens, OK!
+(taxatie_zestig),	1 #P (punct) en dan gecleanede in C
+(taxatie_66)	1 #nergens, OK!
+(taxatie_zestig)	1 #P (punct) en dan gecleanede in C
+'voor_een_kW"atóërtje?öpgehaald'^^^	1 #P (punct) en dan gecleanede in C
+'voor_de_,	1 #nergens, OK!
+'voor_de_,'	1 #nergens, OK!
+ge-_split	1 #C
+ge_-_split	1 #C
+ge_－_split	1 #P (punct) en dan gecleanede in C
+ge_⸻_split	1 #P (punct) en dan gecleanede in C
+!$#!a%@@Q&@	1 #U
+goed_!$#!%@@&@	1 #nergens, OK!
+!$#aa!%@o@&@	1 #U
+!$#aa!%_@o@&@	1 #nergens, OK!
+goed_!$#aa!%_@o@&@	1 #nergens, OK!
+•a$%——	1 #U
