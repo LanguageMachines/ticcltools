@@ -94,13 +94,13 @@ lang	66
 groot	65
 liet	65
 Neen	64
-Volk	60
+Volk	61
 Waereld	60
 Weetenfchappen	60
 naam	59
 werden	59
+gaf	58
 alles	57
-gaf	57
 wel	57
 welken	57
 wy	57
@@ -177,6 +177,7 @@ Menfchen	33
 Vorst	33
 dezelve	33
 magt	33
+nam	33
 één	33
 Lands	32
 daarin	32
@@ -184,7 +185,6 @@ dit	32
 doen	32
 dus	32
 maakte	32
-nam	32
 Welk	31
 geene	31
 handel	31
@@ -255,6 +255,7 @@ ftaat	23
 ftierf	23
 onze	23
 oorlogen	23
+throon	23
 waarin	23
 wiens	23
 Hendrik	22
@@ -268,7 +269,6 @@ gezag	22
 hoewel	22
 minder	22
 moet	22
-throon	22
 voorheen	22
 wyze	22
 ze	22
@@ -1674,6 +1674,7 @@ REGEERING	3
 ROME	3
 RUSLAND	3
 RYK	3
+Regent	3
 Regenten	3
 Richard	3
 Ridder-Orden	3
@@ -2453,7 +2454,6 @@ Raadpenfionaris	2
 Re-	2
 Regeeringen	2
 Regeeringsform	2
-Regent	2
 Rehabeam	2
 Reken-	2
 Rhyn	2
@@ -5294,7 +5294,7 @@ Middelburg	1
 Midian	1
 Midianieten	1
 Midianitcn	1
-Miditmietcn-*-	1
+Miditmietcn-	1
 Miecislaus	1
 Mieris	1
 Milaan	1
@@ -5812,7 +5812,6 @@ Reegering	1
 Regeerde	1
 Regeerings-	1
 Regensburg	1
-Regent,-	1
 Regentcsfe	1
 Regering	1
 Regtbank	1
@@ -6458,7 +6457,6 @@ Voiftendommen	1
 Voisten	1
 Volgende	1
 Volgens	1
-Volk,-	1
 Volkplanting	1
 Volksregering	1
 Volksvergade	1
@@ -7299,7 +7297,6 @@ crflyke	1
 cude	1
 d''e	1
 d'f	1
-d..-	1
 d.enlten	1
 d:e	1
 d;e	1
@@ -7340,7 +7337,7 @@ deczes	1
 dedezelve	1
 deedcn	1
 deedigen	1
-deeeiftendie«-	1
+deeeiftendie	1
 deeik	1
 deelde	1
 deezeXIX	1
@@ -7825,7 +7822,6 @@ gaaping	1
 gaarn	1
 gaarneéén	1
 gade-	1
-gaf,-	1
 gal'in	1
 galgen	1
 ganfche	1
@@ -8811,7 +8807,6 @@ nagedagtenis	1
 nagevolgd	1
 nagten	1
 nagtreis	1
-nam,-	1
 nanmeïyk	1
 natuur	1
 nay-	1
@@ -9385,7 +9380,6 @@ tfeele	1
 thar	1
 the	1
 thomus	1
-throon,-	1
 throonen	1
 tiROOTE	1
 tiaan	1
@@ -9642,7 +9636,7 @@ verde	1
 verdeden	1
 verdeedigers	1
 verdeediging	1
-verdeedïgen,-	1
+verdeedïgen	1
 verdeelen	1
 verdeelende	1
 verdeeling	1
@@ -9686,8 +9680,8 @@ verfcheurd	1
 verfchilden	1
 verfchrikkelyk	1
 verfchrikkelyke	1
+verfie.n'ng	1
 verfierde	1
-verfie•n'ng	1
 verflaafd	1
 verflaat	1
 verflagen	1

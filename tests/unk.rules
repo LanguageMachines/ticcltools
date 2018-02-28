@@ -1,0 +1,16 @@
+æ >ae;
+Æ } [:Uppercase Letter:]* > AE;
+Æ > Ae;
+œ > oe;
+Œ } [:Uppercase Letter:]+ > OE;
+Œ > Oe;
+ĳ > ij;
+Ĳ > IJ;
+ﬂ > fl;
+ﬀ > ff;
+ﬃ > ffi;
+ﬄ > ffl;
+ﬅ > st;
+ß > ss;
+[[:Hyphen:][:Dash:]]+ > '-';
+[•·]  > '.';
