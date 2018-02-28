@@ -114,16 +114,14 @@ bool fillSimpleAlpha( istream& is, set<UChar>& alphabet ){
 }
 
 bool is_ticcl_punct( UChar uc ){
-  if ( uc == '^' ){
+  switch (  uc ){
+  case '^':
     return true;
+  case '-':
+    return false;
+  default:
+    return ticc_ispunct( uc );
   }
-  int8_t charT =  u_charType( uc );
-  return ( charT == U_OTHER_PUNCTUATION ||
-	   charT == U_INITIAL_PUNCTUATION ||
-	   charT == U_FINAL_PUNCTUATION ||
-	   charT == U_CONNECTOR_PUNCTUATION ||
-	   charT == U_START_PUNCTUATION ||
-	   charT == U_END_PUNCTUATION );
 }
 
 bool depunct( const UnicodeString& us, UnicodeString& result ){
@@ -154,38 +152,11 @@ bool depunct( const UnicodeString& us, UnicodeString& result ){
   }
 }
 
-bool is_ticcl_dash( UChar uc ){
-  int8_t charT =  u_charType( uc );
-  return ( charT == U_DASH_PUNCTUATION );
-}
-
 static TiCC::UniFilter filter;
 
-bool normalize_hyphens( const UnicodeString& in, UnicodeString& result ){
+bool normalize_weird( const UnicodeString& in, UnicodeString& result ){
   UnicodeString us = filter.filter( in );
-  result.remove();
-  bool dash_found = false;
-  for ( int i=0; i < us.length(); ++i ){
-    if ( is_ticcl_dash( us[i] ) ){
-      //    cerr << "found a " << us[i] << endl;
-      if ( dash_found ){
-	continue;
-      }
-      else {
-	dash_found = true;
-      }
-    }
-    else {
-      dash_found = false;
-    }
-    if ( dash_found ){
-      result += "-";
-    }
-    else {
-      result += us[i];
-    }
-  }
-  //cerr << "return: " << result << endl;
+  result = us;
   return result != in;
 }
 
@@ -555,13 +526,14 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
 
   UnicodeString us = TiCC::UnicodeFromUTF8( orig_word );
   UnicodeString nus;
-  bool de_hyphenated = normalize_hyphens( us, nus );
+  bool normalized = normalize_weird( us, nus );
   string word = TiCC::UnicodeToUTF8( nus );
   if ( verbose ){
-    cerr << endl << "Run UNK on : " << word << endl;
-    if ( de_hyphenated ){
-      cerr << "Original dehyphened : " << orig_word << endl << endl;
+    cerr << endl << "Run UNK on : " << orig_word;
+    if ( normalized ){
+      cerr << "normalized too: : " << word;
     }
+    cerr << endl << endl;
   }
   vector<string> parts;
   TiCC::split_at( word, parts, SEPARATOR );
@@ -597,7 +569,7 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
 	   && lexclean == parts.size() ){
 	clean_words[word] += artifreq;
       }
-      if ( de_hyphenated ){
+      if ( normalized ){
 	punct_words[orig_word] = word;
       }
       set<string> acros;
@@ -699,43 +671,13 @@ void usage( const string& name ){
   cerr << "\t-V\t show version " << endl;
 }
 
+UnicodeString default_filter =
+   "æ >ae; Æ > AE; œ > oe; Œ > OE; ĳ > ij; Ĳ > IJ; ﬂ > fl;"
+   "ﬀ > ff; ﬃ > ffi; ﬄ > ffl; ﬅ > st; ß > ss;"
+   "[[:Hyphen:][:Dash:]]+ > '-';";
+
 int main( int argc, char *argv[] ){
-  filter.init( "æ >ae; Æ > AE; œ > oe; Œ > OE; ĳ > ij; Ĳ > IJ; ﬂ > fl;"
-	       "ﬀ > ff; ﬃ > ffi; ﬄ > ffl; ﬅ > st; ß > ss;",
-	       "ligature_filter" );
-  // string result;
-  // vector<string> tests = {"•——", "5^>", "AAP", "A.N.W.B", "A.N.W.B.", "AA.N.W.BB.", "AA.N...W.BB...", "V.S", "V.S." };
-  // for ( const auto& test : tests ){
-  //   if ( isAcro( test ) ){
-  //     cerr << "isAcro(" << test << ")" << endl;
-  //   }
-  //   else {
-  //     cerr << "NO acro: " << test << endl;
-  //   }
-  // }
-
-  // vector<UnicodeString> dashed = { "em—dash", "en–dash",
-  // 				   "bar―", "bar―――",
-  // 				   "3em⸻dash",
-  // 				   "FullWidth－HyphenMinus",
-  // 				   "vertical︱Emdash" };
-  // vector<UnicodeString> nrmlzd = { "em-dash", "en-dash",
-  // 				   "bar-", "bar-",
-  // 				   "3em-dash",
-  // 				   "FullWidth-HyphenMinus", "vertical-Emdash" };
-  // for ( size_t i=0 ; i < dashed.size(); ++i ){
-  //   UnicodeString nus;
-  //   if ( normalize_hyphens( dashed[i], nus ) ){
-  //     if ( nus != nrmlzd[i] ){
-  // 	cerr << "FAILED: " << dashed[i] << " ==> " << nrmlzd[i] << endl;
-  //     }
-  //   }
-  //   else {
-  //     cerr << "Not normalized: " << dashed[i] << " ==> " << nus << endl;
-  //   }
-  // }
-  // return EXIT_FAILURE;
-
+  filter.init( default_filter,  "ligature_filter" );
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
