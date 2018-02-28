@@ -41,7 +41,6 @@
 #include "config.h"
 
 using namespace	std;
-//#define DEBUG
 
 const string SEPARATOR = "_";
 
@@ -135,8 +134,13 @@ bool depunct( const UnicodeString& us, UnicodeString& result ){
   int j = us.length()-1;
   for ( ; j >= 0; j-- ){
     // skip trailing punctuation and spaces
-    if ( !( is_ticcl_punct( us[j] ) || u_isspace( us[j] ) ) )
+    if ( !( is_ticcl_punct( us[j] ) || u_isspace( us[j] ) ) ){
+      if ( j > 0 && us[j] == '-' && !ticc_isletter(us[j-1]) ){
+	--j;
+	continue;
+      }
       break;
+    }
   }
   if ( i == 0 && j == us.length()-1 ){
     return false; // no leading/trailing puncts
@@ -189,12 +193,15 @@ S_Class classify( const UnicodeString& word,
   int is_space = 0;
   int word_len = word.length();
   if ( word_len < 2 ){
-#ifdef DEBUG
-    cerr << "UITGANG 0: Ignore" << endl;
-#endif
+    if ( verbose ){
+      cerr << "UITGANG 0: word to short: Ignore" << endl;
+    }
     return IGNORE;
   }
   if ( is_roman( word ) ){
+    if ( verbose ){
+      cerr << "UITGANG 1: Roman numver: Ignore" << endl;
+    }
     return IGNORE;
   }
   for ( int i=0; i < word_len; ++i ){
@@ -269,7 +276,7 @@ S_Class classify( const UnicodeString& word,
     // ge-unkt of ge-ticcled, worden ook niet geteld of opgenomen in de
     // frequentielijst
     if ( verbose ){
-      cerr << "UITGANG 1: Ignore" << endl;
+      cerr << "UITGANG 2: Ignore" << endl;
     }
     return IGNORE;
   }
@@ -278,37 +285,37 @@ S_Class classify( const UnicodeString& word,
     // geldaanduiding : zelfde als getallen
     // <martin> Komt erop neer dat indien meer cijfers dan iets anders.
     if ( verbose ){
-      cerr << "UITGANG 2: Ignore" << endl;
+      cerr << "UITGANG 3: Ignore" << endl;
     }
     return IGNORE;
   }
   else if ( word_len >= 4 && double(is_letter + is_digit)/word_len >= 0.75 ){
     if ( verbose ){
-      cerr << "UITGANG 3: Clean" << endl;
+      cerr << "UITGANG 4: Clean" << endl;
     }
     return CLEAN;
   }
   else if (word_len == 3 && double(is_letter + is_digit)/word_len >= 0.66 ){
     if ( verbose ){
-      cerr << "UITGANG 4: Clean" << endl;
+      cerr << "UITGANG 5: Clean" << endl;
     }
     return CLEAN;
   }
   else if (word_len < 3 && (is_out+is_digit) <1 ){
     if ( verbose ){
-      cerr << "UITGANG 5: Clean" << endl;
+      cerr << "UITGANG 6: Clean" << endl;
     }
     return CLEAN;
   }
   else if ( word_len >= 4 && double( is_letter )/word_len >= 0.75 ){
     if ( verbose ){
-      cerr << "UITGANG 6: Clean" << endl;
+      cerr << "UITGANG 7: Clean" << endl;
     }
     return CLEAN;
   }
   else if ( word_len == 3 && double( is_letter )/word_len >= 0.66 ){
     if ( verbose ){
-      cerr << "UITGANG 7: Clean" << endl;
+      cerr << "UITGANG 8: Clean" << endl;
     }
     return CLEAN;
   }
@@ -317,13 +324,13 @@ S_Class classify( const UnicodeString& word,
 	    || ( word_len >= 4
 		 && (is_letter + is_punct) > (word_len - 1) ) ){
     if ( verbose ){
-      cerr << "UITGANG 8: Clean" << endl;
+      cerr << "UITGANG 9: Clean" << endl;
     }
     return CLEAN;
   }
   else {
     if ( verbose ){
-      cerr << "UITGANG 9: UNK" << endl;
+      cerr << "UITGANG 10: UNK" << endl;
     }
     return UNK;
   }
@@ -531,7 +538,7 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
   if ( verbose ){
     cerr << endl << "Run UNK on : " << orig_word;
     if ( normalized ){
-      cerr << "normalized too: : " << word;
+      cerr << " normalized to: : " << word;
     }
     cerr << endl << endl;
   }
@@ -673,10 +680,22 @@ void usage( const string& name ){
   cerr << "\t-V\t show version " << endl;
 }
 
-UnicodeString default_filter =
-   "æ >ae; Æ > AE; œ > oe; Œ > OE; ĳ > ij; Ĳ > IJ; ﬂ > fl;"
-   "ﬀ > ff; ﬃ > ffi; ﬄ > ffl; ﬅ > st; ß > ss;"
-   "[[:Hyphen:][:Dash:]]+ > '-';";
+UnicodeString default_filter = "æ >ae;"
+				    "Æ } [:Uppercase Letter:]* > AE;"
+				    "Æ > Ae;"
+				    "œ > oe;"
+				    "Œ } [:Uppercase Letter:]+ > OE;"
+				    "Œ > Oe;"
+				    "ĳ > ij;"
+				    "Ĳ > IJ;"
+				    "ﬂ > fl;"
+				    "ﬀ > ff;"
+				    "ﬃ > ffi;"
+				    "ﬄ > ffl;"
+				    "ﬅ > st;"
+				    "ß > ss;"
+				    "[[:Hyphen:][:Dash:]]+ > '-';"
+				    "[•·]  > '.';";
 
 int main( int argc, char *argv[] ){
   TiCC::CL_Options opts;
@@ -723,6 +742,7 @@ int main( int argc, char *argv[] ){
   opts.extract( "filter", filter_file_name );
   if ( !filter_file_name.empty() ){
     filter.fill( filter_file_name, "user_defined_filter" );
+    UnicodeString r = filter.get_rules();
   }
   else {
     filter.init( default_filter, "default_filter" );
