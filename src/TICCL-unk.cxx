@@ -666,6 +666,8 @@ void usage( const string& name ){
        << endl;
   cerr << "\t\t in the validated lexicon. (default = 0)" << endl;
   cerr << "\t--acro\t also create an acronyms file. (experimental)" << endl;
+  cerr << "\t--filter='file'\t use rules from 'file' to transliterate  (experimental)" << endl;
+  cerr << "\t\t see http://userguide.icu-project.org/transforms/general/rules for information about rules." << endl;
   cerr << "\t-h\t this message " << endl;
   cerr << "\t-v\t be verbose " << endl;
   cerr << "\t-V\t show version " << endl;
@@ -677,11 +679,10 @@ UnicodeString default_filter =
    "[[:Hyphen:][:Dash:]]+ > '-';";
 
 int main( int argc, char *argv[] ){
-  filter.init( default_filter,  "ligature_filter" );
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
-    opts.set_long_options( "acro,alph:,corpus:,artifrq:" );
+    opts.set_long_options( "acro,alph:,corpus:,artifrq:,filter:" );
     opts.parse_args( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -718,6 +719,14 @@ int main( int argc, char *argv[] ){
   }
   string output_name;
   opts.extract( 'o', output_name );
+  string filter_file_name;
+  opts.extract( "filter", filter_file_name );
+  if ( !filter_file_name.empty() ){
+    filter.fill( filter_file_name, "user_defined_filter" );
+  }
+  else {
+    filter.init( default_filter, "default_filter" );
+  }
   if ( !opts.empty() ){
     cerr << "unsupported options : " << opts.toString() << endl;
     usage(progname);
