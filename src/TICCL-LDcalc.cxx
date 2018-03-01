@@ -117,16 +117,20 @@ void handleTranspositions( ostream& os, const set<string>& s,
 			   bool isDIAC ){
   set<string>::const_iterator it1 = s.begin();
   while ( it1 != s.end() ) {
+    int local_verbose = verbose;
     string str1 = *it1;
-    if ( verbose > 2 ){
+    // if ( str1 == "noodlyk" || str1 == "noorderlyke" ){
+    //   local_verbose = 3;
+    // }
+    if ( local_verbose > 2 ){
 #pragma omp critical (debugout)
       {
-	cout << "string 1 " << str1 << endl;
+	cout << "TRANSPOSE: string 1 " << str1 << endl;
       }
     }
     map<string,size_t>::const_iterator fit = freqMap.find( str1 );
     if ( fit == freqMap.end() ){
-      if ( verbose > 1 ){
+      if ( local_verbose > 1 ){
 #pragma omp critical (debugout)
 	{
 	  cout << "not found in freq file " << str1 << endl;
@@ -140,15 +144,18 @@ void handleTranspositions( ostream& os, const set<string>& s,
     ++it2;
     while ( it2 != s.end() ) {
       string str2 = *it2;
-      if ( verbose > 2 ){
+      // if ( str2 == "noodlyk" || str2 == "noorderlyke" ){
+      // 	local_verbose = 3;
+      // }
+      if ( local_verbose > 2 ){
 #pragma omp critical (debugout)
 	{
-	  cout << "string 2 " << str2 << endl;
+	  cout << "TRANSPOSE string 2 " << str2 << endl;
 	}
       }
       map<string,size_t>::const_iterator fit = freqMap.find( str2 );
       if ( fit == freqMap.end() ){
-	if ( verbose > 1 ){
+	if ( local_verbose > 1 ){
 #pragma omp critical (debugout)
 	  {
 	    cout << "not found in freq file " << str2 << endl;
@@ -212,7 +219,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	candidate = us2;
       }
       if ( !isClean( candidate, alfabet ) ){
-	if ( verbose > 1 ){
+	if ( local_verbose > 1 ){
 #pragma omp critical (debugout)
 	  {
 	    cout << "ignore dirty candidate " << candidate << endl;
@@ -224,7 +231,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
       unsigned int ld = ldCompare( us1, us2 );
       if ( ld != 2 ){
 	if ( !( isKHC && noKHCld ) ){
-	  if ( verbose > 1 ){
+	  if ( local_verbose > 1 ){
 #pragma omp critical (debugout)
 	    {
 	      cout << " LD != 2 " << str1 << "," << str2 << endl;
@@ -266,6 +273,9 @@ void handleTranspositions( ostream& os, const set<string>& s,
       {
 	os << result << endl;
       }
+      if ( local_verbose > 2 ){
+	cerr << "Transpose result: " << result << endl;
+      }
       ++it2;
     }
     ++it1;
@@ -277,7 +287,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 		  const set<string>& s1, const set<string>& s2,
 		  const map<string,size_t>& freqMap,
 		  const map<UnicodeString,size_t>& low_freqMap,
-		  set<UChar>& alfabet,
+		  const set<UChar>& alfabet,
 		  size_t freqTreshold,
 		  bool isKHC,
 		  bool noKHCld,
@@ -287,16 +297,20 @@ void compareSets( ostream& os, unsigned int ldValue,
   // cerr << "set 2 " << s2 << endl;
   set<string>::const_iterator it1 = s1.begin();
   while ( it1 != s1.end() ) {
+    int local_verbose = verbose;
     string str1 = *it1;
-    if ( verbose > 2 ){
+    // if ( str1 == "noodlyk" || str1 == "noorderlyke" ){
+    //   local_verbose = 3;
+    // }
+    if ( local_verbose > 2 ){
 #pragma omp critical (debugout)
       {
-	cout << "string 1 " << str1 << endl;
+	cout << "SET: string 1 " << str1 << endl;
       }
     }
     map<string,size_t>::const_iterator fit = freqMap.find( str1 );
     if ( fit == freqMap.end() ){
-      if ( verbose > 1 ){
+      if ( local_verbose > 1 ){
 #pragma omp critical (debugout)
 	{
 	  cout << "not found in freq file " << str1 << endl;
@@ -311,15 +325,18 @@ void compareSets( ostream& os, unsigned int ldValue,
     set<string>::const_iterator it2 = s2.begin();
     while ( it2 != s2.end() ) {
       string str2 = *it2;
-      if ( verbose > 2 ){
+      // if ( str2 == "noodlyk" || str2 == "noorderlyke" ){
+      // 	local_verbose = 3;
+      // }
+      if ( local_verbose > 2 ){
 #pragma omp critical (debugout)
 	{
-	  cout << "string 2 " << str2 << endl;
+	  cout << "SET: string 2 " << str2 << endl;
 	}
       }
       fit = freqMap.find( str2 );
       if ( fit == freqMap.end() ){
-	if ( verbose > 1 ){
+	if ( local_verbose > 1 ){
 #pragma omp critical (debugout)
 	  {
 	    cout << "not found in freq file " << str2 << endl;
@@ -335,7 +352,7 @@ void compareSets( ostream& os, unsigned int ldValue,
       unsigned int ld = ldCompare( us1, us2 );
       if ( ld > ldValue ){
 	if ( !( isKHC && noKHCld ) ){
-	  if ( verbose > 2 ){
+	  if ( local_verbose > 2 ){
 #pragma omp critical (debugout)
 	    {
 	      cout << " LD too high " << str1 << "," << str2 << endl;
@@ -377,7 +394,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 	candidate = us2;
       }
       if ( !isClean( candidate, alfabet ) ){
-	if ( verbose > 1 ){
+	if ( local_verbose > 1 ){
 #pragma omp critical (debugout)
 	  {
 	    cout << "ignore dirty candidate " << candidate << endl;
@@ -388,7 +405,7 @@ void compareSets( ostream& os, unsigned int ldValue,
       }
 
       if ( out_low_freq1 >= freqTreshold && !isDIAC ){
-	if ( verbose > 2 ){
+	if ( local_verbose > 2 ){
 #pragma omp critical (debugout)
 	  {
 	    cout << "lexical word " << out_str1 << endl;
@@ -428,6 +445,9 @@ void compareSets( ostream& os, unsigned int ldValue,
 #pragma omp critical (output)
       {
 	os << result << endl;
+      }
+      if ( local_verbose > 2 ){
+	cerr << "SET result: " << result << endl;
       }
       ++it2;
     }
@@ -786,7 +806,7 @@ int main( int argc, char **argv ){
 	  }
 	  map<bitType, set<string> >::const_iterator sit2 = hashMap.find(mainKey+key);
 	  if ( sit2 == hashMap.end() ){
-	    if ( verbose ){
+	    if ( verbose > 4 ){
 #pragma omp critical (debugout)
 	      cerr << progname << ": WARNING: found a key '" << key
 		   << "' in the input that, when added to '" << mainKey
@@ -805,7 +825,7 @@ int main( int argc, char **argv ){
 	    }
 	    map<bitType,set<string> >::const_iterator sit2 = hashMap.find(key-mainKey);
 	    if ( sit2 == hashMap.end() ){
-	      if ( verbose ){
+	      if ( verbose > 4 ){
 #pragma omp critical (debugout)
 		cerr << progname << ": WARNING: found a key '" << key
 		     << "' in the input that, when substracked from '"
