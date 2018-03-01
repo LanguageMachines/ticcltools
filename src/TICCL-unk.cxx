@@ -128,8 +128,13 @@ bool depunct( const UnicodeString& us, UnicodeString& result ){
   int i = 0;
   for ( ; i < us.length(); ++i ){
     // skip leading punctuation and spaces
-    if ( !( is_ticcl_punct( us[i] ) || u_isspace( us[i] ) ) )
+    if ( !( is_ticcl_punct( us[i] ) || u_isspace( us[i] ) ) ){
+      if ( i < us.length()-1 && us[i] == '-' && !ticc_isletter(us[i+1]) ){
+	++i;
+	continue;
+      }
       break;
+    }
   }
   int j = us.length()-1;
   for ( ; j >= 0; j-- ){
