@@ -48,8 +48,10 @@ src/TICCL-lexstat
 src/TICCL-rank
 src/TICCL-stats
 src/TICCL-unk
+src/TICCL-mergelex
 src/W2V-dist
 src/W2V-near
+src/W2V-analogy
 src/libticcl.la
 src/word2vec.lo
 src/word2vec.o
