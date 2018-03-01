@@ -132,7 +132,7 @@ diff $outdir/TESTDP035.tsv.clean.indexNT $refdir/indexNT > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-indexer-NT results"
-    echo "using diff $outdir/TESTDP035.tst.clean.indexNT $refdir/indexNT"
+    echo "using diff $outdir/TESTDP035.tsv.clean.indexNT $refdir/indexNT"
     exit
 fi
 
