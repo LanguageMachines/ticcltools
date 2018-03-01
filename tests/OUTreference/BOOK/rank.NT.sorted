@@ -24,7 +24,6 @@ aandagen#1#aandragen#100000000#1#0.996915
 aandagen#1#aanlagen#100000000#1#0.99637
 aandagen#1#maandagen#100000000#1#0.996552
 aandagen#1#nadagen#100000000#2#0.996552
-aandagen#1#nadagen#100000000#2#0.996552
 aandoenlyke#1#aandoenlijke#100000000#2#0.666667
 aandoenlyke#1#aandoenlyk#100000000#1#0.688889
 aandoenlyke#1#aanzienlyke#100000005#2#0.644444
@@ -72,7 +71,6 @@ aangefprooken#1#aengesprooken#100000000#2#0.52
 aangefteld#1#aangesteld#100000000#1#0.974903
 aangefteld#1#aangestelde#100000000#2#0.967181
 aangefteld#1#aangeteeld#100000000#2#0.967181
-aangefteld#1#aangeteeld#100000000#2#0.967181
 aangefteld#1#aangeteld#100000000#1#0.972973
 aangenaamen#1#Aangenaam#100000000#2#0.954887
 aangenaamen#1#aangenaam#100000001#2#0.957393
@@ -105,7 +103,6 @@ aanltonds#1#aanftonds#1#1#0.657143
 aanltonds#1#aanstond#100000000#2#0.785714
 aanltonds#1#aanstonds#100000000#1#0.8
 aanltonds#1#aanstondse#100000000#2#0.757143
-aanmer#1#aanmeer#100000000#1#0.998715
 aanmer#1#aanmeer#100000000#1#0.998715
 aanmer#1#aanmeren#100000000#2#0.998394
 aanmer#1#aanmerk#100000000#1#0.998234
@@ -161,13 +158,11 @@ aanzienlyker#1#aanzienlyke#100000005#1#0.852273
 aanzienlyker#1#aanzienlyken#100000001#1#0.818182
 Aardbeeving#2#aardberging#100000000#2#0.767123
 Aardbeeving#2#aardbeving#100000000#1#0.835616
-Aardbeeving#2#aardbeving#100000000#1#0.835616
 Aardbeeving#2#aardbeweging#100000000#2#0.780822
 Aardbeeving#2#aerdbeevinge#100000000#2#0.780822
 aardfche#1#aardsch#100000000#2#0.922078
 aardfche#1#aardsche#100000000#1#0.943723
 aardfche#1#aardschen#100000000#2#0.922078
-aardfche#1#ardache#100000000#2#0.935065
 aardfche#1#ardache#100000000#2#0.935065
 aardgronden#1#aardbranden#100000000#2#0.874126
 aardgronden#1#aardgebonden#100000000#2#0.895105
@@ -595,13 +590,10 @@ A.'Na#1#arina#100000000#2#0.934694
 A.'Na#1#Arina#100000000#2#0.934694
 Ancus#1#canus#100000000#2#0.996689
 Ancus#1#danceus#100000000#2#0.99702
-Ancus#1#danceus#100000000#2#0.99702
-Ancus#1#Danceus#100000000#2#0.99702
 Ancus#1#Danceus#100000000#2#0.99702
 andereu#1#Andere#100000001#1#0.990913
 andereu#1#andere#100000119#1#0.992644
 andereu#1#anderen#100000094#1#0.991778
-andereu#1#undere#100000000#2#0.99048
 andereu#1#undere#100000000#2#0.99048
 Anfprach#1#anspach#100000000#2#0.5
 Anfprach#1#Anspach#100000000#2#0.5
@@ -637,7 +629,6 @@ Antónius#1#ANTONIUS#100000000#1#0.966981
 Antónius#1#Antonius#100000003#1#0.971698
 aonder#1#ander#100000022#1#0.999401
 aonder#1#andere#100000119#2#0.999341
-aonder#1#andere#100000119#2#0.999341
 aonder#1#Onder#100000016#1#0.999431
 aonder#1#onder#100000178#1#0.999551
 Aposel#1#apostel#100000000#1#0.99183
@@ -667,8 +658,6 @@ Arabij'che#1#Arabische#100000000#2#0.657895
 Arabijche#1#ARABISCHE#100000001#1#0.948413
 Arabij'che#1#ARABISCHE#100000001#2#0.684211
 Aratier#1#aratie#100000000#1#0.993773
-Aratier#1#aratie#100000000#1#0.993773
-Aratier#1#Aratie#100000000#1#0.993773
 Aratier#1#Aratie#100000000#1#0.993773
 Aratier#1#fraaier#100000000#2#0.991575
 arbe,d#1#Arbeid#100000000#1#0.974152
@@ -733,7 +722,6 @@ ASSYRIERS#1#Assyriërs#100000000#1#0.879699
 ASSYRIERS#1#syriers#1#2#0.789474
 Astralan#1#afstralen#100000000#2#0.944625
 Astralan#1#astraal#100000000#2#0.947883
-Astralan#1#astraal#100000000#2#0.947883
 Astralan#1#astrakan#100000000#1#0.95114
 Astralan#1#Astrakan#100000000#1#0.95114
 A.TJit#1#altiit#100000000#2#0.5
@@ -749,7 +737,6 @@ Auoustinws#1#augustinus#100000000#2#0.797297
 Auoustinws#1#AUGUSTINUS#100000000#2#0.797297
 Auoustinws#1#Augustinus#100000002#2#0.810811
 Autoriten#1#autoren#100000000#2#0.956818
-Autoriten#1#autorit#100000000#2#0.963636
 Autoriten#1#autorit#100000000#2#0.963636
 Autoriten#1#autoritten#100000000#1#0.968182
 Autoriten#1#autoruiten#100000000#1#0.965909
@@ -870,9 +857,7 @@ bebben#1#hebben#100000138#1#0.998746
 bedier#1#bediener#100000000#2#0.999204
 bedier#1#bedierf#100000000#1#0.999237
 bedier#1#beier#100000000#1#0.999204
-bedier#1#beier#100000000#1#0.999204
 bedier#1#Beier#100000000#1#0.999204
-bedierd#2#bedied#100000000#1#0.996696
 bedierd#2#bedied#100000000#1#0.996696
 bedierd#2#bediedt#100000000#2#0.995456
 bedierd#2#bediend#100000000#1#0.996076
@@ -898,8 +883,6 @@ bedrvf#1#bedreef#100000013#2#0.979556
 bedrvf#1#bedryf#100000006#1#0.984
 BEDRYE#1#bedryf#100000006#1#0.994471
 BEDRYE#1#beryd#100000000#2#0.994722
-BEDRYE#1#beryd#100000000#2#0.994722
-BEDRYE#1#beyre#100000000#2#0.994471
 BEDRYE#1#beyre#100000000#2#0.994471
 bedryft#1#bedreyt#100000000#2#0.986979
 bedryft#1#bedrijft#100000000#2#0.98763
@@ -1292,7 +1275,6 @@ bellier#38#beiler#100000000#2#0.99796
 bellier#38#belier#100000000#1#0.998187
 bellier#38#Belier#100000000#1#0.998187
 bellier#38#biller#100000000#2#0.998073
-bellier#38#biller#100000000#2#0.998073
 bellierd#1#bellerdy#100000000#2#0.985846
 bellierd#1#Bellerdy#100000000#2#0.985846
 bellierd#1#belliard#100000000#1#0.990092
@@ -1335,7 +1317,6 @@ Beltand#1#berland#100000000#2#0.993472
 Beltand#1#Berland#100000000#2#0.993472
 beltier#5#belier#100000000#1#0.997878
 beltier#5#Belier#100000000#1#0.997878
-beltier#5#berlier#100000000#2#0.997753
 beltier#5#berlier#100000000#2#0.997753
 beltier#5#Berlier#100000000#2#0.997753
 beltondt#2#belendt#100000000#2#0.962756
@@ -1424,7 +1405,6 @@ berugfte#2#berugtste#100000000#2#0.89759
 berugfte#2#beruste#100000000#2#0.879518
 berugfte#2#berustte#100000000#2#0.879518
 berugfte#2#Berustte#100000001#2#0.885542
-berugte#4#berugt#100000005#1#0.995475
 berugte#4#berugt#100000005#1#0.995475
 berugte#4#beugt#100000000#2#0.993665
 berugte#4#Beugt#100000000#2#0.993665
@@ -1563,7 +1543,6 @@ Bladz#1#blatz#100000000#1#0.994756
 Bladz#1#Blatz#100000000#1#0.994756
 BlEGO#1#begon#100000014#2#0.994566
 BlEGO#1#beleg#100000010#2#0.995472
-BlEGO#1#beleg#100000010#2#0.995472
 BlEGO#1#blog#100000000#2#0.994566
 BlEGO#1#lbgo#100000000#2#0.994566
 bLirier#1#berrier#100000000#2#0.97227
@@ -1666,8 +1645,6 @@ brsaven#1#braeven#100000000#2#0.989567
 brsaven#1#braven#100000000#1#0.991654
 brsaven#1#Braven#100000000#1#0.991654
 Brusfel#2#brussel#100000000#1#0.993166
-Brusfel#2#brussel#100000000#1#0.993166
-Brusfel#2#Brussel#100000000#1#0.993166
 Brusfel#2#Brussel#100000000#1#0.993166
 Brusfel#2#BRUSSEL#100000000#1#0.993166
 Brutüs#1#bruas#100000000#2#0.986587
@@ -1780,12 +1757,9 @@ Cecbops#1#cecrops#100000000#1#0.5
 Cecbops#1#CECROPS#100000000#1#0.5
 CELEERDEN#1#cedeerden#100000000#1#0.991614
 CELEERDEN#1#cleeden#100000000#2#0.991964
-CELEERDEN#1#cleeden#100000000#2#0.991964
 CELEERDEN#1#geleerden#100000002#1#0.992313
 CELEERDEN#1#Geleerden#100000020#1#0.99406
 Celten#2#calten#100000000#1#0.999394
-Celten#2#calten#100000000#1#0.999394
-Celten#2#Calten#100000000#1#0.999394
 Celten#2#Calten#100000000#1#0.999394
 Celten#2#celen#100000000#1#0.999344
 cevolgd#1#gevold#100000000#2#0.94321
@@ -2001,7 +1975,6 @@ Corneli.us#1#CORNELIUS#100000000#1#0.955326
 Corneli.us#1#cornelus#100000000#2#0.938144
 CRAAVEN#1#carven#100000000#2#0.995761
 CRAAVEN#1#craven#100000000#1#0.996165
-CRAAVEN#1#craven#100000000#1#0.996165
 CRAAVEN#1#GRAAVEN#100000007#1#0.996367
 CRAAVEN#1#Graaven#100000019#1#0.99677
 Cranmfr#1#cramer#100000000#2#0.9
@@ -2025,8 +1998,6 @@ crflyke#1#treflyke#100000000#2#0.882812
 crflyke#1#vrolyke#100000000#2#0.859375
 crflyke#1#wyflyke#100000000#2#0.859375
 CROOTE#1#coote#100000000#1#0.998664
-CROOTE#1#coote#100000000#1#0.998664
-CROOTE#1#Coote#100000000#1#0.998664
 CROOTE#1#Coote#100000000#1#0.998664
 CROÓTE#1#corte#100000000#2#0.993936
 CROÓTE#1#Corte#100000000#2#0.993936
@@ -2112,7 +2083,6 @@ Dansfen#1#Dassen#100000000#2#0.99503
 danzen#1#Danz#100000000#2#0.998955
 danzen#1#dazen#100000000#1#0.999025
 danzen#1#zanen#100000000#2#0.998955
-danzen#1#zanen#100000000#2#0.998955
 danzen#1#Zanen#100000000#2#0.998955
 dapperfle#1#Dappere#100000000#2#0.772152
 dapperfle#1#dappere#100000008#2#0.78481
@@ -2190,8 +2160,6 @@ Deenjchen#1#deensche#100000000#2#0.808824
 Deenjchen#1#Deensche#100000000#2#0.808824
 Deenjchen#1#weenschen#100000000#2#0.764706
 deezer#4#Deeze#100000012#1#0.999181
-deezer#4#Deeze#100000012#1#0.999181
-deezer#4#deeze#100000055#1#0.999353
 deezer#4#deeze#100000055#1#0.999353
 deezer#4#deezen#100000034#1#0.999095
 deezes#2#Deeze#100000012#1#0.997305
@@ -2212,7 +2180,6 @@ deHeilige#1#veeheilige#100000000#2#0.9163
 Deisten#2#Destin#100000000#2#0.998741
 Deisten#2#Diensten#100000000#2#0.998741
 Deisten#2#diensten#100000003#2#0.998905
-Deisten#2#disten#100000000#1#0.998905
 Deisten#2#disten#100000000#1#0.998905
 deJardyn#1#dujardin#100000000#2#0.782609
 deJardyn#1#Dujardin#100000000#2#0.782609
@@ -2303,7 +2270,6 @@ deryen#1#deyer#100000000#2#0.998995
 deryen#1#Deyer#100000000#2#0.998995
 deryen#1#dryeen#100000000#2#0.998964
 deryen#1#dryen#100000000#1#0.999121
-deryen#1#dryen#100000000#1#0.999121
 derzefv'er#1#Derzelver#1#2#0.477273
 derzefv'er#1#derzelver#25#2#0.522727
 Derzelver#1#denzelve#100000000#2#0.874251
@@ -2322,7 +2288,6 @@ Desidertus#1#DESIDERIUS#100000000#1#0.763636
 Desidertus#1#Desiderius#100000001#1#0.781818
 deszelfi#1#Deszelfs#100000002#1#0.481481
 deszelfi#1#deszelfs#100000019#1#0.518519
-DeTurken#1#deutken#100000000#2#0.956897
 DeTurken#1#deutken#100000000#2#0.956897
 DeTurken#1#turken#100000001#2#0.956897
 DeTurken#1#Turken#100000029#2#0.95977
@@ -2367,8 +2332,6 @@ dezel.ve#1#Dezelve#100000002#1#0.931217
 dezel.ve#1#dezelve#100000033#1#0.936508
 dezelven#18#denzelven#100000006#1#0.988208
 dezelven#18#Dezelve#100000002#1#0.986635
-dezelven#18#Dezelve#100000002#1#0.986635
-dezelven#18#dezelve#100000033#1#0.988994
 dezelven#18#dezelve#100000033#1#0.988994
 deze've#1#Deneuve#100000000#2#0.907317
 deze've#1#denzelve#100000000#2#0.917073
@@ -2405,7 +2368,6 @@ die<hier#1#ziehier#100000000#2#0.481481
 Diehtkunde#1#Dichtkunde#4#1#0.581818
 Diehtkunde#1#dierkunde#100000000#2#0.727273
 Diehtkunde#1#zichtkunde#100000000#2#0.690909
-dienfte#1#diefte#100000000#1#0.988194
 dienfte#1#diefte#100000000#1#0.988194
 dienfte#1#Dienst#100000000#2#0.987603
 dienfte#1#dienst#100000004#2#0.989374
@@ -2455,8 +2417,6 @@ dochhy#1#dochez#100000000#2#0.905405
 dochhy#1#Dochez#100000000#2#0.905405
 dochhy#1#docht#100000000#2#0.898649
 doedt#1#Deedt#100000005#1#0.999109
-doedt#1#Deedt#100000005#1#0.999109
-doedt#1#deedt#100000072#1#0.999394
 doedt#1#deedt#100000072#1#0.999394
 doedt#1#doede#100000000#1#0.99893
 dofgeestig#1#droefgeestig#100000000#2#0.84
@@ -2467,7 +2427,6 @@ dofgeestig#1#volgeestig#100000000#2#0.76
 Dondera#1#doender#100000000#2#0.995657
 Dondera#1#donder#100000000#1#0.996178
 Dondera#1#Donder#100000000#1#0.996178
-Dondera#1#dondere#100000000#1#0.996004
 Dondera#1#dondere#100000000#1#0.996004
 doodgefchooten#1#doodgeschoten#100000000#2#0.461538
 doodgefchooten#1#doodtgeschooten#100000000#2#0.538462
@@ -2487,8 +2446,6 @@ Doopsr#1#dorps#100000000#2#0.992011
 Doopsr#1#droopse#100000000#2#0.992898
 Doopsr#1#drops#100000000#2#0.992011
 doorbreeken#1#doorbreek#100000000#2#0.980746
-doorbreeken#1#doorbreek#100000000#2#0.980746
-doorbreeken#1#doorbreeke#100000000#1#0.981949
 doorbreeken#1#doorbreeke#100000000#1#0.981949
 doorbreeken#1#doorbreken#100000000#1#0.984356
 doorfneeden#1#doorkneden#100000000#2#0.797297
@@ -2651,7 +2608,6 @@ dwaaslyk#1#kwaalyk#100000000#2#0.874016
 dwaaslyk#1#swaarlyk#100000000#2#0.88189
 dwaazer#1#dwaaser#100000000#1#0.985174
 dwaazer#1#dwaaze#100000002#1#0.989622
-dwaazer#1#dwaaze#100000002#1#0.989622
 dwaazer#1#dwazer#100000000#1#0.989622
 dwaazer#1#dwazere#100000000#2#0.985915
 ebraale#1#baale#100000000#2#0.942308
@@ -2684,7 +2640,6 @@ edelfte#1#Edele#100000002#2#0.967647
 edelfte#1#edele#100000003#2#0.969118
 edelfte#1#edelste#100000000#1#0.973529
 edelfte#1#endelste#100000000#2#0.967647
-ederik#1#eedik#100000000#2#0.995668
 ederik#1#eedik#100000000#2#0.995668
 ederik#1#elderik#100000000#1#0.996124
 ederik#1#Elderik#100000000#1#0.996124
@@ -2728,7 +2683,6 @@ Eeichthonius#1#ERICHTHONIUS#100000000#1#0.5
 Eemge#1#gemke#100000000#2#0.997515
 Eemge#1#Gemke#100000000#2#0.997515
 Eemge#1#gemoe#100000000#2#0.997731
-Eemge#1#gemoe#100000000#2#0.997731
 Eemge#1#merge#100000000#2#0.997623
 eencn#1#Eenen#100000001#1#0.997
 eencn#1#eenen#100000097#1#0.99779
@@ -2736,18 +2690,13 @@ eencn#1#sence#100000000#2#0.996053
 eencn#1#Sence#100000000#2#0.996053
 eencn#1#Tence#100000000#2#0.996053
 eénen#1#Eenen#100000001#1#0.998522
-eénen#1#Eenen#100000001#1#0.998522
 éenen#1#Eenen#100000001#1#0.999148
 eénen#1#éénen#100000011#1#0.998596
 éenen#1#éénen#100000011#1#0.999313
 eénen#1#eenen#100000097#1#0.999113
-eénen#1#eenen#100000097#1#0.999113
-éenen#1#eenen#100000097#1#0.999533
 éenen#1#eenen#100000097#1#0.999533
 éenen#1#tegen#100000098#2#0.999203
 eenigde#1#Eenige#100000008#1#0.993848
-eenigde#1#Eenige#100000008#1#0.993848
-eenigde#1#eenige#100000069#1#0.994874
 eenigde#1#eenige#100000069#1#0.994874
 eenigde#1#eenigen#100000010#2#0.992139
 eeni-ge#1#Eenige#100000008#1#0.983333
@@ -2817,7 +2766,6 @@ Eertitel#2#eeretitel#100000000#1#0.917808
 Eertitel#2#eeretitels#100000000#2#0.883562
 Eertitel#2#eretitel#100000000#2#0.890411
 Eertitel#2#fertiel#100000000#2#0.863014
-eertitels#1#eeretitel#100000000#2#0.896175
 eertitels#1#eeretitel#100000000#2#0.896175
 eertitels#1#eeretitels#100000000#1#0.928962
 eertitels#1#eertyttels#100000000#2#0.89071
@@ -2985,7 +2933,6 @@ erfregt#1#Erfrente#100000000#2#0.919192
 erfregt#1#erlegt#100000000#2#0.919192
 erfregt#1#verregt#100000000#2#0.924242
 erften#1#ernte#100000000#2#0.998837
-erften#1#erten#100000000#1#0.999003
 erften#1#erten#100000000#1#0.999003
 erften#1#ertsen#100000000#2#0.998948
 erften#1#reten#100000000#2#0.998837
@@ -3376,8 +3323,6 @@ fierk#1#kiers#100000000#2#0.998468
 fierk#1#Kiers#100000000#2#0.998468
 fierke#1#feike#100000000#2#0.998532
 fierke#1#rieke#100000000#2#0.998532
-fierke#1#rieke#100000000#2#0.998532
-fierke#1#Rieke#100000000#2#0.998532
 fierke#1#Rieke#100000000#2#0.998532
 fierker#2#ferier#100000000#2#0.993841
 fierker#2#Ferier#100000000#2#0.993841
@@ -3527,7 +3472,6 @@ floeg#12#sloeg#100000000#1#0.997945
 floegen#4#flogen#100000000#1#0.998154
 floegen#4#foelen#100000000#2#0.997715
 floegen#4#loegen#100000000#1#0.998066
-floegen#4#loegen#100000000#1#0.998066
 floegen#4#sloegen#100000000#1#0.998154
 flondt#2#londs#100000000#2#0.994872
 flondt#2#Londs#100000000#2#0.994872
@@ -3553,8 +3497,6 @@ flraat#1#straat#100000000#2#0.991849
 flraat#1#Straat#100000000#2#0.991849
 flreeden#1#fleerden#100000000#2#0.987846
 flreeden#1#fleeren#100000000#2#0.987846
-flreeden#1#fleeren#100000000#2#0.987846
-flreeden#1#flerden#100000000#2#0.989196
 flreeden#1#flerden#100000000#2#0.989196
 flyve#1#aflyve#100000000#1#0.990981
 flyve#1#lyfve#100000000#2#0.98992
@@ -3645,8 +3587,6 @@ fneuvelde#2#keuvelde#100000000#2#0.939394
 fneuvelde#2#sneuvelde#100000000#1#0.952862
 fneuvelde#2#sneuvelden#100000000#2#0.942761
 fnoest#1#noest#100000000#1#0.99654
-fnoest#1#noest#100000000#1#0.99654
-fnoest#1#Noest#100000000#1#0.99654
 fnoest#1#Noest#100000000#1#0.99654
 fnoest#1#snoest#100000000#1#0.996358
 fnood#2#noods#100000002#2#0.992248
@@ -3711,7 +3651,6 @@ fpaaren#1#spaaren#100000000#1#0.993707
 fpaaren#1#spaarsen#100000000#2#0.992508
 fpaaren#1#spaeren#100000000#2#0.991909
 fpande#1#afpende#100000000#2#0.996724
-fpande#1#pande#100000000#1#0.996873
 fpande#1#pande#100000000#1#0.996873
 fpande#1#spade#100000000#2#0.996128
 fpande#1#spande#100000000#1#0.997022
@@ -3847,7 +3786,6 @@ Frankifche#2#frankische#100000000#1#0.882353
 Frankifche#2#Frankische#100000000#1#0.882353
 Frankifche#2#Frankischen#100000000#2#0.833333
 Fraufchen#1#Franfche#6#2#0.831325
-Fraufchen#1#Franfchen#8#1#0.855422
 Fraufchen#1#Franfchen#8#1#0.855422
 Fraufchen#1#franschen#100000000#2#0.903614
 Fraufchen#1#Franschen#100000000#2#0.903614
@@ -4171,7 +4109,6 @@ ftreeden#1#aftreeden#100000000#1#0.993403
 ftreeden#1#streden#100000000#2#0.992708
 ftreeden#1#streeden#100000000#1#0.994097
 ftreeden#1#treeden#100000000#1#0.994097
-ftreeden#1#treeden#100000000#1#0.994097
 ftreedt#1#aftreedt#100000000#1#0.985554
 ftreedt#1#reedt#100000001#2#0.982343
 ftreedt#1#streedt#100000000#1#0.986356
@@ -4241,7 +4178,6 @@ gade-#1#grade#100000000#2#0.996622
 Galileers#1#Galileeërs#100000000#1#0.892216
 Galileers#1#Galilees#100000000#1#0.898204
 Galileers#1#galileus#100000000#2#0.892216
-Galileers#1#galliers#100000000#2#0.904192
 Galileers#1#galliers#100000000#2#0.904192
 gal'in#1#gallien#100000000#2#0.988539
 gal'in#1#Gallien#100000000#2#0.988539
@@ -4592,7 +4528,6 @@ gefrraft#1#gestraft#100000000#2#0.894737
 geftaan#3#gestaan#100000000#1#0.985701
 geftaan#3#getaan#100000000#1#0.984747
 geftaan#3#getaant#100000000#2#0.981888
-geftaan#3#getaant#100000000#2#0.981888
 geftaan#3#getraan#100000000#2#0.980934
 gefteegen#1#gedeegen#100000000#2#0.942652
 gefteegen#1#geleegen#100000002#2#0.946237
@@ -4762,7 +4697,6 @@ gemaatigd#1#gematigds#100000000#2#0.931271
 gemaatigd#1#gematigt#100000000#2#0.927835
 gemaatigden#1#gemagtigden#100000000#1#0.920398
 gemaatigden#1#gematigde#100000000#2#0.915423
-gemaatigden#1#gematigden#100000000#1#0.940299
 gemaatigden#1#gematigden#100000000#1#0.940299
 gemaatigden#1#gematigder#100000000#2#0.910448
 gemakkelyk#1#gekkelyk#100000000#2#0.851852
@@ -5063,8 +4997,6 @@ groo-#1#groot#100000065#1#0.997346
 Groot-Brittamit#1#Groot-Brittanië#100000000#2#1
 grootde#1#GROOTE#100000001#1#0.996627
 grootde#1#Groote#100000015#1#0.997269
-grootde#1#Groote#100000015#1#0.997269
-grootde#1#groote#100000097#1#0.99759
 grootde#1#groote#100000097#1#0.99759
 gröoter#1#Groote#100000015#2#0.981934
 gröoter#1#groote#100000097#2#0.982997
@@ -5420,7 +5352,6 @@ herleeven#2#herlevren#100000000#2#0.985595
 herleeving#1#herbeleving#100000000#2#0.923077
 herleeving#1#herleiding#100000000#2#0.897436
 herleeving#1#herleving#100000000#1#0.938462
-herleeving#1#herleving#100000000#1#0.938462
 herleeving#1#verleening#100000000#2#0.907692
 herllellen#1#herflellen#1#1#0.84
 herllellen#1#herspellen#100000000#2#0.88
@@ -5452,8 +5383,6 @@ Hertogen-Bosch#1#hertogenbosch#100000000#1#0.666667
 Hertogen-Bosch#1#Hertogenbosch#100000000#1#0.666667
 Hertogen-Bosch#1#HERTOGENBOSCH#100000000#1#0.666667
 Hesfen#1#hessen#100000000#1#0.999206
-Hesfen#1#hessen#100000000#1#0.999206
-Hesfen#1#Hessen#100000000#1#0.999206
 Hesfen#1#Hessen#100000000#1#0.999206
 Hesfen#1#HESSEN#100000000#1#0.999206
 Hesiiam#1#heidam#100000000#2#0.802817
@@ -5668,7 +5597,6 @@ I5RAELITEN#1#Israëliten#100000006#2#0.938224
 I5RAELITEN#1#Israeliten#100000010#1#0.949807
 I5RAELITEN#1#ISRAËLITEN#1#2#0.926641
 Iaager#1#aaier#100000000#2#0.997648
-Iaager#1#aaier#100000000#2#0.997648
 Iaager#1#laager#100000000#1#0.997969
 Iaager#1#Laager#100000000#1#0.997969
 Iaager#1#raaiger#100000000#2#0.997862
@@ -5678,8 +5606,6 @@ Iaate#1#taaie#100000000#2#0.998814
 Iaate#1#Taaie#100000000#2#0.998814
 Iaate#1#taale#100000000#2#0.998691
 Iaatlten#1#aalten#100000000#2#0.954198
-Iaatlten#1#aalten#100000000#2#0.954198
-Iaatlten#1#Aalten#100000000#2#0.954198
 Iaatlten#1#Aalten#100000000#2#0.954198
 Iaatlten#1#laatsten#100000000#2#0.954198
 ïaide#1#aarde#100000001#2#0.996416
@@ -5947,9 +5873,7 @@ Israèliten#1#Israeliten#100000010#1#0.946939
 Israêliten#1#ISRAËLITEN#1#1#0.923077
 Israèliten#1#ISRAËLITEN#1#1#0.930612
 Israeliteni#1#israeliten#100000000#1#0.945255
-Israeliteni#1#israeliten#100000000#1#0.945255
 Israeliteni#1#Israëliten#100000006#2#0.930657
-Israeliteni#1#Israeliten#100000010#1#0.952555
 Israeliteni#1#Israeliten#100000010#1#0.952555
 Isthmifche#1#istmische#100000000#2#1
 ITAEIE#1#isaie#100000000#2#0.98664
@@ -6238,8 +6162,6 @@ Jrabie#1#krabje#100000000#2#0.984501
 Jrabie#1#labie#100000000#2#0.983827
 Jrabie#1#rabies#100000000#2#0.985175
 JTORIE#1#Jorit#100000000#2#0.991957
-JTORIE#1#Jorit#100000000#2#0.991957
-JTORIE#1#Jotie#100000000#2#0.991957
 JTORIE#1#Jotie#100000000#2#0.991957
 JTORIE#1#storie#100000000#1#0.99151
 Juerieu#1#durrieu#100000000#2#0.932075
@@ -6314,7 +6236,6 @@ Kanaanlten#1#KANAANITEN#1#1#0.6875
 Kanaanlten#1#Kanaaniten#4#1#0.7
 kanderen#1#Anderen#100000001#1#0.99841
 kanderen#1#anderen#100000094#1#0.998664
-kanderen#1#anderen#100000094#1#0.998664
 kanderen#1#kaderen#100000000#1#0.9986
 kanderen#1#klanderen#100000000#1#0.998473
 Karihageren#1#Kathageren#2#2#1
@@ -6331,8 +6252,6 @@ Kartkageren#1#partageren#100000000#2#0.777778
 Kathageren#2#katharen#100000000#2#0.5
 Kathageren#2#Katharen#100000000#2#0.5
 Katuor#1#kotor#100000000#2#0.980392
-Katuor#1#kotor#100000000#2#0.980392
-Katuor#1#Kotor#100000000#2#0.980392
 Katuor#1#Kotor#100000000#2#0.980392
 Katuor#1#kwatuor#100000000#1#0.981424
 Kcnften#1#keften#100000000#2#0.971893
@@ -6498,13 +6417,9 @@ konincen#1#Koningen#100000045#1#0.980451
 KONINCEN#1#Koningen#100000045#1#0.980451
 Konine#1#koine#100000000#1#0.997317
 Konine#1#onink#100000000#2#0.997317
-Konine#1#onink#100000000#2#0.997317
-Konine#1#Onink#100000000#2#0.997317
 Konine#1#Onink#100000000#2#0.997317
 Konipgen#1#koningen#100000001#1#0.977208
 Konipgen#1#KONINGEN#100000016#1#0.980057
-Konipgen#1#KONINGEN#100000016#1#0.980057
-Konipgen#1#Koningen#100000045#1#0.981481
 Konipgen#1#Koningen#100000045#1#0.981481
 Konlten#2#klonten#100000000#2#0.996392
 Konlten#2#konsten#100000002#1#0.99622
@@ -6578,8 +6493,6 @@ kruiflgen#1#kruilen#100000000#2#0.862069
 kruiflgen#1#kruisigen#100000000#2#0.83908
 kruiflgen#1#kruiwagen#100000000#2#0.827586
 kruisfes#1#kruisers#100000000#2#0.984418
-kruisfes#1#kruisers#100000000#2#0.984418
-kruisfes#1#kruises#100000000#1#0.988084
 kruisfes#1#kruises#100000000#1#0.988084
 kruisfes#1#kruisies#100000000#1#0.984418
 Kruisvaarderen#1#kruisvaarder#100000000#2#0.659091
@@ -6609,7 +6522,6 @@ krygstugt#1#Krygsmagt#100000006#2#0.762712
 kryuen#1#kruyden#100000000#2#0.997513
 kryuen#1#kruyen#100000000#2#0.997513
 kryuen#1#kruyn#100000000#2#0.997729
-kryuen#1#kruyn#100000000#2#0.997729
 kryuen#1#kruynen#100000000#2#0.997729
 kuïsch#1#kuesch#100000000#1#0.988126
 kuïsch#1#Kuesch#100000000#1#0.988126
@@ -6625,7 +6537,6 @@ Kurasfau#1#Kurassau#100000000#1#1
 kusfen#1#kusen#100000000#1#0.998585
 kusfen#1#Kusen#100000000#1#0.998585
 kusfen#1#kussen#100000000#1#0.998668
-kusfen#1#kussen#100000000#1#0.998668
 kusfen#1#Kusten#100000002#1#0.998585
 kwaaden#1#kwaad#100000005#2#0.997982
 kwaaden#1#kwaade#100000001#1#0.99778
@@ -6639,7 +6550,6 @@ laagften#1#laagtens#100000000#2#0.976998
 laagften#1#laagtes#100000000#2#0.974576
 laaker#1#klaaer#100000000#2#0.998973
 laaker#1#laake#100000000#1#0.999016
-laaker#1#laake#100000000#1#0.999016
 laaker#1#laaken#100000001#1#0.998973
 laaker#1#laker#100000000#1#0.999059
 laatcn#1#caaten#100000000#2#0.989184
@@ -6649,7 +6559,6 @@ laatcn#1#laaten#100000005#1#0.99279
 laatcn#1#laater#100000016#2#0.990086
 laatde#2#laadt#100000000#2#0.998369
 laatde#2#laafde#100000000#1#0.998303
-laatde#2#laate#100000002#1#0.998499
 laatde#2#laate#100000002#1#0.998499
 laatde#2#laatende#100000001#2#0.998564
 laatden#1#aalden#100000000#2#0.997915
@@ -6786,7 +6695,6 @@ Leenftelfel#1#Leenflelfel#1#1#0.394737
 Leenftelfel#1#leenstelsel#100000000#2#0.605263
 leerende#1#leerde#100000006#2#0.99864
 leerende#1#leerene#100000000#1#0.998425
-leerende#1#leerene#100000000#1#0.998425
 leerende#1#lerende#100000000#1#0.998711
 leerende#1#Lerende#100000000#1#0.998711
 Leerfluk#1#leegpluk#100000000#2#0.65
@@ -6816,7 +6724,6 @@ lemens#1#Lems#100000000#2#0.999162
 Leomdas#1#leonidas#100000000#2#0.857143
 Leomdas#1#Leonidas#100000000#2#0.857143
 Leomdas#1#LEONIDAS#100000000#2#0.857143
-Leomdas#1#loodas#100000000#2#0.809524
 Leomdas#1#loodas#100000000#2#0.809524
 levensgevallen#1#levensgevaren#100000000#2#0.52
 levensgevallen#1#levensgezellen#100000000#2#0.48
@@ -6921,7 +6828,6 @@ loflyfc#1#loflyke#2#2#0.528302
 loflyke#2#loffelyke#100000000#2#0.972141
 loflyke#2#loflijke#100000000#2#0.972141
 loflyke#2#loflyk#100000003#1#0.978006
-loflyke#2#lolyk#100000000#2#0.969208
 loflyke#2#lolyk#100000000#2#0.969208
 Loflyker#1#loffelyker#100000000#2#0.899329
 Loflyker#1#loflijker#100000000#2#0.899329
@@ -7028,7 +6934,6 @@ M4gollen#1#Marollen#100000000#2#0.901235
 M4gollen#1#mollen#100000000#2#0.895062
 M4gollen#1#Mollen#100000000#2#0.895062
 Maadro#1#daaro#100000000#2#0.979258
-Maadro#1#daaro#100000000#2#0.979258
 Maadro#1#maduro#100000000#2#0.978166
 Maadro#1#manado#100000000#2#0.980349
 Maadro#1#Manado#100000000#2#0.980349
@@ -7043,8 +6948,6 @@ maak-#1#maan-#100000000#1#0.996785
 maak-#1#matak#100000000#2#0.996479
 maak-#1#smaak-#100000000#1#0.997244
 maakem#1#maake#100000000#1#0.996589
-maakem#1#maake#100000000#1#0.996589
-maakem#1#makam#100000000#2#0.996737
 maakem#1#makam#100000000#2#0.996737
 maakem#1#mamaken#100000000#2#0.996589
 Maarfchalk#1#maarschalk#100000000#1#0.890909
@@ -7107,7 +7010,6 @@ Magneetbergen#1#magneetkernen#100000000#2#1
 magneeten#1#magnaten#100000000#2#0.916667
 magneeten#1#magneet#100000000#2#0.916667
 magneeten#1#magneetje#100000000#2#0.907407
-magneeten#1#magneten#100000000#1#0.939815
 magneeten#1#magneten#100000000#1#0.939815
 magsllah#1#magellan#100000000#2#0.658537
 magsllah#1#MAGELLAN#100000000#2#0.658537
@@ -7232,9 +7134,7 @@ Mefopotamie#1#Mesopotamie#100000000#1#0.711111
 Mefopotamie#1#mesopotamië#100000000#2#0.644444
 Mefopotamie#1#Mesopotamië#100000000#2#0.644444
 meinen#1#meine#100000000#1#0.999528
-meinen#1#meine#100000000#1#0.999528
 meinen#1#Meine#100000000#1#0.999528
-meinen#1#minen#100000000#1#0.999546
 meinen#1#minen#100000000#1#0.999546
 men'er#1#ME'er#100000000#1#0.998242
 men'er#1#meneer#100000000#1#0.997753
@@ -7264,8 +7164,6 @@ Menscbdom#1#Menschdom#100000004#1#0.714286
 Menscbdom#1#mensdom#100000000#2#0.595238
 menschlyke#1#menschelyke#100000000#1#0.941909
 menschlyke#1#menschlyk#100000000#1#0.937759
-menschlyke#1#menschlyk#100000000#1#0.937759
-menschlyke#1#Menschlyk#100000001#1#0.941909
 menschlyke#1#Menschlyk#100000001#1#0.941909
 Mensthdoms#1#menschdom#100000000#2#0.481481
 Mensthdoms#1#Menschdom#100000004#2#0.518519
@@ -7302,9 +7200,7 @@ minflen#2#Minnen#100000001#2#0.987266
 minflen#2#minnen#100000002#2#0.988015
 minflen#2#minsten#100000000#2#0.987266
 Minnaares#1#minnaar#100000002#2#0.927126
-Minnaares#1#minnaar#100000002#2#0.927126
 Minnaares#1#minnaars#100000003#1#0.94332
-Minnaares#1#minnares#100000000#1#0.939271
 Minnaares#1#minnares#100000000#1#0.939271
 Misfe#1#mises#100000000#2#0.998004
 Misfe#1#misse#100000000#1#0.998238
@@ -7528,18 +7424,13 @@ nabyliggende#1#byliggende#100000000#2#0.444444
 nabyliggende#1#nabijliggende#100000000#2#0.555556
 nadeels#3#adels#100000000#2#0.987269
 nadeels#3#nadeel#100000008#1#0.989005
-nadeels#3#nadeel#100000008#1#0.989005
-nadeels#3#nadeele#100000004#1#0.987847
 nadeels#3#nadeele#100000004#1#0.987847
 nadeligen#1#nadeeligen#100000000#1#0.97619
 nadeligen#1#nadelig#100000000#2#0.969841
-nadeligen#1#nadelig#100000000#2#0.969841
-nadeligen#1#nadelige#100000000#1#0.971429
 nadeligen#1#nadelige#100000000#1#0.971429
 nagtreis#1#dagreis#100000000#2#0.842105
 nagtreis#1#nachtreis#100000000#2#0.885965
 nagtreis#1#nagereisd#100000000#2#0.868421
-nagtreis#1#nareis#100000000#2#0.868421
 nagtreis#1#nareis#100000000#2#0.868421
 nanmeïyk#1#naamelyk#10#2#1
 Napolitaanen#1#Napolitaan#100000000#2#0.864
@@ -7574,7 +7465,6 @@ Naüeu#1#snaeu#100000000#2#0.986476
 nayver#2#naayver#100000000#1#0.997003
 nayver#2#naeryver#100000000#2#0.996441
 nayver#2#na-yver#100000000#1#0.996441
-nayver#2#nyver#100000000#1#0.997003
 nayver#2#nyver#100000000#1#0.997003
 Nederiuitjche#1#nederduitsche#100000000#2#0.5
 Nederiuitjche#1#Nederduitsche#100000000#2#0.5
@@ -7616,7 +7506,6 @@ Nerucadnezar#1#Nebucadnezar#100000004#1#0.781818
 Nerucadnezar#1#Nebukadnezar#100000000#2#0.690909
 nevelagtigen#1#knevelagtigen#100000000#1#0.9
 nevelagtigen#1#netelagtige#100000000#2#0.873333
-nevelagtigen#1#netelagtige#100000000#2#0.873333
 nevelagtigen#1#nevelagtige#100000000#1#0.9
 nevelagtigen#1#wervelagtigen#100000000#2#0.866667
 ngelsche#1#engelsche#100000000#1#0.984914
@@ -7653,7 +7542,6 @@ niten#1#Tien#100000003#2#0.999495
 niten#1#tien#100000007#2#0.999534
 Nntie#1#inte#100000000#2#0.994883
 Nntie#1#natie#100000000#1#0.994883
-Nntie#1#Natie#100000029#1#0.995813
 Nntie#1#Natie#100000029#1#0.995813
 Nntie#1#natien#100000000#2#0.995115
 noegd#1#genoegd#100000000#2#0.993359
@@ -7703,8 +7591,6 @@ ntipater#1#Antipaters#100000000#2#0.811881
 ntipater#1#nipter#100000000#2#0.811881
 nuftig#1#nuffig#100000000#1#0.99084
 nuftig#1#Nuttig#100000000#1#0.991858
-nuftig#1#Nuttig#100000000#1#0.991858
-nuftig#1#nuttig#100000001#1#0.992366
 nuftig#1#nuttig#100000001#1#0.992366
 Numidiers#1#Numidie#100000001#2#1
 nuttigfte#2#nuttigde#100000001#2#0.918803
@@ -7720,8 +7606,6 @@ Octaviaaus#1#Octavianus#100000008#1#0.837838
 Octaviaaus#1#octavius#100000000#2#0.756757
 Octaviaaus#1#Octavius#100000000#2#0.756757
 oderen#1#doren#100000000#2#0.999402
-oderen#1#doren#100000000#2#0.999402
-oderen#1#Doren#100000000#2#0.999402
 oderen#1#Doren#100000000#2#0.999402
 oderen#1#ondereen#100000000#2#0.999379
 Oebeurtenisfen#1#gebeurtenisfen#1#1#0.739583
@@ -7850,7 +7734,6 @@ onderden#1#donderden#100000000#1#0.9983
 onderden#1#doneerden#100000000#2#0.998385
 onderden#1#onderdaen#100000000#1#0.99847
 onderden#1#onderen#100000000#1#0.998385
-onderden#1#onderen#100000000#1#0.998385
 onderfcbeidden#1#onderfcheiden#2#2#0.333333
 onderfcbeidden#1#onderscheidden#100000000#2#0.666667
 onderfcheiden#2#onderscheidden#100000000#2#0.891026
@@ -7907,7 +7790,6 @@ ondtr#1#tonder#100000000#2#0.99287
 Onè'enigheden#1#oneenigheden#100000004#2#0.538462
 Onè'enigheden#1#onenigheden#100000000#2#0.461538
 onegte#1#egte#100000003#2#0.989291
-onegte#1#engte#100000000#2#0.989291
 onegte#1#engte#100000000#2#0.989291
 onegte#1#onregt#100000004#2#0.990311
 onegte#1#onregte#100000001#1#0.991841
@@ -8122,7 +8004,6 @@ OORLOC#1#Oorlog#100000004#1#0.987118
 OORLOC#1#oorlog#100000051#1#0.987923
 oorlogde#6#oorlog#100000051#2#0.980188
 oorlogde#6#oorloge#100000001#1#0.978102
-oorlogde#6#oorloge#100000001#1#0.978102
 oorlogde#6#oorlogende#100000000#2#0.978102
 oorlogde#6#oorloogde#100000001#1#0.978102
 oorlogden#1#Oorlogen#100000009#1#0.963387
@@ -8150,11 +8031,9 @@ oorzaaken#1#oorzaake#100000000#1#0.965932
 oorzaaken#1#oorzaaker#100000000#1#0.961924
 oorzaaken#1#oorzaken#100000000#1#0.965932
 OOSTENR#1#Oosten#100000015#1#0.996329
-OOSTENR#1#Oosten#100000015#1#0.996329
 OOSTENR#1#ooster#100000000#1#0.995411
 OOSTENR#1#Ooster#100000000#1#0.995411
 OOSTENR#1#OOSTER#100000000#1#0.995411
-Oostenrykfche#4#Oostenryksche#100000000#1#0.5
 Oostenrykfche#4#Oostenryksche#100000000#1#0.5
 Oostenrykl#1#oostenryk#100000000#1#0.642857
 Oostenrykl#1#OOSTENRYK#100000002#1#0.666667
@@ -8180,7 +8059,6 @@ oostwaards#1#oostwaarts#100000000#1#0.908497
 oostwaards#1#Oostwaarts#100000000#1#0.908497
 oostwaards#1#oostwaartse#100000000#2#0.888889
 opatra#1#opart#100000000#2#0.975248
-opatra#1#patrat#100000000#2#0.971947
 opatra#1#patrat#100000000#2#0.971947
 opatra#1#patria#100000000#2#0.973597
 opatra#1#Patria#100000000#2#0.973597
@@ -8331,7 +8209,6 @@ Orperweezen#1#Opperwezen#100000000#2#0.767857
 Osfekooper#1#ossenkooper#100000000#2#1
 Osfen#1#Offen#100000000#1#0.998713
 Osfen#1#ossen#100000000#1#0.998774
-Osfen#1#ossen#100000000#1#0.998774
 Osfen#1#osten#100000000#1#0.998591
 Osfen#1#Osten#100000000#1#0.998591
 Ostenae#1#astene#100000000#2#0.940625
@@ -8348,7 +8225,6 @@ otidfte#1#stijfte#100000000#2#0.631579
 Ouderlievend#1#ordelievend#100000000#2#1
 oudfte#1#oudst#100000000#2#0.977594
 oudfte#1#oudste#100000000#1#0.983491
-oudfte#1#oudte#100000000#1#0.983491
 oudfte#1#oudte#100000000#1#0.983491
 oudfte#1#oudts#100000000#2#0.977594
 oudften#4#Ouden#100000003#2#0.984215
@@ -8413,7 +8289,6 @@ overheerfching#1#overbeerfching#1#1#0.333333
 overheerfching#1#overheersching#100000000#1#0.666667
 overleeden#2#overleden#100000001#1#0.99813
 overleeden#2#overledenen#100000000#2#0.997463
-overleeden#2#overleed#100000000#2#0.997463
 overleeden#2#overleed#100000000#2#0.997463
 overleeden#2#overleefden#100000000#1#0.997997
 overleedt#1#overdeelt#100000000#2#0.996161
@@ -8551,7 +8426,6 @@ PAUSSEN#4#pausen#100000000#1#0.998608
 PAUSSEN#4#Pauses#100000000#2#0.998538
 PAUSSEN#4#pausse#100000000#1#0.998677
 PAUSSEN#4#pussen#100000000#1#0.998747
-PAUSSEN#4#pussen#100000000#1#0.998747
 Pbdro#1#pedro#100000000#1#0.95
 Pbdro#1#Pedro#100000000#1#0.95
 Pbdro#1#PEDRO#100000000#1#0.95
@@ -8612,8 +8486,6 @@ Perjen#1#preijen#100000000#2#0.999167
 Perjen#1#prejen#100000000#2#0.999228
 Perjen#1#terpjen#100000000#2#0.999197
 Perjie#1#peije#100000000#2#0.997298
-Perjie#1#peije#100000000#2#0.997298
-Perjie#1#Peije#100000000#2#0.997298
 Perjie#1#Peije#100000000#2#0.997298
 Perjie#1#PERSIE#100000001#1#0.997298
 Perjisch#1#Berisch#100000000#2#0.917808
@@ -8772,9 +8644,7 @@ pr'agtige#1#pragtige#100000001#1#0.895161
 pr'agtige#1#pragtiger#100000000#2#0.854839
 Predikryze#1#predikwyze#100000000#1#1
 preezen#1#perzen#100000000#2#0.998351
-preezen#1#perzen#100000000#2#0.998351
 preezen#1#Perzen#100000000#2#0.998351
-preezen#1#prezen#100000000#1#0.998351
 preezen#1#prezen#100000000#1#0.998351
 Prinfes#1#prinse#100000000#2#0.986367
 Prinfes#1#Prinse#100000000#2#0.986367
@@ -8803,8 +8673,6 @@ Profeeten#3#profete#100000000#2#0.981172
 Profeeten#3#profeten#100000000#1#0.985356
 proote#1#poote#100000000#1#0.998967
 proote#1#proot#100000000#1#0.999096
-proote#1#proot#100000000#1#0.999096
-proote#1#Proot#100000000#1#0.999096
 proote#1#Proot#100000000#1#0.999096
 ProteEtor#1#proetor#100000000#2#0.881481
 ProteEtor#1#Proetor#100000000#2#0.881481
@@ -8952,8 +8820,6 @@ Rederykeren#1#Rederykers#1#2#0.775
 Rederykeren#1#wederkeren#100000000#2#0.775
 Reegering#1#Regeering#100000016#2#0.993072
 Reegering#1#regering#100000000#1#0.993457
-Reegering#1#regering#100000000#1#0.993457
-Reegering#1#Regering#100000001#1#0.993841
 Reegering#1#Regering#100000001#1#0.993841
 REGEK-RING#1#REGEERING#100000002#2#0.868852
 REGEK-RING#1#regeering#100000010#2#0.877049
@@ -9133,8 +8999,6 @@ Roomsck#1#Roomsch#100000003#1#0.951311
 Roomsck#1#roomse#100000000#2#0.93633
 Rosfen#1#rosen#100000000#1#0.999074
 Rosfen#1#rossen#100000000#1#0.99922
-Rosfen#1#rossen#100000000#1#0.99922
-Rosfen#1#Rossen#100000000#1#0.99922
 Rosfen#1#Rossen#100000000#1#0.99922
 Rozekransfen#1#roozekranssen#100000000#2#0.642857
 Rozekransfen#1#rozekransen#100000000#1#0.714286
@@ -9194,12 +9058,8 @@ Rusffche#1#russche#100000000#2#0.754717
 Rusjen#1#rusje#100000000#1#0.999139
 RusJen#1#rusje#100000000#1#0.999139
 Rusjen#1#russen#100000000#1#0.999139
-Rusjen#1#russen#100000000#1#0.999139
-Rusjen#1#Russen#100000000#1#0.999139
 Rusjen#1#Russen#100000000#1#0.999139
 RusJen#1#russen#100000000#1#0.999139
-RusJen#1#russen#100000000#1#0.999139
-RusJen#1#Russen#100000000#1#0.999139
 RusJen#1#Russen#100000000#1#0.999139
 Ryksgenooten#1#rasgenooten#100000000#2#0.658537
 Ryksgenooten#1#reisgenooten#100000000#2#0.634146
@@ -9410,8 +9270,6 @@ Sioismund#1#SIGISMUND#100000000#1#0.927273
 Sisioambis#1#sisigambis#100000000#1#0.5
 Sisioambis#1#SISIGAMBIS#100000000#1#0.5
 Sivkeus#1#sikkes#100000000#2#0.963158
-Sivkeus#1#sikkes#100000000#2#0.963158
-Sivkeus#1#Sikkes#100000000#2#0.963158
 Sivkeus#1#Sikkes#100000000#2#0.963158
 Sivkeus#1#SIKKES#100000000#2#0.963158
 Sixtl'S#1#Sinti's#100000000#2#0.854545
@@ -9446,7 +9304,6 @@ Socotora#1#socatora#100000000#1#0.74
 Socotora#1#Socatora#100000000#1#0.74
 Socotora#1#socotra#100000000#1#0.76
 Socotora#1#Socotra#100000000#1#0.76
-Sopeiten#1#opeisen#100000000#2#0.976048
 Sopeiten#1#opeisen#100000000#2#0.976048
 Sopeiten#1#opeisten#100000000#2#0.976048
 Sopeiten#1#speiten#100000000#1#0.977545
@@ -9526,7 +9383,6 @@ StadQ#1#stadt#100000000#1#0.995157
 StadQ#1#Stadt#100000000#1#0.995157
 StadQ#1#STADT#100000000#1#0.995157
 Staiten#1#Staaten#100000023#1#0.998253
-Staiten#1#Staaten#100000023#1#0.998253
 Staiten#1#stait#100000000#2#0.99818
 Staiten#1#staten#100000000#1#0.99818
 Staiten#1#Staten#100000001#1#0.998253
@@ -9557,10 +9413,8 @@ Sterre-en#1#Sterren#100000002#2#0.933086
 Sterre-en#1#sterrenet#100000000#2#0.933086
 Sterrekundigen#2#starrekundigen#100000000#1#0.831579
 Sterrekundigen#2#sterrekundige#100000000#1#0.852632
-Sterrekundigen#2#sterrekundige#100000000#1#0.852632
 Sterrekundigen#2#sterrenkundige#100000000#2#0.810526
 Sterrekundigen#2#sterrenkundigen#100000000#1#0.863158
-Stierle#1#steile#100000000#2#0.995188
 Stierle#1#steile#100000000#2#0.995188
 Stierle#1#sterlie#100000000#2#0.995188
 Stierle#1#stieler#100000000#2#0.995188
@@ -9617,7 +9471,6 @@ Tadua#1#Tadeus#100000000#2#0.990887
 Tadua#1#talud#100000000#2#0.990408
 tagtigduizend#2#tachtigduizend#100000000#2#1
 tainers#1#tieners#100000000#2#0.994038
-tainers#1#tieners#100000000#2#0.994038
 tainers#1#tiers#100000000#2#0.993375
 tainers#1#trainees#100000000#2#0.994369
 tainers#1#trainers#100000000#1#0.995031
@@ -9636,7 +9489,6 @@ talryke#2#taleke#100000000#2#0.904306
 talryke#2#talke#100000000#2#0.894737
 talryke#2#talrijke#100000000#2#0.913876
 talryke#2#talryker#100000000#1#0.92823
-talryken#1#alryke#100000000#2#0.898396
 talryken#1#alryke#100000000#2#0.898396
 talryken#1#maryken#100000000#2#0.898396
 talryken#1#Maryken#100000000#2#0.898396
@@ -9860,8 +9712,6 @@ too'nen#1#toornen#100000000#1#0.989074
 tot-behoorde#1#toebehoorde#100000000#2#0.5
 tot-behoorde#1#toe-behoorte#100000000#2#0.5
 Tperen#1#peren#100000000#1#0.999261
-Tperen#1#peren#100000000#1#0.999261
-Tperen#1#peten#100000000#2#0.999234
 Tperen#1#peten#100000000#2#0.999234
 Tperen#1#terpen#100000000#2#0.999261
 tragt#1#traegt#100000000#1#0.99909
@@ -9948,7 +9798,6 @@ Turkent#1#turken#100000001#1#0.995091
 Turkent#1#Turken#100000029#1#0.99538
 Turkent#1#TURKEN#1#1#0.994225
 Turkent#1#turkt#100000000#2#0.994513
-Turkent#1#turkt#100000000#2#0.994513
 Turkfche#1#turksch#100000000#2#0.936508
 Turkfche#1#Turksch#100000001#2#0.939683
 Turkfche#1#turksche#100000000#1#0.952381
@@ -9962,7 +9811,6 @@ Turkfchen#1#turkschen#100000000#1#0.92
 Turktn#1#turken#100000001#1#0.995129
 Turktn#1#Turken#100000029#1#0.995399
 Turktn#1#turkt#100000000#1#0.994858
-Turktn#1#turkten#100000000#1#0.99567
 Turktn#1#turkten#100000000#1#0.99567
 Turtaaren#1#tartaaren#100000000#1#0.851064
 Turtaaren#1#Tartaaren#100000007#1#0.861702
@@ -10072,7 +9920,6 @@ uit/braak#1#uitbrak#100000000#2#0.878378
 uit/braak#1#uytbraak#100000000#2#0.891892
 uitdreeven#1#uitdrevelen#100000000#2#0.981707
 uitdreeven#1#uitdreven#100000000#1#0.984756
-uitdreeven#1#uitdreven#100000000#1#0.984756
 uitdreeven#1#uitgedreeven#100000001#2#0.980691
 uitdreeven#1#uitreven#100000000#2#0.979675
 uiterfte#1#uiterst#100000000#2#0.969534
@@ -10130,7 +9977,6 @@ uitgellrekte#1#uitgeleekte#100000000#2#0.850575
 uitgellrekte#1#uitgelekte#100000000#2#0.827586
 uitgellrekte#1#uitgerekte#100000000#2#0.83908
 uitgellrekte#1#uitgestrekte#100000000#2#0.862069
-uitger#1#ruiger#100000000#2#0.998462
 uitger#1#ruiger#100000000#2#0.998462
 uitger#1#tuiger#100000000#2#0.998462
 uitger#1#uiiger#100000000#1#0.998462
@@ -10246,7 +10092,6 @@ valscli#1#valscelic#100000000#2#0.846939
 valscli#1#valsch#100000002#2#0.846939
 valscli#1#valsche#100000000#2#0.816327
 Vandaalen#4#vandaal#100000000#2#0.961783
-Vandaalen#4#vandaan#100000000#2#0.95966
 Vandaalen#4#vandaan#100000000#2#0.95966
 Vandaalen#4#vandalen#100000000#1#0.968153
 Vandaalen#4#Vandalen#100000000#1#0.968153
@@ -10404,16 +10249,12 @@ verbon|#1#verboon#100000000#2#0.991701
 verbon|#1#Verboon#100000000#2#0.991701
 verbon|#1#VERBOON#100000000#2#0.991701
 verbondea#1#verboden#100000000#2#0.990021
-verbondea#1#verboden#100000000#2#0.990021
 verbondea#1#Verboden#100000000#2#0.990021
 verbondea#1#verbonde#100000000#1#0.990546
-verbondea#1#verbonde#100000000#1#0.990546
-verdaagen#1#verdaag#100000000#2#0.99798
 verdaagen#1#verdaag#100000000#2#0.99798
 verdaagen#1#verdaagden#100000000#1#0.99798
 verdaagen#1#verdagen#100000001#1#0.998182
 verdaagen#1#verdraagen#100000000#1#0.998081
-verdeedigd#3#verdedigd#100000000#1#0.97
 verdeedigd#3#verdedigd#100000000#1#0.97
 verdeedigd#3#verdeedigend#100000000#2#0.964
 verdeedigd#3#verdeedigt#100000000#1#0.958
@@ -10708,18 +10549,14 @@ Verkoozen#1#overkrozen#100000000#2#0.996714
 verKoozen#1#verkooren#100000004#1#0.99655
 Verkoozen#1#verkooren#100000004#1#0.99655
 verKoozen#1#verkozen#100000000#1#0.997043
-verKoozen#1#verkozen#100000000#1#0.997043
-Verkoozen#1#verkozen#100000000#1#0.997043
 Verkoozen#1#verkozen#100000000#1#0.997043
 verKoozen#1#verzooren#100000000#2#0.996221
 Verkoozen#1#verzooren#100000000#2#0.996221
 verkoozen#5#overkrozen#100000000#2#0.996714
 verkoozen#5#verkooren#100000004#1#0.99655
 verkoozen#5#verkozen#100000000#1#0.997043
-verkoozen#5#verkozen#100000000#1#0.997043
 verkoozen#5#verzooren#100000000#2#0.996221
 verkreegan#1#verkreeg#100000009#2#0.9
-verkreegan#1#verkreegen#100000011#1#0.926316
 verkreegan#1#verkreegen#100000011#1#0.926316
 verkreegan#1#verkreegene#100000000#2#0.889474
 verkreegan#1#verkregen#100000000#2#0.905263
@@ -10762,7 +10599,6 @@ Verlosfer#4#Verlosser#100000000#1#0.976821
 Verlosfer#4#verlossers#100000000#2#0.966887
 Verlosfer#4#verloster#100000000#1#0.971854
 Verlosfer#4#versloffer#100000000#2#0.971854
-verlosfing#1#verlosing#100000000#1#0.975881
 verlosfing#1#verlosing#100000000#1#0.975881
 verlosfing#1#verlossing#100000000#1#0.975881
 verlosfing#1#verlossinge#100000000#2#0.96846
@@ -10886,7 +10722,6 @@ verzetteden#1#verzettende#100000000#2#0.937931
 verzogten#2#verzogen#100000000#1#0.997283
 verzogten#2#verzogt#100000001#2#0.997283
 verzogten#2#verzogte#100000000#1#0.997283
-verzogten#2#verzotten#100000000#1#0.99683
 verzogten#2#verzotten#100000000#1#0.99683
 Vespa.ianus#1#vespasianus#100000000#1#0.875
 Vespa.ianus#1#VESPASIANUS#100000000#1#0.875
@@ -11524,7 +11359,6 @@ wérdt#1#werdt#100000203#1#0.996365
 wérdt#1#Wordt#100000002#1#0.994966
 wérdt#1#wordt#100000024#1#0.995246
 werdteens#1#werdens#100000000#2#0.684211
-werdteens#1#werdens#100000000#2#0.684211
 werdteens#1#werdeyns#100000000#2#0.631579
 werdt'er#1#weet'er#100000000#2#0.887574
 werdt'er#1#werder#100000000#2#0.881657
@@ -11575,7 +11409,6 @@ Wierdyken#1#Wierden#100000000#2#0.902597
 Wierdyken#1#wierdijken#100000000#2#0.909091
 Wierdyken#1#wierdyk#100000000#2#0.902597
 wiklen#1#wielken#100000000#2#0.998929
-wiklen#1#wiken#100000000#1#0.998806
 wiklen#1#wiken#100000000#1#0.998806
 wiklen#1#winkelen#100000000#2#0.998929
 wiklen#1#winklen#100000000#1#0.998929
@@ -11673,9 +11506,7 @@ Ysvelden#1#rysvelden#100000000#1#0.980512
 Ysvelden#1#velden#100000001#2#0.974421
 Ysvelden#1#yselden#100000000#1#0.978076
 yverden#1#yverde#100000002#1#0.997608
-yverden#1#yverde#100000002#1#0.997608
 yverden#1#yverdon#100000000#1#0.99689
-yverden#1#yveren#100000000#1#0.997249
 yverden#1#yveren#100000000#1#0.997249
 zagen,en#1#zaenen#100000000#2#0.918782
 zagen,en#1#zagelen#100000000#2#0.939086
@@ -11745,7 +11576,6 @@ Zarg-#1#zang-#100000000#1#0.993717
 Zarg-#1#Zang-#100000001#1#0.9942
 Zarg-#1#zorg-#100000000#1#0.992267
 zatrte#1#zaert#100000000#2#0.995395
-zatrte#1#zaert#100000000#2#0.995395
 zatrte#1#zatste#100000000#1#0.995395
 zatrte#1#zatte#100000000#1#0.996086
 zatrte#1#zatter#100000000#2#0.995625
@@ -11779,8 +11609,6 @@ zeisfen#1#zeissen#100000000#1#0.994131
 zeisfen#1#zeissens#100000000#2#0.992296
 zeiven#6#zeeven#100000000#1#0.998772
 zeiven#6#zeven#100000005#1#0.999079
-zeiven#6#zeven#100000005#1#0.999079
-zeiven#6#Zeven#100000006#1#0.999117
 zeiven#6#Zeven#100000006#1#0.999117
 zekente#1#zeekte#100000000#2#0.993202
 zekente#1#zekant#100000000#2#0.992069
