@@ -55,7 +55,7 @@ fi
 
 echo start TICLL-unk
 
-$bindir/TICCL-unk --corpus $datadir/INLandAspell.corpus --artifrq 100000000 -o $outdir/TESTDP035 $outdir/TESTDP035.wordfreqlist.tsv
+$bindir/TICCL-unk --corpus $datadir/INLandAspell.corpus --artifrq 100000000 --acro -o $outdir/TESTDP035 $outdir/TESTDP035.wordfreqlist.tsv
 
 if [ $? -ne 0 ]
 then
@@ -67,7 +67,31 @@ diff $outdir/TESTDP035.punct $refdir/punct > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-UNK punct results"
-    echo "using: diff $outdir/TESTDP035.wordfreqlist.tsv.punct $refdir/punct"
+    echo "using: diff $outdir/TESTDP035.punct $refdir/punct"
+    exit
+fi
+
+diff $outdir/TESTDP035.clean $refdir/clean > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-UNK clean results"
+    echo "using: diff $outdir/TESTDP035.clean $refdir/clean"
+    exit
+fi
+
+diff $outdir/TESTDP035.unk $refdir/unk > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-UNK unk results"
+    echo "using: diff $outdir/TESTDP035.unk $refdir/unk"
+    exit
+fi
+
+diff $outdir/TESTDP035.acro $refdir/acro > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-UNK acro results"
+    echo "using: diff $outdir/TESTDP035.acro $refdir/acro"
     exit
 fi
 
@@ -87,6 +111,7 @@ diff /tmp/foci $refdir/foci > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-anahash foci results"
+    echo "using diff /tmp/foci $refdir/foci"
     exit
 fi
 
