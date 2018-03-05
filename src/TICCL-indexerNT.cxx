@@ -108,7 +108,7 @@ void handle_exp( const experiment& exp,
 		 const set<bitType>& confSet,
 		 map<bitType,set<bitType>>& result ){
   bitType max = *confSet.rbegin();
-  set<bitType>::const_iterator it1 = exp.start;
+  auto it1 = exp.start;
   while ( it1 != exp.finish ){
 #pragma omp critical
     {
@@ -123,7 +123,6 @@ void handle_exp( const experiment& exp,
     set<bitType>::const_iterator it3 = hashSet.find( *it1 );
     if ( it3 != hashSet.end() ){
       set<bitType>::const_reverse_iterator it2( it3 );
-      ++it2;
       while ( it2 != hashSet.rend() ){
 	bitType diff = *it1 - *it2;
 	if ( diff > max )
