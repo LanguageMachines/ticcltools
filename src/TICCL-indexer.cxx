@@ -230,7 +230,7 @@ int main( int argc, char **argv ){
   }
   ifstream ana( anahashFile );
   if ( !ana ){
-    cerr << "problem opening anagram hashfile: " << anahashFile << endl;
+    cerr << "problem opening corpus anagram hashfile: " << anahashFile << endl;
     exit(1);
   }
   ifstream conf( confFile );
@@ -272,7 +272,7 @@ int main( int argc, char **argv ){
     cerr << "problem opening outputfile: " << outFile << endl;
     exit(1);
   }
-  cout << "reading anagram hash values" << endl;
+  cout << "reading corpus word anagram hash values" << endl;
   size_t skipped = 0;
   set<bitType> anaSet;
   string line;
@@ -296,10 +296,10 @@ int main( int argc, char **argv ){
       }
     }
   }
-  cout << "read " << anaSet.size() << " anagram values" << endl;
-  cout << "skipped " << skipped << " out-of-band anagram values" << endl;
+  cout << "read " << anaSet.size() << " corpus anagram values" << endl;
+  cout << "skipped " << skipped << " out-of-band corpus anagram values" << endl;
 
-  cout << "reading character confusion values" << endl;
+  cout << "reading character confusion anagram values" << endl;
   set<bitType> confSet;
   size_t count = 0;
   while ( getline( conf, line ) ){
@@ -321,7 +321,8 @@ int main( int argc, char **argv ){
       exit(1);
     }
   }
-  cout << "read " << confSet.size() << " confusion values" << endl;
+  cout << "read " << confSet.size()
+       << " character confusion anagram values" << endl;
 
   vector<experiment> experiments;
   size_t expsize = init( experiments, confSet, threads );
@@ -330,7 +331,7 @@ int main( int argc, char **argv ){
 #endif
 
 
-  cout << "processing all confusion values" << endl;
+  cout << "processing all character confusion values" << endl;
   map<bitType,set<bitType> > result;
   count = 0;
 #pragma omp parallel for shared( experiments )

@@ -504,7 +504,7 @@ int main( int argc, char **argv ){
     backward = false;
   }
   else if ( TiCC::match_back( indexFile, ".indexNT" ) ){
-    backward = true;
+    backward = false;
   }
   else {
     cerr << progname << ": --index files must have extension: '.index' or '.indexNT' "

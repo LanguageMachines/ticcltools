@@ -241,9 +241,10 @@ int main( int argc, char **argv ){
     exit(EXIT_FAILURE);
   }
 
-  ifstream ch( anahashFile );
-  if ( !ch ){
-    cerr << "problem opening anagram hash file: " << anahashFile << endl;
+  ifstream cwav( anahashFile );
+  if ( !cwav ){
+    cerr << "problem opening corpus word anagram hash file: "
+	 << anahashFile << endl;
     exit(1);
   }
   if ( outFile.empty() ){
@@ -270,7 +271,8 @@ int main( int argc, char **argv ){
 
   ifstream conf( confFile );
   if ( !conf ){
-    cerr << "problem opening character confusion file: " << confFile << endl;
+    cerr << "problem opening character confusion anagram file: "
+	 << confFile << endl;
     exit(1);
   }
 
@@ -280,11 +282,11 @@ int main( int argc, char **argv ){
     exit(1);
   }
 
-  cout << "reading anagram hash values" << endl;
+  cout << "reading corpus word anagram hash values" << endl;
   size_t skipped = 0;
   set<bitType> hashSet;
   string line;
-  while ( getline( ch, line ) ){
+  while ( getline( cwav, line ) ){
     vector<string> parts;
     if ( TiCC::split_at( line, parts, "~" ) > 1 ){
       bitType bit = TiCC::stringTo<bitType>( parts[0] );
@@ -304,8 +306,8 @@ int main( int argc, char **argv ){
       }
     }
   }
-  cout << "read " << hashSet.size() << " anagram hash values" << endl;
-  cout << "skipped " << skipped << " out-of-band hash values" << endl;
+  cout << "read " << hashSet.size() << " corpus word anagram values" << endl;
+  cout << "skipped " << skipped << " out-of-band corpus word values" << endl;
 
   set<bitType> focSet;
   while ( foc ){
@@ -329,7 +331,8 @@ int main( int argc, char **argv ){
       exit(1);
     }
   }
-  cout << "read " << confSet.size() << " character confusion values" << endl;
+  cout << "read " << confSet.size()
+       << " character confusion anagram values" << endl;
 
   vector<experiment> experiments;
   size_t expsize = init( experiments, focSet, threads );
