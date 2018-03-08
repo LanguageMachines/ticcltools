@@ -170,7 +170,7 @@ fi
 
 echo "checking RANK results...."
 
-sort -u $outdir/TESTDP035.tsv.clean.ldcalc.ranked > /tmp/rank.sorted
+sort $outdir/TESTDP035.tsv.clean.ldcalc.ranked > /tmp/rank.sorted
 diff /tmp/rank.sorted $refdir/rank.sorted > /dev/null 2>&1
 if [ $? -ne 0 ]
 then

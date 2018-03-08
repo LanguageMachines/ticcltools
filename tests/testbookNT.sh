@@ -138,7 +138,7 @@ fi
 
 echo "start TICLL-LDcalc"
 
-$bindir/TICCL-LDcalc --index $outdir/TESTDP035.tsv.clean.indexNT --hash $outdir/TESTDP035.tsv.clean.anahash --clean $outdir/TESTDP035.tsv.clean --LD 2 -t 1 --artifrq 100000000 -o $outdir/TESTDP035.tsv.clean.ldcalc
+$bindir/TICCL-LDcalc --index $outdir/TESTDP035.tsv.clean.indexNT --hash $outdir/TESTDP035.tsv.clean.anahash --clean $outdir/TESTDP035.tsv.clean --LD 2 -t 1 --artifrq 100000000 -o $outdir/TESTDP035.tsv.clean.NT.ldcalc
 
 if [ $? -ne 0 ]
 then
@@ -147,14 +147,14 @@ then
 fi
 
 echo "checking LDCALC results...."
-sort $outdir/TESTDP035.tsv.clean.ldcalc  > /tmp/ldcalc
+sort $outdir/TESTDP035.tsv.clean.NT.ldcalc  > /tmp/ldcalc.NT
 
-diff /tmp/ldcalc $refdir/ldcalc.NT > /dev/null 2>&1
+diff /tmp/ldcalc.NT $refdir/ldcalc.NT > /dev/null 2>&1
 
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-ldcalc results"
-    echo "using: diff /tmp/ldcalc $refdir/ldcalc.NT"
+    echo "using: diff /tmp/ldcalc.NT $refdir/ldcalc.NT"
     exit
 fi
 
@@ -170,7 +170,7 @@ fi
 
 echo "checking RANK results...."
 
-sort -u $outdir/TESTDP035.tsv.clean.ldcalc.ranked > /tmp/rank.sorted
+sort $outdir/TESTDP035.tsv.clean.ldcalc.ranked > /tmp/rank.sorted
 diff /tmp/rank.sorted $refdir/rank.NT.sorted > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
