@@ -86,8 +86,10 @@ void calc_chain( ostream& os,
 		 map<string, set<string>>& table,
 		 map<string, size_t>& var_freq,
 		 set<string>& done ){
-  using TiCC::operator<<;
-  cerr << "doorzoek met:" << s2 << " " << table[s2] << endl;
+  if ( verbose ){
+    using TiCC::operator<<;
+    cerr << "doorzoek met:" << s2 << " " << table[s2] << endl;
+  }
   for ( const auto& it : table[s2] ){
     if ( table[it].empty() ){
       if ( done.find( it ) != done.end() ){
@@ -202,11 +204,13 @@ int main( int argc, char **argv ){
     }
   }
   ofstream db( outFile + ".debug" );
-  using TiCC::operator<<;
-  for ( const auto& val : desc_freq ){
-    db << val.first << " " << val.second << " " << table[val.second] << endl;
+  if ( verbose ){
+    using TiCC::operator<<;
+    for ( const auto& val : desc_freq ){
+      db << val.first << " " << val.second << " " << table[val.second] << endl;
+    }
+    cout << "debug results in " << outFile + ".debug" << endl;
   }
-  cout << "debug results in " << outFile + ".debug" << endl;
   for ( const auto& val : desc_freq ){
     done.clear();
     calc_chain( os, val.second, val.first, val.second, table, var_freq, done );
