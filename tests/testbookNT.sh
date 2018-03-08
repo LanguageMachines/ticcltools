@@ -160,7 +160,7 @@ fi
 
 echo "start TICLL-rank"
 
-$bindir/TICCL-rank -t 30 --alph $datadir/nld.aspell.dict.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/TESTDP035.tsv.clean.ldcalc.ranked --debugfile $outdir/.TESTDP035.tsv.clean.ldcalc.debug.ranked --artifrq 0 --clip 5 --skipcols=10,11 $outdir/TESTDP035.tsv.clean.ldcalc 2> $outdir/.TESTDP035.RANK.stderr
+$bindir/TICCL-rank -t 30 --alph $datadir/nld.aspell.dict.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/TESTDP035.tsv.clean.NT.ldcalc.ranked --debugfile $outdir/.TESTDP035.tsv.clean.ldcalc.debug.ranked --artifrq 0 --clip 5 --skipcols=10,11 $outdir/TESTDP035.tsv.clean.NT.ldcalc 2> $outdir/.TESTDP035.RANK.stderr
 
 if [ $? -ne 0 ]
 then
@@ -170,12 +170,12 @@ fi
 
 echo "checking RANK results...."
 
-sort $outdir/TESTDP035.tsv.clean.ldcalc.ranked > /tmp/rank.sorted
-diff /tmp/rank.sorted $refdir/rank.NT.sorted > /dev/null 2>&1
+sort $outdir/TESTDP035.tsv.clean.NT.ldcalc.ranked > /tmp/rank.NT.sorted
+diff /tmp/rank.NT.sorted $refdir/rank.NT.sorted > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"
-    echo "using: diff /tmp/rank.sorted $refdir/rank.NT.sorted"
+    echo "using: diff /tmp/rank.NT.sorted $refdir/rank.NT.sorted"
     exit
 else
     echo OK!
