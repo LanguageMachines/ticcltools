@@ -5,12 +5,14 @@ if ROAR
 bin_PROGRAMS = TICCL-indexer TICCL-indexerNT TICCL-indexerNT-roaring \
 	TICCL-LDcalc TICCL-LDcalc-roaring TICCL-unk TICCL-lexstat \
 	TICCL-anahash TICCL-rank TICCL-lexclean \
-	W2V-near W2V-dist W2V-analogy TICCL-stats TICCL-mergelex
+	W2V-near W2V-dist W2V-analogy TICCL-stats \
+	TICCL-mergelex TICCL-chain
 else
 bin_PROGRAMS = TICCL-indexer TICCL-indexerNT \
 	TICCL-LDcalc TICCL-unk TICCL-lexstat \
 	TICCL-anahash TICCL-rank TICCL-lexclean \
-	W2V-near W2V-dist W2V-analogy TICCL-stats TICCL-mergelex
+	W2V-near W2V-dist W2V-analogy TICCL-stats \
+	TICCL-mergelex TICCL-chain
 endif
 
 LDADD = libticcl.la
@@ -31,6 +33,7 @@ TICCL_lexstat_SOURCES = TICCL-lexstat.cxx
 TICCL_lexclean_SOURCES = TICCL-lexclean.cxx
 TICCL_anahash_SOURCES = TICCL-anahash.cxx
 TICCL_mergelex_SOURCES = TICCL-mergelex.cxx
+TICCL_chain_SOURCES = TICCL-chain.cxx
 W2V_near_SOURCES = W2V-near.cxx
 W2V_dist_SOURCES = W2V-dist.cxx
 W2V_analogy_SOURCES = W2V-analogy.cxx
