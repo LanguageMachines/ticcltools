@@ -235,7 +235,10 @@ int main( int argc, char **argv ){
   if ( verbose ){
     using TiCC::operator<<;
     for ( const auto& val : desc_freq ){
-      db << val.first << " " << val.second << " " << table[val.second] << endl;
+      if ( table.find( val.second ) != table.end() ){
+	db << val.first << " " << val.second
+	   << " " << table[val.second] << endl;
+      }
     }
     cout << "debug results in " << outFile + ".debug" << endl;
   }
