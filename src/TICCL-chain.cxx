@@ -82,11 +82,11 @@ unsigned int ld( const string& in1, const string& in2 ){
 void calc_chain( ostream& os,
 		 string root,
 		 size_t root_frq,
-		 string s2,
+		 string candidate,
 		 const map<string, set<string>>& table,
 		 const map<string, size_t>& var_freq,
 		 set<string>& done ){
-  auto const sit = table.find(s2);
+  auto const sit = table.find(candidate);
   if ( sit == table.end() ){
     return;
   }
@@ -94,9 +94,9 @@ void calc_chain( ostream& os,
     set<string> my_set = sit->second;
     if ( verbose > 1 ){
       using TiCC::operator<<;
-      cerr << "doorzoek met:" << s2 << " " << my_set << endl;
+      cerr << "doorzoek met:" << candidate << " " << my_set << endl;
     }
-    // loop over the CC's related to s2
+    // loop over the CC's related to the candidate
     for ( const auto& it : my_set) {
       if ( verbose > 2 ){
 	cerr << "loop: " << it << endl;
@@ -108,19 +108,33 @@ void calc_chain( ostream& os,
 	if ( done.find( it ) != done.end() ){
 	  // Did we already output a translation?
 	  // then skip this, because the other was more salient
+	  if ( verbose > 2 ){
+	    cerr << "skip " << it << " already done" << endl;
+	  }
 	  continue;
 	}
-	// output the translation fro CC to root
+	// output the translation from CC to root
 	os << it << "#" << var_freq.at(it) << "#" << root << "#"
-	   << root_frq << "#" << ld( it, s2 ) << "#C" << endl;
+	   << root_frq << "#" << ld( root, it ) << "#C" << endl;
 	done.insert( it );
 	if ( verbose > 2 ){
-	  cerr << "         output: " << it << " ==> " << root << endl;
+	  cerr << "   1      output: " << it << " ==> " << root << endl;
 	}
       }
       else {
 	// we can go deeper:
 	calc_chain( os, root, root_frq, it, table, var_freq, done );
+      }
+      if ( candidate != root ){
+	if ( done.find( candidate ) == done.end() ){
+	  // Didn't we yet output a translation?
+	  os << candidate << "#" << var_freq.at(candidate) << "#" << root << "#"
+	     << root_frq << "#" << ld( root, candidate ) << "#C" << endl;
+	  done.insert( candidate );
+	  if ( verbose > 2 ){
+	    cerr << "   2      output: " << candidate << " ==> " << root << endl;
+	  }
+	}
       }
     }
   }
@@ -242,8 +256,8 @@ int main( int argc, char **argv ){
     }
     cout << "debug results in " << outFile + ".debug" << endl;
   }
+  done.clear();
   for ( const auto& val : desc_freq ){
-    done.clear();
     calc_chain( os, val.second, val.first, val.second, table, var_freq, done );
   }
 
