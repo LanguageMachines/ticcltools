@@ -53,7 +53,7 @@ typedef signed long int bitType;
 
 const int RANK_COUNT=13;
 
-bool verbose = false;
+int verbose = 0;
 
 void usage( const string& name ){
   cerr << "usage: " << name << endl;
@@ -83,24 +83,45 @@ void calc_chain( ostream& os,
 		 string root,
 		 size_t root_frq,
 		 string s2,
-		 map<string, set<string>>& table,
-		 map<string, size_t>& var_freq,
+		 const map<string, set<string>>& table,
+		 const map<string, size_t>& var_freq,
 		 set<string>& done ){
-  if ( verbose ){
-    using TiCC::operator<<;
-    cerr << "doorzoek met:" << s2 << " " << table[s2] << endl;
+  auto const sit = table.find(s2);
+  if ( sit == table.end() ){
+    return;
   }
-  for ( const auto& it : table[s2] ){
-    if ( table[it].empty() ){
-      if ( done.find( it ) != done.end() ){
-	continue;
-      }
-      os << it << "#" << var_freq[it] << "#" << root << "#"
-	 << root_frq << "#" << ld( it, s2 ) << "#C" << endl;
-      done.insert( it );
+  else {
+    set<string> my_set = sit->second;
+    if ( verbose > 1 ){
+      using TiCC::operator<<;
+      cerr << "doorzoek met:" << s2 << " " << my_set << endl;
     }
-    else {
-      calc_chain( os, root, root_frq, it, table, var_freq, done );
+    // loop over the CC's related to s2
+    for ( const auto& it : my_set) {
+      if ( verbose > 2 ){
+	cerr << "loop: " << it << endl;
+      }
+      auto const dit = table.find(it);
+      // do they have CC themselves?
+      if ( dit == table.end() ){
+	// NO
+	if ( done.find( it ) != done.end() ){
+	  // Did we already output a translation?
+	  // then skip this, because the other was more salient
+	  continue;
+	}
+	// output the translation fro CC to root
+	os << it << "#" << var_freq.at(it) << "#" << root << "#"
+	   << root_frq << "#" << ld( it, s2 ) << "#C" << endl;
+	done.insert( it );
+	if ( verbose > 2 ){
+	  cerr << "         output: " << it << " ==> " << root << endl;
+	}
+      }
+      else {
+	// we can go deeper:
+	calc_chain( os, root, root_frq, it, table, var_freq, done );
+      }
     }
   }
 }
@@ -129,7 +150,9 @@ int main( int argc, char **argv ){
     cerr << PACKAGE_STRING << endl;
     exit(EXIT_SUCCESS);
   }
-  bool verbose = opts.extract( 'v' );
+  while( opts.extract( 'v' ) ){
+    ++verbose;
+  }
   int numThreads=1;
   string outFile;
   opts.extract( 'o', outFile );
@@ -180,6 +203,7 @@ int main( int argc, char **argv ){
   std::multimap< size_t, std::string, std::greater<size_t> > desc_freq;
   std::map< std::string, size_t > var_freq;
   set<string> done;
+  set<string> best_trans;
   map<string, set<string> > table;
   ofstream os( outFile );
   string line;
@@ -189,18 +213,22 @@ int main( int argc, char **argv ){
       cerr << "invalid line: '" << line << "'" << endl;
     }
     else {
-      string variant1 = parts[0];
+      string variant1 = parts[0]; // a possibly correctable word
       size_t freq1 = TiCC::stringTo<size_t>(parts[1]);
       var_freq[variant1] = freq1;
-      string variant2 = parts[2];
+      string variant2 = parts[2]; // a Correction Candidate
       size_t freq2 = TiCC::stringTo<size_t>(parts[3]);
-      // size_t ld    = TiCC::stringTo<int>(parts[4]);
-      // double ld_rank = TiCC::stringTo<double>(parts[5]);
       if ( done.find( variant2 ) == done.end() ){
+	// save CC's frequency only once
 	desc_freq.insert( make_pair(freq2,variant2) );
 	done.insert( variant2 );
       }
-      table[variant2].insert( variant1 );
+      // is this word already stored?
+      if ( best_trans.find( variant1 ) == best_trans.end() ){
+	// NO, so add is to the list of the CC
+	table[variant2].insert( variant1 );
+	best_trans.insert( variant1 );
+      }
     }
   }
   ofstream db( outFile + ".debug" );
