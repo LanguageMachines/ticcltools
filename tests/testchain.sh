@@ -48,3 +48,25 @@ then
 else
     echo OK!
 fi
+
+echo "and now caseless"
+
+$bindir/TICCL-chain --caseless -o $outdir/caseless.ranked.chained $outdir/chaintest.ranked
+
+if [ $? -ne 0 ]
+then
+    echo failed after TICLL-chain
+    exit
+fi
+
+echo "checking caseless chain results...."
+
+diff $outdir/caseless.ranked.chained $refdir/caseless.rank.chained >& /dev/null
+if [ $? -ne 0 ]
+then
+    echo "differences in TICLL-rank results"
+    echo "using diff $outdir/caseless.ranked.chained $refdir/caseless.rank.chained"
+    exit
+else
+    echo OK!
+fi
