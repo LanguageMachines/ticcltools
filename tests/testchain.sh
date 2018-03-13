@@ -21,7 +21,7 @@ echo start TICLL-stuff
 sort -t'#' -s -k4 -gr $refdir/rank.sorted > $outdir/chaintest.ranked
 echo "start TICLL-chain"
 
-$bindir/TICCL-chain -v -t max $outdir/chaintest.ranked
+$bindir/TICCL-chain -v $outdir/chaintest.ranked
 
 if [ $? -ne 0 ]
 then
