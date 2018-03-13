@@ -54,15 +54,14 @@ typedef signed long int bitType;
 const int RANK_COUNT=13;
 
 int verbose = 0;
+bool caseless = false;
 
 void usage( const string& name ){
   cerr << "usage: " << name << endl;
   exit( EXIT_FAILURE );
 }
 
-unsigned int ld( const string& in1, const string& in2 ){
-  UnicodeString s1 = TiCC::UnicodeFromUTF8(in1);
-  UnicodeString s2 = TiCC::UnicodeFromUTF8(in2);
+unsigned int ldCompare( const UnicodeString& s1, const UnicodeString& s2 ){
   const size_t len1 = s1.length(), len2 = s2.length();
   vector<unsigned int> col(len2+1), prevCol(len2+1);
   for ( unsigned int i = 0; i < prevCol.size(); ++i ){
@@ -79,13 +78,24 @@ unsigned int ld( const string& in1, const string& in2 ){
   return result;
 }
 
+unsigned int ld( const string& in1, const string& in2, bool caseless ){
+  UnicodeString s1 = TiCC::UnicodeFromUTF8(in1);
+  UnicodeString s2 = TiCC::UnicodeFromUTF8(in2);
+  if ( caseless ){
+    s1.toLower();
+    s2.toLower();
+  }
+  return ldCompare( s1, s2 );
+}
+
 void calc_chain( ostream& os,
 		 string root,
 		 size_t root_frq,
 		 string candidate,
 		 const map<string, set<string>>& table,
 		 const map<string, size_t>& var_freq,
-		 set<string>& done ){
+		 set<string>& done,
+		 bool caseless ){
   auto const sit = table.find(candidate);
   if ( sit == table.end() ){
     return;
@@ -115,7 +125,7 @@ void calc_chain( ostream& os,
 	}
 	// output the translation from CC to root
 	os << it << "#" << var_freq.at(it) << "#" << root << "#"
-	   << root_frq << "#" << ld( root, it ) << "#C" << endl;
+	   << root_frq << "#" << ld( root, it, caseless ) << "#C" << endl;
 	done.insert( it );
 	if ( verbose > 2 ){
 	  cerr << "   1      output: " << it << " ==> " << root << endl;
@@ -123,13 +133,13 @@ void calc_chain( ostream& os,
       }
       else {
 	// we can go deeper:
-	calc_chain( os, root, root_frq, it, table, var_freq, done );
+	calc_chain( os, root, root_frq, it, table, var_freq, done, caseless );
       }
       if ( candidate != root ){
 	if ( done.find( candidate ) == done.end() ){
 	  // Didn't we yet output a translation?
 	  os << candidate << "#" << var_freq.at(candidate) << "#" << root << "#"
-	     << root_frq << "#" << ld( root, candidate ) << "#C" << endl;
+	     << root_frq << "#" << ld( root, candidate, caseless ) << "#C" << endl;
 	  done.insert( candidate );
 	  if ( verbose > 2 ){
 	    cerr << "   2      output: " << candidate << " ==> " << root << endl;
@@ -144,6 +154,7 @@ int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:t:" );
+    opts.set_long_options( "caseless" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -167,6 +178,7 @@ int main( int argc, char **argv ){
   while( opts.extract( 'v' ) ){
     ++verbose;
   }
+  bool caseless = opts.extract( "caseless" );
   int numThreads=1;
   string outFile;
   opts.extract( 'o', outFile );
@@ -258,7 +270,7 @@ int main( int argc, char **argv ){
   }
   done.clear();
   for ( const auto& val : desc_freq ){
-    calc_chain( os, val.second, val.first, val.second, table, var_freq, done );
+    calc_chain( os, val.second, val.first, val.second, table, var_freq, done, caseless );
   }
 
   cout << "results in " << outFile << endl;
