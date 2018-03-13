@@ -85,7 +85,8 @@ public:
   bool fill( const string& );
   void debug_info( const string& );
   void output( const string& );
-  void calc_chain( ostream&, const string&, size_t, const string& );
+  void calc_chain( ostream&, const string&, size_t,
+		   const string&, set<string>& ) const;
 private:
   multimap< size_t, string, std::greater<size_t> > desc_freq;
   map<string, set<string>> table;
@@ -138,19 +139,20 @@ void chain_class::debug_info( const string& name ){
 
 void chain_class::output( const string& out_file ){
   ofstream os( out_file );
-  done.clear();
-#pragma omp parallel for
+  set<string> done;
+#pragma omp parallel for shared(done)
   for ( size_t i=0; i < desc_freq.size(); ++i ){
     auto desc_it = desc_freq.begin();
     advance( desc_it, i );
-    calc_chain( os, desc_it->second, desc_it->first, desc_it->second );
+    calc_chain( os, desc_it->second, desc_it->first, desc_it->second, done );
   }
 }
 
 void chain_class::calc_chain( ostream& os,
 			      const string& root,
 			      size_t root_frq,
-			      const string& candidate ){
+			      const string& candidate,
+			      set<string>& done ) const {
   auto const sit = table.find(candidate);
   if ( sit == table.end() ){
     return;
@@ -196,7 +198,7 @@ void chain_class::calc_chain( ostream& os,
       }
       else {
 	// we can go deeper:
-	calc_chain( os, root, root_frq, it );
+	calc_chain( os, root, root_frq, it, done );
       }
       if ( candidate != root ){
 #pragma omp critical (output)
