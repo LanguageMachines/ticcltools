@@ -51,13 +51,6 @@
 using namespace std;
 typedef signed long int bitType;
 
-const int RANK_COUNT=13;
-
-void usage( const string& name ){
-  cerr << "usage: " << name << endl;
-  exit( EXIT_FAILURE );
-}
-
 unsigned int ldCompare( const UnicodeString& s1, const UnicodeString& s2 ){
   const size_t len1 = s1.length(), len2 = s2.length();
   vector<unsigned int> col(len2+1), prevCol(len2+1);
@@ -146,8 +139,11 @@ void chain_class::debug_info( const string& name ){
 void chain_class::output( const string& out_file ){
   ofstream os( out_file );
   done.clear();
-  for ( auto it = desc_freq.begin(); it != desc_freq.end(); ++it ){
-    calc_chain( os, it->second, it->first, it->second );
+#pragma omp parallel for
+  for ( size_t i=0; i < desc_freq.size(); ++i ){
+    auto desc_it = desc_freq.begin();
+    advance( desc_it, i );
+    calc_chain( os, desc_it->second, desc_it->first, desc_it->second );
   }
 }
 
@@ -170,11 +166,16 @@ void chain_class::calc_chain( ostream& os,
       if ( verbosity > 2 ){
 	cerr << "loop: " << it << endl;
       }
-      auto const dit = table.find(it);
+      auto const table_it = table.find(it);
       // do they have CC themselves?
-      if ( dit == table.end() ){
+      if ( table_it == table.end() ){
 	// NO
-	if ( done.find( it ) != done.end() ){
+	set<string>::const_iterator dit;
+#pragma omp critical (output)
+	{
+	  dit = done.find( it );
+	}
+	if ( dit != done.end() ){
 	  // Did we already output a translation?
 	  // then skip this, because the other was more salient
 	  if ( verbosity > 2 ){
@@ -182,10 +183,13 @@ void chain_class::calc_chain( ostream& os,
 	  }
 	  continue;
 	}
-	// output the translation from CC to root
-	os << it << "#" << var_freq.at(it) << "#" << root << "#"
-	   << root_frq << "#" << ld( root, it, caseless ) << "#C" << endl;
-	done.insert( it );
+#pragma omp critical (output)
+	{
+	  // output the translation from CC to root
+	  os << it << "#" << var_freq.at(it) << "#" << root << "#"
+	     << root_frq << "#" << ld( root, it, caseless ) << "#C" << endl;
+	  done.insert( it );
+	}
 	if ( verbosity > 2 ){
 	  cerr << "   1      output: " << it << " ==> " << root << endl;
 	}
@@ -195,13 +199,17 @@ void chain_class::calc_chain( ostream& os,
 	calc_chain( os, root, root_frq, it );
       }
       if ( candidate != root ){
-	if ( done.find( candidate ) == done.end() ){
-	  // Didn't we yet output a translation?
-	  os << candidate << "#" << var_freq.at(candidate) << "#" << root << "#"
-	     << root_frq << "#" << ld( root, candidate, caseless ) << "#C" << endl;
-	  done.insert( candidate );
-	  if ( verbosity > 2 ){
-	    cerr << "   2      output: " << candidate << " ==> " << root << endl;
+#pragma omp critical (output)
+	{
+	  auto const dit = done.find( candidate );
+	  if ( dit == done.end() ){
+	    // Didn't we yet output a translation?
+	    os << candidate << "#" << var_freq.at(candidate) << "#" << root << "#"
+	       << root_frq << "#" << ld( root, candidate, caseless ) << "#C" << endl;
+	    done.insert( candidate );
+	    if ( verbosity > 2 ){
+	      cerr << "   2      output: " << candidate << " ==> " << root << endl;
+	    }
 	  }
 	}
       }
@@ -209,11 +217,24 @@ void chain_class::calc_chain( ostream& os,
   }
 }
 
+void usage( const string& name ){
+  cerr << "usage: " << name << endl;
+  cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
+  cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
+  cerr << "\t\t\t reasonable value. (which can be set with OMP_NUM_TREADS environment variable.)" << endl;
+  cerr << "\t--caseless Calculate the Levensthein (or edit) distance ignoring case." << endl;
+  cerr << "\t-o <outputfile> name of the outputfile." << endl;
+  cerr << "\t-h or --help this message." << endl;
+  cerr << "\t-v be verbose, repeat to be more verbose. " << endl;
+  cerr << "\t-V or --version show version. " << endl;
+  exit( EXIT_FAILURE );
+}
+
 int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:t:" );
-    opts.set_long_options( "caseless" );
+    opts.set_long_options( "caseless,threads:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -242,13 +263,31 @@ int main( int argc, char **argv ){
   int numThreads=1;
   string out_file;
   opts.extract( 'o', out_file );
-  string value;
-  if ( opts.extract( 't', value ) ){
+  string value = "1";
+  if ( !opts.extract( 't', value ) ){
+    opts.extract( "threads", value );
+  }
+#ifdef HAVE_OPENMP
+  if ( TiCC::lowercase(value) == "max" ){
+    numThreads = omp_get_max_threads();
+    omp_set_num_threads( numThreads );
+    cout << "runing on " << numThreads << " threads." << endl;
+  }
+  else {
     if ( !TiCC::stringTo(value,numThreads) ) {
       cerr << "illegal value for -t (" << value << ")" << endl;
       exit( EXIT_FAILURE );
     }
+    omp_set_num_threads( numThreads );
+    cout << "runing on " << numThreads << " threads." << endl;
   }
+#else
+  if ( value != "1" ){
+    cerr << "unable to set number of threads!.\nNo OpenMP support available!"
+	 <<endl;
+    exit(EXIT_FAILURE);
+  }
+#endif
   if ( !opts.empty() ){
     cerr << "unsupported options : " << opts.toString() << endl;
     usage(progname);
