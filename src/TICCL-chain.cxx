@@ -53,9 +53,6 @@ typedef signed long int bitType;
 
 const int RANK_COUNT=13;
 
-int verbose = 0;
-bool caseless = false;
-
 void usage( const string& name ){
   cerr << "usage: " << name << endl;
   exit( EXIT_FAILURE );
@@ -88,27 +85,89 @@ unsigned int ld( const string& in1, const string& in2, bool caseless ){
   return ldCompare( s1, s2 );
 }
 
-void calc_chain( ostream& os,
-		 string root,
-		 size_t root_frq,
-		 string candidate,
-		 const map<string, set<string>>& table,
-		 const map<string, size_t>& var_freq,
-		 set<string>& done,
-		 bool caseless ){
+class chain_class {
+public:
+  chain_class(): chain_class( 0,false ){};
+  chain_class( int v, bool c ): verbosity(v), caseless(c){};
+  bool fill( const string& );
+  void debug_info( const string& );
+  void output( const string& );
+  void calc_chain( ostream&, const string&, size_t, const string& );
+private:
+  multimap< size_t, string, std::greater<size_t> > desc_freq;
+  map<string, set<string>> table;
+  map< string, size_t > var_freq;
+  set<string> best_trans;
+  set<string> done;
+  int verbosity;
+  bool caseless;
+
+};
+
+bool chain_class::fill( const string& line ){
+  vector<string> parts = TiCC::split_at( line, "#" );
+  if ( parts.size() != 6 ){
+    return false;
+  }
+  else {
+    string variant1 = parts[0]; // a possibly correctable word
+    size_t freq1 = TiCC::stringTo<size_t>(parts[1]);
+    var_freq[variant1] = freq1;
+    string variant2 = parts[2]; // a Correction Candidate
+    size_t freq2 = TiCC::stringTo<size_t>(parts[3]);
+    if ( done.find( variant2 ) == done.end() ){
+      // save CC's frequency only once
+      desc_freq.insert( make_pair(freq2,variant2) );
+      done.insert( variant2 );
+    }
+    // is this word already stored?
+    if ( best_trans.find( variant1 ) == best_trans.end() ){
+      // NO, so add is to the list of the CC
+      table[variant2].insert( variant1 );
+      best_trans.insert( variant1 );
+    }
+    return true;
+  }
+}
+
+void chain_class::debug_info( const string& name ){
+  string out_file = name + ".debug";
+  ofstream db( out_file );
+  using TiCC::operator<<;
+  for ( const auto& val : desc_freq ){
+    if ( table.find( val.second ) != table.end() ){
+      db << val.first << " " << val.second
+	 << " " << table[val.second] << endl;
+    }
+  }
+  cout << "debug info stored in " << out_file << endl;
+}
+
+void chain_class::output( const string& out_file ){
+  ofstream os( out_file );
+  done.clear();
+  for ( auto it = desc_freq.begin(); it != desc_freq.end(); ++it ){
+    calc_chain( os, it->second, it->first, it->second );
+  }
+}
+
+void chain_class::calc_chain( ostream& os,
+			      const string& root,
+			      size_t root_frq,
+			      const string& candidate ){
   auto const sit = table.find(candidate);
   if ( sit == table.end() ){
     return;
   }
   else {
     set<string> my_set = sit->second;
-    if ( verbose > 1 ){
+    if ( verbosity > 1 ){
       using TiCC::operator<<;
       cerr << "doorzoek met:" << candidate << " " << my_set << endl;
     }
     // loop over the CC's related to the candidate
     for ( const auto& it : my_set) {
-      if ( verbose > 2 ){
+      if ( verbosity > 2 ){
 	cerr << "loop: " << it << endl;
       }
       auto const dit = table.find(it);
@@ -118,7 +177,7 @@ void calc_chain( ostream& os,
 	if ( done.find( it ) != done.end() ){
 	  // Did we already output a translation?
 	  // then skip this, because the other was more salient
-	  if ( verbose > 2 ){
+	  if ( verbosity > 2 ){
 	    cerr << "skip " << it << " already done" << endl;
 	  }
 	  continue;
@@ -127,13 +186,13 @@ void calc_chain( ostream& os,
 	os << it << "#" << var_freq.at(it) << "#" << root << "#"
 	   << root_frq << "#" << ld( root, it, caseless ) << "#C" << endl;
 	done.insert( it );
-	if ( verbose > 2 ){
+	if ( verbosity > 2 ){
 	  cerr << "   1      output: " << it << " ==> " << root << endl;
 	}
       }
       else {
 	// we can go deeper:
-	calc_chain( os, root, root_frq, it, table, var_freq, done, caseless );
+	calc_chain( os, root, root_frq, it );
       }
       if ( candidate != root ){
 	if ( done.find( candidate ) == done.end() ){
@@ -141,7 +200,7 @@ void calc_chain( ostream& os,
 	  os << candidate << "#" << var_freq.at(candidate) << "#" << root << "#"
 	     << root_frq << "#" << ld( root, candidate, caseless ) << "#C" << endl;
 	  done.insert( candidate );
-	  if ( verbose > 2 ){
+	  if ( verbosity > 2 ){
 	    cerr << "   2      output: " << candidate << " ==> " << root << endl;
 	  }
 	}
@@ -175,13 +234,14 @@ int main( int argc, char **argv ){
     cerr << PACKAGE_STRING << endl;
     exit(EXIT_SUCCESS);
   }
+  int verbosity = 0;
   while( opts.extract( 'v' ) ){
-    ++verbose;
+    ++verbosity;
   }
   bool caseless = opts.extract( "caseless" );
   int numThreads=1;
-  string outFile;
-  opts.extract( 'o', outFile );
+  string out_file;
+  opts.extract( 'o', out_file );
   string value;
   if ( opts.extract( 't', value ) ){
     if ( !TiCC::stringTo(value,numThreads) ) {
@@ -203,75 +263,37 @@ int main( int argc, char **argv ){
     cerr << "only one inputfile may be provided." << endl;
     exit(EXIT_FAILURE);
   }
-  string inFile = fileNames[0];
-  if ( !TiCC::match_back( inFile, ".ranked" ) ){
+  string in_file = fileNames[0];
+  if ( !TiCC::match_back( in_file, ".ranked" ) ){
     cerr << "inputfile must have extension .ranked" << endl;
     exit(EXIT_FAILURE);
   }
-  if ( !outFile.empty() ){
-    if ( !TiCC::match_back( outFile, ".chained" ) )
-      outFile += ".chained";
+  if ( !out_file.empty() ){
+    if ( !TiCC::match_back( out_file, ".chained" ) )
+      out_file += ".chained";
   }
   else {
-    outFile = inFile + ".chained";
+    out_file = in_file + ".chained";
   }
-  if ( outFile == inFile ){
+  if ( out_file == in_file ){
     cerr << "same filename for input and output!" << endl;
     exit(EXIT_FAILURE);
   }
 
-  ifstream input( inFile );
+  ifstream input( in_file );
   if ( !input ){
-    cerr << "problem opening input file: " << inFile << endl;
+    cerr << "problem opening input file: " << in_file << endl;
     exit(1);
   }
 
-  std::multimap< size_t, std::string, std::greater<size_t> > desc_freq;
-  std::map< std::string, size_t > var_freq;
-  set<string> done;
-  set<string> best_trans;
-  map<string, set<string> > table;
-  ofstream os( outFile );
+  chain_class chains( verbosity, caseless );
   string line;
   while( getline( input, line ) ){
-    vector<string> parts = TiCC::split_at( line, "#" );
-    if ( parts.size() != 6 ){
+    if ( !chains.fill( line ) ){
       cerr << "invalid line: '" << line << "'" << endl;
     }
-    else {
-      string variant1 = parts[0]; // a possibly correctable word
-      size_t freq1 = TiCC::stringTo<size_t>(parts[1]);
-      var_freq[variant1] = freq1;
-      string variant2 = parts[2]; // a Correction Candidate
-      size_t freq2 = TiCC::stringTo<size_t>(parts[3]);
-      if ( done.find( variant2 ) == done.end() ){
-	// save CC's frequency only once
-	desc_freq.insert( make_pair(freq2,variant2) );
-	done.insert( variant2 );
-      }
-      // is this word already stored?
-      if ( best_trans.find( variant1 ) == best_trans.end() ){
-	// NO, so add is to the list of the CC
-	table[variant2].insert( variant1 );
-	best_trans.insert( variant1 );
-      }
-    }
   }
-  ofstream db( outFile + ".debug" );
-  if ( verbose ){
-    using TiCC::operator<<;
-    for ( const auto& val : desc_freq ){
-      if ( table.find( val.second ) != table.end() ){
-	db << val.first << " " << val.second
-	   << " " << table[val.second] << endl;
-      }
-    }
-    cout << "debug results in " << outFile + ".debug" << endl;
-  }
-  done.clear();
-  for ( const auto& val : desc_freq ){
-    calc_chain( os, val.second, val.first, val.second, table, var_freq, done, caseless );
-  }
-
-  cout << "results in " << outFile << endl;
+  chains.debug_info( out_file );
+  chains.output( out_file );
+  cout << "results in " << out_file << endl;
 }
