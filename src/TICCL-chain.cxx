@@ -140,7 +140,7 @@ void chain_class::debug_info( const string& name ){
 void chain_class::output( const string& out_file ){
   ofstream os( out_file );
   set<string> done;
-#pragma omp parallel for shared(done)
+  //#pragma omp parallel for shared(done)
   for ( size_t i=0; i < desc_freq.size(); ++i ){
     auto desc_it = desc_freq.begin();
     advance( desc_it, i );
@@ -173,27 +173,18 @@ void chain_class::calc_chain( ostream& os,
       if ( table_it == table.end() ){
 	// NO
 	set<string>::const_iterator dit;
-#pragma omp critical (output)
+	//#pragma omp critical (output)
 	{
-	  dit = done.find( it );
-	}
-	if ( dit != done.end() ){
-	  // Did we already output a translation?
-	  // then skip this, because the other was more salient
-	  if ( verbosity > 2 ){
-	    cerr << "skip " << it << " already done" << endl;
+	  if ( done.find( it ) == done.end() ){
+	    // Did we already output a translation?
+	    done.insert( it );
+	    // output the translation from CC to root
+	    os << it << "#" << var_freq.at(it) << "#" << root << "#"
+	       << root_frq << "#" << ld( root, it, caseless ) << "#C" << endl;
+	    if ( verbosity > 2 ){
+	      cerr << "   1      output: " << it << " ==> " << root << endl;
+	    }
 	  }
-	  continue;
-	}
-#pragma omp critical (output)
-	{
-	  // output the translation from CC to root
-	  os << it << "#" << var_freq.at(it) << "#" << root << "#"
-	     << root_frq << "#" << ld( root, it, caseless ) << "#C" << endl;
-	  done.insert( it );
-	}
-	if ( verbosity > 2 ){
-	  cerr << "   1      output: " << it << " ==> " << root << endl;
 	}
       }
       else {
@@ -201,14 +192,13 @@ void chain_class::calc_chain( ostream& os,
 	calc_chain( os, root, root_frq, it, done );
       }
       if ( candidate != root ){
-#pragma omp critical (output)
+	//#pragma omp critical (output)
 	{
-	  auto const dit = done.find( candidate );
-	  if ( dit == done.end() ){
+	  if ( done.find( candidate ) == done.end() ){
 	    // Didn't we yet output a translation?
+	    done.insert( candidate );
 	    os << candidate << "#" << var_freq.at(candidate) << "#" << root << "#"
 	       << root_frq << "#" << ld( root, candidate, caseless ) << "#C" << endl;
-	    done.insert( candidate );
 	    if ( verbosity > 2 ){
 	      cerr << "   2      output: " << candidate << " ==> " << root << endl;
 	    }
