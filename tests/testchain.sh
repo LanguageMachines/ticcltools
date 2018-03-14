@@ -21,7 +21,7 @@ echo start TICLL-stuff
 sort -t'#' -s -k4 -gr $refdir/rank.sorted > $outdir/chaintest.ranked
 echo "start TICLL-chain"
 
-$bindir/TICCL-chain -v $outdir/chaintest.ranked
+$bindir/TICCL-chain -v -v -v -v -t1 $outdir/chaintest.ranked
 
 if [ $? -ne 0 ]
 then
@@ -30,6 +30,14 @@ then
 fi
 
 echo "checking chain results...."
+diff $outdir/chaintest.ranked.chained.debug $refdir/rank.chained.debug >& /dev/null
+if [ $? -ne 0 ]
+then
+    echo "differences in TICLL-rank results"
+    echo "using diff $outdir/chaintest.ranked.chained.debug $refdir/rank.chained.debug"
+    exit
+fi
+
 
 sort $outdir/chaintest.ranked.chained > /tmp/chaintest.ranked.chained
 diff /tmp/chaintest.ranked.chained $refdir/rank.chained >& /dev/null
@@ -38,16 +46,6 @@ then
     echo "differences in TICLL-rank results"
     echo "using diff /tmp/chaintest.ranked.chained $refdir/rank.chained"
     exit
-fi
-
-diff $outdir/chaintest.ranked.chained.debug $refdir/rank.chained.debug >& /dev/null
-if [ $? -ne 0 ]
-then
-    echo "differences in TICLL-rank results"
-    echo "using diff $outdir/chaintest.ranked.chained.debug $refdir/rank.chained.debug"
-    exit
-else
-    echo OK!
 fi
 
 echo "and now caseless"

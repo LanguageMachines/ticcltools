@@ -86,7 +86,7 @@ public:
   void debug_info( const string& );
   void output( const string& );
   void calc_chain( ostream&, const string&, size_t,
-		   const string&, set<string>& ) const;
+		   const set<string>&, set<string>& ) const;
 private:
   multimap< size_t, string, std::greater<size_t> > desc_freq;
   map<string, set<string>> table;
@@ -109,6 +109,7 @@ bool chain_class::fill( const string& line ){
     var_freq[variant1] = freq1;
     string variant2 = parts[2]; // a Correction Candidate
     size_t freq2 = TiCC::stringTo<size_t>(parts[3]);
+    var_freq[variant2] = freq2;
     if ( done.find( variant2 ) == done.end() ){
       // save CC's frequency only once
       desc_freq.insert( make_pair(freq2,variant2) );
@@ -140,21 +141,60 @@ void chain_class::debug_info( const string& name ){
 void chain_class::output( const string& out_file ){
   ofstream os( out_file );
   set<string> done;
-  //#pragma omp parallel for shared(done)
+#pragma omp parallel for shared(done)
   for ( size_t i=0; i < desc_freq.size(); ++i ){
     auto desc_it = desc_freq.begin();
     advance( desc_it, i );
-    calc_chain( os, desc_it->second, desc_it->first, desc_it->second, done );
+    auto const it = table.find( desc_it->second );
+    if ( it != table.end() ) {
+      calc_chain( os, desc_it->second, desc_it->first, it->second, done );
+    }
   }
 }
 
 void chain_class::calc_chain( ostream& os,
 			      const string& root,
 			      size_t root_frq,
-			      const string& candidate,
+			      const set<string>& candidates,
 			      set<string>& done ) const {
-  if ( candidate != root ){
-    //#pragma omp critical (output)
+  if ( verbosity > 2 ){
+#pragma omp critical
+    {
+      using TiCC::operator<<;
+      cerr << "doorzoek " << candidates << endl;
+    }
+  }
+  for ( const auto& candidate: candidates ){
+    if ( verbosity > 2 ){
+#pragma omp critical
+      {
+	cerr << "kandidaat :" << candidate << endl;
+      }
+    }
+    map<string, set<string>>::const_iterator table_it;
+#pragma omp critical
+    {
+      table_it = table.find(candidate);
+    }
+    // do they have CC themselves?
+    if ( table_it != table.end() ){
+      if ( verbosity > 2 ){
+#pragma omp critical
+	{
+	  cerr << " recurse for: " << candidate << endl;
+	}
+      }
+      calc_chain( os, root, root_frq, table_it->second, done );
+    }
+    else {
+      if ( verbosity > 2 ){
+#pragma omp critical
+	{
+	  cerr << " no more entries for: " << candidate << endl;
+	}
+      }
+    }
+#pragma omp critical
     {
       if ( done.find( candidate ) == done.end() ){
 	// Didn't we yet output a translation?
@@ -162,52 +202,8 @@ void chain_class::calc_chain( ostream& os,
 	os << candidate << "#" << var_freq.at(candidate) << "#" << root << "#"
 	   << root_frq << "#" << ld( root, candidate, caseless ) << "#C" << endl;
 	if ( verbosity > 2 ){
-	  cerr << "   2      output: " << candidate << " ==> " << root << endl;
+	  cerr << "      output: " << candidate << " ==> " << root << endl;
 	}
-      }
-    }
-  }
-  auto const sit = table.find(candidate);
-  if ( sit == table.end() ){
-    return;
-  }
-  else {
-    set<string> my_set = sit->second;
-    if ( verbosity > 1 ){
-      using TiCC::operator<<;
-      cerr << "doorzoek met:" << candidate << " " << my_set << endl;
-    }
-    // loop over the CC's related to the candidate
-    for ( const auto& it : my_set) {
-      if ( verbosity > 2 ){
-	cerr << "loop: " << it << endl;
-      }
-      auto const table_it = table.find(it);
-      // do they have CC themselves?
-      if ( table_it == table.end() ){
-	// NO
-	//#pragma omp critical (output)
-	{
-	  if ( done.find( it ) == done.end() ){
-	    // Did we already output a translation? NO
-	    done.insert( it );
-	    // output the translation from CC to root
-	    os << it << "#" << var_freq.at(it) << "#" << root << "#"
-	       << root_frq << "#" << ld( root, it, caseless ) << "#C" << endl;
-	    if ( verbosity > 2 ){
-	      cerr << "   1      output: " << it << " ==> " << root << endl;
-	    }
-	  }
-	  else {
-	    if ( verbosity >2 ){
-	      cerr << "already done: " << it << " ==> " << root << endl;
-	    }
-	  }
-	}
-      }
-      else {
-	// we can go deeper:
-	calc_chain( os, root, root_frq, it, done );
       }
     }
   }
@@ -263,10 +259,10 @@ int main( int argc, char **argv ){
   if ( !opts.extract( 't', value ) ){
     opts.extract( "threads", value );
   }
-  if ( value != "1" ){
-    cerr << "-t or --threads options not supported!" << endl;
-    exit( EXIT_FAILURE );
-  }
+  // if ( value != "1" ){
+  //   cerr << "-t or --threads options not supported!" << endl;
+  //   exit( EXIT_FAILURE );
+  // }
 #ifdef HAVE_OPENMP
   if ( TiCC::lowercase(value) == "max" ){
     numThreads = omp_get_max_threads();
@@ -332,7 +328,9 @@ int main( int argc, char **argv ){
       cerr << "invalid line: '" << line << "'" << endl;
     }
   }
+  omp_set_num_threads( 1 );
   chains.debug_info( out_file );
+  omp_set_num_threads( numThreads );
   chains.output( out_file );
   cout << "results in " << out_file << endl;
 }
