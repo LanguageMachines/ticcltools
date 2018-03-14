@@ -328,9 +328,13 @@ int main( int argc, char **argv ){
       cerr << "invalid line: '" << line << "'" << endl;
     }
   }
+#ifdef HAVE_OPENMP
   omp_set_num_threads( 1 );
+#endif
   chains.debug_info( out_file );
+#ifdef HAVE_OPENMP
   omp_set_num_threads( numThreads );
+#endif
   chains.output( out_file );
   cout << "results in " << out_file << endl;
 }
