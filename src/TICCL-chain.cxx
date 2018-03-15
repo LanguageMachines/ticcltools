@@ -85,14 +85,10 @@ public:
   bool fill( const string& );
   void debug_info( const string& );
   void output( const string& );
-  void calc_chain( ostream&, const string&, size_t,
-		   const set<string>&, set<string>& ) const;
 private:
-  multimap< size_t, string, std::greater<size_t> > desc_freq;
+  map<string,string> heads;
   map<string, set<string>> table;
   map< string, size_t > var_freq;
-  set<string> best_trans;
-  set<string> done;
   int verbosity;
   bool caseless;
 
@@ -104,22 +100,73 @@ bool chain_class::fill( const string& line ){
     return false;
   }
   else {
-    string variant1 = parts[0]; // a possibly correctable word
+    string a_word = parts[0]; // a possibly correctable word
     size_t freq1 = TiCC::stringTo<size_t>(parts[1]);
-    var_freq[variant1] = freq1;
-    string variant2 = parts[2]; // a Correction Candidate
+    var_freq[a_word] = freq1;
+    string candidate = parts[2]; // a Correction Candidate
     size_t freq2 = TiCC::stringTo<size_t>(parts[3]);
-    var_freq[variant2] = freq2;
-    if ( done.find( variant2 ) == done.end() ){
-      // save CC's frequency only once
-      desc_freq.insert( make_pair(freq2,variant2) );
-      done.insert( variant2 );
+    var_freq[candidate] = freq2;
+    if ( verbosity > 3 ){
+      cerr << "word=" << a_word << " CC=" << candidate << endl;
     }
-    // is this word already stored?
-    if ( best_trans.find( variant1 ) == best_trans.end() ){
-      // NO, so add is to the list of the CC
-      table[variant2].insert( variant1 );
-      best_trans.insert( variant1 );
+    auto const hit1 = heads.find( a_word );
+    if ( hit1 == heads.end() ){
+      // this variant is not a 'head' itself
+      if ( verbosity > 3 ){
+	cerr << "word: " << a_word << " NOT in heads " << endl;
+      }
+      auto const hit2 = heads.find( candidate );
+      if ( hit2 == heads.end() ){
+	// the correction candidate is also not a head
+	// we add it as a new head for word, with a table
+	if ( verbosity > 3 ){
+	  cerr << "candidate : " << candidate << " not in heads too." << endl;
+	}
+	if ( verbosity > 3 ){
+	  cerr << "add (" << a_word << "," << candidate << ") to heads " << endl;
+	  cerr << "add " << a_word << " to table of " << candidate << endl;
+	}
+	heads[a_word] = candidate;
+	table[candidate].insert( a_word );
+      }
+      else {
+	string head = hit2->second;
+	// the candidate knows its head already
+	// add the word to the table of the head, but also register
+	// the word having the word as an (intermediate) head
+	if ( verbosity > 3 ){
+	  cerr << "BUT: Candidate " << candidate << " has head: "
+	       << head << endl;
+	  cerr << "add " << a_word << " to table[" << head << "]" << endl;
+								     cerr << "AND add " << head << " as a head of " << a_word << endl;
+	}
+	table[hit2->second].insert( a_word );
+	heads[a_word] = hit2->second;
+      }
+    }
+    else {
+      // the word has a head
+      string head = hit1->second;
+      if ( verbosity > 3 ){
+	cerr << "word: " << a_word << " IN heads " << head << endl;
+      }
+      auto const tit = table.find( head );
+      if ( tit != table.end() ){
+	if ( verbosity > 3 ){
+	  cerr << "and has already a table[" << head << "]" << endl;
+	}
+	if ( tit->second.find( a_word ) == tit->second.end() ){
+	  if ( verbosity > 3 ){
+	    cerr << "add " << a_word << " to table of " << head << endl;
+	  }
+	  table[head].insert( a_word );
+	}
+      }
+      else {
+	string msg = "Error: " + a_word
+	  + " has a heads entry, but no table entry!";
+	throw logic_error( msg );
+      }
     }
     return true;
   }
@@ -129,81 +176,25 @@ void chain_class::debug_info( const string& name ){
   string out_file = name + ".debug";
   ofstream db( out_file );
   using TiCC::operator<<;
-  for ( const auto& val : desc_freq ){
-    if ( table.find( val.second ) != table.end() ){
-      db << val.first << " " << val.second
-	 << " " << table[val.second] << endl;
-    }
+  for ( const auto& it : table ){
+    db << var_freq[it.first] << " " << it.first
+       << " " << it.second << endl;
   }
   cout << "debug info stored in " << out_file << endl;
 }
 
 void chain_class::output( const string& out_file ){
   ofstream os( out_file );
-  set<string> done;
-#pragma omp parallel for shared(done)
-  for ( size_t i=0; i < desc_freq.size(); ++i ){
-    auto desc_it = desc_freq.begin();
-    advance( desc_it, i );
-    auto const it = table.find( desc_it->second );
-    if ( it != table.end() ) {
-      calc_chain( os, desc_it->second, desc_it->first, it->second, done );
-    }
-  }
-}
-
-void chain_class::calc_chain( ostream& os,
-			      const string& root,
-			      size_t root_frq,
-			      const set<string>& candidates,
-			      set<string>& done ) const {
-  if ( verbosity > 2 ){
-#pragma omp critical
-    {
-      using TiCC::operator<<;
-      cerr << "doorzoek " << candidates << endl;
-    }
-  }
-  for ( const auto& candidate: candidates ){
-    if ( verbosity > 2 ){
+#pragma omp parallel for
+  for ( size_t i=0; i < table.size(); ++i ){
+    auto t_it = table.begin();
+    advance( t_it, i );
+    for ( const auto& s : t_it->second ){
 #pragma omp critical
       {
-	cerr << "kandidaat :" << candidate << endl;
-      }
-    }
-    map<string, set<string>>::const_iterator table_it;
-#pragma omp critical
-    {
-      table_it = table.find(candidate);
-    }
-    // do they have CC themselves?
-    if ( table_it != table.end() ){
-      if ( verbosity > 2 ){
-#pragma omp critical
-	{
-	  cerr << " recurse for: " << candidate << endl;
-	}
-      }
-      calc_chain( os, root, root_frq, table_it->second, done );
-    }
-    else {
-      if ( verbosity > 2 ){
-#pragma omp critical
-	{
-	  cerr << " no more entries for: " << candidate << endl;
-	}
-      }
-    }
-#pragma omp critical
-    {
-      if ( done.find( candidate ) == done.end() ){
-	// Didn't we yet output a translation?
-	done.insert( candidate );
-	os << candidate << "#" << var_freq.at(candidate) << "#" << root << "#"
-	   << root_frq << "#" << ld( root, candidate, caseless ) << "#C" << endl;
-	if ( verbosity > 2 ){
-	  cerr << "      output: " << candidate << " ==> " << root << endl;
-	}
+	os << s << "#" << var_freq[s] << "#" << t_it->first
+	   << "#" << var_freq[t_it->first]
+	   << "#" << ld( t_it->first, s, caseless ) << "#C" << endl;
       }
     }
   }
