@@ -109,16 +109,16 @@ bool chain_class::fill( const string& line ){
     if ( verbosity > 3 ){
       cerr << "word=" << a_word << " CC=" << candidate << endl;
     }
-    auto const hit1 = heads.find( a_word );
-    if ( hit1 == heads.end() ){
-      // this variant is not a 'head' itself
+    string head = heads[a_word];
+    if ( head.empty() ){
+      // this word does not have a 'head' yet
       if ( verbosity > 3 ){
 	cerr << "word: " << a_word << " NOT in heads " << endl;
       }
-      auto const hit2 = heads.find( candidate );
-      if ( hit2 == heads.end() ){
-	// the correction candidate is also not a head
-	// we add it as a new head for word, with a table
+      string head2 = heads[candidate];
+      if ( head2.empty() ){
+	// the correction candidate also has no head
+	// we add it as a new head for a_word, with a table
 	if ( verbosity > 3 ){
 	  cerr << "candidate : " << candidate << " not in heads too." << endl;
 	}
@@ -130,31 +130,27 @@ bool chain_class::fill( const string& line ){
 	table[candidate].insert( a_word );
       }
       else {
-	string head = hit2->second;
 	// the candidate knows its head already
-	// add the word to the table of the head, but also register
-	// the word having the word as an (intermediate) head
+	// add the word to the table of that head, and also register
+	// the head as an (intermediate) head of a_word
 	if ( verbosity > 3 ){
 	  cerr << "BUT: Candidate " << candidate << " has head: "
-	       << head << endl;
-	  cerr << "add " << a_word << " to table[" << head << "]" << endl;
-								     cerr << "AND add " << head << " as a head of " << a_word << endl;
+	       << head2 << endl;
+	  cerr << "add " << a_word << " to table[" << head2 << "]" << endl;
+	  cerr << "AND add " << head2 << " as a head of " << a_word << endl;
 	}
-	table[hit2->second].insert( a_word );
-	heads[a_word] = hit2->second;
+	heads[a_word] = head2;
+	table[head2].insert( a_word );
       }
     }
     else {
       // the word has a head
-      string head = hit1->second;
       if ( verbosity > 3 ){
 	cerr << "word: " << a_word << " IN heads " << head << endl;
       }
       auto const tit = table.find( head );
       if ( tit != table.end() ){
-	if ( verbosity > 3 ){
-	  cerr << "and has already a table[" << head << "]" << endl;
-	}
+	// there MUST be some candidates registered for the head
 	if ( tit->second.find( a_word ) == tit->second.end() ){
 	  if ( verbosity > 3 ){
 	    cerr << "add " << a_word << " to table of " << head << endl;
