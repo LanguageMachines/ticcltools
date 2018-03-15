@@ -494,19 +494,13 @@ int main( int argc, char **argv ){
   string alfabetFile;
   int numThreads=1;
   int LDvalue=2;
-  bool backward = false;
   bool noKHCld = opts.extract("nohld");
   if ( !opts.extract( "index", indexFile ) ){
     cerr << progname << ": missing --index option" << endl;
     exit( EXIT_FAILURE );
   }
-  if ( TiCC::match_back( indexFile, ".index" ) ){
-    backward = false;
-  }
-  else if ( TiCC::match_back( indexFile, ".indexNT" ) ){
-    backward = false;
-  }
-  else {
+  if ( !TiCC::match_back( indexFile, ".index" )
+       && !TiCC::match_back( indexFile, ".indexNT" ) ){
     cerr << progname << ": --index files must have extension: '.index' or '.indexNT' "
 	 << endl;
     exit( EXIT_FAILURE );
@@ -818,26 +812,6 @@ int main( int argc, char **argv ){
 		       sit1->second, sit2->second,
 		       freqMap, low_freqMap, alfabet,
 		       artifreq, isKHC, noKHCld, isDIAC );
-	  if ( backward ){
-	    if ( verbose > 1 ){
-#pragma omp critical (debugout)
-	      cout << "BACKWARD bekijk key2 " << key - mainKey << endl;
-	    }
-	    map<bitType,set<string> >::const_iterator sit2 = hashMap.find(key-mainKey);
-	    if ( sit2 == hashMap.end() ){
-	      if ( verbose > 4 ){
-#pragma omp critical (debugout)
-		cerr << progname << ": WARNING: found a key '" << key
-		     << "' in the input that, when substracked from '"
-		     << mainKey << "' isn't present in the hashes." << endl;
-	      }
-	      continue;
-	    }
-	    compareSets( os, LDvalue, mainKeyS,
-			 sit1->second, sit2->second,
-			 freqMap, low_freqMap, alfabet,
-			 artifreq, isKHC, noKHCld, isDIAC );
-	  }
 	}
       }
     }
