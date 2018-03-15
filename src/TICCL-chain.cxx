@@ -198,9 +198,9 @@ void chain_class::output( const string& out_file ){
 
 void usage( const string& name ){
   cerr << "usage: " << name << endl;
-  // cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
-  // cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
-  // cerr << "\t\t\t reasonable value. (which can be set with OMP_NUM_TREADS environment variable.)" << endl;
+  cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
+  cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
+  cerr << "\t\t\t reasonable value. (which can be set with OMP_NUM_TREADS environment variable.)" << endl;
   cerr << "\t--caseless Calculate the Levensthein (or edit) distance ignoring case." << endl;
   cerr << "\t-o <outputfile> name of the outputfile." << endl;
   cerr << "\t-h or --help this message." << endl;
@@ -246,10 +246,6 @@ int main( int argc, char **argv ){
   if ( !opts.extract( 't', value ) ){
     opts.extract( "threads", value );
   }
-  // if ( value != "1" ){
-  //   cerr << "-t or --threads options not supported!" << endl;
-  //   exit( EXIT_FAILURE );
-  // }
 #ifdef HAVE_OPENMP
   if ( TiCC::lowercase(value) == "max" ){
     numThreads = omp_get_max_threads();
@@ -315,13 +311,7 @@ int main( int argc, char **argv ){
       cerr << "invalid line: '" << line << "'" << endl;
     }
   }
-#ifdef HAVE_OPENMP
-  omp_set_num_threads( 1 );
-#endif
   chains.debug_info( out_file );
-#ifdef HAVE_OPENMP
-  omp_set_num_threads( numThreads );
-#endif
   chains.output( out_file );
   cout << "results in " << out_file << endl;
 }
