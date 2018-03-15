@@ -258,9 +258,8 @@ int main( int argc, char **argv ){
   else if ( !TiCC::match_back( outFile, ".indexNT" ) ){
     outFile += ".indexNT";
   }
-
 #ifdef TRANSPOSE_TEST
-  outFile += ".";
+  outFile += ".T";
 #endif
 
   ofstream of( outFile );
