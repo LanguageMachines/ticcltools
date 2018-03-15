@@ -311,7 +311,9 @@ int main( int argc, char **argv ){
       cerr << "invalid line: '" << line << "'" << endl;
     }
   }
-  chains.debug_info( out_file );
+  if ( verbosity > 0 ){
+    chains.debug_info( out_file );
+  }
   chains.output( out_file );
   cout << "results in " << out_file << endl;
 }
