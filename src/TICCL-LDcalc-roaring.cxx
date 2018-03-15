@@ -486,10 +486,10 @@ int main( int argc, char **argv ){
     backward = false;
   }
   else if ( TiCC::match_back( indexFile, ".indexNT" ) ){
-    backward = true;
+    backward = false;
   }
   else if ( TiCC::match_back( indexFile, ".indexNT.R" ) ){
-    backward = true;
+    backward = false;
     roaring = true;
   }
   else {

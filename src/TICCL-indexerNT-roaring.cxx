@@ -76,7 +76,9 @@ struct experiment {
   set<bitType>::const_iterator finish;
 };
 
-size_t init( vector<experiment>& exps, const set<bitType>& hashes, size_t threads ){
+size_t init( vector<experiment>& exps,
+	     const set<bitType>& hashes,
+	     size_t threads ){
   exps.clear();
   size_t partsize = hashes.size() / threads;
   if ( partsize < 1 ){
@@ -105,6 +107,68 @@ bool print_val( uint64_t value, void *param ){
   ofstream *os = (ofstream *)param;
   *os << value << ",";
   return true;
+}
+
+void handle_exp( const experiment& exp,
+		 size_t& count,
+		 const set<bitType>& hashSet,
+		 const set<bitType>& confSet,
+		 map<bitType,Roaring64Map>& r_result ){
+  bitType max = *confSet.rbegin();
+  auto it1 = exp.start;
+  while ( it1 != exp.finish ){
+#pragma omp critical
+    {
+      if ( ++count % 100 == 0 ){
+	cout << ".";
+	cout.flush();
+	if ( count % 5000 == 0 ){
+	  cout << endl << count << endl;;
+	}
+      }
+    }
+    set<bitType>::const_iterator it3 = hashSet.find( *it1 );
+    if ( it3 != hashSet.end() ){
+      set<bitType>::const_reverse_iterator it2( it3 );
+      while ( it2 != hashSet.rend() ){
+	bitType diff = *it1 - *it2;
+	if ( diff > max )
+	  break;
+	set<bitType>::const_iterator sit = confSet.find( diff );
+	if ( sit != confSet.end() ){
+#pragma omp critical
+	  {
+#ifdef TRANSPOSE_TEST
+	    r_result[*it2].add( diff );
+#else
+	    r_result[diff].add( *it2 );
+#endif
+	  }
+	}
+	++it2;
+      }
+      // it3 is already set at hashSet.find( *it1 );
+      ++it3;
+      while ( it3 != hashSet.end() ){
+	bitType diff = *it3 - *it1;
+	if ( diff > max )
+	  break;
+	set<bitType>::const_iterator sit = confSet.find( diff );
+	if ( sit != confSet.end() ){
+#pragma omp critical
+	  {
+#ifdef TRANSPOSE_TEST
+	    r_result[*it1].add( diff );
+#else
+	    r_result[diff].add( *it1 );
+#endif
+	  }
+	}
+	++it3;
+      }
+    }
+    ++it1;
+  }
 }
 
 int main( int argc, char **argv ){
@@ -159,8 +223,8 @@ int main( int argc, char **argv ){
     if ( !TiCC::stringTo(value,threads) ) {
       cerr << "illegal value for -t (" << value << ")" << endl;
       exit( EXIT_FAILURE );
+      threads = min( threads, omp_get_thread_limit() );
     }
-    threads = min( threads, omp_get_thread_limit() );
 #else
     cerr << "You don't have OpenMP support. Setting -t is useless!" << endl;
     exit( EXIT_FAILURE );
@@ -184,9 +248,10 @@ int main( int argc, char **argv ){
     exit(EXIT_FAILURE);
   }
 
-  ifstream ch( anahashFile );
-  if ( !ch ){
-    cerr << "problem opening anagram hash file: " << anahashFile << endl;
+  ifstream cwav( anahashFile );
+  if ( !cwav ){
+    cerr << "problem opening corpus word anagram hash file: "
+	 << anahashFile << endl;
     exit(1);
   }
   if ( outFile.empty() ){
@@ -212,7 +277,8 @@ int main( int argc, char **argv ){
 
   ifstream conf( confFile );
   if ( !conf ){
-    cerr << "problem opening character confusion file: " << confFile << endl;
+    cerr << "problem opening character confusion anagram file: "
+	 << confFile << endl;
     exit(1);
   }
 
@@ -222,12 +288,11 @@ int main( int argc, char **argv ){
     exit(1);
   }
 
-  cout << "reading anagram hash values" << endl;
+  cout << "reading corpus word anagram hash values" << endl;
   size_t skipped = 0;
   set<bitType> hashSet;
-
   string line;
-  while ( getline( ch, line ) ){
+  while ( getline( cwav, line ) ){
     vector<string> parts;
     if ( TiCC::split_at( line, parts, "~" ) > 1 ){
       bitType bit = TiCC::stringTo<bitType>( parts[0] );
@@ -247,8 +312,8 @@ int main( int argc, char **argv ){
       }
     }
   }
-  cout << "read " << hashSet.size() << " anagram hash values" << endl;
-  cout << "skipped " << skipped << " out-of-band hash values" << endl;
+  cout << "read " << hashSet.size() << " corpus word anagram values" << endl;
+  cout << "skipped " << skipped << " out-of-band corpus word values" << endl;
 
   set<bitType> focSet;
   while ( foc ){
@@ -272,82 +337,23 @@ int main( int argc, char **argv ){
       exit(1);
     }
   }
-  cout << "read " << confSet.size() << " character confusion values" << endl;
-  bitType max = *confSet.rbegin();
-  cout <<"max value = " << max << endl;
-
-  map<bitType,Roaring64Map> r_result;
+  cout << "read " << confSet.size()
+       << " character confusion anagram values" << endl;
 
   vector<experiment> experiments;
   size_t expsize = init( experiments, focSet, threads );
-#ifdef HAVE_OPENMP
-  omp_set_num_threads( threads );
-#endif
 
   cout << "created " << expsize << " separate experiments" << endl;
 
+#ifdef HAVE_OPENMP
+  omp_set_num_threads( expsize );
+#endif
+
   size_t count = 0;
-#pragma omp parallel for shared(experiments, count)
+  map<bitType,Roaring64Map> r_result;
+#pragma omp parallel for shared(experiments, count , r_result )
   for ( size_t i=0; i < expsize; ++i ){
-    set<bitType>::const_iterator it1 = experiments[i].start;
-    while ( it1 != experiments[i].finish ){
-      set<bitType>::const_iterator it3 = hashSet.find( *it1 );
-      if ( it3 != hashSet.end() ){
-	set<bitType>::const_reverse_iterator it2( it3 );
-	++it2;
-	while ( it2 != hashSet.rend() ){
-	  bitType diff = *it1 - *it2;
-	  if ( diff > max )
-	    break;
-	  set<bitType>::const_iterator sit = confSet.find( diff );
-	  if ( sit != confSet.end() ){
-#pragma omp critical
-	    {
-#ifdef TRANSPOSE_TEST
-	      r_result[*it2].add( diff );
-#else
-	      r_result[diff].add( *it2 );
-#endif
-	      if ( ++count % 1000 == 0 ){
-		cout << ".";
-		cout.flush();
-		if ( count % 50000 == 0 ){
-		  cout << endl << count << endl;;
-		}
-	      }
-	    }
-	  }
-	  ++it2;
-	}
-	// it3 is already set at hashSet.find( *it1 );
-	++it3;
-	while ( it3 != hashSet.end() ){
-	  bitType diff = *it3 - *it1;
-	  if ( diff > max )
-	    break;
-	  set<bitType>::const_iterator sit = confSet.find( diff );
-	  if ( sit != confSet.end() ){
-#pragma omp critical
-	    {
-#ifdef TRANSPOSE_TEST
-	      r_result[*it1].add( diff );
-#else
-	      r_result[diff].add( *it1 );
-#endif
-	      if ( ++count % 1000 == 0 ){
-		cout << ".";
-		cout.flush();
-		if ( count % 50000 == 0 ){
-		  cout << endl << count << endl;;
-		}
-	      }
-	    }
-	  }
-	  ++it3;
-	}
-      }
-      ++it1;
-    }
+    handle_exp( experiments[i], count, hashSet, confSet, r_result );
   }
 
   for ( auto const& rit : r_result ){
