@@ -63,7 +63,9 @@ void usage( const string& name ){
   cerr << "\t\t'high' characters. (default=35)" << endl;
   cerr << "\t--foci=<focifile>\tname of the file produced by the --artifrq parameter of TICCL-anahash." << endl;
   cerr << "\t\tThis file is used to limit the searchspace" << endl;
-  cerr << "\t-t <threads>\t\trun on 'threads' threads." << endl;
+  cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
+  cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
+  cerr << "\t\t\t reasonable value. (which can be set with OMP_NUM_TREADS environment variable.)" << endl;
   cerr << "\t-V or --version show version " << endl;
   cerr << "\t-v verbosity " << endl;
   cerr << "\t-h or --help this message " << endl;
@@ -164,7 +166,7 @@ int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:t:" );
-    opts.set_long_options( "charconf:,hash:,low:,high:,help,version,foci:" );
+    opts.set_long_options( "charconf:,hash:,low:,high:,help,version,foci:,threads:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -192,7 +194,6 @@ int main( int argc, char **argv ){
   string outFile;
   int lowValue = 5;
   int highValue = 35;
-  int threads = 1;
   opts.extract( "hash", anahashFile );
   opts.extract( "charconf", confFile );
   opts.extract( "foci", fociFile );
@@ -210,19 +211,28 @@ int main( int argc, char **argv ){
       exit( EXIT_FAILURE );
     }
   }
-  if ( opts.extract('t', value ) ){
+  int numThreads=1;
+  value = "1";
+  if ( !opts.extract( 't', value ) ){
+    opts.extract( "threads", value );
+  }
 #ifdef HAVE_OPENMP
-    if ( !TiCC::stringTo(value,threads) ) {
+  if ( TiCC::lowercase(value) == "max" ){
+    numThreads = omp_get_max_threads();
+  }
+  else {
+    if ( !TiCC::stringTo(value,numThreads) ) {
       cerr << "illegal value for -t (" << value << ")" << endl;
       exit( EXIT_FAILURE );
     }
-    threads = min( threads, omp_get_thread_limit() );
-#else
-    cerr << "You don't have OpenMP support. Setting -t is useless!" << endl;
-    exit( EXIT_FAILURE );
-#endif
   }
-
+#else
+  if ( value != "1" ){
+    cerr << "unable to set number of threads!.\nNo OpenMP support available!"
+	 <<endl;
+    exit(EXIT_FAILURE);
+  }
+#endif
   if ( !opts.empty() ){
     cerr << "unsupported options : " << opts.toString() << endl;
     usage(progname);
@@ -325,9 +335,10 @@ int main( int argc, char **argv ){
        << " character confusion anagram values" << endl;
 
   vector<experiment> experiments;
-  size_t expsize = init( experiments, confSet, threads );
+  size_t expsize = init( experiments, confSet, numThreads );
 #ifdef HAVE_OPENMP
   omp_set_num_threads( expsize );
+  cout << "runing on " << expsize << " threads." << endl;
 #endif
 
 

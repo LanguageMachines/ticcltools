@@ -239,9 +239,9 @@ int main( int argc, char **argv ){
     ++verbosity;
   }
   bool caseless = opts.extract( "caseless" );
-  int numThreads=1;
   string out_file;
   opts.extract( 'o', out_file );
+  int numThreads=1;
   string value = "1";
   if ( !opts.extract( 't', value ) ){
     opts.extract( "threads", value );
@@ -267,6 +267,7 @@ int main( int argc, char **argv ){
     exit(EXIT_FAILURE);
   }
 #endif
+
   if ( !opts.empty() ){
     cerr << "unsupported options : " << opts.toString() << endl;
     usage(progname);

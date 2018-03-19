@@ -63,7 +63,9 @@ void usage( const string& name ){
   cerr << "\t--charconfreq 'name'\t Extract a character confusion frequency file" << endl;
   cerr << "\t--wordvec<wordvecfile> read in a google word2vec file." << endl;
   cerr << "\t-o 'outfile'\t name of the output file." << endl;
-  cerr << "\t-t 'threads'\t number of parallel threads to execute." << endl;
+  cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
+  cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
+  cerr << "\t\t\t reasonable value. (which can be set with OMP_NUM_TREADS environment variable.)" << endl;
   cerr << "\t--clip 'clip'\t limit the number of variants per word to 'clip'." << endl;
   cerr << "\t--debugfile 'debug'\t produce a more verbose outputfile in parallel." << endl;
   cerr << "\t\t\t (for debugging.)" << endl;
@@ -564,7 +566,7 @@ int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:t:" );
-    opts.set_long_options( "alph:,debugfile:,skipcols:,charconf:,charconfreq:,artifrq:,wordvec:,clip:,numvec:" );
+    opts.set_long_options( "alph:,debugfile:,skipcols:,charconf:,charconfreq:,artifrq:,wordvec:,clip:,numvec:,threads:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -592,7 +594,6 @@ int main( int argc, char **argv ){
   string wordvecFile;
   string outFile;
   string debugFile;
-  int numThreads=1;
   int clip = 0;
   string skipC;
   size_t artifreq = 0;
@@ -622,12 +623,33 @@ int main( int argc, char **argv ){
       exit( EXIT_FAILURE );
     }
   }
-  if ( opts.extract( 't', value ) ){
+  int numThreads=1;
+  value = "1";
+  if ( !opts.extract( 't', value ) ){
+    opts.extract( "threads", value );
+  }
+#ifdef HAVE_OPENMP
+  if ( TiCC::lowercase(value) == "max" ){
+    numThreads = omp_get_max_threads();
+    omp_set_num_threads( numThreads );
+    cout << "runing on " << numThreads << " threads." << endl;
+  }
+  else {
     if ( !TiCC::stringTo(value,numThreads) ) {
       cerr << "illegal value for -t (" << value << ")" << endl;
       exit( EXIT_FAILURE );
     }
+    omp_set_num_threads( numThreads );
+    cout << "runing on " << numThreads << " threads." << endl;
   }
+#else
+  if ( value != "1" ){
+    cerr << "unable to set number of threads!.\nNo OpenMP support available!"
+	 <<endl;
+    exit(EXIT_FAILURE);
+  }
+#endif
+
   size_t num_vec = 20;
   if ( opts.extract( "numvec", value ) ){
     if ( !TiCC::stringTo(value,num_vec) ) {
@@ -956,9 +978,6 @@ int main( int argc, char **argv ){
   }
   count = 0;
 
-#ifdef HAVE_OPENMP
-  omp_set_num_threads( numThreads );
-#endif
   cout << "Start the work, with " << work.size()
        << " iterations on " << numThreads << " thread(s)." << endl;
 #pragma omp parallel for schedule(dynamic,1)

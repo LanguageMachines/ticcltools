@@ -113,7 +113,9 @@ void usage( const string& name ){
   cerr << "The output will be a 2 or 4 columned tab separated file, extension: *tsv " << endl;
   cerr << "\t (4 columns when -p is specified)" << endl;
   cerr << "\t-p\t output percentages too. " << endl;
-  cerr << "\t-t\t number_of_threads" << endl;
+  cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
+  cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
+  cerr << "\t\t\t reasonable value. (which can be set with OMP_NUM_TREADS environment variable.)" << endl;
   cerr << "\t-h\t this message" << endl;
   cerr << "\t-v\t very verbose output." << endl;
   cerr << "\t-V\t show version " << endl;
@@ -123,7 +125,7 @@ void usage( const string& name ){
 }
 
 int main( int argc, char *argv[] ){
-  CL_Options opts( "hVve:t:o:Rp", "" );
+  CL_Options opts( "hVve:t:o:Rp", "threads:" );
   try {
     opts.init(argc,argv);
   }
@@ -137,9 +139,6 @@ int main( int argc, char *argv[] ){
     usage( progname );
     exit(EXIT_FAILURE);
   }
-#ifdef HAVE_OPENMP
-  int num_of_threads = 1;
-#endif
   string expression;
   string out_prefix;
   if ( opts.extract('V' ) ){
@@ -156,18 +155,33 @@ int main( int argc, char *argv[] ){
     cerr << "an output filename prefix is required. (-o option) " << endl;
     exit(EXIT_FAILURE);
   }
-  string value;
-  if ( opts.extract('t', value ) ){
-#ifdef HAVE_OPENMP
-    if ( !stringTo(value, num_of_threads ) ){
-      cerr << "illegal value for -t (" << value << ")" << endl;
-      exit(EXIT_FAILURE);
-    }
-#else
-    cerr << "OpenMP support is missing. -t option is not supported" << endl;
-    exit( EXIT_FAILURE );
-#endif
+  int numThreads=1;
+  string value = "1";
+  if ( !opts.extract( 't', value ) ){
+    opts.extract( "threads", value );
   }
+#ifdef HAVE_OPENMP
+  if ( TiCC::lowercase(value) == "max" ){
+    numThreads = omp_get_max_threads();
+    omp_set_num_threads( numThreads );
+    cout << "runing on " << numThreads << " threads." << endl;
+  }
+  else {
+    if ( !TiCC::stringTo(value,numThreads) ) {
+      cerr << "illegal value for -t (" << value << ")" << endl;
+      exit( EXIT_FAILURE );
+    }
+    omp_set_num_threads( numThreads );
+    cout << "runing on " << numThreads << " threads." << endl;
+  }
+#else
+  if ( value != "1" ){
+    cerr << "unable to set number of threads!.\nNo OpenMP support available!"
+	 <<endl;
+    exit(EXIT_FAILURE);
+  }
+#endif
+
   opts.extract('e', expression );
   bool dopercentage = opts.extract('p');
   if ( !opts.empty() ){
@@ -175,11 +189,6 @@ int main( int argc, char *argv[] ){
     usage(progname);
     exit(EXIT_FAILURE);
   }
-
-#ifdef HAVE_OPENMP
-  if ( num_of_threads != 1 )
-    omp_set_num_threads( num_of_threads );
-#endif
 
   vector<string> mass_opts = opts.getMassOpts();
   if ( mass_opts.empty() ){
