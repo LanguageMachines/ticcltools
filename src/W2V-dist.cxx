@@ -36,7 +36,7 @@ bool fill( const string& freqsFile, map<string,size_t>& freqs ){
   return true;
 }
 
-size_t lookup( const string& s, const map<string,size_t> frqs ){
+size_t lookup( const string& s, const map<string,size_t>& frqs ){
   const auto it = frqs.find( s );
   if ( it != frqs.end() )
     return it->second;
@@ -118,9 +118,8 @@ int main( int argc, char *argv[] ){
 	  break;
 	}
       }
-      double cosine = 0.0;
       try {
-	cosine = WV.distance( parts[0], parts[1] );
+	double cosine = WV.distance( parts[0], parts[1] );
 	if ( !freqs.empty() ){
 	  size_t f1 = lookup( parts[0], freqs );
 	  size_t f2 = lookup( parts[1], freqs );

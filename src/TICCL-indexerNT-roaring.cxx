@@ -103,12 +103,6 @@ size_t init( vector<experiment>& exps,
   return threads;
 }
 
-bool print_val( uint64_t value, void *param ){
-  ofstream *os = (ofstream *)param;
-  *os << value << ",";
-  return true;
-}
-
 void handle_exp( const experiment& exp,
 		 size_t& count,
 		 const set<bitType>& hashSet,
@@ -223,7 +217,6 @@ int main( int argc, char **argv ){
     if ( !TiCC::stringTo(value,threads) ) {
       cerr << "illegal value for -t (" << value << ")" << endl;
       exit( EXIT_FAILURE );
-      threads = min( threads, omp_get_thread_limit() );
     }
 #else
     cerr << "You don't have OpenMP support. Setting -t is useless!" << endl;

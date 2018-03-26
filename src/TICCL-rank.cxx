@@ -130,12 +130,20 @@ float lookup( const vector<word_dist>& vec,
 
 record::record( const string& line,
 		size_t stripM,
-		const vector<word_dist>& WV ){
+		const vector<word_dist>& WV ):
+  variant_count(-1),
+  f2len_rank(-1),
+  ld(-1),
+  pairs1(0),
+  pairs1_rank(-1),
+  pairs2(0),
+  pairs2_rank(-1),
+  pairs_combined(0),
+  pairs_combined_rank(-1),
+  rank(-10000)
+{
   vector<string> parts;
-  if ( TiCC::split_at( line, parts, "~" ) != 13 ){
-    ld = -1;
-  }
-  else {
+  if ( TiCC::split_at( line, parts, "~" ) == 13 ){
     variant1 = parts[0];
     freq1 = TiCC::stringTo<size_t>(parts[1]);
     low_freq1 = TiCC::stringTo<size_t>(parts[2]);
@@ -807,7 +815,6 @@ int main( int argc, char **argv ){
   }
 
   map<string,set<streamsize> > fileIds;
-  multimap<string,record> records;
   map<bitType,size_t> kwc_counts;
   cout << "start indexing input and determining KWC counts." << endl;
   int failures = 0;
@@ -1009,10 +1016,10 @@ int main( int argc, char **argv ){
 	// omp single isn't allowed here. trick!
 #ifdef HAVE_OPENMP
 	int numt = omp_get_thread_num();
-#else
-	int numt = 0;
-#endif
 	if ( numt == 0 && tmp % 10000 == 0 ){
+#else
+	if ( tmp % 10000 == 0 ){
+#endif
 	  cout << ".";
 	  cout.flush();
 	  if ( tmp % 500000 == 0 ){

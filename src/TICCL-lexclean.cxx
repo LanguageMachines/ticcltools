@@ -57,7 +57,6 @@ void create_wf_list( const map<string, unsigned int>& wc,
     wf[cit.second].insert( cit.first );
   }
   unsigned int sum=0;
-  unsigned int types=0;
   map<unsigned int, set<string> >::const_reverse_iterator wit = wf.rbegin();
   while ( wit != wf.rend() ){
     for ( const auto& s : wit->second ){
@@ -67,7 +66,6 @@ void create_wf_list( const map<string, unsigned int>& wc,
 	os << "\t" << sum << "\t" << std::setprecision(8) << 100 * double(sum)/total;
       }
       os << endl;
-      ++types;
     }
     ++wit;
   }

@@ -241,12 +241,12 @@ int main( int argc, char **argv ){
   bool caseless = opts.extract( "caseless" );
   string out_file;
   opts.extract( 'o', out_file );
-  int numThreads=1;
   string value = "1";
   if ( !opts.extract( 't', value ) ){
     opts.extract( "threads", value );
   }
 #ifdef HAVE_OPENMP
+  int numThreads = 1;
   if ( TiCC::lowercase(value) == "max" ){
     numThreads = omp_get_max_threads();
     omp_set_num_threads( numThreads );

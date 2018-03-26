@@ -473,7 +473,9 @@ int main( int argc, char **argv ){
   string histconfFile;
   string diaconfFile;
   string alfabetFile;
+#ifdef HAVE_OPENMP
   int numThreads=1;
+#endif
   int LDvalue=2;
   bool roaring = false;
   bool noKHCld = opts.extract("nohld");
@@ -629,7 +631,7 @@ int main( int argc, char **argv ){
       bitType val = TiCC::stringTo<bitType>(v[0]);
       histMap.insert(val);
     }
-    if ( histMap.size() == 0 ){
+    if ( histMap.empty() ){
       cerr << progname << ": the historical confusions file " << histconfFile
 	   << " doesn't seem to be in the right format." << endl
 	   << " should contain lines like: 10331739614#f~s" << endl;
@@ -656,7 +658,7 @@ int main( int argc, char **argv ){
       bitType val = TiCC::stringTo<bitType>(v[0]);
       diaMap.insert(val);
     }
-    if ( diaMap.size() == 0 ){
+    if ( diaMap.empty() ){
       cerr << progname << ": the diacritical confusions file " << histconfFile
 	   << " doesn't seem to be in the right format." << endl
 	   << " should contain lines like: 10331739614#e~é" << endl;

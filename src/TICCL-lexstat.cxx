@@ -148,8 +148,6 @@ void create_dia_file( const string& filename,
 }
 
 void meld_botsing( const multimap<bitType,string>& mm, bitType h ){
-  string clash1;
-  string clash2;
   multimap<bitType,string>::const_iterator it;
   map<set<char>,string > ref;
   for ( it = mm.lower_bound(h); it != mm.upper_bound(h); ++it ){
@@ -477,7 +475,6 @@ int main( int argc, char *argv[] ){
     diafile = output_name + ".lc.diac";
   }
 
-  map<UChar,size_t> chars;
   map<UChar,size_t> lchars;
   string line;
   while ( getline( is, line ) ){

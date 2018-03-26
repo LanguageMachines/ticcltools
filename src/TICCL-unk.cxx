@@ -92,26 +92,6 @@ bool fillAlpha( istream& is, set<UChar>& alphabet ){
   return true;
 }
 
-bool fillSimpleAlpha( istream& is, set<UChar>& alphabet ){
-  string line;
-  while ( getline( is, line ) ){
-    if ( line.size() == 0 || line[0] == '#' ){
-      continue;
-    }
-    vector<string> vec;
-    TiCC::split( line, vec );
-    line = vec[0];
-    UnicodeString us = TiCC::UnicodeFromUTF8( line );
-    us.toLower();
-    for( int i=0; i < us.length(); ++i )
-      alphabet.insert( us[i] );
-    us.toUpper();
-    for( int i=0; i < us.length(); ++i )
-      alphabet.insert( us[i] );
-  }
-  return true;
-}
-
 bool is_ticcl_punct( UChar uc ){
   switch (  uc ){
   case '^':
@@ -190,12 +170,10 @@ bool is_roman( const UnicodeString& word ){
 
 S_Class classify( const UnicodeString& word,
 		  const set<UChar>& alphabet ){
-  int is_upper = 0;
   int is_digit = 0;
   int is_punct = 0;
   int is_letter = 0;
   int is_out = 0;
-  int is_space = 0;
   int word_len = word.length();
   if ( word_len < 2 ){
     if ( verbose ){
@@ -211,68 +189,59 @@ S_Class classify( const UnicodeString& word,
   }
   for ( int i=0; i < word_len; ++i ){
     UChar uchar = word[i];
-    if ( u_isspace( uchar ) ){
-      ++is_space;
+    int8_t charT = u_charType( uchar );
+    if ( alphabet.empty() ){
+      if ( verbose ){
+	cerr << "bekijk karakter " << UnicodeString(uchar) << " van type " << toString(charT) << endl;
+      }
+      if ( ticc_isletter( charT ) ){
+	++is_letter;
+      }
+      else if ( ticc_isdigit( charT ) ){
+	++is_digit;
+      }
+      else if ( ticc_ispunct( charT ) ){
+	++is_punct;
+      }
+      else if ( ticc_isother( charT ) ){
+	++is_out;
+	// OUT
+      }
+      else {
+	cerr << "Warning: karakter " << UnicodeString(uchar) << " is van onbekend type " << toString(charT) << endl;
+	++is_out;
+      }
     }
     else {
-      int8_t charT = u_charType( uchar );
-      if ( ticc_isupper( charT ) ){
-	++is_upper;
+      if ( verbose ){
+	cerr << "bekijk karakter " << UnicodeString(uchar) << " van type " << toString(charT) << endl;
       }
-      if ( alphabet.empty() ){
+      if ( alphabet.find( uchar ) != alphabet.end() ) {
 	if ( verbose ){
-	  cerr << "bekijk karakter " << UnicodeString(uchar) << " van type " << toString(charT) << endl;
+	  cerr << "'" << UnicodeString(uchar) << "' is IN het alfabet" << endl;
 	}
-	if ( ticc_isletter( charT ) ){
-	  ++is_letter;
+	++is_letter;
+      }
+      else if ( charT == U_DECIMAL_DIGIT_NUMBER ){
+	if ( verbose ){
+	  cerr << "'" << UnicodeString(uchar) << "' is DIGIT" << endl;
 	}
-	else if ( ticc_isdigit( charT ) ){
-	  ++is_digit;
+	++is_digit;
+      }
+      else if ( uchar == '.' ){
+	if ( verbose ){
+	  cerr << "'" << UnicodeString(uchar) << "' is PUNCT" << endl;
 	}
-	else if ( ticc_ispunct( charT ) ){
-	  ++is_punct;
-	}
-	else if ( ticc_isother( charT ) ){
-	  ++is_out;
-	  // OUT
-	}
-	else {
-	  cerr << "Warning: karakter " << UnicodeString(uchar) << " is van onbekend type " << toString(charT) << endl;
-	  ++is_out;
-	}
+	++is_punct;
       }
       else {
 	if ( verbose ){
-	  cerr << "bekijk karakter " << UnicodeString(uchar) << " van type " << toString(charT) << endl;
+	  cerr << "'" << UnicodeString(uchar) << "' is OUT het alfabet" << endl;
 	}
-	if ( alphabet.find( uchar ) != alphabet.end() ) {
-	  if ( verbose ){
-	    cerr << "'" << UnicodeString(uchar) << "' is IN het alfabet" << endl;
-	  }
-	  ++is_letter;
-	}
-	else if ( charT == U_DECIMAL_DIGIT_NUMBER ){
-	  if ( verbose ){
-	    cerr << "'" << UnicodeString(uchar) << "' is DIGIT" << endl;
-	  }
-	  ++is_digit;
-	}
-	else if ( uchar == '.' ){
-	  if ( verbose ){
-	    cerr << "'" << UnicodeString(uchar) << "' is PUNCT" << endl;
-	  }
-	  ++is_punct;
-	}
-	else {
-	  if ( verbose ){
-	    cerr << "'" << UnicodeString(uchar) << "' is OUT het alfabet" << endl;
-	  }
-	  ++is_out;
-	}
+	++is_out;
       }
     }
   }
-  //  word_len -= is_space;
   if ( verbose ){
     cerr << "Classify: " << word << " IN=" << is_letter << " OUT= " << is_out << " DIG=" << is_digit << " PUNCT=" << is_punct << endl;
   }

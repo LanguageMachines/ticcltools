@@ -12,21 +12,23 @@ bool wordvec_tester::fill( const string& name ){
     cerr << "unable to open " << name << endl;
     return false;
   }
-  size_t words = 0;
-  size_t size = 0;
+  unsigned long words = 0;
+  unsigned long size = 0;
   if ( fscanf(f, "%lud", &words) != 1 ){
     cerr << "reading #words failed" << endl;
+    fclose(f);
     return false;
   }
   if ( fscanf(f, "%lud", &size) != 1 ){
     cerr << "reading #dimension failed" << endl;
+    fclose(f);
     return false;
   }
   _dim = size;
   for ( unsigned b = 0; b < words; b++) {
     string word;
     while (1) {
-      char kar = fgetc(f);
+      int kar = fgetc(f);
       if ( feof(f) || kar == EOF || kar == ' ' )
 	break;
       if ( kar != '\n' ){
