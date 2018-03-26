@@ -333,7 +333,7 @@ void generate_confusion( const string& name,
     while ( cit != confusions.end() ){
       if ( cit->first != start ){
 	// a new KWC starts
-	if ( unique.size() > 0 ){
+	if ( !unique.empty() ){
 	  if ( unique.size() > 8 ){
 	    meld_botsing( confusions, start );
 	  }
