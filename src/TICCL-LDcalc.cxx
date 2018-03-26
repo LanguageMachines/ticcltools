@@ -284,6 +284,44 @@ void handleTranspositions( ostream& os, const set<string>& s,
   }
 }
 
+const UChar SEPARATOR = '_';
+
+vector<UnicodeString> split( const UnicodeString& in, UChar symbol ){
+  vector<UnicodeString> results;
+  int  pos = 0;
+  while ( pos >= 0 && pos < in.length() ){
+    UnicodeString res;
+    int p = in.indexOf( symbol, pos );
+    if ( p < 0 ){
+      res = in.tempSubString( pos );
+      pos = p;
+    }
+    else {
+      res = in.tempSubString( pos, p - pos );
+      pos = p + 1;
+    }
+    if ( !res.isEmpty() ){
+      results.push_back( res );
+    }
+  }
+  return results;
+}
+
+void search_for_common_part( const UnicodeString& us1,
+			     const UnicodeString& us2 ){
+  vector<UnicodeString> parts1 = split( us1, SEPARATOR );
+  vector<UnicodeString> parts2 = split( us2, SEPARATOR );
+  if ( parts1.size() != parts2.size() ){
+    return;
+  }
+  for ( size_t i=0; i < parts1.size(); ++i ){
+    if ( parts1[i] == parts2[i] ){
+      cerr << "common part: " << parts1[i] << "in n-grams: " << us1
+	   << " # " << us2 << endl;
+    }
+  }
+}
+
 void compareSets( ostream& os, unsigned int ldValue,
 		  const string& KWC,
 		  const set<string>& s1, const set<string>& s2,
@@ -351,6 +389,7 @@ void compareSets( ostream& os, unsigned int ldValue,
       size_t freq2 = fit->second;
       UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
       us2.toLower();
+      //      search_for_common_part( us1, us2 );
       unsigned int ld = ldCompare( us1, us2 );
       if ( ld > ldValue ){
 	if ( !( isKHC && noKHCld ) ){
@@ -458,6 +497,17 @@ void compareSets( ostream& os, unsigned int ldValue,
 }
 
 int main( int argc, char **argv ){
+  // UnicodeString s1 = "Een_Test";
+  // UnicodeString s2 = "een_wat_langere_Tast";
+  // vector<UnicodeString> bla = split( s1, SEPARATOR );
+  // for ( const auto& s : bla ){
+  //   cerr << s << endl;
+  // }
+  // bla = split( s2, SEPARATOR );
+  // for ( const auto& s : bla ){
+  //   cerr << s << endl;
+  // }
+  // exit(EXIT_SUCCESS);
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:t:" );
