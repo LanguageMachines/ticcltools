@@ -599,7 +599,7 @@ int main( int argc, char **argv ){
   if ( TiCC::lowercase(value) == "max" ){
     numThreads = omp_get_max_threads();
     omp_set_num_threads( numThreads );
-    cout << "runing on " << numThreads << " threads." << endl;
+    cout << "running on " << numThreads << " threads." << endl;
   }
   else {
     if ( !TiCC::stringTo(value,numThreads) ) {
@@ -607,7 +607,7 @@ int main( int argc, char **argv ){
       exit( EXIT_FAILURE );
     }
     omp_set_num_threads( numThreads );
-    cout << "runing on " << numThreads << " threads." << endl;
+    cout << "running on " << numThreads << " threads." << endl;
   }
 #else
   if ( value != "1" ){

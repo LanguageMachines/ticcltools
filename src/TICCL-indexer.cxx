@@ -338,7 +338,7 @@ int main( int argc, char **argv ){
   size_t expsize = init( experiments, confSet, numThreads );
 #ifdef HAVE_OPENMP
   omp_set_num_threads( expsize );
-  cout << "runing on " << expsize << " threads." << endl;
+  cout << "running on " << expsize << " threads." << endl;
 #endif
 
 

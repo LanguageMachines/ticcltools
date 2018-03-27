@@ -350,7 +350,7 @@ int main( int argc, char **argv ){
 
 #ifdef HAVE_OPENMP
   omp_set_num_threads( expsize );
-  cout << "runing on " << expsize << " threads." << endl;
+  cout << "running on " << expsize << " threads." << endl;
 #endif
 
   size_t count = 0;
