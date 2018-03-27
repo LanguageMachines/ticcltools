@@ -157,14 +157,25 @@ bool is_roman( const UnicodeString& word ){
   static TiCC::UnicodeRegexMatcher roman_detect( TiCC::UnicodeFromUTF8(pattern), "roman" );
   UnicodeString pre, post;
   bool debug = false; //(word == "IX");
-  roman_detect.set_debug(debug);
   if ( debug ){
-    cerr << "IS Roman: test pattern = " << roman_detect.Pattern() << endl;
-    cerr << "op " << word << endl;
+#pragma omp critical
+    {
+      roman_detect.set_debug(debug);
+      cerr << "IS Roman: test pattern = " << roman_detect.Pattern() << endl;
+      cerr << "op " << word << endl;
+    }
   }
-  if ( roman_detect.match_all( word, pre, post ) ){
+  bool test;
+#pragma omp critical
+  {
+    test = roman_detect.match_all( word, pre, post );
+  }
+  if ( test ){
     if ( debug ){
-      cerr << "FOUND roman number: " << word << endl;
+#pragma omp critical
+      {
+	cerr << "FOUND roman number: " << word << endl;
+      }
     }
     return true;
   }
@@ -364,13 +375,19 @@ bool isAcro( const vector<string>& parts,
   for ( size_t i = 0; i < parts.size() -1; ++i ){
     UnicodeString us = TiCC::UnicodeFromUTF8( parts[i] + SEPARATOR + parts[i+1] );
     UnicodeString pre, post;
-    //  acro_detect.set_debug(1);
+    //#pragma omp critical
+    //    {
+    //       acro_detect.set_debug(1);
+    //    }
     //  cerr << "IS ACRO: test pattern = " << acro_detect.Pattern() << endl;
     //  cerr << "op " << us << endl;
-    if ( acro_detect.match_all( us, pre, post ) ){
-      //    cerr << "IT Mached!" << endl;
-      result.insert( TiCC::UnicodeToUTF8(acro_detect.get_match( 0 )) );
-      //    cerr << "FOUND regexp acronym: " << result << endl;
+#pragma omp critical
+    {
+      if ( acro_detect.match_all( us, pre, post ) ){
+	//    cerr << "IT Mached!" << endl;
+	result.insert( TiCC::UnicodeToUTF8(acro_detect.get_match( 0 )) );
+	//    cerr << "FOUND regexp acronym: " << result << endl;
+      }
     }
   }
   return !result.empty();
@@ -384,11 +401,12 @@ bool isAcro( const string& word ){
   UnicodeString us = TiCC::UnicodeFromUTF8( word );
   //  cerr << "IS ACRO: test pattern = " << acro_detect2.Pattern() << endl;
   //  cerr << "op " << us << endl;
-  if ( acro_detect2.match_all( us, pre, post ) ){
-    //    cerr << "FOUND regexp acronym: " << word << endl;
-    return true;
+  bool test;
+#pragma omp critical
+  {
+    test = acro_detect2.match_all( us, pre, post );
   }
-  return false;
+  return test;
 }
 
 UnicodeString filter_punct( const UnicodeString& us ){
@@ -799,7 +817,7 @@ int main( int argc, char *argv[] ){
   if ( TiCC::lowercase(value) == "max" ){
     numThreads = omp_get_max_threads();
     omp_set_num_threads( numThreads );
-    cout << "runing on " << numThreads << " threads." << endl;
+    cout << "running on " << numThreads << " threads." << endl;
   }
   else {
     if ( !TiCC::stringTo(value,numThreads) ) {
@@ -807,7 +825,7 @@ int main( int argc, char *argv[] ){
       exit( EXIT_FAILURE );
     }
     omp_set_num_threads( numThreads );
-    cout << "runing on " << numThreads << " threads." << endl;
+    cout << "running on " << numThreads << " threads." << endl;
   }
 #else
   if ( value != "1" ){
@@ -962,7 +980,7 @@ int main( int argc, char *argv[] ){
     my_lexicon[orig_word] = freq;
   }
 
-  //#pragma omp parallel for
+#pragma omp parallel for
   for ( size_t i=0; i < my_lexicon.size(); ++i ){
     auto wf = my_lexicon.begin();
     advance( wf, i );
