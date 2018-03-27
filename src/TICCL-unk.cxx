@@ -525,7 +525,6 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
 			 bool doAcro,
 			 const set<UChar>& alphabet,
 			 size_t artifreq ){
-
   UnicodeString us = TiCC::UnicodeFromUTF8( orig_word );
   UnicodeString nus;
   bool normalized = normalize_weird( us, nus );
@@ -583,7 +582,7 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
 	  clean_words[word] += artifreq;
 	}
 	if ( normalized ){
-	punct_words[orig_word] = word;
+	  punct_words[orig_word] = word;
 	}
       }
       set<string> acros;
@@ -980,7 +979,7 @@ int main( int argc, char *argv[] ){
     my_lexicon[orig_word] = freq;
   }
   cout << "read a lexion with " << line_cnt << " entries"<< endl;
-#pragma omp parallel for
+#pragma omp parallel for shared(clean_words,unk_words,punct_words,punct_acro_words,compound_acro_words) schedule(dynamic,1)
   for ( size_t i=0; i < my_lexicon.size(); ++i ){
     auto wf = my_lexicon.begin();
     advance( wf, i );
