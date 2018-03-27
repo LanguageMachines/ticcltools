@@ -979,7 +979,7 @@ int main( int argc, char *argv[] ){
     unsigned int freq = TiCC::stringTo<unsigned int>(v[1]);
     my_lexicon[orig_word] = freq;
   }
-
+  cout << "read a lexion with " << line_cnt << " entries"<< endl;
 #pragma omp parallel for
   for ( size_t i=0; i < my_lexicon.size(); ++i ){
     auto wf = my_lexicon.begin();
