@@ -1,4 +1,4 @@
-.TH TICCL\-unk 1 "2017 dec 04"
+.TH TICCL\-unk 1 "2018 mar 27"
 
 .SH NAME
 TICCL\-unk \- a frequency file cleanup tool
@@ -61,6 +61,33 @@ Use 'artifreq' or `artifical frequency' as the default value for missing freqenc
 file
 .RS
 name of an acronyms file that will be generated. (experimental)
+.RE
+
+.B \-\-filter
+file
+.RS
+name of a file with ICU transliterator rules to filter all input. (experimental)
+
+see http://userguide.icu-project.org/transforms/general/rules for information
+about such rules.
+
+The default rule that is used is:
+   æ >ae;
+   Æ } [:Uppercase Letter:]* > AE;
+   Æ > Ae;
+   œ > oe;
+   Œ } [:Uppercase Letter:]+ > OE;
+   Œ > Oe;
+   ĳ > ij;
+   Ĳ > IJ;
+   ﬂ > fl;
+   ﬀ > ff;
+   ﬃ > ffi;
+   ﬄ > ffl;
+   ﬅ > st;
+   ß > ss;
+   [[:Hyphen:][:Dash:]]+ > '-';
+   [•·]  > '.';
 .RE
 
 .SH BUGS
