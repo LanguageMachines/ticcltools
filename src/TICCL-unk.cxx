@@ -632,27 +632,6 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
   }
 }
 
-void usage( const string& name ){
-  cerr << name << " [options] frequencyfile" << endl;
-  cerr << "\t" << name << " will filter a wordfrequency list (in FoLiA-stats format) " << endl;
-  cerr << "\t\t The output will be a cleaned wordfrequency file, an unknown "
-       << endl;
-  cerr << "\t\t words list and a list of words having leading/trailing "
-       << endl;
-  cerr << "\t\t punctuation paired with their clean variants." << endl;
-  cerr << "\t-o 'name'\t create outputfile(s) with prefix 'name'" << endl;
-  cerr << "\t--alph='file'\t name of the alphabet file" << endl;
-  cerr << "\t--corpus='file'\t validated lexicon file" << endl;
-  cerr << "\t--artifrq='value'\t the default value for missing frequencies"
-       << endl;
-  cerr << "\t\t in the validated lexicon. (default = 0)" << endl;
-  cerr << "\t--acro\t also create an acronyms file. (experimental)" << endl;
-  cerr << "\t--filter='file'\t use rules from 'file' to transliterate  (experimental)" << endl;
-  cerr << "\t\t see http://userguide.icu-project.org/transforms/general/rules for information about rules." << endl;
-  cerr << "\t-h\t this message " << endl;
-  cerr << "\t-v\t be verbose " << endl;
-  cerr << "\t-V\t show version " << endl;
-}
 
 UnicodeString default_filter = "æ >ae;"
 				    "Æ } [:Uppercase Letter:]* > AE;"
@@ -671,11 +650,35 @@ UnicodeString default_filter = "æ >ae;"
 				    "[[:Hyphen:][:Dash:]]+ > '-';"
 				    "[•·]  > '.';";
 
+void usage( const string& name ){
+  cerr << name << " [options] frequencyfile" << endl;
+  cerr << "\t" << name << " will filter a wordfrequency list (in FoLiA-stats format) " << endl;
+  cerr << "\t\t The output will be a cleaned wordfrequency file, an unknown "
+       << endl;
+  cerr << "\t\t words list and a list of words having leading/trailing "
+       << endl;
+  cerr << "\t\t punctuation paired with their clean variants." << endl;
+  cerr << "\t-o 'name'\t create outputfile(s) with prefix 'name'" << endl;
+  cerr << "\t--alph='file'\t name of the alphabet file" << endl;
+  cerr << "\t--corpus='file'\t validated lexicon file" << endl;
+  cerr << "\t--artifrq='value'\t the default value for missing frequencies"
+       << endl;
+  cerr << "\t\t in the validated lexicon. (default = 0)" << endl;
+  cerr << "\t--acro\t also create an acronyms file. (experimental)" << endl;
+  cerr << "\t--filter='file'\t use rules from 'file' to transliterate  (experimental)" << endl;
+  cerr << "\t\t see http://userguide.icu-project.org/transforms/general/rules for information about rules." << endl;
+  cerr << "\t\t default the following filter is used: " << endl
+       << default_filter << endl;
+  cerr << "\t-h\t this message " << endl;
+  cerr << "\t-v\t be verbose " << endl;
+  cerr << "\t-V\t show version " << endl;
+}
+
 int main( int argc, char *argv[] ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
-    opts.set_long_options( "acro,alph:,corpus:,artifrq:,filter:" );
+    opts.set_long_options( "acro,alph:,corpus:,artifrq:,filter:,help,version" );
     opts.parse_args( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -684,11 +687,11 @@ int main( int argc, char *argv[] ){
     exit( EXIT_FAILURE );
   }
   string progname = opts.prog_name();
-  if ( opts.extract('V' ) ){
+  if ( opts.extract('V' ) || opts.extract("version") ){
     cerr << PACKAGE_STRING << endl;
     exit(EXIT_SUCCESS);
   }
-  if ( opts.extract('h' ) ){
+  if ( opts.extract('h' ) || opts.extract("help") ){
     usage(progname);
     exit(EXIT_SUCCESS);
   }
