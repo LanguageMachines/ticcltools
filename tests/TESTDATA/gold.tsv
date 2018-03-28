@@ -63,3 +63,24 @@ aap••noot	1 # P met aap..noot in C
 mies·wim	1 # P met mies.wim in C
 mies··wim	1 # P met mies..wim in C
 •——^door	1 # P met door in C
+zee"		1 # P met zee in C
+zee,		1 # P met zee in C
+zee<		1 # P met zee in C
+<zee		1 # P met zee in C
+zee>		1 # P met zee in C
+>zee		1 # P met zee in C
+zee_		1 # P met zee in C
+_zee		1 # P met zee in C
+zee°		1 # P met zee in C
+„zee		1 # P met zee in C
+zee„		1 # P met zee in C
+#		1 # nergens
+#in		1 # P met in in C
+#een		1 # P met in in C
+HUTS.§5#	1 # U
+Regee~ring	1 # P met Regee*ring in C
+Regee~_ring	1 # P met Regee*_ring in C
+aange~		1
+~~		1 # U
+van_hoofdstuk_VII#	1
+Voor_#_zitter!	1
