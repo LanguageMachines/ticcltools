@@ -84,3 +84,5 @@ aange~		1
 ~~		1 # U
 van_hoofdstuk_VII#	1
 Voor_#_zitter!	1
+non breaking	1 # P met non_breaking in C
+non breaking space	1 # P met non_breaking_space in C

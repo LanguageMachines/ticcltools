@@ -118,6 +118,9 @@ bool is_ticcl_punct( UChar uc ){
       if ( us == "°" ){
 	return true;
       }
+      else if ( us == "\u00a0" ){
+	return true;
+      }
     }
   }
   return false;
@@ -769,6 +772,7 @@ UnicodeString default_filter = "æ >ae;"
   "ß > ss;"
   "'~' > '*';"
   "'#' > '*';"
+  "[\u00a0] > '_';"
   "[[:Hyphen:][:Dash:]]+ > '-';"
   "[•·]  > '.';";
 
