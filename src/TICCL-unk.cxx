@@ -34,6 +34,7 @@
 
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/StringOps.h"
+#include "ticcutils/PrettyPrint.h"
 #include "ticcutils/FileUtils.h"
 #include "ticcutils/Unicode.h"
 #include "ticcl/unicode.h"
@@ -97,14 +98,29 @@ bool fillAlpha( istream& is, set<UChar>& alphabet ){
 }
 
 bool is_ticcl_punct( UChar uc ){
-  switch (  uc ){
+  switch ( uc ){
+  case '_':
+    return true;
   case '^':
+    return true;
+  case '<':
+    return true;
+  case '>':
     return true;
   case '-':
     return false;
   default:
-    return ticc_ispunct( uc );
+    if ( ticc_ispunct( uc ) ){
+      return true;
+    }
+    else {
+      UnicodeString us(uc);
+      if ( us == "°" ){
+	return true;
+      }
+    }
   }
+  return false;
 }
 
 bool depunct( const UnicodeString& us, UnicodeString& result ){
@@ -137,9 +153,6 @@ bool depunct( const UnicodeString& us, UnicodeString& result ){
   else {
     for ( int k = i; k <= j; ++k ){
       result += us[k];
-    }
-    if ( verbose ){
-      cerr << "depunct '" << us << "' ==> '" << result << "'" << endl;
     }
     return true;
   }
@@ -339,7 +352,13 @@ S_Class classify( const string& word, const set<UChar>& alphabet,
   punct.clear();
   UnicodeString us = TiCC::UnicodeFromUTF8( word );
   UnicodeString ps;
+  if ( verbose ){
+    cerr << "classify:" << us << endl;
+  }
   if ( depunct( us, ps  ) ){
+    if ( verbose ){
+      cerr << "depuncted '" << us << "' to '" << ps << "'" << endl;
+    }
     if ( ps.length() == 0 ){
       // Filter C: strings met alleen maar punctuatie > UNK
       if ( us.length() < 3 )
@@ -368,6 +387,9 @@ S_Class classify( const string& word, const set<UChar>& alphabet,
     }
   }
   else {
+    if ( verbose ){
+      cerr << "NOT depuncted '" << us << "'" << endl;
+    }
     result = classify( us, alphabet );
   }
   if ( verbose ){
@@ -550,6 +572,12 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
   }
   vector<string> parts;
   TiCC::split_at( word, parts, SEPARATOR );
+  if ( word[0] == SEPARATOR[0] ){
+    parts[0] = SEPARATOR + parts[0];
+  }
+  if ( word[word.length()-1] == SEPARATOR[0] ){
+    parts.back() += SEPARATOR;
+  }
   if ( parts.size() == 0 ){
     return;
   }
@@ -726,21 +754,23 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
 
 
 UnicodeString default_filter = "æ >ae;"
-				    "Æ } [:Uppercase Letter:]* > AE;"
-				    "Æ > Ae;"
-				    "œ > oe;"
-				    "Œ } [:Uppercase Letter:]+ > OE;"
-				    "Œ > Oe;"
-				    "ĳ > ij;"
-				    "Ĳ > IJ;"
-				    "ﬂ > fl;"
-				    "ﬀ > ff;"
-				    "ﬃ > ffi;"
-				    "ﬄ > ffl;"
-				    "ﬅ > st;"
-				    "ß > ss;"
-				    "[[:Hyphen:][:Dash:]]+ > '-';"
-				    "[•·]  > '.';";
+  "Æ } [:Uppercase Letter:]* > AE;"
+  "Æ > Ae;"
+  "œ > oe;"
+  "Œ } [:Uppercase Letter:]+ > OE;"
+  "Œ > Oe;"
+  "ĳ > ij;"
+  "Ĳ > IJ;"
+  "ﬂ > fl;"
+  "ﬀ > ff;"
+  "ﬃ > ffi;"
+  "ﬄ > ffl;"
+  "ﬅ > st;"
+  "ß > ss;"
+  "'~' > '*';"
+  "'#' > '*';"
+  "[[:Hyphen:][:Dash:]]+ > '-';"
+  "[•·]  > '.';";
 
 void usage( const string& name ){
   cerr << name << " [options] frequencyfile" << endl;
