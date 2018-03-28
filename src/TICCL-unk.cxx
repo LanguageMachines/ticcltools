@@ -39,6 +39,7 @@
 #include "ticcl/unicode.h"
 
 #include "config.h"
+#undef HAVE_OPENMP
 #ifdef HAVE_OPENMP
 #include "omp.h"
 #endif
@@ -158,7 +159,7 @@ bool is_roman( const UnicodeString& word ){
   UnicodeString pre, post;
   bool debug = false; //(word == "IX");
   if ( debug ){
-#pragma omp critical
+    //#pragma omp critical (debug)
     {
       roman_detect.set_debug(debug);
       cerr << "IS Roman: test pattern = " << roman_detect.Pattern() << endl;
@@ -166,13 +167,13 @@ bool is_roman( const UnicodeString& word ){
     }
   }
   bool test;
-#pragma omp critical
+  //#pragma omp critical (roman)
   {
     test = roman_detect.match_all( word, pre, post );
   }
   if ( test ){
     if ( debug ){
-#pragma omp critical
+      //#pragma omp critical (debug)
       {
 	cerr << "FOUND roman number: " << word << endl;
       }
@@ -187,6 +188,7 @@ S_Class classify( const UnicodeString& word,
   int is_digit = 0;
   int is_punct = 0;
   int is_letter = 0;
+  int is_space = 0;
   int is_out = 0;
   int word_len = word.length();
   if ( word_len < 2 ){
@@ -197,62 +199,69 @@ S_Class classify( const UnicodeString& word,
   }
   if ( is_roman( word ) ){
     if ( verbose ){
-      cerr << "UITGANG 1: Roman numver: Ignore" << endl;
+      cerr << "UITGANG 1: Roman number: Ignore" << endl;
     }
     return IGNORE;
   }
   for ( int i=0; i < word_len; ++i ){
     UChar uchar = word[i];
-    int8_t charT = u_charType( uchar );
-    if ( alphabet.empty() ){
-      if ( verbose ){
-	cerr << "bekijk karakter " << UnicodeString(uchar) << " van type " << toString(charT) << endl;
-      }
-      if ( ticc_isletter( charT ) ){
-	++is_letter;
-      }
-      else if ( ticc_isdigit( charT ) ){
-	++is_digit;
-      }
-      else if ( ticc_ispunct( charT ) ){
-	++is_punct;
-      }
-      else if ( ticc_isother( charT ) ){
-	++is_out;
-	// OUT
-      }
-      else {
-	cerr << "Warning: karakter " << UnicodeString(uchar) << " is van onbekend type " << toString(charT) << endl;
-	++is_out;
-      }
+    if ( u_isspace( uchar ) ){
+      ++is_space;
     }
     else {
-      if ( verbose ){
-	cerr << "bekijk karakter " << UnicodeString(uchar) << " van type " << toString(charT) << endl;
-      }
-      if ( alphabet.find( uchar ) != alphabet.end() ) {
+      int8_t charT = u_charType( uchar );
+      if ( alphabet.empty() ){
 	if ( verbose ){
-	  cerr << "'" << UnicodeString(uchar) << "' is IN het alfabet" << endl;
+	  cerr << "bekijk karakter " << UnicodeString(uchar) << " van type " << toString(charT) << endl;
 	}
-	++is_letter;
-      }
-      else if ( charT == U_DECIMAL_DIGIT_NUMBER ){
-	if ( verbose ){
-	  cerr << "'" << UnicodeString(uchar) << "' is DIGIT" << endl;
+	if ( ticc_isletter( charT ) ){
+	  ++is_letter;
 	}
-	++is_digit;
-      }
-      else if ( uchar == '.' ){
-	if ( verbose ){
-	  cerr << "'" << UnicodeString(uchar) << "' is PUNCT" << endl;
+	else if ( ticc_isdigit( charT ) ){
+	  ++is_digit;
 	}
-	++is_punct;
+	else if ( ticc_ispunct( charT ) ){
+	  ++is_punct;
+	}
+	else if ( ticc_isother( charT ) ){
+	  ++is_out;
+	  // OUT
+	}
+	else {
+	  cerr << "Warning: karakter '" << UnicodeString(uchar) << "' ("
+	       << TiCC::format_nonascii( TiCC::UnicodeToUTF8(UnicodeString(uchar)) )
+	       << ") is van onbekend type " << toString(charT) << endl;
+	  ++is_out;
+	}
       }
       else {
 	if ( verbose ){
-	  cerr << "'" << UnicodeString(uchar) << "' is OUT het alfabet" << endl;
+	  cerr << "bekijk karakter " << UnicodeString(uchar) << " van type " << toString(charT) << endl;
 	}
-	++is_out;
+	if ( alphabet.find( uchar ) != alphabet.end() ) {
+	  if ( verbose ){
+	    cerr << "'" << UnicodeString(uchar) << "' is IN het alfabet" << endl;
+	  }
+	  ++is_letter;
+	}
+	else if ( charT == U_DECIMAL_DIGIT_NUMBER ){
+	  if ( verbose ){
+	    cerr << "'" << UnicodeString(uchar) << "' is DIGIT" << endl;
+	  }
+	  ++is_digit;
+	}
+	else if ( uchar == '.' ){
+	  if ( verbose ){
+	    cerr << "'" << UnicodeString(uchar) << "' is PUNCT" << endl;
+	  }
+	  ++is_punct;
+	}
+	else {
+	  if ( verbose ){
+	    cerr << "'" << UnicodeString(uchar) << "' is OUT het alfabet" << endl;
+	  }
+	  ++is_out;
+	}
       }
     }
   }
@@ -375,13 +384,13 @@ bool isAcro( const vector<string>& parts,
   for ( size_t i = 0; i < parts.size() -1; ++i ){
     UnicodeString us = TiCC::UnicodeFromUTF8( parts[i] + SEPARATOR + parts[i+1] );
     UnicodeString pre, post;
-    //#pragma omp critical
+    //#pragma omp critical (debug)
     //    {
     //       acro_detect.set_debug(1);
     //    }
     //  cerr << "IS ACRO: test pattern = " << acro_detect.Pattern() << endl;
     //  cerr << "op " << us << endl;
-#pragma omp critical
+    //#pragma omp critical (acro)
     {
       if ( acro_detect.match_all( us, pre, post ) ){
 	//    cerr << "IT Mached!" << endl;
@@ -402,7 +411,7 @@ bool isAcro( const string& word ){
   //  cerr << "IS ACRO: test pattern = " << acro_detect2.Pattern() << endl;
   //  cerr << "op " << us << endl;
   bool test;
-#pragma omp critical
+  //#pragma omp critical (acro2)
   {
     test = acro_detect2.match_all( us, pre, post );
   }
@@ -530,7 +539,7 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
   bool normalized = normalize_weird( us, nus );
   string word = TiCC::UnicodeToUTF8( nus );
   if ( verbose ){
-#pragma omp critical
+    //#pragma omp critical (verbose)
     {
       cerr << endl << "Run UNK on : " << orig_word;
       if ( normalized ){
@@ -547,7 +556,7 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
   else if ( parts.size() == 2
 	    && word.size() < 6 ){
     if ( verbose ){
-#pragma omp critical
+      //#pragma omp critical (verbose)
       {
 	cerr << "to short bigram: " << word << endl;
       }
@@ -557,7 +566,7 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
   else if ( parts.size() == 3
 	    && word.size() < 8 ){
     if ( verbose ){
-#pragma omp critical
+      //#pragma omp critical (verbose)
       {
 	cerr << "to short trigram: " << word << endl;
       }
@@ -574,7 +583,7 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
     break;
   case CLEAN:
     {
-#pragma omp critical
+      //#pragma omp critical (classify)
       {
 	clean_words[word] += freq;
 	if ( clean_words[word] < artifreq
@@ -588,12 +597,12 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
       set<string> acros;
       if ( doAcro && isAcro( word ) ){
 	if ( verbose ){
-#pragma omp critical
+	  //#pragma omp critical (verbose)
 	  {
 	    cerr << "CLEAN ACRO: " << word << endl;
 	  }
 	}
-#pragma omp critical
+	//#pragma omp critical (classify)
 	{
 	  punct_acro_words[word] += freq;
 	}
@@ -601,19 +610,19 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
       else if ( doAcro && isAcro( parts, acros ) ){
 	for ( const auto& acro : acros ){
 	  if ( verbose ){
-#pragma omp critical
+	    //#pragma omp critical (verbose)
 	    {
 	      cerr << "CLEAN ACRO: (regex)" << word << "/" << acro << endl;
 	    }
 	  }
-#pragma omp critical
+	  //#pragma omp critical (classify)
 	  {
 	    compound_acro_words[acro] += freq;
 	  }
 	}
       }
       else if ( verbose ){
-#pragma omp critical
+	//#pragma omp critical (verbose)
 	{
 	  cerr << "CLEAN word: " << word << endl;
 	}
@@ -625,12 +634,12 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
       set<string> acros;
       if ( doAcro && isAcro( word ) ){
 	if ( verbose ){
-#pragma omp critical
+	  //#pragma omp critical (verbose)
 	  {
 	    cerr << "UNK ACRO: " << word << endl;
 	  }
 	}
-#pragma omp critical
+	//#pragma omp critical (classify)
 	{
 	  clean_words[word] += freq;
 	  punct_acro_words[word] += freq;
@@ -639,12 +648,12 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
       else if ( doAcro && isAcro( parts, acros ) ){
 	for ( const auto& acro : acros ){
 	  if ( verbose ){
-#pragma omp critical
+	    //#pragma omp critical (verbose)
 	    {
 	      cerr << "UNK ACRO: " << word << "/" << acro << endl;
 	    }
 	  }
-#pragma omp critical
+	  //#pragma omp critical (classify)
 	  {
 	    compound_acro_words[acro] += freq;
 	  }
@@ -652,12 +661,12 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
       }
       else {
 	if ( verbose ){
-#pragma omp critical
+	  //#pragma omp critical (verbose)
 	  {
 	    cerr << "UNK word: " << orig_word << endl;
 	  }
 	}
-#pragma omp critical
+	//#pragma omp critical (classify)
 	{
 	  unk_words[orig_word] += freq;
 	}
@@ -669,12 +678,12 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
       set<string> acros;
       if ( doAcro && isAcro( end_pun ) ){
 	if ( verbose ){
-#pragma omp critical
+	  //#pragma omp critical (verbose)
 	  {
 	    cerr << "PUNCT ACRO: " << end_pun << endl;
 	  }
 	}
-#pragma omp critical
+	//#pragma omp critical (classify)
 	{
 	  punct_acro_words[end_pun] += freq;
 	  punct_words[end_pun] = word;
@@ -684,24 +693,27 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
       else if ( doAcro && isAcro( parts, acros ) ){
 	for ( const auto& acro : acros ){
 	  if ( verbose ){
-#pragma omp critical
+	    //#pragma omp critical (verbose)
 	    {
 	      cerr << "PUNCT ACRO: (regex) " << word << "/" << acro << endl;
 	    }
 	  }
-#pragma omp critical
+	  //#pragma omp critical (classify)
 	  {
 	    compound_acro_words[acro] += freq;
 	  }
 	}
       }
       else {
-#pragma omp critical
+	//#pragma omp critical (classify)
 	{
 	  clean_words[end_pun] += freq;
 	  punct_words[orig_word] = end_pun;
 	  if ( verbose ){
-	    cerr << "PUNCT word: " << word << endl;
+	    //#pragma omp critical (verbose)
+	    {
+	      cerr << "PUNCT word: " << word << endl;
+	    }
 	  }
 	}
       }
@@ -749,9 +761,11 @@ void usage( const string& name ){
   cerr << "\t\t see http://userguide.icu-project.org/transforms/general/rules for information about rules." << endl;
   cerr << "\t\t default the following filter is used: " << endl
        << default_filter << endl;
-    cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
+#ifdef HAVE_OPENMP
+  cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
   cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
   cerr << "\t\t\t reasonable value. (which can be set with OMP_NUM_TREADS environment variable.)" << endl;
+#endif
   cerr << "\t-h\t this message " << endl;
   cerr << "\t-v\t be verbose " << endl;
   cerr << "\t-V\t show version " << endl;
@@ -979,7 +993,7 @@ int main( int argc, char *argv[] ){
     my_lexicon[orig_word] = freq;
   }
   cout << "read a lexion with " << line_cnt << " entries"<< endl;
-#pragma omp parallel for shared(clean_words,unk_words,punct_words,punct_acro_words,compound_acro_words) schedule(dynamic,1)
+  //#pragma omp parallel for shared(clean_words,unk_words,punct_words,punct_acro_words,compound_acro_words) schedule(dynamic,1)
   for ( size_t i=0; i < my_lexicon.size(); ++i ){
     auto wf = my_lexicon.begin();
     advance( wf, i );
