@@ -82,7 +82,7 @@ bitType high_five( int val ){
   return result;
 }
 
-unsigned int ldCompare( const UnicodeString& s1, const UnicodeString& s2 ){
+unsigned int ldCompare( const icu::UnicodeString& s1, const icu::UnicodeString& s2 ){
   const size_t len1 = s1.length(), len2 = s2.length();
   vector<unsigned int> col(len2+1), prevCol(len2+1);
   for ( unsigned int i = 0; i < prevCol.size(); ++i ){
@@ -99,7 +99,7 @@ unsigned int ldCompare( const UnicodeString& s1, const UnicodeString& s2 ){
   return result;
 }
 
-bool isClean( const UnicodeString& us, const set<UChar>& alfabet ){
+bool isClean( const icu::UnicodeString& us, const set<UChar>& alfabet ){
   if ( alfabet.empty() )
     return true;
   for ( int i=0; i < us.length(); ++i ){
@@ -111,7 +111,7 @@ bool isClean( const UnicodeString& us, const set<UChar>& alfabet ){
 
 void handleTranspositions( ostream& os, const set<string>& s,
 			   const map<string,size_t>& freqMap,
-			   const map<UnicodeString,size_t>& low_freqMap,
+			   const map<icu::UnicodeString,size_t>& low_freqMap,
 			   const set<UChar>& alfabet,
 			   size_t freqTreshold,
 			   bool isKHC,
@@ -167,9 +167,9 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	continue;
       }
       size_t freq2 = fit->second;
-      UnicodeString us1 = TiCC::UnicodeFromUTF8( str1 );
+      icu::UnicodeString us1 = TiCC::UnicodeFromUTF8( str1 );
       us1.toLower();
-      UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
+      icu::UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
       us2.toLower();
 
       size_t out_freq1;
@@ -199,7 +199,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
       }
 
       size_t canon_freq = 0;
-      UnicodeString candidate;
+      icu::UnicodeString candidate;
       if ( low_freq1 > low_freq2 ){
 	canon_freq = low_freq1;
 	out_freq1 = freq2;
@@ -286,11 +286,11 @@ void handleTranspositions( ostream& os, const set<string>& s,
 
 const UChar SEPARATOR = '_';
 
-vector<UnicodeString> split( const UnicodeString& in, UChar symbol ){
-  vector<UnicodeString> results;
+vector<icu::UnicodeString> split( const icu::UnicodeString& in, UChar symbol ){
+  vector<icu::UnicodeString> results;
   int  pos = 0;
   while ( pos >= 0 && pos < in.length() ){
-    UnicodeString res;
+    icu::UnicodeString res;
     int p = in.indexOf( symbol, pos );
     if ( p < 0 ){
       res = in.tempSubString( pos );
@@ -307,10 +307,10 @@ vector<UnicodeString> split( const UnicodeString& in, UChar symbol ){
   return results;
 }
 
-void search_for_common_part( const UnicodeString& us1,
-			     const UnicodeString& us2 ){
-  vector<UnicodeString> parts1 = split( us1, SEPARATOR );
-  vector<UnicodeString> parts2 = split( us2, SEPARATOR );
+void search_for_common_part( const icu::UnicodeString& us1,
+			     const icu::UnicodeString& us2 ){
+  vector<icu::UnicodeString> parts1 = split( us1, SEPARATOR );
+  vector<icu::UnicodeString> parts2 = split( us2, SEPARATOR );
   if ( parts1.size() != parts2.size() ){
     return;
   }
@@ -326,7 +326,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 		  const string& KWC,
 		  const set<string>& s1, const set<string>& s2,
 		  const map<string,size_t>& freqMap,
-		  const map<UnicodeString,size_t>& low_freqMap,
+		  const map<icu::UnicodeString,size_t>& low_freqMap,
 		  const set<UChar>& alfabet,
 		  size_t freqTreshold,
 		  bool isKHC,
@@ -360,7 +360,7 @@ void compareSets( ostream& os, unsigned int ldValue,
       continue;
     }
     size_t freq1 = fit->second;
-    UnicodeString us1 = TiCC::UnicodeFromUTF8( str1 );
+    icu::UnicodeString us1 = TiCC::UnicodeFromUTF8( str1 );
     us1.toLower();
     set<string>::const_iterator it2 = s2.begin();
     while ( it2 != s2.end() ) {
@@ -387,7 +387,7 @@ void compareSets( ostream& os, unsigned int ldValue,
       }
 
       size_t freq2 = fit->second;
-      UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
+      icu::UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
       us2.toLower();
       //      search_for_common_part( us1, us2 );
       unsigned int ld = ldCompare( us1, us2 );
@@ -413,7 +413,7 @@ void compareSets( ostream& os, unsigned int ldValue,
       size_t low_freq1 = low_freqMap.at(us1);
       size_t low_freq2 = low_freqMap.at(us2);
       size_t canon_freq = 0;
-      UnicodeString candidate;
+      icu::UnicodeString candidate;
       if ( low_freq1 > low_freq2 ){
 	canon_freq = low_freq1;
 	out_freq1 = freq2;
@@ -497,9 +497,9 @@ void compareSets( ostream& os, unsigned int ldValue,
 }
 
 int main( int argc, char **argv ){
-  // UnicodeString s1 = "Een_Test";
-  // UnicodeString s2 = "een_wat_langere_Tast";
-  // vector<UnicodeString> bla = split( s1, SEPARATOR );
+  // icu::UnicodeString s1 = "Een_Test";
+  // icu::UnicodeString s2 = "een_wat_langere_Tast";
+  // vector<icu::UnicodeString> bla = split( s1, SEPARATOR );
   // for ( const auto& s : bla ){
   //   cerr << s << endl;
   // }
@@ -649,7 +649,7 @@ int main( int argc, char **argv ){
 	cerr << progname << ": invalid line '" << line << "' in " << alfabetFile << endl;
 	exit( EXIT_FAILURE );
       }
-      UnicodeString key = TiCC::UnicodeFromUTF8(vec[0]);
+      icu::UnicodeString key = TiCC::UnicodeFromUTF8(vec[0]);
       alfabet.insert(key[0]);
     }
   }
@@ -662,7 +662,7 @@ int main( int argc, char **argv ){
   }
   cout << progname << ": reading clean file: " << frequencyFile << endl;
   map<string, size_t> freqMap;
-  map<UnicodeString, size_t> low_freqMap;
+  map<icu::UnicodeString, size_t> low_freqMap;
   string line;
   size_t ign = 0;
   while ( getline( ff, line ) ){
@@ -675,7 +675,7 @@ int main( int argc, char **argv ){
       string s = v1[0];
       size_t freq = TiCC::stringTo<size_t>( v1[1] );
       freqMap[s] = freq;
-      UnicodeString us = TiCC::UnicodeFromUTF8( s );
+      icu::UnicodeString us = TiCC::UnicodeFromUTF8( s );
       us.toLower();
       low_freqMap[us] +=freq;
     }

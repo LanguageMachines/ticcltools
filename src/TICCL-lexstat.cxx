@@ -95,7 +95,7 @@ void create_output( string& name, const map<UChar,size_t>& chars,
     if ( clip >= 0 && rit->first < (size_t)clip )
       break;
     hash = high_five( start );
-    UnicodeString us( rit->second );
+    icu::UnicodeString us( rit->second );
     string s = TiCC::UnicodeToUTF8(us);
     hashes.insert( make_pair( s, hash ) );
     os << s << "\t" << rit->first << "\t" << hash << endl;
@@ -113,9 +113,9 @@ void create_dia_file( const string& filename,
   ofstream os( filename );
   map<UChar,size_t>::const_iterator it = chars.begin();
   while ( it != chars.end() ){
-    UnicodeString us;
+    icu::UnicodeString us;
     us += it->first;
-    UnicodeString ss = TiCC::filter_diacritics( us );
+    icu::UnicodeString ss = TiCC::filter_diacritics( us );
     if ( ss != us ){
       map<string,bitType>::const_iterator hit = hashes.find( TiCC::UnicodeToUTF8(us));
       if ( hit == hashes.end() ){
@@ -437,7 +437,7 @@ int main( int argc, char *argv[] ){
   }
   string separator;
   if ( opts.extract( "separator", separator ) ){
-    UnicodeString us = TiCC::UnicodeFromUTF8( separator );
+    icu::UnicodeString us = TiCC::UnicodeFromUTF8( separator );
     if ( us.length() != 1 ){
       cerr << "invalid separator, should be 1 unicode point!" << endl;
       exit( EXIT_FAILURE );
@@ -478,7 +478,7 @@ int main( int argc, char *argv[] ){
   map<UChar,size_t> lchars;
   string line;
   while ( getline( is, line ) ){
-    UnicodeString us = TiCC::UnicodeFromUTF8( line );
+    icu::UnicodeString us = TiCC::UnicodeFromUTF8( line );
     us.toLower();
     for ( int i = 0; i < us.length(); ++i ){
       ++lchars[us[i]];

@@ -131,7 +131,7 @@ size_t tel( const xmlNode *node, bool lowercase,
       for ( const auto& word : v ){
 	string wrd = word;
 	if ( lowercase ){
-	  UnicodeString us = TiCC::UnicodeFromUTF8( word );
+	  icu::UnicodeString us = TiCC::UnicodeFromUTF8( word );
 	  us.toLower();
 	  wrd = TiCC::UnicodeToUTF8( us );
 	}
@@ -217,7 +217,7 @@ size_t word_inventory( const string& docName,
     for ( const auto& word : v ){
       string wrd = word;
       if ( lowercase ){
-	UnicodeString us = TiCC::UnicodeFromUTF8( word );
+	icu::UnicodeString us = TiCC::UnicodeFromUTF8( word );
 	us.toLower();
 	wrd = TiCC::UnicodeToUTF8( us );
       }

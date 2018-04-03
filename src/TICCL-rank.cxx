@@ -148,7 +148,7 @@ record::record( const string& line,
     freq1 = TiCC::stringTo<size_t>(parts[1]);
     low_freq1 = TiCC::stringTo<size_t>(parts[2]);
     variant2 = parts[3];
-    UnicodeString us = TiCC::UnicodeFromUTF8( variant2 );
+    icu::UnicodeString us = TiCC::UnicodeFromUTF8( variant2 );
     us.toLower();
     lowervariant2 = TiCC::UnicodeToUTF8( us );
     variant_rank = -2000;
@@ -809,7 +809,7 @@ int main( int argc, char **argv ){
       cerr << "invalid line '" << line << "' in " << alfabetFile << endl;
       exit( EXIT_FAILURE );
     }
-    UnicodeString key = TiCC::UnicodeFromUTF8(vec[0]);
+    icu::UnicodeString key = TiCC::UnicodeFromUTF8(vec[0]);
     bitType value = TiCC::stringTo<bitType>( vec[2] );
     alfabet[key[0]] = value;
   }
@@ -863,7 +863,7 @@ int main( int argc, char **argv ){
     bitType key = TiCC::stringTo<bitType>( vec[0] );
     kwc_string[key] = vec[1];
     if ( kwc_counts[key] > 0 ){
-      UnicodeString value = TiCC::UnicodeFromUTF8( vec[1] );
+      icu::UnicodeString value = TiCC::UnicodeFromUTF8( vec[1] );
       if ( value.length() == 5 && value[2] == '~' ){
 	if ( verbose ){
 	  cerr << "bekijk tweetal: " << value << " met freq=" << kwc_counts[key]
@@ -899,37 +899,37 @@ int main( int argc, char **argv ){
 	  if ( max != 0 ){
 	    if ( maxPos == 0 ){
 	      if ( verbose ){
-		cerr << "dus paar = 1-3: " << UnicodeString(value[0]) << "-"
-		     << UnicodeString(value[3]) << " met freq=" << max << endl;
-		cerr << "het anders paar: " << UnicodeString(value[1]) << "-"
-		     << UnicodeString(value[4]) << " met freq=" << counts[3] << endl;
+		cerr << "dus paar = 1-3: " << icu::UnicodeString(value[0]) << "-"
+		     << icu::UnicodeString(value[3]) << " met freq=" << max << endl;
+		cerr << "het anders paar: " << icu::UnicodeString(value[1]) << "-"
+		     << icu::UnicodeString(value[4]) << " met freq=" << counts[3] << endl;
 	      }
 	      kwc2_counts[key] = max + counts[3];
 	    }
 	    else if ( maxPos == 1 ){
 	      if ( verbose ){
-		cerr << "dus paar = 1-4: " << UnicodeString(value[0]) << "-"
-		     <<  UnicodeString(value[4]) << " met freq=" << max << endl;
-		cerr << "het anders paar: " << UnicodeString(value[1]) << "-"
-		     << UnicodeString(value[3]) << " met freq=" << counts[2] << endl;
+		cerr << "dus paar = 1-4: " << icu::UnicodeString(value[0]) << "-"
+		     <<  icu::UnicodeString(value[4]) << " met freq=" << max << endl;
+		cerr << "het anders paar: " << icu::UnicodeString(value[1]) << "-"
+		     << icu::UnicodeString(value[3]) << " met freq=" << counts[2] << endl;
 	      }
 	      kwc2_counts[key] = max + counts[2];
 	    }
 	    else if ( maxPos == 2 ){
 	      if ( verbose ){
-		cerr << "dus paar = 2-3: " << UnicodeString(value[1]) << "-"
-		     <<  UnicodeString(value[3]) << " met freq=" << max << endl;
-		cerr << "het anders paar: " << UnicodeString(value[0]) << "-"
-		    << UnicodeString(value[4]) << " met freq=" << counts[1] << endl;
+		cerr << "dus paar = 2-3: " << icu::UnicodeString(value[1]) << "-"
+		     <<  icu::UnicodeString(value[3]) << " met freq=" << max << endl;
+		cerr << "het anders paar: " << icu::UnicodeString(value[0]) << "-"
+		    << icu::UnicodeString(value[4]) << " met freq=" << counts[1] << endl;
 	      }
 	      kwc2_counts[key] = max + counts[1];
 	    }
 	    else if ( maxPos == 3 ){
 	      if ( verbose ){
-		cerr << "dus paar = 2-4: " << UnicodeString(value[1]) << "-"
-		     <<  UnicodeString(value[4]) << " met freq=" << max << endl;
-		cerr << "het anders paar: " << UnicodeString(value[0]) << "-"
-		    << UnicodeString(value[3]) << " met freq=" << counts[0] << endl;
+		cerr << "dus paar = 2-4: " << icu::UnicodeString(value[1]) << "-"
+		     <<  icu::UnicodeString(value[4]) << " met freq=" << max << endl;
+		cerr << "het anders paar: " << icu::UnicodeString(value[0]) << "-"
+		    << icu::UnicodeString(value[3]) << " met freq=" << counts[0] << endl;
 	      }
 	      kwc2_counts[key] = max + counts[0];
 	    }

@@ -51,7 +51,7 @@
 using namespace std;
 typedef signed long int bitType;
 
-unsigned int ldCompare( const UnicodeString& s1, const UnicodeString& s2 ){
+unsigned int ldCompare( const icu::UnicodeString& s1, const icu::UnicodeString& s2 ){
   const size_t len1 = s1.length(), len2 = s2.length();
   vector<unsigned int> col(len2+1), prevCol(len2+1);
   for ( unsigned int i = 0; i < prevCol.size(); ++i ){
@@ -69,8 +69,8 @@ unsigned int ldCompare( const UnicodeString& s1, const UnicodeString& s2 ){
 }
 
 unsigned int ld( const string& in1, const string& in2, bool caseless ){
-  UnicodeString s1 = TiCC::UnicodeFromUTF8(in1);
-  UnicodeString s2 = TiCC::UnicodeFromUTF8(in2);
+  icu::UnicodeString s1 = TiCC::UnicodeFromUTF8(in1);
+  icu::UnicodeString s2 = TiCC::UnicodeFromUTF8(in2);
   if ( caseless ){
     s1.toLower();
     s2.toLower();
