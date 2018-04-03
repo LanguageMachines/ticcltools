@@ -167,10 +167,13 @@ string filter_tilde_hashtag( const string& w ){
 void usage( const string& name ){
   cerr << "usage:" << name << " [options] <clean frequencyfile>" << endl;
   cerr << "\t" << name << " will read a wordfrequency list (in FoLiA-stats format) " << endl;
-  cerr << "\t\t which is assumed to be 'clean', but may consiste of n-grams with different arities." << endl;
+  cerr << "\t\t which is assumed to be 'clean', but may consist of n-grams with different arities." << endl;
   cerr << "\t\t The output will be an anagram hash file." << endl;
   cerr << "\t\t When a background corpus is specified, we also produce" << endl;
   cerr << "\t\t a new (merged) frequency file. " << endl;
+  cerr << "\t\t When the --list option is specified, only a list of words" << endl;
+  cerr << "\t\t and their anagram hashes is produced." << endl;
+  cerr << "\t--list\t create a simple list of words and anagram hashes." << endl;
   cerr << "\t--alph='file'\t name of the alphabet file" << endl;
   cerr << "\t--background='file'\t name of the background corpus" << endl;
   cerr << "\t--clip=<clip> : cut off of the alphabet." << endl;
@@ -181,7 +184,7 @@ void usage( const string& name ){
   cerr << "\t\t of the composing parts does not have the lexical frequency artifrq. " << endl;
   cerr << "\t--ngrams\t When the frequency file contains n-grams. (not necessary of equal arity)" << endl;
   cerr << "\t\t we split them into 1-grams and do a frequency lookup per part for the artifreq value." << endl;
-  cerr << "\t-V ot --version\t show version " << endl;
+  cerr << "\t-V or --version\t show version " << endl;
   cerr << "\t-v\t verbose (not used yet) " << endl;
 }
 
