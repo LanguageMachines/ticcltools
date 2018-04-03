@@ -102,7 +102,8 @@
 ;Or-	Or-
 ;de	de
 ;maar	maar
->eid,	>eid
+<PE	PE
+>eid,	eid
 ?ie!i	ie!i
 AAK,	AAK
 ABRAHAM,	ABRAHAM
@@ -712,6 +713,7 @@ Euci.	Euci
 Eudoxia?	Eudoxia
 Eudoxus,	Eudoxus
 Eufraat,	Eufraat
+Euftatitts>	Euftatitts
 Eugenius.	Eugenius
 Euripides.	Euripides
 Europa,	Europa
@@ -981,6 +983,7 @@ Hebreeuw/die.	Hebreeuw/die
 Hebreeuwfchf.	Hebreeuwfchf
 Hector,	Hector
 Heer,	Heer
+Hee~	Hee
 Heiden,	Heiden
 Heidendom.	Heidendom
 Heidenen,	Heidenen
@@ -1093,6 +1096,7 @@ IJJ»	IJJ
 INDIAANEN,	INDIAANEN
 INDOSTANERS.	INDOSTANERS
 INGENOMEN.	INGENOMEN
+IOf>	IOf
 IS*.	IS
 ISMAELITEN.	ISMAELITEN
 ISRAËLITEN.	ISRAËLITEN
@@ -1271,6 +1275,7 @@ Kanaan?	Kanaan
 Kanaaniten,	Kanaaniten
 Kanaaniten.	Kanaaniten
 Kanaanlten\	Kanaanlten
+Kanaa~	Kanaa
 Karakter?	Karakter
 Karavaanen,	Karavaanen
 Kardinaal,	Kardinaal
@@ -1722,7 +1727,7 @@ Oebeurtenisfen,	Oebeurtenisfen
 Oedipus,Danaus,Her.	Oedipus,Danaus,Her
 Of,	Of
 Of...?	Of
-Oiiaden'~—235».	Oiiaden'~-235
+Oiiaden'~—235».	Oiiaden'*-235
 Oldek»	Oldek
 Olympifche,	Olympifche
 Om,	Om
@@ -2546,6 +2551,7 @@ Waereldbewooners.	Waereldbewooners
 Waerelddeel,	Waerelddeel
 Waerelddeel?	Waerelddeel
 Waereldkaart,	Waereldkaart
+Wae~	Wae
 Waldenzen,	Waldenzen
 Waldus;	Waldus
 Walid.Soliman,	Walid.Soliman
@@ -2722,6 +2728,7 @@ Z»den,	Z»den
 \eiovering?	eiovering
 ^ging	ging
 ^zyn	zyn
+_en	en
 aaden,	aaden
 aan,	aan
 aan.	aan
@@ -3305,6 +3312,7 @@ dewylze,	dewylze
 dezelve,	dezelve
 dezelve?	dezelve
 dezelven?	dezelven
+dez~	dez
 de»	de
 dichtte.	dichtte
 die'	die
@@ -3826,6 +3834,7 @@ gering,	gering
 gering;	gering
 gering?	gering
 geringer.	geringer
+gering~om	gering*om
 geroemd,	geroemd
 getal,	getal
 getal.	getal
@@ -4407,6 +4416,7 @@ lyfeigenen.	lyfeigenen
 lyk,	lyk
 lïierf.	lïierf
 ma,	ma
+maa_	maa
 maaien.	maaien
 maaken,	maaken
 maaken.	maaken
@@ -5724,7 +5734,7 @@ weeten?	weeten
 weetenfchappen,	weetenfchappen
 weezen,	weezen
 weezen.	weezen
-wee~en?	wee~en
+wee~en?	wee*en
 weg,	weg
 wegen,	wegen
 wegfloeg,	wegfloeg

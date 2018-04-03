@@ -1,5 +1,5 @@
 de	2335
-en	1754
+en	1755
 van	1257
 in	1019
 het	830
@@ -2253,6 +2253,7 @@ Hammen	2
 Hand	2
 Handwerkslieden	2
 Hasselaar	2
+Hee	2
 Heilig	2
 Helde	2
 Hellen	2
@@ -2551,6 +2552,7 @@ WEETENSCHAPPEN	2
 Waaraan	2
 Waartoe	2
 Waarvan	2
+Wae	2
 Waerelddeelen	2
 Waereldlyk	2
 Waerelds	2
@@ -3328,10 +3330,6 @@ zyde	2
 3io	1
 5fï	1
 8'V	1
-8f>	1
-<PE	1
-<Ï0	1
->eid	1
 A'ieuwmegen	1
 A.'Dan	1
 A.'Na	1
@@ -4213,7 +4211,7 @@ Euci	1
 Eudoxia	1
 Eudoxus	1
 Eufraat	1
-Euftatitts>	1
+Euftatitts	1
 Euge-	1
 Eugenius	1
 Euripides	1
@@ -4531,11 +4529,9 @@ Hebreeuwfchen	1
 Hebreeuwfchf	1
 Hector	1
 Heden	1
-Hee	1
 Heekfchen	1
 Heemskerk	1
 Heere	1
-Hee~	1
 Heidanus	1
 Heiden	1
 Heidenfchc	1
@@ -4677,7 +4673,7 @@ IJS	1
 INDOSTANERS	1
 INLEIDING	1
 INO	1
-IOf>	1
+IOf	1
 ISMAELITEN	1
 ISRAËLI	1
 ISRAËLITEN	1
@@ -4917,9 +4913,9 @@ Kambyses	1
 Kameelen	1
 Kamfchatka	1
 Kan	1
+Kanaa	1
 Kanaanlten	1
 Kanaans	1
-Kanaa~	1
 Kandelaars	1
 Kapel	1
 Kapitein-	1
@@ -5494,7 +5490,7 @@ Octaviaaus	1
 Oe	1
 Oebeurtenisfen	1
 Oedipus,Danaus,Her	1
-Oiiaden'~-235	1
+Oiiaden'*-235	1
 Oldek	1
 Oldenbarn	1
 OldenbarneveLd	1
@@ -5579,6 +5575,7 @@ Oï	1
 Oüeverw	1
 P.ome	1
 PAÜSSEN	1
+PE	1
 PEN	1
 PERS	1
 PERSIAANEN	1
@@ -6513,14 +6510,12 @@ WORDEN	1
 Waarheden	1
 Waaronder	1
 Waarzeggery	1
-Wae	1
 Waereidlyken	1
 Waereld-Geleerdheid	1
 Waereld-Historie	1
 Waereld-Kaarc	1
 Waereldbewooners	1
 Waereldkaart	1
-Wae~	1
 Wal	1
 Waldus	1
 Walid.Soliman	1
@@ -6734,7 +6729,6 @@ Zyftammenaf	1
 Zynen	1
 Zyus	1
 Z»den	1
-_en	1
 a's	1
 a-	1
 aRiA's	1
@@ -7380,11 +7374,11 @@ deugdzaamen	1
 devoornaamue	1
 dewyi	1
 dewylze	1
+dez	1
 dezdven	1
 deze've	1
 dezel-	1
 dezel.ve	1
-dez~	1
 dgt	1
 di	1
 di'è	1
@@ -7554,6 +7548,7 @@ eeuwig	1
 efi	1
 eft	1
 eh	1
+eid	1
 eigendom	1
 eigenlyk	1
 eiken	1
@@ -8004,10 +7999,10 @@ geraakten	1
 geraamte	1
 geregelde	1
 gerekend	1
+gering*om	1
 geringde	1
 geringen	1
 geringer	1
-gering~om	1
 gernoeden	1
 gers	1
 gerugt	1
@@ -8531,7 +8526,6 @@ kénnis	1
 l'e	1
 l'omtyd	1
 l4g	1
-l6>	1
 l8£	1
 l<5	1
 lAt	1
@@ -8657,7 +8651,7 @@ lyloniers	1
 lïierf	1
 lö	1
 m0r	1
-maa_	1
+maa	1
 maaien	1
 maak-	1
 maakem	1
@@ -10080,6 +10074,7 @@ we'gerden	1
 wederkeerden	1
 wederkeeren	1
 wee	1
+wee*en	1
 weeken	1
 weende	1
 weergae	1
@@ -10089,7 +10084,6 @@ weerzin	1
 wees	1
 weetenfchap	1
 weetenfchappen	1
-wee~en	1
 wege	1
 wegen	1
 wegfloeg	1

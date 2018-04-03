@@ -98,9 +98,11 @@
 ;Or-	Or-
 ;de	de
 ;maar	maar
->eid,	>eid
+<PE	PE
+>eid,	eid
 ?ie!i	ie!i
 AAK,	AAK
+ABRAHAM,	ABRAHAM
 AFOODER?.	AFOODER
 AFRICA*	AFRICA
 AHAZIA,	AHAZIA
@@ -131,6 +133,7 @@ Aarde.	Aarde
 Aarde?	Aarde
 Aardryksbefchryving,	Aardryksbefchryving
 Abia,	Abia
+Abraham,	Abraham
 Academie,	Academie
 Academiën,	Academiën
 Achab,	Achab
@@ -142,6 +145,7 @@ Adel,	Adel
 Adel.	Adel
 Adel?	Adel
 Admiraal-Generaal,	Admiraal-Generaal
+Adolphus,	Adolphus
 Adrianus.	Adrianus
 Adtniraalen,	Adtniraalen
 Advocaat,	Advocaat
@@ -163,6 +167,7 @@ Alciatus,	Alciatus
 Aldegonde,	Aldegonde
 Aleoicis,	Aleoicis
 Alexaküer,	Alexaküer
+Alexander,	Alexander
 Alexandrie.	Alexandrie
 Algiers,	Algiers
 Alkmaar:	Alkmaar
@@ -200,6 +205,7 @@ Antilies,	Antilies
 Antiochie,	Antiochie
 Antipater,	Antipater
 Antisthenes,	Antisthenes
+Antonius,	Antonius
 Antwerpen,	Antwerpen
 Antónius,	Antónius
 Ap-penzell,	Ap-penzell
@@ -343,6 +349,7 @@ Boek,	Boek
 Boekdrukken,	Boekdrukken
 Boekdrukkeryen,	Boekdrukkeryen
 Boekdrukkonst;	Boekdrukkonst
+Boeken,	Boeken
 Boeken.	Boeken
 Boeken;	Boeken
 Boeken?	Boeken
@@ -652,10 +659,12 @@ Eilanden?	Eilanden
 Eindelyk...?	Eindelyk
 Ela,Zimri,Omri,	Ela,Zimri,Omri
 Eleonora,	Eleonora
+Elias,	Elias
 Elisa,	Elisa
 Elisabetu,	Elisabetu
 Elizabeth,,	Elizabeth
 Elk,	Elk
+Emanuel,	Emanuel
 Emoch,	Emoch
 En,	En
 En....?	En
@@ -680,6 +689,7 @@ Erasmcs,	Erasmcs
 Erasmus,	Erasmus
 Erasmüs,	Erasmüs
 Erfgenaam,	Erfgenaam
+Ernst,	Ernst
 Esau,	Esau
 Esculapius,	Esculapius
 Esfeauebs,	Esfeauebs
@@ -695,6 +705,7 @@ Euci.	Euci
 Eudoxia?	Eudoxia
 Eudoxus,	Eudoxus
 Eufraat,	Eufraat
+Euftatitts>	Euftatitts
 Eugenius.	Eugenius
 Euripides.	Euripides
 Europa,	Europa
@@ -726,6 +737,7 @@ Fazaël,	Fazaël
 Feest,	Feest
 Feesten;	Feesten
 Feji;	Feji
+Felix,	Felix
 Ferdinand?	Ferdinand
 Ferma,	Ferma
 Ferrara,	Ferrara
@@ -749,6 +761,7 @@ Frankryk.	Frankryk
 Frankryk;	Frankryk
 Frankryk?	Frankryk
 Fransch,	Fransch
+Frederik,	Frederik
 Frederikshal,	Frederikshal
 Freyftngen,	Freyftngen
 Friesland,	Friesland
@@ -767,6 +780,7 @@ GROENLAND.	GROENLAND
 GROOT-BRITTANNIE.	GROOT-BRITTANNIE
 GaZs,	GaZs
 Galba,	Galba
+Galenus,	Galenus
 Galilea.	Galilea
 Galileers.	Galileers
 Galileus,	Galileus
@@ -876,6 +890,7 @@ Gouda;	Gouda
 Goudmynen,	Goudmynen
 Gouvernante:	Gouvernante
 Gr/ecus,	Gr/ecus
+Graaf,	Graaf
 Graaffchap,	Graaffchap
 Graaffchappen,	Graaffchappen
 Graanen,	Graanen
@@ -942,8 +957,10 @@ Haarlem,	Haarlem
 Haarlem;	Haarlem
 Hadadezer,	Hadadezer
 Hadrianus,	Hadrianus
+Halle,	Halle
 Halsburg,	Halsburg
 Hand;	Hand
+Handel,	Handel
 Handel.	Handel
 Handel...?	Handel
 Handel?	Handel
@@ -957,6 +974,7 @@ Hebreeuw/die.	Hebreeuw/die
 Hebreeuwfchf.	Hebreeuwfchf
 Hector,	Hector
 Heer,	Heer
+Hee~	Hee
 Heiden,	Heiden
 Heidendom.	Heidendom
 Heidenen,	Heidenen
@@ -969,6 +987,7 @@ Helde,	Helde
 Heldenfeiten,	Heldenfeiten
 Hellen:	Hellen
 Helvetiers,	Helvetiers
+Hendrik,	Hendrik
 Henegouwen.	Henegouwen
 Heraclitus,	Heraclitus
 Heraklius;	Heraklius
@@ -999,6 +1018,7 @@ Hesiodus,	Hesiodus
 Hethiten,	Hethiten
 Heviten,	Heviten
 Hey-Werktuigen,	Hey-Werktuigen
+Heyden,	Heyden
 Hichten,	Hichten
 Hieron,	Hieron
 Hilarius,Lactantius,	Hilarius,Lactantius
@@ -1021,6 +1041,7 @@ Hof-leven?	Hof-leven
 Hof;	Hof
 Hof?	Hof
 Hohenzollern.	Hohenzollern
+Holland,	Holland
 Holland.	Holland
 Holland?	Holland
 Hollanders,	Hollanders
@@ -1039,6 +1060,7 @@ Hoorne,	Hoorne
 Hoornvee,	Hoornvee
 Hospodar,	Hospodar
 Hottentotten,	Hottentotten
+Hout,	Hout
 Hoveling,	Hoveling
 Hozea.	Hozea
 Htrkanus,	Htrkanus
@@ -1064,6 +1086,7 @@ IJJ»	IJJ
 INDIAANEN,	INDIAANEN
 INDOSTANERS.	INDOSTANERS
 INGENOMEN.	INGENOMEN
+IOf>	IOf
 IS*.	IS
 ISMAELITEN.	ISMAELITEN
 ISRAËLITEN.	ISRAËLITEN
@@ -1136,7 +1159,9 @@ Ja:	Ja
 Ja;	Ja
 Jaartelling.	Jaartelling
 Jaatften,	Jaatften
+Jacob,	Jacob
 Jacoba,	Jacoba
+Jacobus,	Jacobus
 Jacobus?	Jacobus
 Jakutie,	Jakutie
 Jamaica,	Jamaica
@@ -1239,9 +1264,11 @@ Kanaan?	Kanaan
 Kanaaniten,	Kanaaniten
 Kanaaniten.	Kanaaniten
 Kanaanlten\	Kanaanlten
+Kanaa~	Kanaa
 Karakter?	Karakter
 Karavaanen,	Karavaanen
 Kardinaal,	Kardinaal
+Karel,	Karel
 Karihageren,	Karihageren
 Karniole,	Karniole
 Karthagers,	Karthagers
@@ -1266,6 +1293,7 @@ Keizers,)	Keizers
 Keizers.	Keizers
 Keizers:	Keizers
 Kempis,	Kempis
+Kerk,	Kerk
 Kerk;	Kerk
 Kerk?	Kerk
 Kerken,	Kerken
@@ -1356,6 +1384,7 @@ Land,	Land
 Land.	Land
 Land;	Land
 Land?	Land
+Landbouw,	Landbouw
 Landbouw.	Landbouw
 Landbouw:	Landbouw
 Landbouw;	Landbouw
@@ -1497,6 +1526,7 @@ Marchand-,	Marchand-
 Marcus,	Marcus
 Margareet,	Margareet
 Marhsius;	Marhsius
+Maria,	Maria
 Maria.	Maria
 Marius,	Marius
 Marius?	Marius
@@ -1511,6 +1541,7 @@ Masjatlujets,	Masjatlujets
 Maukits,	Maukits
 Mauritaniers,	Mauritaniers
 Mauritius;	Mauritius
+Maurits,	Maurits
 Mauro.	Mauro
 Maximiliaan,	Maximiliaan
 Mazarin,	Mazarin
@@ -1660,6 +1691,7 @@ Noord-America?	Noord-America
 Noord-Karolina,	Noord-Karolina
 Noorden,	Noorden
 Noorden...	Noorden
+Noordholland,	Noordholland
 Noorweegen,	Noorweegen
 Noorweegers...	Noorweegers
 Noorweegfche.	Noorweegfche
@@ -1682,7 +1714,7 @@ Oebeurtenisfen,	Oebeurtenisfen
 Oedipus,Danaus,Her.	Oedipus,Danaus,Her
 Of,	Of
 Of...?	Of
-Oiiaden'~—235».	Oiiaden'~-235
+Oiiaden'~—235».	Oiiaden'*-235
 Oldek»	Oldek
 Olympifche,	Olympifche
 Om,	Om
@@ -1772,6 +1804,7 @@ Paleoloous,	Paleoloous
 Palestine,	Palestine
 Palos,	Palos
 Palts.	Palts
+Papier,	Papier
 Papieren:	Papieren
 Paraguay,	Paraguay
 Paris,	Paris
@@ -1783,6 +1816,7 @@ Parys,	Parys
 Parys?	Parys
 Pasfau.	Pasfau
 Paufen?	Paufen
+Paulus,	Paulus
 Paus,	Paus
 Paus/èn.	Paus/èn
 Paus:	Paus
@@ -1830,6 +1864,7 @@ Philopator,	Philopator
 Phocion.	Phocion
 Pi/a,	Pi/a
 Piek,	Piek
+Pieter,	Pieter
 Pindarus,	Pindarus
 PjRISSONIUS,	PjRISSONIUS
 Pkarfalie,	Pkarfalie
@@ -1869,6 +1904,7 @@ Pragt.	Pragt
 Praxiteles,	Praxiteles
 Predikryze,	Predikryze
 Priesters,	Priesters
+Prins,	Prins
 Probus,	Probus
 Profeet,"	Profeet
 Profeeten,	Profeeten
@@ -1951,9 +1987,11 @@ Reliquiën,	Reliquiën
 Remonftranten?	Remonftranten
 Renksse,	Renksse
 Renswoudi,	Renswoudi
+Republiek,	Republiek
 Requesens,	Requesens
 Rhode-Eiland,,	Rhode-Eiland
 Rhtn,	Rhtn
+Rhyn,	Rhyn
 Rhynfche,	Rhynfche
 Richelieu,	Richelieu
 Ridder-Orden,	Ridder-Orden
@@ -1967,6 +2005,7 @@ Rivieren.	Rivieren
 Rl-dbbck,	Rl-dbbck
 RlPPERDA,	RlPPERDA
 Ro*	Ro
+Robert,	Robert
 Rogier,	Rogier
 Rollo,	Rollo
 Romanie,	Romanie
@@ -2022,6 +2061,7 @@ Ryksgenooten,'	Ryksgenooten
 Rykswetten,	Rykswetten
 Ryst,	Ryst
 SADDüCEEN,	SADDüCEEN
+SAMUEL,	SAMUEL
 SANDER,	SANDER
 SCHEURING.	SCHEURING
 SCHILDERS.	SCHILDERS
@@ -2129,6 +2169,7 @@ Sidnei,	Sidnei
 Sidon,	Sidon
 Siena,	Siena
 Silo,	Silo
+Simon,	Simon
 Sisioambis,	Sisioambis
 Sixijche,	Sixijche
 Slaaven.	Slaaven
@@ -2217,6 +2258,7 @@ Steven,	Steven
 Stinstra:	Stinstra
 Stofgoud,	Stofgoud
 Stolp,	Stolp
+Straat,	Straat
 Straatsburg,	Straatsburg
 Struisvogelen,	Struisvogelen
 Sudermanland,	Sudermanland
@@ -2488,6 +2530,7 @@ Waereldbewooners.	Waereldbewooners
 Waerelddeel,	Waerelddeel
 Waerelddeel?	Waerelddeel
 Waereldkaart,	Waereldkaart
+Wae~	Wae
 Waldenzen,	Waldenzen
 Waldus;	Waldus
 Walid.Soliman,	Walid.Soliman
@@ -2531,6 +2574,8 @@ Wijn,,	Wijn
 Wil!•	Wil
 Wild,	Wild
 Wilden,	Wilden
+Wilhelm,	Wilhelm
+Willem,	Willem
 Wiskunde,	Wiskunde
 Wit,	Wit
 Witt,	Witt
@@ -2587,6 +2632,7 @@ Zeden,	Zeden
 Zeden.	Zeden
 Zeden;	Zeden
 Zeden?	Zeden
+Zee,	Zee
 Zee.	Zee
 Zee...?	Zee
 Zee;	Zee
@@ -2594,6 +2640,7 @@ Zee?	Zee
 Zeedagen,	Zeedagen
 Zeegolven,	Zeegolven
 Zeekusten;	Zeekusten
+Zeeland,	Zeeland
 Zeelieden,	Zeelieden
 Zeelieden.	Zeelieden
 Zeemagt,	Zeemagt
@@ -2660,6 +2707,7 @@ Z»den,	Z»den
 \eiovering?	eiovering
 ^ging	ging
 ^zyn	zyn
+_en	en
 aaden,	aaden
 aan,	aan
 aan?	aan
@@ -2851,6 +2899,7 @@ bedryven,	bedryven
 bedryven?	bedryven
 beeft.	beeft
 been;	been
+beets,	beets
 befchaafd,	befchaafd
 befchaafd.	befchaafd
 befchaafde,	befchaafde
@@ -3237,6 +3286,7 @@ dewylze,	dewylze
 dezelve,	dezelve
 dezelve?	dezelve
 dezelven?	dezelven
+dez~	dez
 de»	de
 dichtte.	dichtte
 die'	die
@@ -3754,6 +3804,7 @@ gering,	gering
 gering;	gering
 gering?	gering
 geringer.	geringer
+gering~om	gering*om
 geroemd,	geroemd
 getal,	getal
 getal.	getal
@@ -3881,6 +3932,7 @@ hadt?	hadt
 haft,	haft
 hals.	hals
 hand,	hand
+handel,	handel
 handel.	handel
 handel?'	handel
 handels.	handels
@@ -3996,6 +4048,7 @@ houden;	houden
 houden?	houden
 houders;	houders
 houdt.	houdt
+hout,	hout
 hraè'liten.	hraè'liten
 huid,	huid
 huis;	huis
@@ -4257,6 +4310,7 @@ leiden.	leiden
 len;	len
 les,	les
 letten.	letten
+leven,	leven
 leven.	leven
 leven:	leven
 levensgevaar,	levensgevaar
@@ -4326,6 +4380,7 @@ lyfeigenen.	lyfeigenen
 lyk,	lyk
 lïierf.	lïierf
 ma,	ma
+maa_	maa
 maaien.	maaien
 maaken,	maaken
 maaken.	maaken
@@ -4848,6 +4903,7 @@ pryzen,	pryzen
 pyl;	pyl
 qumius.	qumius
 rNati»n,	rNati»n
+raad,	raad
 raaken.	raaken
 raakte,	raakte
 raakte.	raakte
@@ -5040,6 +5096,7 @@ twee,	twee
 twee.	twee
 tweedemaal,	tweedemaal
 tweeden,	tweeden
+twist,	twist
 twisten,	twisten
 twisten.	twisten
 twisten?	twisten
@@ -5611,6 +5668,7 @@ waren...?	waren
 waren:	waren
 waren;	waren
 warer.	warer
+was,	was
 was,,	was
 was-,	was-
 was.	was
@@ -5635,7 +5693,7 @@ weeten?	weeten
 weetenfchappen,	weetenfchappen
 weezen,	weezen
 weezen.	weezen
-wee~en?	wee~en
+wee~en?	wee*en
 weg,	weg
 wegen,	wegen
 wegfloeg,	wegfloeg
