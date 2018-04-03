@@ -72,7 +72,7 @@ bool fillAlpha( istream& is,
     }
     int freq = TiCC::stringTo<int>( v[1] );
     if ( freq > clip ){
-      UnicodeString us = TiCC::UnicodeFromUTF8( v[0] );
+      icu::UnicodeString us = TiCC::UnicodeFromUTF8( v[0] );
       bitType hash = TiCC::stringTo<bitType>( v[2] );
       alphabet[us[0]] = hash;
     }
@@ -89,7 +89,7 @@ bitType hash( const string& s,
     HonderdHash = high_five( 100 );
     HonderdEenHash = high_five( 101 );
   }
-  UnicodeString us = TiCC::UnicodeFromUTF8( s );
+  icu::UnicodeString us = TiCC::UnicodeFromUTF8( s );
   us.toLower();
   bitType result = 0;
   bool multPunct = false;
@@ -99,7 +99,7 @@ bitType hash( const string& s,
     if ( it != alphabet.end() ){
       result += it->second;
       if ( klets ){
-	cerr << "  CHAR, add " << UnicodeString( us[i] ) << " "
+	cerr << "  CHAR, add " << icu::UnicodeString( us[i] ) << " "
 	     << it->second << " ==> " << result << endl;
       }
     }
@@ -112,7 +112,7 @@ bitType hash( const string& s,
 	if ( !multPunct ){
 	  result += HonderdHash;
 	  if ( klets ){
-	    cerr << "PUNCT, add " << UnicodeString( us[i] ) << " "
+	    cerr << "PUNCT, add " << icu::UnicodeString( us[i] ) << " "
 		 << HonderdHash	 << " ==> " << result << endl;
 	  }
 	  multPunct = true;
@@ -121,7 +121,7 @@ bitType hash( const string& s,
       else {
 	result += HonderdEenHash;
 	if ( klets ){
-	  cerr << "   UNK, add " << UnicodeString( us[i] ) << " "
+	  cerr << "   UNK, add " << icu::UnicodeString( us[i] ) << " "
 	       << HonderdHash << " ==> " << result << endl;
 	}
       }
@@ -143,6 +143,14 @@ void create_output( ostream& os,
     os << endl;
   }
   os << endl;
+}
+
+void create_ana_list( ostream& os,
+		      map<string,bitType>& ana_list ){
+  for ( const auto& it : ana_list ){
+    os << it.first << "\t" << it.second << endl;
+  }
+      os << endl;
 }
 
 string filter_tilde_hashtag( const string& w ){
@@ -181,7 +189,7 @@ int main( int argc, char *argv[] ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVh" );
-    opts.set_long_options( "alph:,background:,artifrq:,clip:,help,version,ngrams" );
+    opts.set_long_options( "alph:,background:,artifrq:,clip:,help,version,ngrams,list" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -209,6 +217,7 @@ int main( int argc, char *argv[] ){
   bool verbose = opts.extract( 'v' );
   opts.extract( "alph", alphafile );
   opts.extract( "background", backfile );
+  bool list = opts.extract( "list" );
   string value;
   if ( opts.extract( "clip", value ) ){
     if ( !TiCC::stringTo(value,clip) ) {
@@ -250,14 +259,6 @@ int main( int argc, char *argv[] ){
     cerr << "unable to open corpus frequency file: " << file_name << endl;
     exit(EXIT_FAILURE);
   }
-  bool doMerge = false;
-  if ( !backfile.empty() ){
-    if ( !TiCC::isFile( backfile) ){
-      cerr << "unable to open background frequency file: " << backfile << endl;
-      exit(EXIT_FAILURE);
-    }
-    doMerge = true;
-  }
   if ( alphafile.empty() ){
     cerr << "We need an alphabet file!" << endl;
     exit(EXIT_FAILURE);
@@ -272,23 +273,50 @@ int main( int argc, char *argv[] ){
     cerr << "serious problems reading alphabet file: " << alphafile << endl;
     exit(EXIT_FAILURE);
   }
-
-  string out_file_name = file_name + ".anahash";
-  if ( !TiCC::createPath( out_file_name ) ){
-    cerr << "unable to open output file: " << out_file_name << endl;
-    exit(EXIT_FAILURE);
-  }
-  string foci_file_name = file_name + ".corpusfoci";
-  if ( artifreq > 0 ){
-    if ( !TiCC::createPath( foci_file_name ) ){
-      cerr << "unable to open foci file: " << foci_file_name << endl;
+  bool doMerge = false;
+  string out_file_name = file_name;
+  string foci_file_name = file_name;
+  if ( list ){
+    if ( artifreq > 0 ){
+      cerr << "option --artifrq not supported for --list" << endl;
+      exit( EXIT_FAILURE);
+    }
+    if ( !backfile.empty() ){
+      cerr << "option --background not supported for --list" << endl;
+      exit( EXIT_FAILURE);
+    }
+    out_file_name = file_name + ".list";
+    if ( !TiCC::createPath( out_file_name ) ){
+      cerr << "unable to open output file: " << out_file_name << endl;
       exit(EXIT_FAILURE);
+    }
+  }
+  else {
+    out_file_name = file_name + ".anahash";
+    if ( !TiCC::createPath( out_file_name ) ){
+      cerr << "unable to open output file: " << out_file_name << endl;
+      exit(EXIT_FAILURE);
+    }
+    foci_file_name = file_name + ".corpusfoci";
+    if ( artifreq > 0 ){
+      if ( !TiCC::createPath( foci_file_name ) ){
+	cerr << "unable to open foci file: " << foci_file_name << endl;
+	exit(EXIT_FAILURE);
+      }
+    }
+    if ( !backfile.empty() ){
+      if ( !TiCC::isFile( backfile) ){
+	cerr << "unable to open background frequency file: " << backfile << endl;
+	exit(EXIT_FAILURE);
+      }
+      doMerge = true;
     }
   }
 
   map<string,bitType> merged;
   map<string,bitType> freq_list;
   map<bitType, set<string> > anagrams;
+  map<string,bitType> ana_list;
   cout << "start hashing from the corpus frequency file." << endl;
   string line;
   while ( getline( is, line ) ){
@@ -302,16 +330,21 @@ int main( int argc, char *argv[] ){
     }
     string word = filter_tilde_hashtag( v[0] );
     bitType h = ::hash( word, alphabet );
-    anagrams[h].insert( word );
-    bitType freq = TiCC::stringTo<bitType>( v[1] );
-    freq_list[word] = freq;
-    if ( doMerge && artifreq > 0  ){
-      merged[v[0]] = freq;
+    if ( list ){
+      ana_list[word] = h;
+    }
+    else {
+      anagrams[h].insert( word );
+      bitType freq = TiCC::stringTo<bitType>( v[1] );
+      freq_list[word] = freq;
+      if ( doMerge && artifreq > 0  ){
+	merged[v[0]] = freq;
+      }
     }
   }
 
   set<bitType> foci;
-  if ( artifreq > 0 ){
+  if ( artifreq > 0 ){ // so NOT when creationg a simple list!
     for ( const auto& it : freq_list ){
       string word = it.first;
       bitType h = ::hash( word, alphabet );
@@ -323,7 +356,7 @@ int main( int argc, char *argv[] ){
 	    const auto u_it = freq_list.find(part);
 	    if ( u_it != freq_list.end()
 		 && u_it->second < artifreq ){
-	      UnicodeString u_part = TiCC::UnicodeFromUTF8( part );
+	      icu::UnicodeString u_part = TiCC::UnicodeFromUTF8( part );
 	      u_part.toLower();
 	      string l_part  = TiCC::UnicodeToUTF8( u_part );
 	      const auto l_it = freq_list.find(l_part);
@@ -341,7 +374,7 @@ int main( int argc, char *argv[] ){
       else {
 	bitType freq = it.second;
 	if ( freq < artifreq ){
-	  UnicodeString u_part = TiCC::UnicodeFromUTF8( word );
+	  icu::UnicodeString u_part = TiCC::UnicodeFromUTF8( word );
 	  u_part.toLower();
 	  string l_part  = TiCC::UnicodeToUTF8( u_part );
 	  const auto l_it = freq_list.find(l_part);
@@ -388,7 +421,11 @@ int main( int argc, char *argv[] ){
 
   cout << "generating output file: " << out_file_name << endl;
   ofstream os( out_file_name );
-  create_output( os, anagrams );
-
+  if ( list ){
+    create_ana_list( os, ana_list );
+  }
+  else {
+    create_output( os, anagrams );
+  }
   cout << "done!" << endl;
 }
