@@ -24,6 +24,7 @@
       lamasoftware (at ) science.ru.nl
 
 */
+#include <cassert>
 #include <cstdlib>
 #include <getopt.h>
 #include <string>
@@ -87,7 +88,7 @@ bool fillAlpha( istream& is, set<UChar>& alphabet ){
       cerr << "unsupported format for alphabet file" << endl;
       exit(EXIT_FAILURE);
     }
-    UnicodeString us = TiCC::UnicodeFromUTF8( v[0] );
+    icu::UnicodeString us = TiCC::UnicodeFromUTF8( v[0] );
     us.toLower();
     alphabet.insert( us[0] );
     us.toUpper();
@@ -114,7 +115,7 @@ bool is_ticcl_punct( UChar uc ){
       return true;
     }
     else {
-      UnicodeString us(uc);
+      icu::UnicodeString us(uc);
       if ( us == "°" ){
 	return true;
       }
@@ -126,7 +127,7 @@ bool is_ticcl_punct( UChar uc ){
   return false;
 }
 
-bool depunct( const UnicodeString& us, UnicodeString& result ){
+bool depunct( const icu::UnicodeString& us, icu::UnicodeString& result ){
   result.remove();
   int i = 0;
   for ( ; i < us.length(); ++i ){
@@ -163,16 +164,16 @@ bool depunct( const UnicodeString& us, UnicodeString& result ){
 
 static TiCC::UniFilter filter;
 
-bool normalize_weird( const UnicodeString& in, UnicodeString& result ){
-  UnicodeString us = filter.filter( in );
+bool normalize_weird( const icu::UnicodeString& in, icu::UnicodeString& result ){
+  icu::UnicodeString us = filter.filter( in );
   result = us;
   return result != in;
 }
 
-bool is_roman( const UnicodeString& word ){
+bool is_roman( const icu::UnicodeString& word ){
   static string pattern = "^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$";
   static TiCC::UnicodeRegexMatcher roman_detect( TiCC::UnicodeFromUTF8(pattern), "roman" );
-  UnicodeString pre, post;
+  icu::UnicodeString pre, post;
   bool debug = false; //(word == "IX");
   if ( debug ){
     //#pragma omp critical (debug)
@@ -199,7 +200,7 @@ bool is_roman( const UnicodeString& word ){
   return false;
 }
 
-S_Class classify( const UnicodeString& word,
+S_Class classify( const icu::UnicodeString& word,
 		  const set<UChar>& alphabet ){
   int is_digit = 0;
   int is_punct = 0;
@@ -228,7 +229,7 @@ S_Class classify( const UnicodeString& word,
       int8_t charT = u_charType( uchar );
       if ( alphabet.empty() ){
 	if ( verbose ){
-	  cerr << "bekijk karakter " << UnicodeString(uchar) << " van type " << toString(charT) << endl;
+	  cerr << "bekijk karakter " << icu::UnicodeString(uchar) << " van type " << toString(charT) << endl;
 	}
 	if ( ticc_isletter( charT ) ){
 	  ++is_letter;
@@ -244,37 +245,37 @@ S_Class classify( const UnicodeString& word,
 	  // OUT
 	}
 	else {
-	  cerr << "Warning: karakter '" << UnicodeString(uchar) << "' ("
-	       << TiCC::format_nonascii( TiCC::UnicodeToUTF8(UnicodeString(uchar)) )
+	  cerr << "Warning: karakter '" << icu::UnicodeString(uchar) << "' ("
+	       << TiCC::format_nonascii( TiCC::UnicodeToUTF8(icu::UnicodeString(uchar)) )
 	       << ") is van onbekend type " << toString(charT) << endl;
 	  ++is_out;
 	}
       }
       else {
 	if ( verbose ){
-	  cerr << "bekijk karakter " << UnicodeString(uchar) << " van type " << toString(charT) << endl;
+	  cerr << "bekijk karakter " << icu::UnicodeString(uchar) << " van type " << toString(charT) << endl;
 	}
 	if ( alphabet.find( uchar ) != alphabet.end() ) {
 	  if ( verbose ){
-	    cerr << "'" << UnicodeString(uchar) << "' is IN het alfabet" << endl;
+	    cerr << "'" << icu::UnicodeString(uchar) << "' is IN het alfabet" << endl;
 	  }
 	  ++is_letter;
 	}
 	else if ( charT == U_DECIMAL_DIGIT_NUMBER ){
 	  if ( verbose ){
-	    cerr << "'" << UnicodeString(uchar) << "' is DIGIT" << endl;
+	    cerr << "'" << icu::UnicodeString(uchar) << "' is DIGIT" << endl;
 	  }
 	  ++is_digit;
 	}
 	else if ( uchar == '.' ){
 	  if ( verbose ){
-	    cerr << "'" << UnicodeString(uchar) << "' is PUNCT" << endl;
+	    cerr << "'" << icu::UnicodeString(uchar) << "' is PUNCT" << endl;
 	  }
 	  ++is_punct;
 	}
 	else {
 	  if ( verbose ){
-	    cerr << "'" << UnicodeString(uchar) << "' is OUT het alfabet" << endl;
+	    cerr << "'" << icu::UnicodeString(uchar) << "' is OUT het alfabet" << endl;
 	  }
 	  ++is_out;
 	}
@@ -353,8 +354,8 @@ S_Class classify( const string& word, const set<UChar>& alphabet,
 		  string& punct ){
   S_Class result = CLEAN;
   punct.clear();
-  UnicodeString us = TiCC::UnicodeFromUTF8( word );
-  UnicodeString ps;
+  icu::UnicodeString us = TiCC::UnicodeFromUTF8( word );
+  icu::UnicodeString ps;
   if ( verbose ){
     cerr << "classify:" << us << endl;
   }
@@ -407,8 +408,8 @@ bool isAcro( const vector<string>& parts,
   static TiCC::UnicodeRegexMatcher acro_detect( TiCC::UnicodeFromUTF8(pattern), "acro_detector" );
   result.clear();
   for ( size_t i = 0; i < parts.size() -1; ++i ){
-    UnicodeString us = TiCC::UnicodeFromUTF8( parts[i] + SEPARATOR + parts[i+1] );
-    UnicodeString pre, post;
+    icu::UnicodeString us = TiCC::UnicodeFromUTF8( parts[i] + SEPARATOR + parts[i+1] );
+    icu::UnicodeString pre, post;
     //#pragma omp critical (debug)
     //    {
     //       acro_detect.set_debug(1);
@@ -430,9 +431,9 @@ bool isAcro( const vector<string>& parts,
 bool isAcro( const string& word ){
   static string pattern2 = "^(\\p{Lu}{1,2}\\.{1,2}(\\p{Lu}{1,2}\\.{1,2})*)(\\p{Lu}{0,2})$";
   static TiCC::UnicodeRegexMatcher acro_detect2( TiCC::UnicodeFromUTF8(pattern2), "dot_alter" );
-  UnicodeString pre, post;
+  icu::UnicodeString pre, post;
   //  acro_detect2.set_debug(1);
-  UnicodeString us = TiCC::UnicodeFromUTF8( word );
+  icu::UnicodeString us = TiCC::UnicodeFromUTF8( word );
   //  cerr << "IS ACRO: test pattern = " << acro_detect2.Pattern() << endl;
   //  cerr << "op " << us << endl;
   bool test;
@@ -443,8 +444,8 @@ bool isAcro( const string& word ){
   return test;
 }
 
-UnicodeString filter_punct( const UnicodeString& us ){
-  UnicodeString result;
+icu::UnicodeString filter_punct( const icu::UnicodeString& us ){
+  icu::UnicodeString result;
   for ( int i=0; i < us.length(); ++i ){
     if ( !ticc_ispunct(us[i]) ){
       result += us[i];
@@ -456,7 +457,7 @@ UnicodeString filter_punct( const UnicodeString& us ){
 S_Class classify_n_gram( const vector<string>& parts,
 			 string& end_pun,
 			 unsigned int& lexclean,
-			 const map<UnicodeString,unsigned int>& decap_clean_words,
+			 const map<icu::UnicodeString,unsigned int>& decap_clean_words,
 			 const set<UChar>& alphabet ){
   S_Class end_cl = UNDEF;
   for ( auto const& wrd : parts ){
@@ -473,7 +474,7 @@ S_Class classify_n_gram( const vector<string>& parts,
     }
     S_Class cl;
     string pun;
-    UnicodeString us = TiCC::UnicodeFromUTF8( wrd );
+    icu::UnicodeString us = TiCC::UnicodeFromUTF8( wrd );
     us.toLower();
     if ( decap_clean_words.find( us ) != decap_clean_words.end() ){
       // no need to do a lot of work for already clean words
@@ -551,7 +552,7 @@ S_Class classify_n_gram( const vector<string>& parts,
 
 void classify_one_entry( const string& orig_word, unsigned int freq,
 			 map<string,unsigned int>& clean_words,
-			 const map<UnicodeString,unsigned int>& decap_clean_words,
+			 const map<icu::UnicodeString,unsigned int>& decap_clean_words,
 			 map<string,unsigned int>& unk_words,
 			 map<string,string>& punct_words,
 			 map<string,unsigned int>& punct_acro_words,
@@ -559,8 +560,8 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
 			 bool doAcro,
 			 const set<UChar>& alphabet,
 			 size_t artifreq ){
-  UnicodeString us = TiCC::UnicodeFromUTF8( orig_word );
-  UnicodeString nus;
+  icu::UnicodeString us = TiCC::UnicodeFromUTF8( orig_word );
+  icu::UnicodeString nus;
   bool normalized = normalize_weird( us, nus );
   string word = TiCC::UnicodeToUTF8( nus );
   if ( verbose ){
@@ -575,17 +576,17 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
   }
   vector<string> parts;
   TiCC::split_at( word, parts, SEPARATOR );
+  if ( parts.size() == 0 ){
+    return;
+  }
   if ( word[0] == SEPARATOR[0] ){
     parts[0] = SEPARATOR + parts[0];
   }
   if ( word[word.length()-1] == SEPARATOR[0] ){
     parts.back() += SEPARATOR;
   }
-  if ( parts.size() == 0 ){
-    return;
-  }
-  else if ( parts.size() == 2
-	    && word.size() < 6 ){
+  if ( parts.size() == 2
+       && word.size() < 6 ){
     if ( verbose ){
       //#pragma omp critical (verbose)
       {
@@ -756,7 +757,7 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
 }
 
 
-UnicodeString default_filter = "æ >ae;"
+icu::UnicodeString default_filter = "æ >ae;"
   "Æ } [:Uppercase Letter:]* > AE;"
   "Æ > Ae;"
   "œ > oe;"
@@ -850,7 +851,7 @@ int main( int argc, char *argv[] ){
   opts.extract( "filter", filter_file_name );
   if ( !filter_file_name.empty() ){
     filter.fill( filter_file_name, "user_defined_filter" );
-    UnicodeString r = filter.get_rules();
+    icu::UnicodeString r = filter.get_rules();
   }
   else {
     filter.init( default_filter, "default_filter" );
@@ -948,7 +949,7 @@ int main( int argc, char *argv[] ){
   }
 
   map<string,unsigned int> clean_words;
-  map<UnicodeString,unsigned int> decap_clean_words;
+  map<icu::UnicodeString,unsigned int> decap_clean_words;
   map<string,unsigned int> unk_words;
   map<string,unsigned int> punct_acro_words;
   map<string,unsigned int> compound_acro_words;
@@ -990,7 +991,7 @@ int main( int argc, char *argv[] ){
 	freq = artifreq;
       }
       clean_words[v[0]] += freq;
-      UnicodeString us = TiCC::UnicodeFromUTF8( v[0] );
+      icu::UnicodeString us = TiCC::UnicodeFromUTF8( v[0] );
       us.toLower();
       decap_clean_words[us] += freq;
     }
@@ -1066,7 +1067,7 @@ int main( int argc, char *argv[] ){
 
   if ( doAcro ){
     for ( const auto& ait : punct_acro_words ){
-      UnicodeString us = TiCC::UnicodeFromUTF8(ait.first);
+      icu::UnicodeString us = TiCC::UnicodeFromUTF8(ait.first);
       us = filter_punct( us );
       string acro = TiCC::UnicodeToUTF8( us );
       if ( compound_acro_words.find( acro ) != compound_acro_words.end() ){
