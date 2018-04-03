@@ -80,9 +80,10 @@ zee„		1 # P met zee in C
 HUTS.§5#	1 # U
 Regee~ring	1 # P met Regee*ring in C
 Regee~_ring	1 # P met Regee*_ring in C
-aange~		1
+aange~		1 # P met aange in C
 ~~		1 # U
-van_hoofdstuk_VII#	1
-Voor_#_zitter!	1
+van_hoofdstuk_VII#	1 # nergens, Romeins cijfer
+Voor_#_zitter!	1 # Nergens (# is te kort)
+Voor_aap#noot_zitter!	1 # P met Voor_aap*noot_zitter in C
 non breaking	1 # P met non_breaking in C
 non breaking space	1 # P met non_breaking_space in C
