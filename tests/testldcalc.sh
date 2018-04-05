@@ -21,7 +21,7 @@ fi
 
 outdir=OUT/$outsub
 outdir=TESTRESULTS
-refdir=OUTreference/BOOK
+refdir=OUTreference/testldcalc
 testdir=TESTDATA
 datadir=DATA
 

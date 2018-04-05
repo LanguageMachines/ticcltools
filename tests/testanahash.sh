@@ -21,7 +21,7 @@ fi
 
 outdir=OUT/$outsub
 outdir=TESTRESULTS
-refdir=OUTreference
+refdir=OUTreference/testanahash
 testdir=TESTDATA
 datadir=DATA
 
