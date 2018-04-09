@@ -145,14 +145,6 @@ void create_output( ostream& os,
   os << endl;
 }
 
-void create_ana_list( ostream& os,
-		      map<string,bitType>& ana_list ){
-  for ( const auto& it : ana_list ){
-    os << it.first << "\t" << it.second << endl;
-  }
-      os << endl;
-}
-
 string filter_tilde_hashtag( const string& w ){
   // assume that we cannot break UTF8 by replacing # or ~ by _
   string result = w;
@@ -171,9 +163,9 @@ void usage( const string& name ){
   cerr << "\t\t The output will be an anagram hash file." << endl;
   cerr << "\t\t When a background corpus is specified, we also produce" << endl;
   cerr << "\t\t a new (merged) frequency file. " << endl;
-  cerr << "\t\t When the --list option is specified, only a list of words" << endl;
-  cerr << "\t\t and their anagram hashes is produced." << endl;
-  cerr << "\t--list\t create a simple list of words and anagram hashes." << endl;
+  cerr << "\t\t When the --list option is specified, the inputfile is converted" << endl;
+  cerr << "\t\t into a list of its words and their anagram hashes." << endl;
+  cerr << "\t--list\t create a simple list of words and anagram hashes. (preserving order)" << endl;
   cerr << "\t--alph='file'\t name of the alphabet file" << endl;
   cerr << "\t--background='file'\t name of the background corpus" << endl;
   cerr << "\t--clip=<clip> : cut off of the alphabet." << endl;
@@ -182,7 +174,7 @@ void usage( const string& name ){
   cerr << "\t\t values that have a lexical frequency < 'artifrq' " << endl;
   cerr << "\t\t for n-grams, only those n-grams are written where at least one" << endl;
   cerr << "\t\t of the composing parts does not have the lexical frequency artifrq. " << endl;
-  cerr << "\t--ngrams\t When the frequency file contains n-grams. (not necessary of equal arity)" << endl;
+  cerr << "\t--ngrams When the frequency file contains n-grams. (not necessary of equal arity)" << endl;
   cerr << "\t\t we split them into 1-grams and do a frequency lookup per part for the artifreq value." << endl;
   cerr << "\t-V or --version\t show version " << endl;
   cerr << "\t-v\t verbose (not used yet) " << endl;
@@ -315,11 +307,10 @@ int main( int argc, char *argv[] ){
       doMerge = true;
     }
   }
-
+  ofstream out_stream( out_file_name );
   map<string,bitType> merged;
   map<string,bitType> freq_list;
   map<bitType, set<string> > anagrams;
-  map<string,bitType> ana_list;
   cout << "start hashing from the corpus frequency file." << endl;
   string line;
   while ( getline( is, line ) ){
@@ -334,7 +325,7 @@ int main( int argc, char *argv[] ){
     string word = filter_tilde_hashtag( v[0] );
     bitType h = ::hash( word, alphabet );
     if ( list ){
-      ana_list[word] = h;
+      out_stream << v[0] << "\t" << h << endl;
     }
     else {
       anagrams[h].insert( word );
@@ -346,8 +337,12 @@ int main( int argc, char *argv[] ){
     }
   }
 
+  if ( list ){
+    cout << "created a list file: " << out_file_name << endl;
+    exit( EXIT_SUCCESS );
+  }
   set<bitType> foci;
-  if ( artifreq > 0 ){ // so NOT when creationg a simple list!
+  if ( artifreq > 0 ){ // so NOT when creating a simple list!
     for ( const auto& it : freq_list ){
       string word = it.first;
       bitType h = ::hash( word, alphabet );
@@ -423,12 +418,6 @@ int main( int argc, char *argv[] ){
   }
 
   cout << "generating output file: " << out_file_name << endl;
-  ofstream os( out_file_name );
-  if ( list ){
-    create_ana_list( os, ana_list );
-  }
-  else {
-    create_output( os, anagrams );
-  }
+  create_output( out_stream, anagrams );
   cout << "done!" << endl;
 }
