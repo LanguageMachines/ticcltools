@@ -1,4 +1,4 @@
-.TH TICCL-anahash 1 "2014 sep 03"
+.TH TICCL-anahash 1 "2018 apr 09"
 
 .SH NAME
 TICCL-anahash - an anagram hashing tool
@@ -79,6 +79,21 @@ is indicated for use with larger corpora.
 
 .RE
 
+.B --ngrams
+.RS
+When the frequency file contains n-grams, (not necessary of equal arity)
+we split them into 1-grams and do a frequency lookup per part for the artifreq
+value.
+
+.RE
+
+.B --list
+.RS
+convert the inputfile into a file that is an exact copy of its words and
+the anagram hashes added. Preserves the order of the input, an may contain doubles.
+
+.RE
+
 .B -V
 .RS
 Show VERSION
@@ -99,7 +114,7 @@ usage info
 possibly
 
 .SH AUTHORS
-Ko van der Sloot Timbl@uvt.nl
+Ko van der Sloot lamasoftware@science.ru.nl
 
 Martin Reynaert reynaert@uvt.nl
 
