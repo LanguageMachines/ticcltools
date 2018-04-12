@@ -366,7 +366,7 @@ S_Class classify( const string& word, const set<UChar>& alphabet,
     else {
       result = classify( ps, alphabet );
       if ( verbose ){
-	cerr << "classify: " << result << endl;
+	cerr << "classify() result:" << result << endl;
       }
       if ( result != IGNORE ){
 	if ( result == CLEAN ){
@@ -443,8 +443,14 @@ S_Class classify_n_gram( const vector<string>& parts,
 			 unsigned int& lexclean,
 			 const map<icu::UnicodeString,unsigned int>& decap_clean_words,
 			 const set<UChar>& alphabet ){
+  if ( verbose ){
+    cerr << "classify a " << parts.size() << "-gram" << endl;
+  }
   S_Class end_cl = UNDEF;
   for ( auto const& wrd : parts ){
+    if ( verbose ){
+      cerr << "       classify next part: " << wrd << endl;
+    }
     if ( parts.size() > 1
 	 && wrd.size() == 1
 	 && (!isalnum(wrd[0]) && wrd[0] != '-' ) ){
@@ -464,6 +470,9 @@ S_Class classify_n_gram( const vector<string>& parts,
     if ( decap_clean_words.find( us ) != decap_clean_words.end() ){
       // no need to do a lot of work for already clean words
       ++lexclean;
+      if ( verbose ){
+	cerr << "in background ==> CLEAN" << endl;
+      }
       cl = CLEAN;
     }
     else {
@@ -546,6 +555,9 @@ S_Class classify_n_gram( const vector<string>& parts,
     end_pun += pun + SEPARATOR;
   }
   end_pun = TiCC::trim_back( end_pun, SEPARATOR );
+  if ( verbose ){
+    cerr << "final end_pun = " << end_pun << endl;
+  }
   return end_cl;
 }
 
@@ -679,11 +691,11 @@ void classify_one_entry( const string& orig_word, unsigned int freq,
 	}
       }
       else {
+	if ( verbose ){
+	  cerr << "PUNCT word: " << word << " depunct to: " << end_pun << endl;
+	}
 	clean_words[end_pun] += freq;
 	punct_words[orig_word] = end_pun;
-	if ( verbose ){
-	  cerr << "PUNCT word: " << word << endl;
-	}
       }
     }
     break;
@@ -851,6 +863,7 @@ int main( int argc, char *argv[] ){
       cerr << "serious problems reading alphabet file: " << alphafile << endl;
       exit(EXIT_FAILURE);
     }
+    cout << "read an alphabet of " << alphabet.size() << " characters." << endl;
   }
 
   map<string,unsigned int> clean_words;
@@ -900,6 +913,9 @@ int main( int argc, char *argv[] ){
       us.toLower();
       decap_clean_words[us] += freq;
     }
+    cout << "read a blackground lexion with " << clean_words.size()
+	 << " entries." << endl;
+
   }
   string line;
   size_t line_cnt = 0 ;
@@ -932,7 +948,7 @@ int main( int argc, char *argv[] ){
     unsigned int freq = TiCC::stringTo<unsigned int>(v[1]);
     my_lexicon[orig_word] = freq;
   }
-  cout << "read a lexion with " << line_cnt << " entries"<< endl;
+  cout << "start classifying a lexion with " << line_cnt << " entries"<< endl;
   for ( const auto& wf : my_lexicon ){
     classify_one_entry( wf.first, wf.second,
 			clean_words, decap_clean_words,
