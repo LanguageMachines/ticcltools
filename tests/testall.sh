@@ -55,7 +55,7 @@ fi
 
 echo start TICLL-unk
 
-$bindir/TICCL-unk --corpus $datadir/INLandAspell.corpus --artifrq 100000000 --acro -o $outdir/TESTDP035 $outdir/TESTDP035.wordfreqlist.tsv
+$bindir/TICCL-unk --background $datadir/INLandAspell.corpus --artifrq 100000000 --acro -o $outdir/TESTDP035 $outdir/TESTDP035.wordfreqlist.tsv
 
 if [ $? -ne 0 ]
 then

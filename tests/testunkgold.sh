@@ -21,7 +21,7 @@ datadir=DATA
 
 echo start TICLL-unk
 
-$bindir/TICCL-unk --corpus $datadir/INLandAspell.corpus --artifrq 100000000 --acro --filter=unk.rules $extra_option -o$outdir/gold1 $testdir/gold.tsv
+$bindir/TICCL-unk --background $datadir/INLandAspell.corpus --artifrq 100000000 --acro --filter=unk.rules $extra_option -o$outdir/gold1 $testdir/gold.tsv
 
 if [ $? -ne 0 ]
 then

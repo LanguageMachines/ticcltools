@@ -59,7 +59,7 @@ echo start TICLL-unk
 
 cp $outdir/TESTDP035.wordfreqlist.tsv $outdir/TESTDP035.tsv
 
-$bindir/TICCL-unk --corpus $datadir/INLandAspell.corpus --artifrq 100000000 --acro $outdir/TESTDP035.tsv
+$bindir/TICCL-unk --background $datadir/INLandAspell.corpus --artifrq 100000000 --acro $outdir/TESTDP035.tsv
 
 if [ $? -ne 0 ]
 then
