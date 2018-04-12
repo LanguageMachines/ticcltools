@@ -126,12 +126,7 @@ bool fillAlpha( const string& file, set<UChar>& alphabet ){
     if ( line.size() == 0 || line[0] == '#' ){
       continue;
     }
-    vector<string> v;
-    int n = TiCC::split( line, v );
-    if ( n != 3 ){
-      cerr << "unsupported format for alphabet file" << endl;
-      exit(EXIT_FAILURE);
-    }
+    vector<string> v = TiCC::split( line );
     icu::UnicodeString us = TiCC::UnicodeFromUTF8( v[0] );
     us.toLower();
     alphabet.insert( us[0] );
