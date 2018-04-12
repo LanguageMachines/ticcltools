@@ -723,7 +723,7 @@ void usage( const string& name ){
   cerr << "\t\t punctuation paired with their clean variants." << endl;
   cerr << "\t-o 'name'\t create outputfile(s) with prefix 'name'" << endl;
   cerr << "\t--alph='file'\t name of the alphabet file" << endl;
-  cerr << "\t--corpus='file'\t validated lexicon file" << endl;
+  cerr << "\t--background='file'\t validated lexicon file" << endl;
   cerr << "\t--artifrq='value'\t the default value for missing frequencies"
        << endl;
   cerr << "\t\t in the validated lexicon. (default = 0)" << endl;
@@ -741,7 +741,7 @@ int main( int argc, char *argv[] ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
-    opts.set_long_options( "acro,alph:,corpus:,artifrq:,filter:,help,version" );
+    opts.set_long_options( "acro,alph:,background:,artifrq:,filter:,help,version" );
     opts.parse_args( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -763,11 +763,11 @@ int main( int argc, char *argv[] ){
     exit(EXIT_FAILURE);
   }
   string alphafile;
-  string corpusfile;
+  string background_file;
   unsigned int artifreq = 0;
   bool doAcro = opts.extract("acro");
   verbose = opts.extract('v');
-  opts.extract("corpus", corpusfile);
+  opts.extract("background", background_file);
   opts.extract("alph", alphafile);
   string value;
   if ( opts.extract( "artifrq", value ) ){
@@ -859,15 +859,15 @@ int main( int argc, char *argv[] ){
   map<string,unsigned int> punct_acro_words;
   map<string,unsigned int> compound_acro_words;
   map<string,string> punct_words;
-  if ( !corpusfile.empty() ){
+  if ( !background_file.empty() ){
     if ( artifreq == 0 ){
-      cerr << "a corpus file is specified (--corpus option), but artifreq is NOT set "
+      cerr << "a background file is specified (--background option), but artifreq is NOT set "
 	   << "(--artifrq option)" << endl;
       exit(EXIT_FAILURE);
     }
-    ifstream extra( corpusfile );
+    ifstream extra( background_file );
     if ( !extra ){
-      cerr << "unable to open corpus file: " << corpusfile << endl;
+      cerr << "unable to open background file: " << background_file << endl;
       exit(EXIT_FAILURE);
     }
     string line;
@@ -879,7 +879,7 @@ int main( int argc, char *argv[] ){
 	continue;
       }
       if ( n > 2 ){
-	cerr << "corpus file in strange format!" << endl;
+	cerr << "background file in strange format!" << endl;
 	cerr << "offending line: " << line << endl;
 	exit(EXIT_FAILURE);
       }
