@@ -41,7 +41,6 @@
 #include "config.h"
 
 using namespace	std;
-using namespace	TiCC;
 
 void create_wf_list( const map<string, unsigned int>& wc,
 		     const string& filename, unsigned int totalIn,
@@ -59,13 +58,21 @@ void create_wf_list( const map<string, unsigned int>& wc,
   unsigned int sum=0;
   map<unsigned int, set<string> >::const_reverse_iterator wit = wf.rbegin();
   while ( wit != wf.rend() ){
-    for ( const auto& s : wit->second ){
-      sum += wit->first;
-      os << s << "\t" << wit->first;
-      if ( doperc ){
-	os << "\t" << sum << "\t" << std::setprecision(8) << 100 * double(sum)/total;
+    if ( wit->first == 0 ){
+      for ( const auto& s : wit->second ){
+	os << s << endl;
+	++total;
       }
-      os << endl;
+    }
+    else {
+      for ( const auto& s : wit->second ){
+	sum += wit->first;
+	os << s << "\t" << wit->first;
+	if ( doperc ){
+	  os << "\t" << sum << "\t" << std::setprecision(8) << 100 * double(sum)/total;
+	}
+	os << endl;
+      }
     }
     ++wit;
   }
@@ -81,7 +88,11 @@ void dump_quarantine( const string& filename,
     exit(EXIT_FAILURE);
   }
   for ( const auto& it : qw ){
-    os << it.first << "\t" << it.second << endl;
+    os << it.first;
+    if ( it.second > 0 ){
+      os << "\t" << it.second;
+    }
+    os << endl;
   }
   cout << "created quarantine list '" << filename << "'" << endl;
   cout << "with " << qw.size() << " items. " << endl;
@@ -126,18 +137,19 @@ void usage(){
   cerr << "\t-h\t this message" << endl;
   cerr << "\t-t\t assume a POS tagged input" << endl;
   cerr << "\t-V\t show version " << endl;
-  cerr << "\t FoLiA-lexclean will clean FoLiA-lexstat files" << endl;
-  cerr << "\t The output will be a 2 or 4 columned tab sparated file, extension: .clean " << endl;
+  cerr << "\t FoLiA-lexclean will clean 1, 2 or 4 columned (lexicon) files" << endl;
+  cerr << "\t The output will be a 1, 2 or 4 columned tab separated file, extension: .cleaned " << endl;
   cerr << "\t\t (4 columns when -p is specified)" << endl;
+  cerr << "\t 'dirty' words are written to a .dirty file." << endl;
   cerr << "\t-p\t output percentages too. " << endl;
 }
 
 int main( int argc, char *argv[] ){
-  CL_Options opts( "hVpa:t", "" );
+  TiCC::CL_Options opts( "hVpa:t", "" );
   try {
     opts.init(argc,argv);
   }
-  catch( OptionError& e ){
+  catch( TiCC::OptionError& e ){
     cerr << e.what() << endl;
     usage();
     exit( EXIT_FAILURE );
@@ -191,33 +203,43 @@ int main( int argc, char *argv[] ){
     string line;
     unsigned int word_total = 0;
     while ( getline( is, line ) ){
-      vector<string> vec;
-      int num = split_at( line, vec, "\t" );
-      if ( num != 2 && num != 4 ){
+      vector<string> vec = TiCC::split_at( line, "\t" );
+      size_t num = vec.size();
+      if ( num == 1 ){
+	if ( isClean( vec[0], alphabet ) ){
+	  wc[vec[0]] = 0;
+	}
+	else {
+	  qw[vec[0]] = 0;
+	}
+      }
+      else if ( num == 2 || num == 4 ){
+	string val = vec[0];
+	vector<string> v2;
+	if ( postagged ){
+	  if ( TiCC::split( val, v2 ) > 1 ){
+	    val = v2[0];
+	  }
+	  else {
+	    cerr << "pos tagged files need a space separated value in the first column" << endl;
+	    exit(EXIT_FAILURE);
+	  }
+	}
+	unsigned int freq = TiCC::stringTo<unsigned int>( vec[1] );
+	if ( isClean( val, alphabet ) ){
+	  wc[vec[0]] = freq;
+	  word_total += freq;
+	}
+	else {
+	  qw[vec[0]] = freq;
+	}
+      }
+      else {
 	cerr << "unexpected line: '" << line << "' in " << docName << endl;
 	continue;
       }
-      string val = vec[0];
-      vector<string> v2;
-      if ( postagged ){
-	if ( split( val, v2 ) > 1 ){
-	  val = v2[0];
-	}
-	else {
-	  cerr << "pos tagged files need a space separated value in the first column" << endl;
-	  exit(EXIT_FAILURE);
-	}
-      }
-      unsigned int freq = stringTo<unsigned int>( vec[1] );
-      if ( isClean( val, alphabet ) ){
-	wc[vec[0]] = freq;
-	word_total += freq;
-      }
-      else {
-	qw[vec[0]] = freq;
-      }
     }
-    string outname = docName + ".clean";
+    string outname = docName + ".cleaned";
     create_wf_list( wc, outname, word_total, dopercentage );
     outname = docName + ".dirty";
     dump_quarantine( outname, qw );
