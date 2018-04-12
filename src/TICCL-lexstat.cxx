@@ -65,14 +65,21 @@ void create_output( string& name, const map<UChar,size_t>& chars,
   multimap<size_t,UChar> reverse;
   map<UChar,size_t>::const_iterator it = chars.begin();
   bitType count = 0;
+  bitType out_count = 0;
   while ( it != chars.end() ){
-    count += it->second;
-    reverse.insert( make_pair(it->second,it->first) );
+    if ( clip >= 0 && it->second < (size_t)clip ){
+      out_count += it->second;
+    }
+    else {
+      count += it->second;
+      reverse.insert( make_pair(it->second,it->first) );
+    }
     ++it;
   }
-  os << "## Alphabetsize: " << chars.size() << endl;
+  os << "## Alphabetsize: " << reverse.size() << endl;
   os << "## Original file : " << orig << " with " << count
-     << " characters." << endl;
+     << " accepted characters and " << out_count << " clipped characters."
+     << endl;
   int start = 100;
   bitType hash = high_five( start );
   hashes.insert( make_pair( "*", hash ) );
@@ -82,18 +89,17 @@ void create_output( string& name, const map<UChar,size_t>& chars,
   hashes.insert( make_pair( "$", hash ) );
   os << "# $\tunknown_characters\t" << hash << endl;
   start = 102;
-  int out_cnt = 2; // the 2 wildcard chars
+  int spec_cnt = 2;
   if ( !separator.empty() ){
-    ++out_cnt;
+    ++spec_cnt;
     hash = high_five( start );
     hashes.insert( make_pair( separator, hash ) );
     os << "# " << separator << "\tseparator\t\t" << hash << endl;
     start = 103;
   }
   multimap<size_t,UChar>::const_reverse_iterator rit = reverse.rbegin();
+  int out_cnt = 0;
   while ( rit != reverse.rend() ){
-    if ( clip >= 0 && rit->first < (size_t)clip )
-      break;
     hash = high_five( start );
     icu::UnicodeString us( rit->second );
     string s = TiCC::UnicodeToUTF8(us);
@@ -104,7 +110,9 @@ void create_output( string& name, const map<UChar,size_t>& chars,
     ++rit;
   }
   cerr << "created outputfile " << name
-       << " with " << out_cnt << " lowercase characters." << endl;
+       << " with " << out_cnt << " hased lowercase characters, and " << spec_cnt
+       << " special hashes for (*,$" << (separator.empty()?"":","+separator)
+       << ")" << endl;
 }
 
 void create_dia_file( const string& filename,
@@ -404,12 +412,7 @@ int main( int argc, char *argv[] ){
   }
 
   string output_name;
-  if ( opts.extract( 'o', output_name ) ){
-    if (!TiCC::createPath( output_name ) ){
-      cerr << "cannot create output file: '" << output_name << "'" << endl;
-      exit( EXIT_FAILURE );
-    }
-  }
+  opts.extract( 'o', output_name );
   int depth = 2;
   string depthS = "2";
   int clip = -1;
@@ -469,7 +472,7 @@ int main( int argc, char *argv[] ){
   if ( output_name.empty() ){
     output_name = file_name;
   }
-  string lc_file_name = output_name + ".lc.chars";
+  string lc_file_name = output_name +  ".clip" + clipS + ".lc.chars";
   string confusion_file_name = output_name + ".clip" + clipS + ".ld" + depthS + ".charconfus";
   if ( stripdia ){
     diafile = output_name + ".lc.diac";
