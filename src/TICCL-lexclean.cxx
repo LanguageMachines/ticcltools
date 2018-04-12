@@ -98,12 +98,24 @@ void dump_quarantine( const string& filename,
   cout << "with " << qw.size() << " items. " << endl;
 }
 
-bool isClean( const string& s, const set<UChar>& alp ){
+bool isClean( const string& s, const set<UChar>& alp, bool reverse ){
   icu::UnicodeString us = TiCC::UnicodeFromUTF8( s );
+  //  cerr << "check " << us << endl;
   for ( int i=0; i < us.length(); ++i ){
-    if ( alp.find( us[i] ) == alp.end() )
+    //    cerr << "check " << us[i] << endl;
+    if ( alp.find( us[i] ) == alp.end() ){
+      if ( reverse ){
+	continue;
+      }
+      //      cerr << "rejected" << endl;
       return false;
+    }
+    if ( reverse ){
+      //      cerr << "rejected" << endl;
+      return false;
+    }
   }
+  //  cerr << "OK" << endl;
   return true;
 }
 
@@ -134,6 +146,7 @@ bool fillAlpha( const string& file, set<UChar>& alphabet ){
 void usage(){
   cerr << "Usage: [options] file/dir" << endl;
   cerr << "\t-a\t alphabet file" << endl;
+  cerr << "\t-x\t unwanted alphabet file" << endl;
   cerr << "\t-h\t this message" << endl;
   cerr << "\t-t\t assume a POS tagged input" << endl;
   cerr << "\t-V\t show version " << endl;
@@ -145,7 +158,7 @@ void usage(){
 }
 
 int main( int argc, char *argv[] ){
-  TiCC::CL_Options opts( "hVpa:t", "" );
+  TiCC::CL_Options opts( "hVpa:x:t", "" );
   try {
     opts.init(argc,argv);
   }
@@ -160,6 +173,8 @@ int main( int argc, char *argv[] ){
   bool mood;
   string value;
   string alpha;
+  string no_alpha;
+  bool reverse = false;
   if ( opts.extract('V', value, mood ) ){
     cerr << PACKAGE_STRING << endl;
     exit(EXIT_SUCCESS);
@@ -170,6 +185,14 @@ int main( int argc, char *argv[] ){
   }
   if ( opts.extract('a', value, mood ) ){
     alpha = value;
+  }
+  if ( opts.extract('x', value ) ){
+    no_alpha = value;
+    reverse = true;
+  }
+  if ( !alpha.empty() && !no_alpha.empty() ){
+    cerr << "may not combine -a and -x" << endl;
+    exit( EXIT_FAILURE );
   }
   if ( opts.extract('p', value, mood ) ){
     dopercentage = true;
@@ -188,6 +211,11 @@ int main( int argc, char *argv[] ){
     cerr << "read alphabet file with " << alphabet.size()
 	 << " characters" << endl;
   }
+  if ( !no_alpha.empty() ){
+    fillAlpha( no_alpha, alphabet );
+    cerr << "read EXCLUDE alphabet file with " << alphabet.size()
+	 << " characters" << endl;
+  }
 
   vector<string> fileNames = opts.getMassOpts();
 
@@ -196,6 +224,9 @@ int main( int argc, char *argv[] ){
     cerr << "no matching files found" << endl;
     exit(EXIT_SUCCESS);
   }
+  //  isClean( "aap", alphabet, reverse );
+  //  isClean( "nuttig", alphabet, reverse );
+  //  return 1;
   map<string,unsigned int> wc;
   map<string,unsigned int> qw;
   for ( const auto& docName : fileNames ){
@@ -206,7 +237,7 @@ int main( int argc, char *argv[] ){
       vector<string> vec = TiCC::split_at( line, "\t" );
       size_t num = vec.size();
       if ( num == 1 ){
-	if ( isClean( vec[0], alphabet ) ){
+	if ( isClean( vec[0], alphabet, reverse ) ){
 	  wc[vec[0]] = 0;
 	}
 	else {
@@ -226,7 +257,7 @@ int main( int argc, char *argv[] ){
 	  }
 	}
 	unsigned int freq = TiCC::stringTo<unsigned int>( vec[1] );
-	if ( isClean( val, alphabet ) ){
+	if ( isClean( val, alphabet, reverse ) ){
 	  wc[vec[0]] = freq;
 	  word_total += freq;
 	}
