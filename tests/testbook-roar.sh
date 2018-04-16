@@ -26,14 +26,14 @@ foliadir=BOOK
 
 echo start TICLL-stuff
 
-$bindir/TICCL-lexstat --clip=20 --LD=2 $datadir/nld.aspell.dict
+$bindir/TICCL-lexstat --separator=_ --clip=20 --LD=2 $datadir/nld.aspell.dict
 
 echo "checking lexstat results...."
-diff $datadir/nld.aspell.dict.lc.chars $refdir/dict.lc.chars > /dev/null 2>&1
+diff $datadir/nld.aspell.dict.clip20.lc.chars $refdir/dict.lc.chars > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-lexstat .lc results"
-    echo "using: diff $datadir/nld.aspell.dict.lc.chars $refdir/dict.lc.chars"
+    echo "using: diff $datadir/nld.aspell.dict.clip20.lc.chars $refdir/dict.lc.chars"
     exit
 fi
 
@@ -77,7 +77,7 @@ fi
 
 echo "start TICLL-anahash"
 
-$bindir/TICCL-anahash --alph $datadir/nld.aspell.dict.lc.chars --artifrq 100000000 $outdir/TESTDP035.tsv.clean
+$bindir/TICCL-anahash --alph $datadir/nld.aspell.dict.clip20.lc.chars --artifrq 100000000 $outdir/TESTDP035.tsv.clean
 
 if [ $? -ne 0 ]
 then
@@ -140,7 +140,7 @@ fi
 
 echo "start TICLL-rank"
 
-$bindir/TICCL-rank -t 30 --alph $datadir/nld.aspell.dict.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/TESTDP035.tsv.clean.ldcalc.ranked --debugfile $outdir/.TESTDP035.tsv.clean.ldcalc.debug.ranked --artifrq 0 --clip 5 --skipcols=10,11 $outdir/TESTDP035.tsv.clean.ldcalc 2> $outdir/.TESTDP035.RANK.stderr
+$bindir/TICCL-rank -t 30 --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/TESTDP035.tsv.clean.ldcalc.ranked --debugfile $outdir/.TESTDP035.tsv.clean.ldcalc.debug.ranked --artifrq 0 --clip 5 --skipcols=10,11 $outdir/TESTDP035.tsv.clean.ldcalc 2> $outdir/.TESTDP035.RANK.stderr
 
 if [ $? -ne 0 ]
 then

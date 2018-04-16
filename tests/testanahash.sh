@@ -27,7 +27,7 @@ datadir=DATA
 
 echo "start TICLL-anahash --list"
 
-$bindir/TICCL-anahash --alph $datadir/nld.aspell.dict.lc.chars --list $testdir/clean
+$bindir/TICCL-anahash --alph $datadir/nld.aspell.dict.clip20.lc.chars --list $testdir/clean
 
 if [ $? -ne 0 ]
 then
@@ -47,7 +47,7 @@ else
 fi
 echo "start TICLL-anahash"
 
-$bindir/TICCL-anahash --alph $datadir/nld.aspell.dict.lc.chars --artifrq 100000000 $testdir/clean
+$bindir/TICCL-anahash --alph $datadir/nld.aspell.dict.clip20.lc.chars --artifrq 100000000 $testdir/clean
 
 if [ $? -ne 0 ]
 then

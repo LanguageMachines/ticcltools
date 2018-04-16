@@ -25,14 +25,14 @@ datadir=DATA
 
 echo start TICLL-stuff
 
-$bindir/TICCL-lexstat --clip=20 --LD=2 -o $outdir/aspell $datadir/nld.aspell.dict
+$bindir/TICCL-lexstat  --separator=_ --clip=20 --LD=2 -o $outdir/aspell $datadir/nld.aspell.dict
 
 echo "checking lexstat results...."
-diff $outdir/aspell.lc.chars $refdir/dict.lc.chars > /dev/null 2>&1
+diff $outdir/aspell.clip20.lc.chars $refdir/dict.lc.chars > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-lexstat .lc results"
-    echo "using: diff $outdir/aspell.lc.chars $refdir/dict.lc.chars"
+    echo "using: diff $outdir/aspell.clip20.lc.chars $refdir/dict.lc.chars"
     exit
 fi
 
@@ -40,6 +40,7 @@ diff $outdir/aspell.clip20.ld2.charconfus $refdir/charconfus > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-lexstat .confusion results"
+    echo "using: diff $outdir/aspell.clip20.ld2.charconfus $refdir/charconfus"
     exit
 fi
 
@@ -97,7 +98,7 @@ fi
 
 echo "start TICLL-anahash"
 
-$bindir/TICCL-anahash --alph $outdir/aspell.lc.chars --artifrq 100000000 $outdir/TESTDP035.clean
+$bindir/TICCL-anahash --alph $outdir/aspell.clip20.lc.chars --artifrq 100000000 $outdir/TESTDP035.clean
 
 if [ $? -ne 0 ]
 then
@@ -111,6 +112,7 @@ diff /tmp/foci $refdir/foci > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-anahash foci results"
+    echo "using diff /tmp/foci $refdir/foci "
     exit
 fi
 
@@ -158,7 +160,7 @@ fi
 
 echo "start TICLL-rank"
 
-$bindir/TICCL-rank -t 30 --alph $outdir/aspell.lc.chars --charconf $outdir/aspell.clip20.ld2.charconfus -o $outdir/TESTDP035.ldcalc.ranked --debugfile $outdir/.TESTDP035.ldcalc.debug.ranked --artifrq 0 --clip 5 --skipcols=10,11 $outdir/TESTDP035.clean.ldcalc 2> $outdir/.TESTDP035.RANK.stderr
+$bindir/TICCL-rank -t 30 --alph $outdir/aspell.clip20.lc.chars --charconf $outdir/aspell.clip20.ld2.charconfus -o $outdir/TESTDP035.ldcalc.ranked --debugfile $outdir/.TESTDP035.ldcalc.debug.ranked --artifrq 0 --clip 5 --skipcols=10,11 $outdir/TESTDP035.clean.ldcalc 2> $outdir/.TESTDP035.RANK.stderr
 
 if [ $? -ne 0 ]
 then

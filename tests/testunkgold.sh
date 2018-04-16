@@ -60,7 +60,7 @@ fi
 
 echo start TWEEDE TICLL-unk run
 
-$bindir/TICCL-unk --alph $datadir/nld.aspell.dict.lc.chars --acro -o$outdir/gold2  $extra_option $testdir/gold.tsv
+$bindir/TICCL-unk --alph $datadir/nld.aspell.dict.clip20.lc.chars --acro -o$outdir/gold2  $extra_option $testdir/gold.tsv
 
 if [ $? -ne 0 ]
 then
