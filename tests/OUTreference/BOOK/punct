@@ -9,6 +9,7 @@
 #in	in
 'Americaanfche	Americaanfche
 'Bamberg,	Bamberg
+'Er	Er
 'Janfenisten	Janfenisten
 'Jerufalem	Jerufalem
 'Kruisvaarders,	Kruisvaarders
@@ -20,6 +21,7 @@
 'bewaaringe	bewaaringe
 'de	de
 'eens	eens
+'er	er
 'er,	er
 'er?	er
 'erzevea	erzevea
@@ -522,6 +524,7 @@ D'arc,	D'arc
 DAADEN.	DAADEN
 DEENEMARKEN.	DEENEMARKEN
 DER.	DER
+DOOD.	DOOD
 DRIEMANNEN.	DRIEMANNEN
 DRUKFEILEN.	DRUKFEILEN
 DUITSCHLAND.	DUITSCHLAND
@@ -538,6 +541,7 @@ DatÖeWUS,	DatÖeWUS
 David,	David
 De'	De
 De,	De
+De.	De
 DeTurken,	DeTurken
 Dedalus,	Dedalus
 Deenemarken,	Deenemarken
@@ -987,6 +991,7 @@ Helde,	Helde
 Heldenfeiten,	Heldenfeiten
 Hellen:	Hellen
 Helvetiers,	Helvetiers
+Hen.	Hen
 Hendrik,	Hendrik
 Henegouwen.	Henegouwen
 Heraclitus,	Heraclitus
@@ -1708,6 +1713,7 @@ ONTZET.	ONTZET
 OORLOC.	OORLOC
 OOSTENR.	OOSTENR
 OOSTENRYK.	OOSTENRYK
+OVER.	OVER
 OVERWINT.	OVERWINT
 Ochontenfe,	Ochontenfe
 Octavianus,	Octavianus
@@ -1897,6 +1903,7 @@ Poolfcht,	Poolfcht
 Pope,	Pope
 Porte?	Porte
 Portugal,	Portugal
+Portugal.	Portugal
 Portugeezen,	Portugeezen
 Portugeezen?	Portugeezen
 Posteryen,	Posteryen
@@ -1945,9 +1952,11 @@ Qursr,	Qursr
 R-eizigers,	R-eizigers
 RAAK,	RAAK
 REGEERING,	REGEERING
+REGEERING.	REGEERING
 REHABEAM,	REHABEAM
 REINHARD,	REINHARD
 REMONSTRANTEN.	REMONSTRANTEN
+REPUBLIEK.	REPUBLIEK
 ROME*	ROME
 ROME.	ROME
 ROMEINEN,	ROMEINEN
@@ -1970,6 +1979,7 @@ Reden,	Reden
 Redenrykers,	Redenrykers
 Rederykers?	Rederykers
 Regeering,	Regeering
+Regeering.	Regeering
 Regeering?	Regeering
 Regent,-	Regent
 Regentcsfe,	Regentcsfe
@@ -1989,6 +1999,7 @@ Remonftranten?	Remonftranten
 Renksse,	Renksse
 Renswoudi,	Renswoudi
 Republiek,	Republiek
+Republiek.	Republiek
 Requesens,	Requesens
 Rhode-Eiland,,	Rhode-Eiland
 Rhtn,	Rhtn
@@ -2363,6 +2374,7 @@ U/a.	U/a
 UI,	UI
 UITLEGGERS,	UITLEGGERS
 UTRECHT.	UTRECHT
+Uit.	Uit
 Univerfiteiten,	Univerfiteiten
 Unterwalden,	Unterwalden
 Uri,	Uri
@@ -2417,6 +2429,7 @@ Veldheeren?	Veldheeren
 Venetië,	Venetië
 Venetië.	Venetië
 Venetië?	Venetië
+Ver.	Ver
 Verder...	Verder
 Verder....	Verder
 Verder...?	Verder
@@ -2711,6 +2724,7 @@ Z»den,	Z»den
 _en	en
 aaden,	aaden
 aan,	aan
+aan.	aan
 aan?	aan
 aanbieden.	aanbieden
 aandeedt,	aandeedt
@@ -2773,6 +2787,7 @@ ach,	ach
 ach.	ach
 adder,	adder
 af,	af
+af.	af
 af?	af
 afZOn-.	afZOn-
 afbeeldfe!	afbeeldfe
@@ -2788,6 +2803,7 @@ afgaan,	afgaan
 afgelegen'	afgelegen
 afgeleid.	afgeleid
 afgezet,	afgezet
+afgezet.	afgezet
 afgezet:	afgezet
 afgezonden,	afgezonden
 afgezwooren,	afgezwooren
@@ -3239,6 +3255,7 @@ datTydvak?	datTydvak
 de'	de
 de'Kina,	de'Kina
 de,	de
+de.	de
 deJardyn.	deJardyn
 deLeeraas,	deLeeraas
 deedcn,	deedcn
@@ -3321,6 +3338,7 @@ dom,	dom
 domheid,	domheid
 dommen?	dommen
 dood,	dood
+dood.	dood
 dood...?	dood
 dood;	dood
 dood?	dood
@@ -3604,6 +3622,7 @@ ftuk?	ftuk
 ftyl,	ftyl
 gaan,	gaan
 gaan.	gaan
+gaat.	gaat
 gaf,	gaf
 gaf,-	gaf
 gaf.	gaf
@@ -3988,6 +4007,7 @@ hem...?	hem
 hem?	hem
 hemelvaart,	hemelvaart
 hen,	hen
+hen.	hen
 hen:	hen
 hen;	hen
 hen?	hen
@@ -4075,6 +4095,7 @@ idus...?	idus
 iemant,	iemant
 il.	il
 in,	in
+in.	in
 in;	in
 in?	in
 inborst,ernstig,	inborst,ernstig
@@ -4109,6 +4130,7 @@ inwooners?	inwooners
 inwydde.	inwydde
 is",	is
 is,	is
+is.	is
 is...	is
 is:	is
 is;	is
@@ -4337,6 +4359,7 @@ liertus,	liertus
 liet,	liet
 liet.	liet
 liggen,	liggen
+liggen.	liggen
 liggen...?	liggen
 ligging,	ligging
 ligt.	ligt
@@ -4451,6 +4474,7 @@ midianiten,	midianiten
 mihiu'I,	mihiu'I
 mildaadig,	mildaadig
 mildaadig;	mildaadig
+min.	min
 minder,	minder
 minderen,	minderen
 minnelyk,	minnelyk
@@ -4742,6 +4766,7 @@ oorlogsmoed,	oorlogsmoed
 oorloogde.	oorloogde
 op*	op
 op,	op
+op.	op
 op...?	op
 op:	op
 op;	op
@@ -4932,6 +4957,7 @@ regeeren;	regeeren
 regeeren?	regeeren
 regeerende,	regeerende
 regeering,	regeering
+regeering.	regeering
 regeering;	regeering
 regeering?	regeering
 regeert,	regeert
@@ -5076,6 +5102,7 @@ traag,	traag
 traag.	traag
 traagheid,	traagheid
 trap,	trap
+trein.	trein
 trein;	trein
 trein?	trein
 trekken,	trekken
@@ -5119,6 +5146,7 @@ uilen,	uilen
 uimannen,	uimannen
 uirgebreiden,	uirgebreiden
 uit,	uit
+uit.	uit
 uit/braak.	uit/braak
 uit;	uit
 uit?	uit
@@ -5214,6 +5242,7 @@ veldheeren.	veldheeren
 velds,	velds
 ven,	ven
 ven...?	ven
+ver.	ver
 verKoozen,	verKoozen
 veraangenaamd?	veraangenaamd
 veragten.	veragten
@@ -5775,6 +5804,7 @@ woonde.	woonde
 woonden,	woonden
 woonden.	woonden
 woonen,	woonen
+woonen.	woonen
 woonen;	woonen
 woonen?	woonen
 woonende,	woonende

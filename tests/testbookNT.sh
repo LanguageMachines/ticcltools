@@ -26,14 +26,14 @@ foliadir=BOOK
 
 echo start TICLL-stuff
 
-$bindir/TICCL-lexstat --clip=20 --LD=2 $datadir/nld.aspell.dict
+$bindir/TICCL-lexstat --separator=_ --clip=20 --LD=2 $datadir/nld.aspell.dict
 
 echo "checking lexstat results...."
-diff $datadir/nld.aspell.dict.lc.chars $refdir/dict.lc.chars > /dev/null 2>&1
+diff $datadir/nld.aspell.dict.clip20.lc.chars $refdir/dict.lc.chars > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-lexstat .lc results"
-    echo "using: diff $datadir/nld.aspell.dict.lc.chars $refdir/dict.lc.chars"
+    echo "using: diff $datadir/nld.aspell.dict.clip20.lc.chars $refdir/dict.lc.chars"
     exit
 fi
 
