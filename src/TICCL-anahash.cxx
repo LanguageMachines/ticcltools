@@ -168,6 +168,7 @@ void usage( const string& name ){
   cerr << "\t--list\t create a simple list of words and anagram hashes. (preserving order)" << endl;
   cerr << "\t--alph='file'\t name of the alphabet file" << endl;
   cerr << "\t--background='file'\t name of the background corpus" << endl;
+  cerr << "\t--separaror='char'\t The separator symbol for n-grams.(default '_')" << endl;
   cerr << "\t--clip=<clip> : cut off of the alphabet." << endl;
   cerr << "\t-h or --help\t this message " << endl;
   cerr << "\t--artifrq='value': if value > 0, create a separate list of anagram" << endl;
@@ -184,7 +185,7 @@ int main( int argc, char *argv[] ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVh" );
-    opts.set_long_options( "alph:,background:,artifrq:,clip:,help,version,ngrams,list" );
+    opts.set_long_options( "alph:,background:,artifrq:,clip:,help,version,ngrams,list,separator:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -199,6 +200,7 @@ int main( int argc, char *argv[] ){
   }
   string alphafile;
   string backfile;
+  string separator;
   int clip = 0;
   size_t artifreq = 0;
   if ( opts.extract('h' ) || opts.extract("help") ){
@@ -212,6 +214,10 @@ int main( int argc, char *argv[] ){
   bool verbose = opts.extract( 'v' );
   opts.extract( "alph", alphafile );
   opts.extract( "background", backfile );
+  opts.extract( "separator", separator );
+  if ( separator.empty() ){
+    separator = SEPARATOR;
+  }
   bool list = opts.extract( "list" );
   string value;
   if ( opts.extract( "clip", value ) ){
@@ -348,7 +354,7 @@ int main( int argc, char *argv[] ){
       bitType h = ::hash( word, alphabet );
       if ( do_ngrams ){
 	vector<string> parts;
-	if ( TiCC::split_at( word, parts, SEPARATOR ) ){
+	if ( TiCC::split_at( word, parts, separator ) ){
 	  bool accept = false;
 	  for ( auto const& part: parts ){
 	    const auto u_it = freq_list.find(part);
