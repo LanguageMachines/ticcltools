@@ -9,10 +9,10 @@ fi
 
 bindir=/home/sloot/usr/local/bin
 
-if [ !-e $bindir ]
+if [ ! -d $bindir ]
 then
    bindir=/exp/sloot/usr/local/bin
-   if [ !-e $bindir ]
+   if [ ! -d $bindir ]
    then
        echo "cannot find executables "
        exit
@@ -106,7 +106,7 @@ diff /tmp/indexNT.R $refdir/indexNT.R > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-indexer results"
-    echo "using diff /tmp/indexNT $refdir/indexNT"
+    echo "using diff /tmp/indexNT.R $refdir/indexNT.R"
     exit
 fi
 
@@ -128,7 +128,7 @@ diff /tmp/ldcalc $refdir/ldcalc > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-ldcalc results"
-    ech "using: diff /tmp/ldcalc $refdir/ldcalc"
+    echo "using: diff /tmp/ldcalc $refdir/ldcalc"
     exit
 fi
 
@@ -149,6 +149,7 @@ diff /tmp/rank.sorted $refdir/rank.sorted > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"
+    echo "using : diff /tmp/rank.sorted $refdir/rank.sorted"
     exit
 else
     echo OK!

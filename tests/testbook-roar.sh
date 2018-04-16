@@ -9,10 +9,10 @@ fi
 
 bindir=/home/sloot/usr/local/bin
 
-if [ !-e $bindir ]
+if [ ! -d $bindir ]
 then
    bindir=/exp/sloot/usr/local/bin
-   if [ !-e $bindir ]
+   if [ ! -d $bindir ]
    then
        echo "cannot find executables "
        exit
@@ -59,7 +59,7 @@ echo start TICLL-unk
 
 cp $outdir/TESTDP035.wordfreqlist.tsv $outdir/TESTDP035.tsv
 
-$bindir/TICCL-unk --background $datadir/INLandAspell.corpus --artifrq 100000000 $outdir/TESTDP035.tsv
+$bindir/TICCL-unk --background $datadir/INLandAspell.corpus --artifrq 100000000 --acro $outdir/TESTDP035.tsv
 
 if [ $? -ne 0 ]
 then
@@ -97,7 +97,7 @@ fi
 
 echo "start TICCL-indexerNT-ROAR"
 
-$bindir/TICCL-indexerNT-roaring -t 30 --hash $outdir/TESTDP035.tsv.clean.anahash --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus --foci $outdir/TESTDP035.tsv.clean.corpusfoci
+$bindir/TICCL-indexerNT-roaring -t 6 --hash $outdir/TESTDP035.tsv.clean.anahash --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus --foci $outdir/TESTDP035.tsv.clean.corpusfoci
 
 if [ $? -ne 0 ]
 then
