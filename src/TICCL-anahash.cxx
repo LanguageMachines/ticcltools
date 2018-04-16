@@ -356,16 +356,22 @@ int main( int argc, char *argv[] ){
 	vector<string> parts;
 	if ( TiCC::split_at( word, parts, separator ) ){
 	  bool accept = false;
+	  // we split the ngram to see if it is worth adding it to
+	  // the foci list.
+	  //    - NOT if no part is in the input
+	  //    - NOT if all parts are know words.
 	  for ( auto const& part: parts ){
 	    const auto u_it = freq_list.find(part);
 	    if ( u_it != freq_list.end()
 		 && u_it->second < artifreq ){
+	      // so this part IS present in the input, but not in the background
 	      icu::UnicodeString u_part = TiCC::UnicodeFromUTF8( part );
 	      u_part.toLower();
 	      string l_part  = TiCC::UnicodeToUTF8( u_part );
 	      const auto l_it = freq_list.find(l_part);
 	      if ( l_it == freq_list.end()
 		   || l_it->second < artifreq ){
+		// the lowercase part is NOT present OR NOT the background
 		accept = true;
 	      }
 	    }
