@@ -1,4 +1,4 @@
-.TH TICCL-anahash 1 "2018 apr 16"
+.TH TICCL-anahash 1 "2018 apr 17"
 
 .SH NAME
 TICCL-anahash - an anagram hashing tool
@@ -37,6 +37,8 @@ clip
 .RS
 cut off the alphabet at frequency 'clip' (This might already have been done on
 creation in TICCL-lexstat, but a (larger) clip can be chosen here.)
+
+Alphabet entries with frequency 0 are special and NEVER clipped. (e.g the SEPARATOR mark)
 .RE
 
 .B --background
