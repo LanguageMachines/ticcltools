@@ -64,7 +64,7 @@ void usage( const string& progname ){
   cerr << "\t-o <outputfile>" << endl;
   cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
   cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
-  cerr << "\t\t\t reasonable value. (which can be set with OMP_NUM_TREADS environment variable.)" << endl;
+  cerr << "\t\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
   cerr << "\t--LD <distance> The Levensthein (or edit) distance to use" << endl;
   cerr << "\t--artifrq <artifreq> " << endl;
   cerr << "\t-h or --help this message " << endl;
@@ -597,7 +597,7 @@ int main( int argc, char **argv ){
 #ifdef HAVE_OPENMP
   int numThreads;
   if ( TiCC::lowercase(value) == "max" ){
-    numThreads = omp_get_max_threads();
+    numThreads = omp_get_max_threads() - 2;
     omp_set_num_threads( numThreads );
     cout << "running on " << numThreads << " threads." << endl;
   }

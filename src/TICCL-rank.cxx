@@ -65,7 +65,7 @@ void usage( const string& name ){
   cerr << "\t-o 'outfile'\t name of the output file." << endl;
   cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
   cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
-  cerr << "\t\t\t reasonable value. (which can be set with OMP_NUM_TREADS environment variable.)" << endl;
+  cerr << "\t\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
   cerr << "\t--clip 'clip'\t limit the number of variants per word to 'clip'." << endl;
   cerr << "\t--debugfile 'debug'\t produce a more verbose outputfile in parallel." << endl;
   cerr << "\t\t\t (for debugging.)" << endl;
@@ -638,7 +638,7 @@ int main( int argc, char **argv ){
   }
 #ifdef HAVE_OPENMP
   if ( TiCC::lowercase(value) == "max" ){
-    numThreads = omp_get_max_threads();
+    numThreads = omp_get_max_threads() - 2;
     omp_set_num_threads( numThreads );
     cout << "running on " << numThreads << " threads." << endl;
   }

@@ -64,6 +64,8 @@ void usage( const string& progname ){
   cerr << "\t--nohld ignore --LD for 'historical' confusions." << endl;
   cerr << "\t-o <outputfile>" << endl;
   cerr << "\t-t <threads> Number of threads to run on." << endl;
+  cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
+  cerr << "\t\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
   cerr << "\t--LD <distance> The Levensthein (or edit) distance to use" << endl;
   cerr << "\t--artifrq <artifreq> " << endl;
   cerr << "\t-h or --help this message " << endl;
@@ -473,9 +475,7 @@ int main( int argc, char **argv ){
   string histconfFile;
   string diaconfFile;
   string alfabetFile;
-#ifdef HAVE_OPENMP
-  int numThreads=1;
-#endif
+  int num_threads=1;
   int LDvalue=2;
   bool roaring = false;
   bool noKHCld = opts.extract("nohld");
@@ -536,17 +536,29 @@ int main( int argc, char **argv ){
       exit( EXIT_FAILURE );
     }
   }
-  if ( opts.extract( 't', value ) ){
+
+  value = "1";
+  if ( !opts.extract( 't', value ) ){
+    opts.extract( "threads", value );
+  }
 #ifdef HAVE_OPENMP
-    if ( !TiCC::stringTo(value,numThreads) ) {
-      cerr << progname << ": illegal value for -t (" << value << ")" << endl;
+  if ( TiCC::lowercase(value) == "max" ){
+    num_threads = omp_get_max_threads() - 2;
+  }
+  else {
+    if ( !TiCC::stringTo(value,num_threads) ) {
+      cerr << "illegal value for -t (" << value << ")" << endl;
       exit( EXIT_FAILURE );
     }
-#else
-    cerr << progname << ": You don't have OpenMP support. The -t option is useless" << endl;
-    exit( EXIT_FAILURE );
-#endif
   }
+  omp_set_num_threads( num_threads );
+#else
+  if ( value != "1" ){
+    cerr << "unable to set number of threads!.\nNo OpenMP support available!"
+	 <<endl;
+    exit(EXIT_FAILURE);
+  }
+#endif
   if ( opts.extract( "LD", value ) ){
     if ( !TiCC::stringTo(value,LDvalue) ) {
       cerr << progname << ": illegal value for --LD (" << value << ")" << endl;
@@ -700,9 +712,6 @@ int main( int argc, char **argv ){
     }
   }
   cout << progname << ": read " << hashMap.size() << " hash values" << endl;
-#ifdef HAVE_OPENMP
-  omp_set_num_threads( numThreads );
-#endif
 
   size_t count=0;
   ofstream os( outFile );

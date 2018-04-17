@@ -65,7 +65,7 @@ void usage( const string& name ){
   cerr << "\t\tThis file is used to limit the searchspace" << endl;
   cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
   cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
-  cerr << "\t\t\t reasonable value. (which can be set with OMP_NUM_TREADS environment variable.)" << endl;
+  cerr << "\t\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
   cerr << "\t-V or --version show version " << endl;
   cerr << "\t-v verbosity " << endl;
   cerr << "\t-h or --help this message " << endl;
@@ -218,7 +218,7 @@ int main( int argc, char **argv ){
   }
 #ifdef HAVE_OPENMP
   if ( TiCC::lowercase(value) == "max" ){
-    numThreads = omp_get_max_threads();
+    numThreads = omp_get_max_threads() - 2;
   }
   else {
     if ( !TiCC::stringTo(value,numThreads) ) {

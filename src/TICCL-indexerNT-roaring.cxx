@@ -67,6 +67,8 @@ void usage( const string& name ){
        << endl;
   cerr << "\t\t'high' characters. (default=35)" << endl;
   cerr << "\t-t <threads>\t\trun on 'threads' threads." << endl;
+  cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
+  cerr << "\t\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
   cerr << "\t-V show version " << endl;
   cerr << "\t-h this message " << endl;
 }
@@ -169,7 +171,7 @@ int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:t:" );
-    opts.set_long_options( "charconf:,hash:,low:,high:,foci:,help,version" );
+    opts.set_long_options( "charconf:,hash:,low:,high:,foci:,help,version,threads:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -197,7 +199,7 @@ int main( int argc, char **argv ){
   string fociFile;
   int lowValue = 5;
   int highValue = 35;
-  int threads = 1;
+  int num_threads = 1;
   if ( !opts.extract( "hash", anahashFile ) ){
     cerr << "missing --hash option" << endl;
     exit( EXIT_FAILURE );
@@ -211,18 +213,27 @@ int main( int argc, char **argv ){
     exit( EXIT_FAILURE );
   }
   opts.extract( 'o', outFile );
-  string value;
-  if ( opts.extract('t', value ) ){
+  string value = "1";
+  if ( !opts.extract( 't', value ) ){
+    opts.extract( "threads", value );
+  }
 #ifdef HAVE_OPENMP
-    if ( !TiCC::stringTo(value,threads) ) {
+  if ( TiCC::lowercase(value) == "max" ){
+    num_threads = omp_get_max_threads() - 2;
+  }
+  else {
+    if ( !TiCC::stringTo(value,num_threads) ) {
       cerr << "illegal value for -t (" << value << ")" << endl;
       exit( EXIT_FAILURE );
     }
-#else
-    cerr << "You don't have OpenMP support. Setting -t is useless!" << endl;
-    exit( EXIT_FAILURE );
-#endif
   }
+#else
+  if ( value != "1" ){
+    cerr << "unable to set number of threads!.\nNo OpenMP support available!"
+	 <<endl;
+    exit(EXIT_FAILURE);
+  }
+#endif
   if ( opts.extract("low", value ) ){
     if ( !TiCC::stringTo(value,lowValue) ) {
       cerr << "illegal value for --low (" << value << ")" << endl;
@@ -334,7 +345,7 @@ int main( int argc, char **argv ){
        << " character confusion anagram values" << endl;
 
   vector<experiment> experiments;
-  size_t expsize = init( experiments, focSet, threads );
+  size_t expsize = init( experiments, focSet, num_threads );
 
   cout << "created " << expsize << " separate experiments" << endl;
 
