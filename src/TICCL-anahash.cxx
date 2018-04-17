@@ -42,7 +42,7 @@
 
 using namespace	std;
 
-const string SEPARATOR = "_";
+const icu::UnicodeString SEPARATOR = "_";
 
 typedef unsigned long int bitType;
 
@@ -71,17 +71,19 @@ bool fillAlpha( istream& is,
       exit(EXIT_FAILURE);
     }
     int freq = TiCC::stringTo<int>( v[1] );
-    if ( freq > clip ){
-      icu::UnicodeString us = TiCC::UnicodeFromUTF8( v[0] );
+    if ( freq > clip || freq == 0 ){
+      // freq = 0 is special, for separator
+      icu::UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
       bitType hash = TiCC::stringTo<bitType>( v[2] );
-      alphabet[us[0]] = hash;
+      alphabet[v0[0]] = hash;
     }
   }
-  cout << "finished reading alphabet." << endl;
+  cout << "finished reading alphabet. (" << alphabet.size() << " characters)"
+       << endl;
   return true;
 }
 
-bitType hash( const string& s,
+bitType hash( const icu::UnicodeString& s,
 	      map<UChar,bitType>& alphabet ){
   static bitType HonderdEenHash = 0;
   static bitType HonderdHash = 0;
@@ -89,7 +91,7 @@ bitType hash( const string& s,
     HonderdHash = high_five( 100 );
     HonderdEenHash = high_five( 101 );
   }
-  icu::UnicodeString us = TiCC::UnicodeFromUTF8( s );
+  icu::UnicodeString us = s;
   us.toLower();
   bitType result = 0;
   bool multPunct = false;
@@ -131,7 +133,7 @@ bitType hash( const string& s,
 }
 
 void create_output( ostream& os,
-		    map<bitType, set<string> >& anagrams ){
+		    map<bitType, set<icu::UnicodeString> >& anagrams ){
   for ( const auto& it : anagrams ){
     bitType val = it.first;
     os << val << "~";
@@ -145,12 +147,15 @@ void create_output( ostream& os,
   os << endl;
 }
 
-string filter_tilde_hashtag( const string& w ){
-  // assume that we cannot break UTF8 by replacing # or ~ by _
-  string result = w;
-  for ( auto& l : result ){
-    if ( l == '~' || l == '#' ){
-      l = '_';
+icu::UnicodeString filter_tilde_hashtag( const icu::UnicodeString& w ){
+  // assume that we cannot break Unicode by replacing # or ~ by _
+  icu::UnicodeString result;
+  for ( int i=0; i < w.length(); ++i ){
+    if ( w[i] == '~' || w[i] == '#' ){
+      result += '_';
+    }
+    else {
+      result += w[i];
     }
   }
   return result;
@@ -169,7 +174,7 @@ void usage( const string& name ){
   cerr << "\t--alph='file'\t name of the alphabet file" << endl;
   cerr << "\t--background='file'\t name of the background corpus" << endl;
   cerr << "\t--separator='char'\t The separator symbol for n-grams.(default '_')" << endl;
-  cerr << "\t--clip=<clip> : cut off of the alphabet." << endl;
+  cerr << "\t--clip=<clip> : cut off frequency of the alphabet. (freq 0 is NEVER clipped)" << endl;
   cerr << "\t-h or --help\t this message " << endl;
   cerr << "\t--artifrq='value': if value > 0, create a separate list of anagram" << endl;
   cerr << "\t\t values that have a lexical frequency < 'artifrq' " << endl;
@@ -200,7 +205,7 @@ int main( int argc, char *argv[] ){
   }
   string alphafile;
   string backfile;
-  string separator;
+  icu::UnicodeString separator;
   int clip = 0;
   size_t artifreq = 0;
   if ( opts.extract('h' ) || opts.extract("help") ){
@@ -215,7 +220,7 @@ int main( int argc, char *argv[] ){
   opts.extract( "alph", alphafile );
   opts.extract( "background", backfile );
   opts.extract( "separator", separator );
-  if ( separator.empty() ){
+  if ( separator.isEmpty() ){
     separator = SEPARATOR;
   }
   bool list = opts.extract( "list" );
@@ -314,9 +319,9 @@ int main( int argc, char *argv[] ){
     }
   }
   ofstream out_stream( out_file_name );
-  map<string,bitType> merged;
-  map<string,bitType> freq_list;
-  map<bitType, set<string> > anagrams;
+  map<icu::UnicodeString,bitType> merged;
+  map<icu::UnicodeString,bitType> freq_list;
+  map<bitType, set<icu::UnicodeString> > anagrams;
   cout << "start hashing from the corpus frequency file." << endl;
   string line;
   while ( getline( is, line ) ){
@@ -328,17 +333,18 @@ int main( int argc, char *argv[] ){
       cerr << "offending line: " << line << endl;
       exit(EXIT_FAILURE);
     }
-    string word = filter_tilde_hashtag( v[0] );
+    icu::UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
+    icu::UnicodeString word = filter_tilde_hashtag( v0 );
     bitType h = ::hash( word, alphabet );
     if ( list ){
-      out_stream << v[0] << "\t" << h << endl;
+      out_stream << v0 << "\t" << h << endl;
     }
     else {
       anagrams[h].insert( word );
       bitType freq = TiCC::stringTo<bitType>( v[1] );
       freq_list[word] = freq;
       if ( doMerge && artifreq > 0  ){
-	merged[v[0]] = freq;
+	merged[v0] = freq;
       }
     }
   }
@@ -350,25 +356,25 @@ int main( int argc, char *argv[] ){
   set<bitType> foci;
   if ( artifreq > 0 ){ // so NOT when creating a simple list!
     for ( const auto& it : freq_list ){
-      string word = it.first;
+      icu::UnicodeString word = it.first;
       bitType h = ::hash( word, alphabet );
       if ( do_ngrams ){
-	vector<string> parts;
-	if ( TiCC::split_at( word, parts, separator ) ){
+	vector<icu::UnicodeString> parts = TiCC::split_at( word, separator );
+	if ( parts.size() > 0 ){
+	  // we have an -n-gram
 	  bool accept = false;
 	  // we split the ngram to see if it is worth adding it to
 	  // the foci list.
 	  //    - NOT if no part is in the input
 	  //    - NOT if all parts are know words.
 	  for ( auto const& part: parts ){
-	    const auto u_it = freq_list.find(part);
+	    const auto u_it = freq_list.find( part );
 	    if ( u_it != freq_list.end()
 		 && u_it->second < artifreq ){
 	      // so this part IS present in the input, but not in the background
-	      icu::UnicodeString u_part = TiCC::UnicodeFromUTF8( part );
+	      icu::UnicodeString u_part = part;
 	      u_part.toLower();
-	      string l_part  = TiCC::UnicodeToUTF8( u_part );
-	      const auto l_it = freq_list.find(l_part);
+	      const auto l_it = freq_list.find(u_part);
 	      if ( l_it == freq_list.end()
 		   || l_it->second < artifreq ){
 		// the lowercase part is NOT present OR NOT the background
@@ -384,10 +390,9 @@ int main( int argc, char *argv[] ){
       else {
 	bitType freq = it.second;
 	if ( freq < artifreq ){
-	  icu::UnicodeString u_part = TiCC::UnicodeFromUTF8( word );
+	  icu::UnicodeString u_part = word;
 	  u_part.toLower();
-	  string l_part  = TiCC::UnicodeToUTF8( u_part );
-	  const auto l_it = freq_list.find(l_part);
+	  const auto l_it = freq_list.find(u_part);
 	  if ( l_it == freq_list.end()
 	       || l_it->second < artifreq ){
 	    foci.insert( h );
@@ -414,11 +419,12 @@ int main( int argc, char *argv[] ){
 	cerr << "offending line: " << line << endl;
 	exit(EXIT_FAILURE);
       }
-      string word = filter_tilde_hashtag(v[0] );
+      icu::UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
+      icu::UnicodeString word = filter_tilde_hashtag( v0 );
       bitType h = ::hash( word, alphabet );
       anagrams[h].insert( word );
       bitType freq = TiCC::stringTo<bitType>( v[1] );
-      merged[v[0]] += freq;
+      merged[v0] += freq;
     }
     string merge_file_name = file_name + ".merged";
     ofstream ms( merge_file_name );
