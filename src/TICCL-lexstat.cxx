@@ -55,8 +55,8 @@ bitType high_five( int val ){
 }
 
 void create_output( string& name, const map<UChar,size_t>& chars,
-		    string& orig, map<string,bitType>& hashes,
-		    int clip, string& separator ){
+		    string& orig, map<icu::UnicodeString,bitType>& hashes,
+		    int clip, icu::UnicodeString& separator ){
   ofstream os( name );
   if ( !os ){
     cerr << "unable to open output file: " << name << endl;
@@ -90,7 +90,7 @@ void create_output( string& name, const map<UChar,size_t>& chars,
   os << "# $\tunknown_characters\t" << hash << endl;
   start = 102;
   int spec_cnt = 2;
-  if ( !separator.empty() ){
+  if ( !separator.isEmpty() ){
     ++spec_cnt;
     hash = high_five( start );
     hashes.insert( make_pair( separator, hash ) );
@@ -102,22 +102,21 @@ void create_output( string& name, const map<UChar,size_t>& chars,
   while ( rit != reverse.rend() ){
     hash = high_five( start );
     icu::UnicodeString us( rit->second );
-    string s = TiCC::UnicodeToUTF8(us);
-    hashes.insert( make_pair( s, hash ) );
-    os << s << "\t" << rit->first << "\t" << hash << endl;
+    hashes.insert( make_pair( us, hash ) );
+    os << us << "\t" << rit->first << "\t" << hash << endl;
     ++out_cnt;
     ++start;
     ++rit;
   }
   cerr << "created outputfile " << name
        << " with " << out_cnt << " hased lowercase characters, and " << spec_cnt
-       << " special hashes for (*,$" << (separator.empty()?"":","+separator)
+       << " special hashes for (*,$" << (separator.isEmpty()?"":","+separator)
        << ")" << endl;
 }
 
 void create_dia_file( const string& filename,
 		      const map<UChar,size_t>& chars,
-		      const map<string,bitType>& hashes ){
+		      const map<icu::UnicodeString,bitType>& hashes ){
   ofstream os( filename );
   map<UChar,size_t>::const_iterator it = chars.begin();
   while ( it != chars.end() ){
@@ -125,7 +124,7 @@ void create_dia_file( const string& filename,
     us += it->first;
     icu::UnicodeString ss = TiCC::filter_diacritics( us );
     if ( ss != us ){
-      map<string,bitType>::const_iterator hit = hashes.find( TiCC::UnicodeToUTF8(us));
+      map<icu::UnicodeString,bitType>::const_iterator hit = hashes.find( us );
       if ( hit == hashes.end() ){
 	if ( verbose ){
 	  cerr << "problem: " << us << " not in the hashes?" << endl;
@@ -134,7 +133,7 @@ void create_dia_file( const string& filename,
 	continue;
       }
       bitType h1 = hit->second;
-      hit = hashes.find( TiCC::UnicodeToUTF8(ss) );
+      hit = hashes.find( ss );
       if ( hit == hashes.end() ){
 	if ( verbose ){
 	  cerr << "problem: " << ss << " not in the hashes?" << endl;
@@ -155,19 +154,19 @@ void create_dia_file( const string& filename,
   cerr << "created a diacritic confusion file: " << filename << endl;
 }
 
-void meld_botsing( const multimap<bitType,string>& mm, bitType h ){
-  multimap<bitType,string>::const_iterator it;
-  map<set<char>,string > ref;
+void meld_botsing( const multimap<bitType,icu::UnicodeString>& mm, bitType h ){
+  multimap<bitType,icu::UnicodeString>::const_iterator it;
+  map<set<UChar>,icu::UnicodeString > ref;
   for ( it = mm.lower_bound(h); it != mm.upper_bound(h); ++it ){
-    set<char> st;
-    string s = it->second;
-    for( size_t i=0; i < s.length(); ++i ){
+    set<UChar> st;
+    icu::UnicodeString s = it->second;
+    for( int i=0; i < s.length(); ++i ){
       st.insert( s[i] );
     }
     ref.insert( make_pair(st,s) );
   }
   cerr << "collision at hash " << h << ": ";
-  map<set<char>,string >::const_iterator sit=ref.begin();
+  map<set<UChar>,icu::UnicodeString >::const_iterator sit=ref.begin();
   while ( sit != ref.end() ){
     cerr << sit->second << ";";
     ++sit;
@@ -175,10 +174,10 @@ void meld_botsing( const multimap<bitType,string>& mm, bitType h ){
   cerr << endl;
 }
 
-void conditionally_insert( multimap<bitType,string>& confusions,
-		   bitType key,
-		   const string& value,
-		   bool full ){
+void conditionally_insert( multimap<bitType,icu::UnicodeString>& confusions,
+			   bitType key,
+			   const icu::UnicodeString& value,
+			   bool full ){
   if ( full ){
     confusions.insert( make_pair( key, value ) );
   }
@@ -188,7 +187,7 @@ void conditionally_insert( multimap<bitType,string>& confusions,
 }
 
 void generate_confusion( const string& name,
-			 const map<string,bitType>& chars,
+			 const map<icu::UnicodeString,bitType>& hashes,
 			 int depth,
 			 bool full ){
   ofstream os( name );
@@ -196,40 +195,40 @@ void generate_confusion( const string& name,
     cerr << "unable to open output file: " << name << endl;
     exit(EXIT_FAILURE);
   }
-  multimap<bitType,string> confusions;
-  cerr << "start : " << chars.size() << " iterations " << endl;
-  map<string,bitType>::const_iterator it1 = chars.begin();
-  while ( it1 != chars.end() ){
+  multimap<bitType,icu::UnicodeString> confusions;
+  cerr << "start : " << hashes.size() << " iterations " << endl;
+  map<icu::UnicodeString,bitType>::const_iterator it1 = hashes.begin();
+  while ( it1 != hashes.end() ){
     cerr << "iteration " << it1->first << endl;
     // deletions/inserts of 1
-    string s1 = it1->first + "~";
+    icu::UnicodeString s1 = it1->first + "~";
     conditionally_insert( confusions, it1->second, s1, full );
-    map<string,bitType>::const_iterator it2 = chars.begin();
-    while ( it2 != chars.end() ){
+    map<icu::UnicodeString,bitType>::const_iterator it2 = hashes.begin();
+    while ( it2 != hashes.end() ){
       if ( it2 != it1 ){
 	// 1-1 substitutions
 	bitType div = it2->second - it1->second;
 	if ( div < 0 )
 	  div = -div;
-	string s2 = it1->first + "~" + it2->first;
+	icu::UnicodeString s2 = it1->first + "~" + it2->first;
 	conditionally_insert( confusions, div, s2, full );
       }
       ++it2;
     }
     if ( depth > 1 ){
-      it2 = chars.begin();
-      while ( it2 != chars.end() ){
+      it2 = hashes.begin();
+      while ( it2 != hashes.end() ){
 	// 2-0 substitutions
-	string s20 = it1->first + it2->first + "~";
+	icu::UnicodeString s20 = it1->first + it2->first + "~";
 	bitType div = it2->second + it1->second;
 	if ( div < 0 )
 	  div = -div;
 	conditionally_insert( confusions, div, s20, full );
-	map<string,bitType>::const_iterator it3 = chars.begin();
-	while ( it3 != chars.end() ){
+	map<icu::UnicodeString,bitType>::const_iterator it3 = hashes.begin();
+	while ( it3 != hashes.end() ){
 	  if ( it3 != it2 && it3 != it1 ){
 	    // 2-1 substitutions
-	    string s = it1->first + it2->first + "~" + it3->first;
+	    icu::UnicodeString s = it1->first + it2->first + "~" + it3->first;
 	    bitType div =  it1->second + it2->second - it3->second;
 	    if ( div < 0 )
 	      div = -div;
@@ -237,17 +236,17 @@ void generate_confusion( const string& name,
 	  }
 	  if ( it2 != it1 && it3 != it1 ){
 	    // 1-2 substitutions
-	    string s = it1->first + "~" + it2->first + it3->first;
+	    icu::UnicodeString s = it1->first + "~" + it2->first + it3->first;
 	    bitType div =  it1->second - it2->second - it3->second;
 	    if ( div < 0 )
 	      div = -div;
 	    conditionally_insert( confusions, div, s, full );
 	  }
-	  map<string,bitType>::const_iterator it4 = chars.begin();
-	  while ( it4 != chars.end() ){
+	  map<icu::UnicodeString,bitType>::const_iterator it4 = hashes.begin();
+	  while ( it4 != hashes.end() ){
 	    if ( it3 != it1 && it3 != it2 && it4 != it1 && it4 != it2 ){
 	      // 2-2 substitutions
-	      string s = it1->first + it2->first + "~"
+	      icu::UnicodeString s = it1->first + it2->first + "~"
 		+ it3->first + it4->first;
 	      bitType div = it1->second + it2->second
 		- it3->second - it4->second;
@@ -257,14 +256,14 @@ void generate_confusion( const string& name,
 	    }
 	    if ( depth > 2 ){
 	      // 3-0 substitutions
-	      string s30 = it1->first + it2->first + it3->first + "~";
+	      icu::UnicodeString s30 = it1->first + it2->first + it3->first + "~";
 	      bitType div = it1->second + it2->second + it3->second;
 	      if ( div < 0 )
 		div = -div;
 	      conditionally_insert( confusions, div, s30, full );
 	      if ( it4 != it1 && it4 != it2 && it4 != it3 ){
 		// 3-1 substitutions
-		string s = it1->first + it2->first + it3->first + "~"
+		icu::UnicodeString s = it1->first + it2->first + it3->first + "~"
 		  + it4->first;
 		bitType div = it4->second - it3->second
 		  - it2->second - it1->second;
@@ -274,19 +273,19 @@ void generate_confusion( const string& name,
 	      }
 	      if ( it2 != it1 && it3 != it1 && it4 != it1 ){
 		// 1-3 substitutions
-		string s = it1->first + "~"
+		icu::UnicodeString s = it1->first + "~"
 		  + it2->first + it3->first + it4->first;
 		bitType div = it1->second - it2->second - it3->second - it4->second;
 		if ( div < 0 )
 		  div = -div;
 		conditionally_insert( confusions, div, s, full );
 	      }
-	      map<string,bitType>::const_iterator it5 = chars.begin();
-	      while ( it5 != chars.end() ){
+	      map<icu::UnicodeString,bitType>::const_iterator it5 = hashes.begin();
+	      while ( it5 != hashes.end() ){
 		if ( it4 != it1 && it4 != it2 && it4 != it3 &&
 		     it5 != it1 && it5 != it2 && it5 != it3 ){
 		  // 3-2 substitutions
-		  string s = it1->first + it2->first + it3->first + "~"
+		  icu::UnicodeString s = it1->first + it2->first + it3->first + "~"
 		    + it4->first + it5->first;
 		  bitType div = it5->second + it4->second - it3->second
 		    - it2->second - it1->second;
@@ -298,7 +297,7 @@ void generate_confusion( const string& name,
 		     it4 != it1 && it4 != it2 &&
 		     it5 != it1 && it5 != it2 ){
 		  // 2-3 substitutions
-		  string s = it1->first + it2->first + "~" + it3->first
+		  icu::UnicodeString s = it1->first + it2->first + "~" + it3->first
 		    +it4->first + it5->first;
 		  bitType div = it5->second + it4->second + it3->second
 		    - it2->second - it1->second;
@@ -306,13 +305,13 @@ void generate_confusion( const string& name,
 		    div = -div;
 		  conditionally_insert( confusions, div, s, full );
 		}
-		map<string,bitType>::const_iterator it6 = chars.begin();
-		while ( it6 != chars.end() ){
+		map<icu::UnicodeString,bitType>::const_iterator it6 = hashes.begin();
+		while ( it6 != hashes.end() ){
 		  if ( it6 != it1 && it6 != it2 && it6 != it3 &&
 		       it5 != it1 && it5 != it2 && it5 != it3 &&
 		       it4 != it1 && it4 != it2 && it4 != it3 ){
 		    // 3-3 substitutions
-		    string s = it1->first + it2->first + it3->first + "~"
+		    icu::UnicodeString s = it1->first + it2->first + it3->first + "~"
 		      +it4->first + it5->first + it6->first;
 		    bitType div = it6->second + it5->second + it4->second
 		      - it3->second - it2->second - it1->second;
@@ -334,10 +333,10 @@ void generate_confusion( const string& name,
     }
     ++it1;
   }
-  multimap<bitType,string>::const_iterator cit = confusions.begin();
+  multimap<bitType,icu::UnicodeString>::const_iterator cit = confusions.begin();
   if ( full ){
     bitType start=0;
-    set<string> unique;
+    set<icu::UnicodeString> unique;
     while ( cit != confusions.end() ){
       if ( cit->first != start ){
 	// a new KWC starts
@@ -438,10 +437,9 @@ int main( int argc, char *argv[] ){
       exit(EXIT_FAILURE);
     }
   }
-  string separator;
+  icu::UnicodeString separator;
   if ( opts.extract( "separator", separator ) ){
-    icu::UnicodeString us = TiCC::UnicodeFromUTF8( separator );
-    if ( us.length() != 1 ){
+    if ( separator.length() != 1 ){
       cerr << "invalid separator, should be 1 unicode point!" << endl;
       exit( EXIT_FAILURE );
     }
@@ -488,7 +486,7 @@ int main( int argc, char *argv[] ){
     }
   }
   cout << "done reading" << endl;
-  map<string,bitType> hashes;
+  map<icu::UnicodeString,bitType> hashes;
   create_output( lc_file_name, lchars, orig, hashes, clip, separator );
   if ( stripdia ){
     create_dia_file( diafile, lchars, hashes );
