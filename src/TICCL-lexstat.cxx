@@ -94,7 +94,7 @@ void create_output( string& name, const map<UChar,size_t>& chars,
     ++spec_cnt;
     hash = high_five( start );
     hashes.insert( make_pair( separator, hash ) );
-    os << "# " << separator << "\tseparator\t\t" << hash << endl;
+    os << separator << "\tseparator\t\t" << hash << endl;
     start = 103;
   }
   multimap<size_t,UChar>::const_reverse_iterator rit = reverse.rbegin();
