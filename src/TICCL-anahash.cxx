@@ -168,7 +168,7 @@ void usage( const string& name ){
   cerr << "\t--list\t create a simple list of words and anagram hashes. (preserving order)" << endl;
   cerr << "\t--alph='file'\t name of the alphabet file" << endl;
   cerr << "\t--background='file'\t name of the background corpus" << endl;
-  cerr << "\t--separaror='char'\t The separator symbol for n-grams.(default '_')" << endl;
+  cerr << "\t--separator='char'\t The separator symbol for n-grams.(default '_')" << endl;
   cerr << "\t--clip=<clip> : cut off of the alphabet." << endl;
   cerr << "\t-h or --help\t this message " << endl;
   cerr << "\t--artifrq='value': if value > 0, create a separate list of anagram" << endl;
