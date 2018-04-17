@@ -2,7 +2,7 @@
 ## Original file : nld.aspell.dict with 2380076 accepted characters and 33 clipped characters.
 # *	digits_and_punctuation	10000000000
 # $	unknown_characters	10510100501
-# _	separator		11040808032
+_	0		11040808032
 e	410803	11592740743
 n	187986	12166529024
 r	186310	12762815625
