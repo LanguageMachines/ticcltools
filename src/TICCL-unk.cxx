@@ -398,21 +398,20 @@ S_Class classify( const UnicodeString& us,
 bool isAcro( const vector<UnicodeString>& parts,
 	     set<UnicodeString>& result ){
   static UnicodeString pattern =  "(?:de|het|een)" + SEPARATOR
-    + "(\\p{Lu}+)-(?:\\p{L}*)";
+    + "(\\p{Lu}+)-{0,1}(?:\\p{L}*)";
   static TiCC::UnicodeRegexMatcher acro_detect( pattern, "acro_detector" );
   result.clear();
   for ( size_t i = 0; i < parts.size() -1; ++i ){
     UnicodeString us = parts[i] + SEPARATOR + parts[i+1];
     UnicodeString pre, post;
-    //       acro_detect.set_debug(1);
-    //  cerr << "IS ACRO: test pattern = " << acro_detect.Pattern() << endl;
-    //  cerr << "op " << us << endl;
-    {
-      if ( acro_detect.match_all( us, pre, post ) ){
-	//    cerr << "IT Mached!" << endl;
-	result.insert( acro_detect.get_match( 0 ) );
-	//    cerr << "FOUND regexp acronym: " << result << endl;
-      }
+    // acro_detect.set_debug(1);
+    // cerr << "IS ACRO: test pattern = " << acro_detect.Pattern() << endl;
+    // cerr << "op " << us << endl;
+    if ( acro_detect.match_all( us, pre, post ) ){
+      // cerr << "IT Mached!" << endl;
+      result.insert( acro_detect.get_match( 0 ) );
+      using TiCC::operator<<;
+      // cerr << "FOUND regexp acronym: " << result << endl;
     }
   }
   return !result.empty();
@@ -422,9 +421,9 @@ bool isAcro( const UnicodeString& word ){
   static UnicodeString pattern2 = "^(\\p{Lu}{1,2}\\.{1,2}(\\p{Lu}{1,2}\\.{1,2})*)(\\p{Lu}{0,2})$";
   static TiCC::UnicodeRegexMatcher acro_detect2( pattern2, "dot_alter" );
   UnicodeString pre, post;
-  //  acro_detect2.set_debug(1);
-  //  cerr << "IS ACRO: test pattern = " << acro_detect2.Pattern() << endl;
-  //  cerr << "op " << us << endl;
+  // acro_detect2.set_debug(1);
+  // cerr << "IS ACRO: test pattern = " << acro_detect2.Pattern() << endl;
+  // cerr << "op " << word << endl;
   return acro_detect2.match_all( word, pre, post );
 }
 
@@ -998,12 +997,12 @@ int main( int argc, char *argv[] ){
 
   if ( doAcro ){
     for ( const auto& ait : punct_acro_words ){
-      UnicodeString us = ait.first;
-      us = filter_punct( us );
+      UnicodeString ps = ait.first;
+      UnicodeString us = filter_punct( ps );
       if ( compound_acro_words.find( us ) != compound_acro_words.end() ){
 	// the 'dotted' word is a true acronym
 	// add to the list
-	compound_acro_words[us] += ait.second;
+	compound_acro_words[ps] += ait.second;
       }
       else {
 	// mishit: add to the punct file??
