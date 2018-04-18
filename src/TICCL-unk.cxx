@@ -366,7 +366,7 @@ S_Class classify( const UnicodeString& us,
     else {
       result = classify( ps, alphabet );
       if ( verbose ){
-	cerr << "classify() result:" << result << endl;
+	cerr << "classify(" << ps << ") result:" << result << endl;
       }
       if ( result != IGNORE ){
 	if ( result == CLEAN ){
@@ -471,12 +471,21 @@ S_Class classify_n_gram( const vector<UnicodeString>& parts,
       // no need to do a lot of work for already clean words
       ++lexclean;
       if ( verbose ){
-	cerr << "in background ==> CLEAN" << endl;
+	cerr << us << " in background ==> CLEAN" << endl;
       }
       cl = CLEAN;
     }
     else {
       cl = classify( wrd, alphabet, pun );
+      UnicodeString us = pun;
+      us.toLower();
+      if ( decap_clean_words.find( us ) != decap_clean_words.end() ){
+	// so the depunct word is lexically clean
+	++lexclean;
+	if ( verbose ){
+	  cerr << pun << " in background ==> CLEAN" << endl;
+	}
+      }
     }
     if ( verbose ){
       cerr << "end_cl=" << end_cl << " ADD " << cl << endl;
@@ -695,6 +704,10 @@ void classify_one_entry( const UnicodeString& orig_word, unsigned int freq,
 	  cerr << "PUNCT word: " << word << " depunct to: " << end_pun << endl;
 	}
 	clean_words[end_pun] += freq;
+	if ( clean_words[end_pun] < artifreq
+	     && lexclean == parts.size() ){
+	  clean_words[end_pun] += artifreq;
+	}
 	punct_words[orig_word] = end_pun;
       }
     }
