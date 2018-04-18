@@ -88,3 +88,8 @@ Voor_#_zitter!	1 # Nergens (# is te kort)
 Voor_aap#noot_zitter!	1 # P met Voor_aap*noot_zitter in C
 non breaking	1 # P met non_breaking in C
 non breaking space	1 # P met non_breaking_space in C
+A.N.W.B.	1 # C met A.N.W.B. in acro
+A.N.W.B		1 # C met A.N.W.B. in clean en A.N.W.B in acro
+de_ANWB		1 # C met ANWB in acro
+de_A50		1 # C met A50 NIET in acro, want niet clean
+een_CDA-minister	1 C met CDA in acro
