@@ -47,6 +47,8 @@
 #include "config.h"
 
 using namespace std;
+using icu::UnicodeString;
+
 typedef signed long int bitType;
 
 string progname;
@@ -82,7 +84,7 @@ bitType high_five( int val ){
   return result;
 }
 
-unsigned int ldCompare( const icu::UnicodeString& s1, const icu::UnicodeString& s2 ){
+unsigned int ldCompare( const UnicodeString& s1, const UnicodeString& s2 ){
   const size_t len1 = s1.length(), len2 = s2.length();
   vector<unsigned int> col(len2+1), prevCol(len2+1);
   for ( unsigned int i = 0; i < prevCol.size(); ++i ){
@@ -99,7 +101,7 @@ unsigned int ldCompare( const icu::UnicodeString& s1, const icu::UnicodeString& 
   return result;
 }
 
-bool isClean( const icu::UnicodeString& us, const set<UChar>& alfabet ){
+bool isClean( const UnicodeString& us, const set<UChar>& alfabet ){
   if ( alfabet.empty() )
     return true;
   for ( int i=0; i < us.length(); ++i ){
@@ -109,10 +111,70 @@ bool isClean( const icu::UnicodeString& us, const set<UChar>& alfabet ){
   return true;
 }
 
+const UChar SEPARATOR = '_';
+
+vector<UnicodeString> split( const UnicodeString& in, UChar symbol ){
+  vector<UnicodeString> results;
+  int  pos = 0;
+  while ( pos >= 0 && pos < in.length() ){
+    UnicodeString res;
+    int p = in.indexOf( symbol, pos );
+    if ( p < 0 ){
+      res = in.tempSubString( pos );
+      pos = p;
+    }
+    else {
+      res = in.tempSubString( pos, p - pos );
+      pos = p + 1;
+    }
+    if ( !res.isEmpty() ){
+      results.push_back( res );
+    }
+  }
+  return results;
+}
+
+//#define NEW_STUFF
+
+bool analyze_ngrams( const UnicodeString& us1,
+		     const UnicodeString& us2,
+		     pair<UnicodeString,UnicodeString>& ambi ){
+#ifndef NEW_STUFF
+  return false;
+#endif
+  ambi.first.remove();
+  ambi.second.remove();
+  vector<UnicodeString> parts1 = split( us1, SEPARATOR );
+  vector<UnicodeString> parts2 = split( us2, SEPARATOR );
+  if ( parts1.size() == 1 || parts1.size() != parts2.size() ){
+    return false;
+  }
+  UnicodeString diff_part1;
+  UnicodeString diff_part2;
+  for ( size_t i=0; i < parts1.size(); ++i ){
+    if ( parts1[i] == parts2[i] ){
+      // ok
+    }
+    else if ( diff_part1.isEmpty() ) {
+      diff_part1 = parts1[i];
+      diff_part2 = parts2[i];
+    }
+    else {
+      return false;
+    }
+  }
+  ambi.first = diff_part1;
+  ambi.second = diff_part2;
+  return true;
+}
+
+
 void handleTranspositions( ostream& os, const set<string>& s,
 			   const map<string,size_t>& freqMap,
-			   const map<icu::UnicodeString,size_t>& low_freqMap,
+			   const map<UnicodeString,size_t>& low_freqMap,
 			   const set<UChar>& alfabet,
+			   map<UnicodeString,set<UnicodeString>>& dis_map,
+			   map<UnicodeString, size_t> dis_count,
 			   size_t freqTreshold,
 			   bool isKHC,
 			   bool noKHCld,
@@ -167,9 +229,9 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	continue;
       }
       size_t freq2 = fit->second;
-      icu::UnicodeString us1 = TiCC::UnicodeFromUTF8( str1 );
+      UnicodeString us1 = TiCC::UnicodeFromUTF8( str1 );
       us1.toLower();
-      icu::UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
+      UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
       us2.toLower();
 
       size_t out_freq1;
@@ -199,7 +261,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
       }
 
       size_t canon_freq = 0;
-      icu::UnicodeString candidate;
+      UnicodeString candidate;
       if ( low_freq1 > low_freq2 ){
 	canon_freq = low_freq1;
 	out_freq1 = freq2;
@@ -229,6 +291,33 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	}
 	++it2;
 	continue;
+      }
+      pair<UnicodeString,UnicodeString> uncommon;
+      if ( analyze_ngrams( us1, us2, uncommon ) ){
+	auto const& entry = low_freqMap.find( uncommon.first );
+	if ( entry != low_freqMap.end()
+	     && entry->second >= freqTreshold ){
+	  if ( local_verbose > 1 ){
+#pragma omp critical (debugout)
+	    {
+	      cerr << "reject TRANS candidate: " << uncommon.first
+		   << " in n-grams pair: " << us1 << " # " << us2 << endl;
+	    }
+	  }
+	  if ( uncommon.first.length() < 6 ){
+	    UnicodeString disamb_pair = uncommon.first + "~" + uncommon.second;
+	    // short words
+#pragma omp critical (update)
+	    {
+	      dis_map[disamb_pair].insert( us1 + "~" + us2 );
+	      ++dis_count[disamb_pair];
+	    }
+	  }
+	  else {
+	    ++it2;
+	    continue;
+	  }
+	}
       }
       unsigned int ld = ldCompare( us1, us2 );
       if ( ld != 2 ){
@@ -284,50 +373,14 @@ void handleTranspositions( ostream& os, const set<string>& s,
   }
 }
 
-const UChar SEPARATOR = '_';
-
-vector<icu::UnicodeString> split( const icu::UnicodeString& in, UChar symbol ){
-  vector<icu::UnicodeString> results;
-  int  pos = 0;
-  while ( pos >= 0 && pos < in.length() ){
-    icu::UnicodeString res;
-    int p = in.indexOf( symbol, pos );
-    if ( p < 0 ){
-      res = in.tempSubString( pos );
-      pos = p;
-    }
-    else {
-      res = in.tempSubString( pos, p - pos );
-      pos = p + 1;
-    }
-    if ( !res.isEmpty() ){
-      results.push_back( res );
-    }
-  }
-  return results;
-}
-
-void search_for_common_part( const icu::UnicodeString& us1,
-			     const icu::UnicodeString& us2 ){
-  vector<icu::UnicodeString> parts1 = split( us1, SEPARATOR );
-  vector<icu::UnicodeString> parts2 = split( us2, SEPARATOR );
-  if ( parts1.size() != parts2.size() ){
-    return;
-  }
-  for ( size_t i=0; i < parts1.size(); ++i ){
-    if ( parts1[i] == parts2[i] ){
-      cerr << "common part: " << parts1[i] << "in n-grams: " << us1
-	   << " # " << us2 << endl;
-    }
-  }
-}
-
 void compareSets( ostream& os, unsigned int ldValue,
 		  const string& KWC,
 		  const set<string>& s1, const set<string>& s2,
 		  const map<string,size_t>& freqMap,
-		  const map<icu::UnicodeString,size_t>& low_freqMap,
+		  const map<UnicodeString,size_t>& low_freqMap,
 		  const set<UChar>& alfabet,
+		  map<UnicodeString,set<UnicodeString>>& dis_map,
+		  map<UnicodeString, size_t> dis_count,
 		  size_t freqTreshold,
 		  bool isKHC,
 		  bool noKHCld,
@@ -360,7 +413,7 @@ void compareSets( ostream& os, unsigned int ldValue,
       continue;
     }
     size_t freq1 = fit->second;
-    icu::UnicodeString us1 = TiCC::UnicodeFromUTF8( str1 );
+    UnicodeString us1 = TiCC::UnicodeFromUTF8( str1 );
     us1.toLower();
     set<string>::const_iterator it2 = s2.begin();
     while ( it2 != s2.end() ) {
@@ -387,9 +440,8 @@ void compareSets( ostream& os, unsigned int ldValue,
       }
 
       size_t freq2 = fit->second;
-      icu::UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
+      UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
       us2.toLower();
-      //      search_for_common_part( us1, us2 );
       unsigned int ld = ldCompare( us1, us2 );
       if ( ld > ldValue ){
 	if ( !( isKHC && noKHCld ) ){
@@ -413,7 +465,7 @@ void compareSets( ostream& os, unsigned int ldValue,
       size_t low_freq1 = low_freqMap.at(us1);
       size_t low_freq2 = low_freqMap.at(us2);
       size_t canon_freq = 0;
-      icu::UnicodeString candidate;
+      UnicodeString candidate;
       if ( low_freq1 > low_freq2 ){
 	canon_freq = low_freq1;
 	out_freq1 = freq2;
@@ -432,7 +484,12 @@ void compareSets( ostream& os, unsigned int ldValue,
 	out_low_freq2 = low_freq2;
 	out_str1 = str1;
 	out_str2 = str2;
+#ifdef NEW_STUFF
+	us1.swap(us2);
+	candidate = us1;
+#else
 	candidate = us2;
+#endif
       }
       if ( !isClean( candidate, alfabet ) ){
 	if ( local_verbose > 1 ){
@@ -443,6 +500,33 @@ void compareSets( ostream& os, unsigned int ldValue,
 	}
 	++it2;
 	continue;
+      }
+      pair<UnicodeString,UnicodeString> uncommon;
+      if ( analyze_ngrams( us1, us2, uncommon ) ){
+	auto const& entry = low_freqMap.find( uncommon.first );
+	if ( entry != low_freqMap.end()
+	     && entry->second >= freqTreshold ){
+	  if ( local_verbose > 1 ){
+#pragma omp critical (debugout)
+	    {
+	      cout << "ngram candidate: " << uncommon.first
+		   << " in n-grams pair: " << us1 << " # " << us2 << endl;
+	    }
+	  }
+	  if  ( uncommon.first.length() < 6 ){
+	    // 'short words'
+	    UnicodeString disamb_pair = uncommon.first + "~" + uncommon.second;
+#pragma omp critical (update)
+	    {
+	      dis_map[disamb_pair].insert( us1 + "~" + us2 );
+	      ++dis_count[disamb_pair];
+	    }
+	  }
+	  else {
+	    ++it2;
+	    continue;
+	  }
+	}
       }
 
       if ( out_low_freq1 >= freqTreshold && !isDIAC ){
@@ -497,9 +581,9 @@ void compareSets( ostream& os, unsigned int ldValue,
 }
 
 int main( int argc, char **argv ){
-  // icu::UnicodeString s1 = "Een_Test";
-  // icu::UnicodeString s2 = "een_wat_langere_Tast";
-  // vector<icu::UnicodeString> bla = split( s1, SEPARATOR );
+  // UnicodeString s1 = "Een_Test";
+  // UnicodeString s2 = "een_wat_langere_Tast";
+  // vector<UnicodeString> bla = split( s1, SEPARATOR );
   // for ( const auto& s : bla ){
   //   cerr << s << endl;
   // }
@@ -581,6 +665,7 @@ int main( int argc, char **argv ){
   else {
     outFile = indexFile + ".ldcalc";
   }
+  string ambiFile = outFile + ".ambi";
   size_t artifreq = 0;
   string value;
 
@@ -649,7 +734,7 @@ int main( int argc, char **argv ){
 	cerr << progname << ": invalid line '" << line << "' in " << alfabetFile << endl;
 	exit( EXIT_FAILURE );
       }
-      icu::UnicodeString key = TiCC::UnicodeFromUTF8(vec[0]);
+      UnicodeString key = TiCC::UnicodeFromUTF8(vec[0]);
       alfabet.insert(key[0]);
     }
   }
@@ -662,7 +747,7 @@ int main( int argc, char **argv ){
   }
   cout << progname << ": reading clean file: " << frequencyFile << endl;
   map<string, size_t> freqMap;
-  map<icu::UnicodeString, size_t> low_freqMap;
+  map<UnicodeString, size_t> low_freqMap;
   string line;
   size_t ign = 0;
   while ( getline( ff, line ) ){
@@ -675,7 +760,7 @@ int main( int argc, char **argv ){
       string s = v1[0];
       size_t freq = TiCC::stringTo<size_t>( v1[1] );
       freqMap[s] = freq;
-      icu::UnicodeString us = TiCC::UnicodeFromUTF8( s );
+      UnicodeString us = TiCC::UnicodeFromUTF8( s );
       us.toLower();
       low_freqMap[us] +=freq;
     }
@@ -772,6 +857,8 @@ int main( int argc, char **argv ){
   size_t count=0;
   ofstream os( outFile );
   set<bitType> handledTrans;
+  map<UnicodeString,set<UnicodeString>> dis_map;
+  map<UnicodeString,size_t> dis_count;
   size_t line_nr = 0;
   int err_cnt = 0;
   while ( getline( indexf, line ) ){
@@ -853,6 +940,7 @@ int main( int argc, char **argv ){
 	    if ( do_trans ){
 	      handleTranspositions( os, sit1->second,
 				    freqMap, low_freqMap, alfabet,
+				    dis_map, dis_count,
 				    artifreq, isKHC, noKHCld, isDIAC );
 	    }
 	  }
@@ -873,11 +961,22 @@ int main( int argc, char **argv ){
 	  compareSets( os, LDvalue, mainKeyS,
 		       sit1->second, sit2->second,
 		       freqMap, low_freqMap, alfabet,
+		       dis_map, dis_count,
 		       artifreq, isKHC, noKHCld, isDIAC );
 	}
       }
     }
   }
+#ifdef NEW_STUFF
+  cout << endl << "creating .ambi file: " << ambiFile << endl;
+  ofstream amb ( ambiFile );
+  for ( const auto& ambi : dis_map ){
+    amb << ambi.first << "#";
+    for ( const auto& val : ambi.second ){
+      amb << val << "#";
+    }
+    amb << endl;
+  }
+#endif
   cout << progname << ": Done" << endl;
-
 }
