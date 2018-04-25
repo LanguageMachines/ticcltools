@@ -134,20 +134,18 @@ vector<UnicodeString> split( const UnicodeString& in, UChar symbol ){
   return results;
 }
 
-//#define NEW_STUFF
-
-bool analyze_ngrams( const UnicodeString& us1,
+void analyze_ngrams( const UnicodeString& us1,
 		     const UnicodeString& us2,
-		     pair<UnicodeString,UnicodeString>& ambi ){
-#ifndef NEW_STUFF
-  return false;
-#endif
-  ambi.first.remove();
-  ambi.second.remove();
+		     const map<UnicodeString, size_t>& low_freqMap,
+		     size_t freqTreshold,
+		     int verbose,
+		     map<UnicodeString,set<UnicodeString>>& dis_map,
+		     map<UnicodeString, size_t> dis_count ){
+  return;
   vector<UnicodeString> parts1 = split( us1, SEPARATOR );
   vector<UnicodeString> parts2 = split( us2, SEPARATOR );
   if ( parts1.size() == 1 || parts1.size() != parts2.size() ){
-    return false;
+    return;
   }
   UnicodeString diff_part1;
   UnicodeString diff_part2;
@@ -160,14 +158,38 @@ bool analyze_ngrams( const UnicodeString& us1,
       diff_part2 = parts2[i];
     }
     else {
-      return false;
+      return;
     }
   }
-  ambi.first = diff_part1;
-  ambi.second = diff_part2;
-  return true;
+  if ( diff_part1.isEmpty() ) {
+    // can this happen?
+    return;
+  }
+  auto const& entry = low_freqMap.find( diff_part1 );
+  if ( entry != low_freqMap.end()
+       && entry->second >= freqTreshold ){
+    // OK a frequent word.
+    return;
+  }
+  if ( verbose > 1 ){
+#pragma omp critical (debugout)
+    {
+      cerr << "check candidate: " << diff_part1
+	   << " in n-grams pair: " << us1 << " # " << us2 << endl;
+    }
+  }
+  if ( diff_part1.length() < 6 ){
+    // a 'short' word
+    UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
+    // short words
+#pragma omp critical (update)
+    {
+      dis_map[disamb_pair].insert( us1 + "~" + us2 );
+      ++dis_count[disamb_pair];
+    }
+  }
+  return;
 }
-
 
 void handleTranspositions( ostream& os, const set<string>& s,
 			   const map<string,size_t>& freqMap,
@@ -292,33 +314,8 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	++it2;
 	continue;
       }
-      pair<UnicodeString,UnicodeString> uncommon;
-      if ( analyze_ngrams( us1, us2, uncommon ) ){
-	auto const& entry = low_freqMap.find( uncommon.first );
-	if ( entry != low_freqMap.end()
-	     && entry->second >= freqTreshold ){
-	  if ( local_verbose > 1 ){
-#pragma omp critical (debugout)
-	    {
-	      cerr << "reject TRANS candidate: " << uncommon.first
-		   << " in n-grams pair: " << us1 << " # " << us2 << endl;
-	    }
-	  }
-	  if ( uncommon.first.length() < 6 ){
-	    UnicodeString disamb_pair = uncommon.first + "~" + uncommon.second;
-	    // short words
-#pragma omp critical (update)
-	    {
-	      dis_map[disamb_pair].insert( us1 + "~" + us2 );
-	      ++dis_count[disamb_pair];
-	    }
-	  }
-	  else {
-	    ++it2;
-	    continue;
-	  }
-	}
-      }
+      analyze_ngrams( us1, us2, low_freqMap, freqTreshold,
+		      verbose, dis_map, dis_count );
       unsigned int ld = ldCompare( us1, us2 );
       if ( ld != 2 ){
 	if ( !( isKHC && noKHCld ) ){
@@ -484,12 +481,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 	out_low_freq2 = low_freq2;
 	out_str1 = str1;
 	out_str2 = str2;
-#ifdef NEW_STUFF
-	us1.swap(us2);
-	candidate = us1;
-#else
 	candidate = us2;
-#endif
       }
       if ( !isClean( candidate, alfabet ) ){
 	if ( local_verbose > 1 ){
@@ -501,34 +493,8 @@ void compareSets( ostream& os, unsigned int ldValue,
 	++it2;
 	continue;
       }
-      pair<UnicodeString,UnicodeString> uncommon;
-      if ( analyze_ngrams( us1, us2, uncommon ) ){
-	auto const& entry = low_freqMap.find( uncommon.first );
-	if ( entry != low_freqMap.end()
-	     && entry->second >= freqTreshold ){
-	  if ( local_verbose > 1 ){
-#pragma omp critical (debugout)
-	    {
-	      cout << "ngram candidate: " << uncommon.first
-		   << " in n-grams pair: " << us1 << " # " << us2 << endl;
-	    }
-	  }
-	  if  ( uncommon.first.length() < 6 ){
-	    // 'short words'
-	    UnicodeString disamb_pair = uncommon.first + "~" + uncommon.second;
-#pragma omp critical (update)
-	    {
-	      dis_map[disamb_pair].insert( us1 + "~" + us2 );
-	      ++dis_count[disamb_pair];
-	    }
-	  }
-	  else {
-	    ++it2;
-	    continue;
-	  }
-	}
-      }
-
+      analyze_ngrams( us1, us2, low_freqMap, freqTreshold,
+		      verbose, dis_map, dis_count );
       if ( out_low_freq1 >= freqTreshold && !isDIAC ){
 	if ( local_verbose > 2 ){
 #pragma omp critical (debugout)
@@ -978,7 +944,6 @@ int main( int argc, char **argv ){
       }
     }
   }
-#ifdef NEW_STUFF
   cout << endl << "creating .ambi file: " << ambiFile << endl;
   ofstream amb ( ambiFile );
   for ( const auto& ambi : dis_map ){
@@ -988,6 +953,5 @@ int main( int argc, char **argv ){
     }
     amb << endl;
   }
-#endif
   cout << progname << ": Done" << endl;
 }
