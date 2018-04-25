@@ -372,9 +372,9 @@ int main( int argc, char *argv[] ){
 	    if ( u_it != freq_list.end()
 		 && u_it->second < artifreq ){
 	      // so this part IS present in the input, but not in the background
-	      icu::UnicodeString u_part = part;
-	      u_part.toLower();
-	      const auto l_it = freq_list.find(u_part);
+	      icu::UnicodeString l_part = part;
+	      l_part.toLower();
+	      const auto l_it = freq_list.find(l_part);
 	      if ( l_it == freq_list.end()
 		   || l_it->second < artifreq ){
 		// the lowercase part is NOT present OR NOT the background
@@ -390,9 +390,9 @@ int main( int argc, char *argv[] ){
       else {
 	bitType freq = it.second;
 	if ( freq < artifreq ){
-	  icu::UnicodeString u_part = word;
-	  u_part.toLower();
-	  const auto l_it = freq_list.find(u_part);
+	  icu::UnicodeString l_part = word;
+	  l_part.toLower();
+	  const auto l_it = freq_list.find(l_part);
 	  if ( l_it == freq_list.end()
 	       || l_it->second < artifreq ){
 	    foci.insert( h );
