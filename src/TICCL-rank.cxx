@@ -142,8 +142,8 @@ record::record( const string& line,
   pairs_combined_rank(-1),
   rank(-10000)
 {
-  vector<string> parts;
-  if ( TiCC::split_at( line, parts, "~" ) == 13 ){
+  vector<string> parts = TiCC::split_at( line, "~" );
+  if ( parts.size() == 14 ){
     variant1 = parts[0];
     freq1 = TiCC::stringTo<size_t>(parts[1]);
     low_freq1 = TiCC::stringTo<size_t>(parts[2]);

@@ -134,21 +134,22 @@ vector<UnicodeString> split( const UnicodeString& in, UChar symbol ){
   return results;
 }
 
-void analyze_ngrams( const UnicodeString& us1,
-		     const UnicodeString& us2,
-		     const map<UnicodeString, size_t>& low_freqMap,
-		     size_t freqTreshold,
-		     int verbose,
-		     map<UnicodeString,set<UnicodeString>>& dis_map,
-		     map<UnicodeString, size_t> dis_count ){
-  return;
+int analyze_ngrams( const UnicodeString& us1,
+		    const UnicodeString& us2,
+		    const map<UnicodeString, size_t>& low_freqMap,
+		    size_t freqTreshold,
+		    int verbose,
+		    map<UnicodeString,set<UnicodeString>>& dis_map,
+		    map<UnicodeString, size_t>& dis_count ){
   vector<UnicodeString> parts1 = split( us1, SEPARATOR );
   vector<UnicodeString> parts2 = split( us2, SEPARATOR );
   if ( parts1.size() == 1 || parts1.size() != parts2.size() ){
-    return;
+    return 0; // nothing special
   }
   UnicodeString diff_part1;
   UnicodeString diff_part2;
+  //
+  // search for a pair of 'uncommon' parts in the 2 ngrams.
   for ( size_t i=0; i < parts1.size(); ++i ){
     if ( parts1[i] == parts2[i] ){
       // ok
@@ -158,18 +159,24 @@ void analyze_ngrams( const UnicodeString& us1,
       diff_part2 = parts2[i];
     }
     else {
-      return;
+      return 0; // nothing special
     }
   }
   if ( diff_part1.isEmpty() ) {
     // can this happen?
-    return;
+    // anyway: nothing to do
+    return 0; // nothing special
   }
-  auto const& entry = low_freqMap.find( diff_part1 );
+  //
+  // Ok, so we have a pair
+  //
+  UnicodeString lp1 = diff_part1;
+  lp1.toLower();
+  auto const& entry = low_freqMap.find( lp1 );
   if ( entry != low_freqMap.end()
        && entry->second >= freqTreshold ){
-    // OK a frequent word.
-    return;
+    // OK a high frequent word. translating probably won't do any good
+    return 0; // nothing special
   }
   if ( verbose > 1 ){
 #pragma omp critical (debugout)
@@ -181,14 +188,14 @@ void analyze_ngrams( const UnicodeString& us1,
   if ( diff_part1.length() < 6 ){
     // a 'short' word
     UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
-    // short words
+    // count this short words pair ANS store the original n-gram pair
 #pragma omp critical (update)
     {
       dis_map[disamb_pair].insert( us1 + "~" + us2 );
       ++dis_count[disamb_pair];
     }
   }
-  return;
+  return 1; // signal a point
 }
 
 void handleTranspositions( ostream& os, const set<string>& s,
@@ -196,7 +203,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 			   const map<UnicodeString,size_t>& low_freqMap,
 			   const set<UChar>& alfabet,
 			   map<UnicodeString,set<UnicodeString>>& dis_map,
-			   map<UnicodeString, size_t> dis_count,
+			   map<UnicodeString, size_t>& dis_count,
 			   size_t freqTreshold,
 			   bool isKHC,
 			   bool noKHCld,
@@ -252,9 +259,11 @@ void handleTranspositions( ostream& os, const set<string>& s,
       }
       size_t freq2 = fit->second;
       UnicodeString us1 = TiCC::UnicodeFromUTF8( str1 );
-      us1.toLower();
+      UnicodeString ls1 = us1;
+      ls1.toLower();
       UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
-      us2.toLower();
+      UnicodeString ls2 = us2;
+      ls2.toLower();
 
       size_t out_freq1;
       size_t out_low_freq1;
@@ -262,8 +271,8 @@ void handleTranspositions( ostream& os, const set<string>& s,
       size_t out_low_freq2;
       string out_str1;
       string out_str2;
-      size_t low_freq1 = low_freqMap.at(us1);
-      size_t low_freq2 = low_freqMap.at(us2);
+      size_t low_freq1 = low_freqMap.at(ls1);
+      size_t low_freq2 = low_freqMap.at(ls2);
       if ( low_freq1 >= freqTreshold && low_freq2 >= freqTreshold
 	   && !isDIAC ){
 	++it2;
@@ -284,6 +293,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 
       size_t canon_freq = 0;
       UnicodeString candidate;
+      bool swapped = false;
       if ( low_freq1 > low_freq2 ){
 	canon_freq = low_freq1;
 	out_freq1 = freq2;
@@ -292,7 +302,8 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	out_low_freq2 = low_freq1;
 	out_str1 = str2;
 	out_str2 = str1;
-	candidate = us1;
+	candidate = ls1;
+	swapped = true;
       }
       else {
 	canon_freq = low_freq2;
@@ -302,7 +313,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	out_low_freq2 = low_freq2;
 	out_str1 = str1;
 	out_str2 = str2;
-	candidate = us2;
+	candidate = ls2;
       }
       if ( !isClean( candidate, alfabet ) ){
 	if ( local_verbose > 1 ){
@@ -314,9 +325,16 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	++it2;
 	continue;
       }
-      analyze_ngrams( us1, us2, low_freqMap, freqTreshold,
-		      verbose, dis_map, dis_count );
-      unsigned int ld = ldCompare( us1, us2 );
+      int ngram_point = 0;
+      if ( swapped ){
+	ngram_point = analyze_ngrams( us2, us1, low_freqMap, freqTreshold,
+				      verbose, dis_map, dis_count );
+      }
+      else {
+	ngram_point = analyze_ngrams( us1, us2, low_freqMap, freqTreshold,
+				      verbose, dis_map, dis_count );
+      }
+      unsigned int ld = ldCompare( ls1, ls2 );
       if ( ld != 2 ){
 	if ( !( isKHC && noKHCld ) ){
 	  if ( local_verbose > 1 ){
@@ -330,19 +348,19 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	}
       }
 
-      int cls = max(us1.length(),us2.length()) - ld;
+      int cls = max(ls1.length(),ls2.length()) - ld;
       string canon = "0";
       if ( canon_freq >= freqTreshold ){
 	canon = "1";
       }
       string FLoverlap = "0";
-      if ( us1[0] == us2[0] ){
+      if ( ls1[0] == ls2[0] ){
 	FLoverlap = "1";
       }
       string LLoverlap = "0";
-      if ( us1.length() > 1 && us2.length() > 1
-	   && us1[us1.length()-1] == us2[us2.length()-1]
-	   && us1[us1.length()-2] == us2[us2.length()-2] ){
+      if ( ls1.length() > 1 && ls2.length() > 1
+	   && ls1[ls1.length()-1] == ls2[ls2.length()-1]
+	   && ls1[ls1.length()-2] == ls2[ls2.length()-2] ){
 	LLoverlap = "1";
       }
       string KHC = "0";
@@ -356,7 +374,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	+ "~0~" + TiCC::toString( ld ) + "~"
 	+ TiCC::toString(cls) + "~" + canon + "~"
 	+ FLoverlap + "~" + LLoverlap + "~"
-	+ KHC;
+	+ KHC + "~" + TiCC::toString(ngram_point);
 #pragma omp critical (output)
       {
 	os << result << endl;
@@ -377,7 +395,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 		  const map<UnicodeString,size_t>& low_freqMap,
 		  const set<UChar>& alfabet,
 		  map<UnicodeString,set<UnicodeString>>& dis_map,
-		  map<UnicodeString, size_t> dis_count,
+		  map<UnicodeString, size_t>& dis_count,
 		  size_t freqTreshold,
 		  bool isKHC,
 		  bool noKHCld,
@@ -411,7 +429,8 @@ void compareSets( ostream& os, unsigned int ldValue,
     }
     size_t freq1 = fit->second;
     UnicodeString us1 = TiCC::UnicodeFromUTF8( str1 );
-    us1.toLower();
+    UnicodeString ls1 = us1;
+    ls1.toLower();
     set<string>::const_iterator it2 = s2.begin();
     while ( it2 != s2.end() ) {
       string str2 = *it2;
@@ -438,8 +457,9 @@ void compareSets( ostream& os, unsigned int ldValue,
 
       size_t freq2 = fit->second;
       UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
-      us2.toLower();
-      unsigned int ld = ldCompare( us1, us2 );
+      UnicodeString ls2 = us2;
+      ls2.toLower();
+      unsigned int ld = ldCompare( ls1, ls2 );
       if ( ld > ldValue ){
 	if ( !( isKHC && noKHCld ) ){
 	  if ( local_verbose > 2 ){
@@ -459,10 +479,11 @@ void compareSets( ostream& os, unsigned int ldValue,
       size_t out_low_freq2;
       string out_str1;
       string out_str2;
-      size_t low_freq1 = low_freqMap.at(us1);
-      size_t low_freq2 = low_freqMap.at(us2);
+      size_t low_freq1 = low_freqMap.at(ls1);
+      size_t low_freq2 = low_freqMap.at(ls2);
       size_t canon_freq = 0;
       UnicodeString candidate;
+      bool swapped = false;
       if ( low_freq1 > low_freq2 ){
 	canon_freq = low_freq1;
 	out_freq1 = freq2;
@@ -471,7 +492,8 @@ void compareSets( ostream& os, unsigned int ldValue,
 	out_low_freq2 = low_freq1;
 	out_str1 = str2;
 	out_str2 = str1;
-	candidate = us1;
+	candidate = ls1;
+	swapped = true;
       }
       else {
 	canon_freq = low_freq2;
@@ -481,7 +503,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 	out_low_freq2 = low_freq2;
 	out_str1 = str1;
 	out_str2 = str2;
-	candidate = us2;
+	candidate = ls2;
       }
       if ( !isClean( candidate, alfabet ) ){
 	if ( local_verbose > 1 ){
@@ -493,8 +515,6 @@ void compareSets( ostream& os, unsigned int ldValue,
 	++it2;
 	continue;
       }
-      analyze_ngrams( us1, us2, low_freqMap, freqTreshold,
-		      verbose, dis_map, dis_count );
       if ( out_low_freq1 >= freqTreshold && !isDIAC ){
 	if ( local_verbose > 2 ){
 #pragma omp critical (debugout)
@@ -505,20 +525,29 @@ void compareSets( ostream& os, unsigned int ldValue,
 	++it2;
 	continue;
       }
+      int ngram_point = 0;
+      if ( swapped ){
+	ngram_point = analyze_ngrams( us2, us1, low_freqMap, freqTreshold,
+				      verbose, dis_map, dis_count );
+      }
+      else {
+	ngram_point = analyze_ngrams( us1, us2, low_freqMap, freqTreshold,
+				      verbose, dis_map, dis_count );
+      }
 
-      int cls = max(us1.length(),us2.length()) - ld;
+      int cls = max(ls1.length(),ls2.length()) - ld;
       string canon = "0";
       if ( canon_freq >= freqTreshold ){
 	canon = "1";
       }
       string FLoverlap = "0";
-      if ( us1[0] == us2[0] ){
+      if ( ls1[0] == ls2[0] ){
 	FLoverlap = "1";
       }
       string LLoverlap = "0";
-      if ( us1.length() > 1 && us2.length() > 1
-	   && us1[us1.length()-1] == us2[us2.length()-1]
-	   && us1[us1.length()-2] == us2[us2.length()-2] ){
+      if ( ls1.length() > 1 && ls2.length() > 1
+	   && ls1[ls1.length()-1] == ls2[ls2.length()-1]
+	   && ls1[ls1.length()-2] == ls2[ls2.length()-2] ){
 	LLoverlap = "1";
       }
       string KHC = "0";
@@ -532,7 +561,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 	+ "~" + KWC + "~" + TiCC::toString( ld ) + "~"
 	+ TiCC::toString(cls) + "~" + canon + "~"
 	+ FLoverlap + "~" + LLoverlap + "~"
-	+ KHC;
+	+ KHC + "~" + TiCC::toString(ngram_point);
 #pragma omp critical (output)
       {
 	os << result << endl;
@@ -543,6 +572,56 @@ void compareSets( ostream& os, unsigned int ldValue,
       ++it2;
     }
     ++it1;
+  }
+}
+
+void add_ambi( ostream& os,
+	       const map<UnicodeString,size_t>& dis_count,
+	       const map<string,size_t>& freqMap,
+	       const map<UnicodeString,size_t>& low_freqMap ){
+  for ( const auto& entry : dis_count ){
+    vector<UnicodeString> parts = TiCC::split_at( entry.first, "~" );
+    int ld = ldCompare( parts[0], parts[1] );
+    int cls = max(parts[0].length(),parts[1].length()) - ld;
+    string FLoverlap = "0";
+    if ( parts[0][0] == parts[1][0] ){
+      FLoverlap = "1";
+    }
+    string LLoverlap = "0";
+    if ( parts[0].length() > 1 && parts[1].length() > 1
+	 && parts[0][parts[0].length()-1] == parts[1][parts[1].length()-1]
+	 && parts[0][parts[0].length()-2] == parts[1][parts[1].length()-2] ){
+      LLoverlap = "1";
+    }
+    size_t freq1 = 0;
+    auto it = freqMap.find(TiCC::UnicodeToUTF8(parts[0]));
+    if ( it != freqMap.end() ){
+      freq1 = it->second;
+    }
+    size_t freq2 = 0;
+    it = freqMap.find(TiCC::UnicodeToUTF8(parts[1]));
+    if ( it != freqMap.end() ){
+      freq2 = it->second;
+    }
+    size_t low_freq1 = 0;
+    auto it2 = low_freqMap.find(parts[0]);
+    if ( it2 != low_freqMap.end() ){
+      low_freq1 = it2->second;
+    }
+    size_t low_freq2 = 0;
+    it2 = low_freqMap.find(parts[1]);
+    if ( it2 != low_freqMap.end() ){
+      low_freq2 = it2->second;
+    }
+    os << parts[0] << "~" << freq1
+       << "~" << low_freq1
+       << "~" << parts[1] << "~" << freq2
+       << "~" << low_freq2
+       << "~0~" << ld
+       << "~" << cls
+       << "~" << 0
+       << "~" << FLoverlap << "~" << LLoverlap
+       << "~0~" << entry.second << endl;
   }
 }
 
@@ -944,6 +1023,7 @@ int main( int argc, char **argv ){
       }
     }
   }
+  add_ambi( os, dis_count, freqMap, low_freqMap );
   cout << endl << "creating .ambi file: " << ambiFile << endl;
   ofstream amb ( ambiFile );
   for ( const auto& ambi : dis_map ){
