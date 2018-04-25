@@ -760,9 +760,20 @@ int main( int argc, char **argv ){
       string s = v1[0];
       size_t freq = TiCC::stringTo<size_t>( v1[1] );
       freqMap[s] = freq;
-      UnicodeString us = TiCC::UnicodeFromUTF8( s );
-      us.toLower();
-      low_freqMap[us] +=freq;
+      UnicodeString ls = TiCC::UnicodeFromUTF8( s );
+      ls.toLower();
+      if ( freq >= artifreq ){
+	// make sure that the artifrq is counted only once!
+	if ( low_freqMap[ls] == 0 ){
+	  low_freqMap[ls] = freq;
+	}
+	else {
+	  low_freqMap[ls] += freq-artifreq;
+	}
+      }
+      else {
+	low_freqMap[ls] +=freq;
+      }
     }
   }
   cout << progname << ": read " << freqMap.size() << " clean words with frequencies" << endl;
