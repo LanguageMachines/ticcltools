@@ -471,6 +471,11 @@ int main( int argc, char *argv[] ){
     output_name = file_name;
   }
   string lc_file_name = output_name +  ".clip" + clipS + ".lc.chars";
+  if ( !TiCC::createPath( TiCC::dirname(lc_file_name) ) ){
+    cerr << "unable to acces the path '" << TiCC::dirname(lc_file_name) << "'"
+	 << endl;
+    return EXIT_FAILURE;
+  }
   string confusion_file_name = output_name + ".clip" + clipS + ".ld" + depthS + ".charconfus";
   if ( stripdia ){
     diafile = output_name + ".lc.diac";
