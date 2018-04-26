@@ -135,11 +135,12 @@ vector<UnicodeString> split( const UnicodeString& in, UChar symbol ){
   return results;
 }
 
+set<string> follow;
+
 int analyze_ngrams( const UnicodeString& us1,
 		    const UnicodeString& us2,
 		    const map<UnicodeString, size_t>& low_freqMap,
 		    size_t freqTreshold,
-		    int verbose,
 		    map<UnicodeString,set<UnicodeString>>& dis_map,
 		    map<UnicodeString, size_t>& dis_count ){
   vector<UnicodeString> parts1 = split( us1, SEPARATOR );
@@ -179,7 +180,12 @@ int analyze_ngrams( const UnicodeString& us1,
     // OK a high frequent word. translating probably won't do any good
     return 0; // nothing special
   }
-  if ( verbose > 1 ){
+  bool following = false;
+  string lps = TiCC::UnicodeToUTF8( lp1 );
+  if ( follow.find( lps ) != follow.end() ){
+    following = true;
+  }
+  if ( following ){
 #pragma omp critical (debugout)
     {
       cerr << "check candidate: " << diff_part1
@@ -189,6 +195,12 @@ int analyze_ngrams( const UnicodeString& us1,
   if ( diff_part1.length() < 6 ){
     // a 'short' word
     UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
+    if ( following ){
+#pragma omp critical (debugout)
+      {
+	cerr << "store short pair" << disamb_pair << endl;
+      }
+    }
     // count this short words pair ANS store the original n-gram pair
 #pragma omp critical (update)
     {
@@ -211,12 +223,12 @@ void handleTranspositions( ostream& os, const set<string>& s,
 			   bool isDIAC ){
   set<string>::const_iterator it1 = s.begin();
   while ( it1 != s.end() ) {
-    int local_verbose = verbose;
+    bool following = false;
     string str1 = *it1;
-    // if ( str1 == "noodlyk" || str1 == "noorderlyke" ){
-    //   local_verbose = 3;
-    // }
-    if ( local_verbose > 2 ){
+    if ( follow.find( str1 ) != follow.end() ){
+      following = true;
+    }
+    if ( following ){
 #pragma omp critical (debugout)
       {
 	cout << "TRANSPOSE: string 1 " << str1 << endl;
@@ -224,7 +236,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
     }
     auto fit = freqMap.find( TiCC::UnicodeFromUTF8(str1) );
     if ( fit == freqMap.end() ){
-      if ( local_verbose > 1 ){
+      if ( following ){
 #pragma omp critical (debugout)
 	{
 	  cout << "not found in freq file " << str1 << endl;
@@ -238,10 +250,10 @@ void handleTranspositions( ostream& os, const set<string>& s,
     ++it2;
     while ( it2 != s.end() ) {
       string str2 = *it2;
-      // if ( str2 == "noodlyk" || str2 == "noorderlyke" ){
-      // 	local_verbose = 3;
-      // }
-      if ( local_verbose > 2 ){
+      if ( follow.find( str2 ) != follow.end() ){
+	following = true;
+      }
+      if ( following ){
 #pragma omp critical (debugout)
 	{
 	  cout << "TRANSPOSE string 2 " << str2 << endl;
@@ -249,7 +261,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
       }
       auto fit = freqMap.find( TiCC::UnicodeFromUTF8(str2) );
       if ( fit == freqMap.end() ){
-	if ( local_verbose > 1 ){
+	if ( following ){
 #pragma omp critical (debugout)
 	  {
 	    cout << "not found in freq file " << str2 << endl;
@@ -317,7 +329,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	candidate = ls2;
       }
       if ( !isClean( candidate, alfabet ) ){
-	if ( local_verbose > 1 ){
+	if ( following ){
 #pragma omp critical (debugout)
 	  {
 	    cout << "ignore dirty candidate " << candidate << endl;
@@ -329,16 +341,16 @@ void handleTranspositions( ostream& os, const set<string>& s,
       int ngram_point = 0;
       if ( swapped ){
 	ngram_point = analyze_ngrams( us2, us1, low_freqMap, freqTreshold,
-				      verbose, dis_map, dis_count );
+				      dis_map, dis_count );
       }
       else {
 	ngram_point = analyze_ngrams( us1, us2, low_freqMap, freqTreshold,
-				      verbose, dis_map, dis_count );
+				      dis_map, dis_count );
       }
       unsigned int ld = ldCompare( ls1, ls2 );
       if ( ld != 2 ){
 	if ( !( isKHC && noKHCld ) ){
-	  if ( local_verbose > 1 ){
+	  if ( following ){
 #pragma omp critical (debugout)
 	    {
 	      cout << " LD != 2 " << str1 << "," << str2 << endl;
@@ -380,7 +392,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
       {
 	os << result << endl;
       }
-      if ( local_verbose > 2 ){
+      if ( following ){
 	cerr << "Transpose result: " << result << endl;
       }
       ++it2;
@@ -406,12 +418,12 @@ void compareSets( ostream& os, unsigned int ldValue,
   // cerr << "set 2 " << s2 << endl;
   set<string>::const_iterator it1 = s1.begin();
   while ( it1 != s1.end() ) {
-    int local_verbose = verbose;
+    bool following = false;
     string str1 = *it1;
-    // if ( str1 == "noodlyk" || str1 == "noorderlyke" ){
-    //   local_verbose = 3;
-    // }
-    if ( local_verbose > 2 ){
+    if ( follow.find( str1 ) != follow.end() ){
+      following = true;
+    }
+    if ( following ){
 #pragma omp critical (debugout)
       {
 	cout << "SET: string 1 " << str1 << endl;
@@ -419,7 +431,7 @@ void compareSets( ostream& os, unsigned int ldValue,
     }
     auto fit = freqMap.find( TiCC::UnicodeFromUTF8(str1) );
     if ( fit == freqMap.end() ){
-      if ( local_verbose > 1 ){
+      if ( following ){
 #pragma omp critical (debugout)
 	{
 	  cout << "not found in freq file " << str1 << endl;
@@ -435,10 +447,10 @@ void compareSets( ostream& os, unsigned int ldValue,
     set<string>::const_iterator it2 = s2.begin();
     while ( it2 != s2.end() ) {
       string str2 = *it2;
-      // if ( str2 == "noodlyk" || str2 == "noorderlyke" ){
-      // 	local_verbose = 3;
-      // }
-      if ( local_verbose > 2 ){
+      if ( follow.find( str2 ) != follow.end() ){
+	following = true;
+      }
+      if ( following ){
 #pragma omp critical (debugout)
 	{
 	  cout << "SET: string 2 " << str2 << endl;
@@ -446,7 +458,7 @@ void compareSets( ostream& os, unsigned int ldValue,
       }
       fit = freqMap.find( TiCC::UnicodeFromUTF8(str2) );
       if ( fit == freqMap.end() ){
-	if ( local_verbose > 1 ){
+	if ( following ){
 #pragma omp critical (debugout)
 	  {
 	    cout << "not found in freq file " << str2 << endl;
@@ -463,7 +475,7 @@ void compareSets( ostream& os, unsigned int ldValue,
       unsigned int ld = ldCompare( ls1, ls2 );
       if ( ld > ldValue ){
 	if ( !( isKHC && noKHCld ) ){
-	  if ( local_verbose > 2 ){
+	  if ( following ){
 #pragma omp critical (debugout)
 	    {
 	      cout << " LD too high " << str1 << "," << str2 << endl;
@@ -507,7 +519,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 	candidate = ls2;
       }
       if ( !isClean( candidate, alfabet ) ){
-	if ( local_verbose > 1 ){
+	if ( following ){
 #pragma omp critical (debugout)
 	  {
 	    cout << "ignore dirty candidate " << candidate << endl;
@@ -517,7 +529,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 	continue;
       }
       if ( out_low_freq1 >= freqTreshold && !isDIAC ){
-	if ( local_verbose > 2 ){
+	if ( following ){
 #pragma omp critical (debugout)
 	  {
 	    cout << "lexical word " << out_str1 << endl;
@@ -529,11 +541,11 @@ void compareSets( ostream& os, unsigned int ldValue,
       int ngram_point = 0;
       if ( swapped ){
 	ngram_point = analyze_ngrams( us2, us1, low_freqMap, freqTreshold,
-				      verbose, dis_map, dis_count );
+				      dis_map, dis_count );
       }
       else {
 	ngram_point = analyze_ngrams( us1, us2, low_freqMap, freqTreshold,
-				      verbose, dis_map, dis_count );
+				      dis_map, dis_count );
       }
 
       int cls = max(ls1.length(),ls2.length()) - ld;
@@ -570,7 +582,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 	os << result << endl;
       }
 
-      if ( local_verbose > 2 ){
+      if ( following ){
 	cerr << "SET result: " << result << endl;
       }
       ++it2;
@@ -645,7 +657,7 @@ int main( int argc, char **argv ){
   try {
     opts.set_short_options( "vVho:t:" );
     opts.set_long_options( "diac:,hist:,nohld,artifrq:,LD:,hash:,clean:,"
-			   "alph:,index:,help,version,threads:" );
+			   "alph:,index:,help,version,threads:,follow" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -669,6 +681,10 @@ int main( int argc, char **argv ){
   }
   while ( opts.extract( 'v' ) ){
     ++verbose;
+  }
+  string value;
+  while ( opts.extract( "follow", value ) ){
+    follow.insert( value );
   }
 
   string indexFile;
@@ -716,7 +732,6 @@ int main( int argc, char **argv ){
   }
   string ambiFile = outFile + ".ambi";
   size_t artifreq = 0;
-  string value;
 
   if ( opts.extract( "artifrq", value ) ){
     if ( !TiCC::stringTo(value,artifreq) ) {
