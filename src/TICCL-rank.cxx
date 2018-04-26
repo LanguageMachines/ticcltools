@@ -129,7 +129,7 @@ float lookup( const vector<word_dist>& vec,
 }
 
 record::record( const string& line,
-		size_t stripM,
+		size_t artifreq,
 		const vector<word_dist>& WV ):
   variant_count(-1),
   f2len_rank(-1),
@@ -155,8 +155,8 @@ record::record( const string& line,
     freq2 = TiCC::stringTo<size_t>(parts[4]);
     f2len = parts[4].length();
     reduced_freq2 = freq2;
-    if ( stripM > 0 && reduced_freq2 >= stripM ){
-      reduced_freq2 -= stripM;
+    if ( artifreq > 0 && reduced_freq2 >= artifreq ){
+      reduced_freq2 -= artifreq;
     }
     low_freq2 = TiCC::stringTo<size_t>(parts[5]);
     freq_rank = -20;
@@ -499,19 +499,19 @@ void rank( ostream& os, vector<record>& records,
   vector<record*>::iterator vit = recs.begin();
   while ( vit != recs.end() ){
     double rank =
-      (skip[0]?0:(*vit)->f2len_rank) +
-      (skip[1]?0:(*vit)->freq_rank) +
-      (skip[2]?0:(*vit)->ld_rank) +
-      (skip[3]?0:(*vit)->cls_rank) +
-      (skip[4]?0:(*vit)->canon_rank) +
-      (skip[5]?0:(*vit)->fl_rank) +
-      (skip[6]?0:(*vit)->ll_rank) +
-      (skip[7]?0:(*vit)->khc_rank) +
-      (skip[8]?0:(*vit)->pairs1_rank) +
-      (skip[9]?0:(*vit)->pairs2_rank) +
-      (skip[10]?0:(*vit)->pairs_combined_rank) +
-      (skip[11]?0:(*vit)->variant_rank) +
-      (skip[12]?0:(*vit)->cosine_rank);
+      (skip[0]?0:(*vit)->f2len_rank) +  // number of characters in the frequency
+      (skip[1]?0:(*vit)->freq_rank) +   // frequency of the CC
+      (skip[2]?0:(*vit)->ld_rank) +     // levenshtein distance
+      (skip[3]?0:(*vit)->cls_rank) +    // common longest substring
+      (skip[4]?0:(*vit)->canon_rank) +  // is it a validated word form
+      (skip[5]?0:(*vit)->fl_rank) +     // first character equality
+      (skip[6]?0:(*vit)->ll_rank) +     // last 2 characters equality
+      (skip[7]?0:(*vit)->khc_rank) +    // known historical confusion
+      (skip[8]?0:(*vit)->pairs1_rank) + //
+      (skip[9]?0:(*vit)->pairs2_rank) + //
+      (skip[10]?0:(*vit)->pairs_combined_rank) + //
+      (skip[11]?0:(*vit)->variant_rank) + // # of decappedversions of the CC
+      (skip[12]?0:(*vit)->cosine_rank); // WordVector rank
     rank = rank/factor;
     sum += rank;
     (*vit)->rank = rank;
