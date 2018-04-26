@@ -26,6 +26,7 @@
 */
 
 #include <unistd.h>
+#include <cassert>
 #include <set>
 #include <map>
 #include <limits>
@@ -199,7 +200,7 @@ int analyze_ngrams( const UnicodeString& us1,
 }
 
 void handleTranspositions( ostream& os, const set<string>& s,
-			   const map<string,size_t>& freqMap,
+			   const map<UnicodeString,size_t>& freqMap,
 			   const map<UnicodeString,size_t>& low_freqMap,
 			   const set<UChar>& alfabet,
 			   map<UnicodeString,set<UnicodeString>>& dis_map,
@@ -221,7 +222,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	cout << "TRANSPOSE: string 1 " << str1 << endl;
       }
     }
-    map<string,size_t>::const_iterator fit = freqMap.find( str1 );
+    auto fit = freqMap.find( TiCC::UnicodeFromUTF8(str1) );
     if ( fit == freqMap.end() ){
       if ( local_verbose > 1 ){
 #pragma omp critical (debugout)
@@ -246,7 +247,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	  cout << "TRANSPOSE string 2 " << str2 << endl;
 	}
       }
-      map<string,size_t>::const_iterator fit = freqMap.find( str2 );
+      auto fit = freqMap.find( TiCC::UnicodeFromUTF8(str2) );
       if ( fit == freqMap.end() ){
 	if ( local_verbose > 1 ){
 #pragma omp critical (debugout)
@@ -389,9 +390,9 @@ void handleTranspositions( ostream& os, const set<string>& s,
 }
 
 void compareSets( ostream& os, unsigned int ldValue,
-		  const string& KWC,
+		  const UnicodeString& KWC,
 		  const set<string>& s1, const set<string>& s2,
-		  const map<string,size_t>& freqMap,
+		  const map<UnicodeString,size_t>& freqMap,
 		  const map<UnicodeString,size_t>& low_freqMap,
 		  const set<UChar>& alfabet,
 		  map<UnicodeString,set<UnicodeString>>& dis_map,
@@ -416,7 +417,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 	cout << "SET: string 1 " << str1 << endl;
       }
     }
-    map<string,size_t>::const_iterator fit = freqMap.find( str1 );
+    auto fit = freqMap.find( TiCC::UnicodeFromUTF8(str1) );
     if ( fit == freqMap.end() ){
       if ( local_verbose > 1 ){
 #pragma omp critical (debugout)
@@ -443,7 +444,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 	  cout << "SET: string 2 " << str2 << endl;
 	}
       }
-      fit = freqMap.find( str2 );
+      fit = freqMap.find( TiCC::UnicodeFromUTF8(str2) );
       if ( fit == freqMap.end() ){
 	if ( local_verbose > 1 ){
 #pragma omp critical (debugout)
@@ -554,18 +555,21 @@ void compareSets( ostream& os, unsigned int ldValue,
       if ( isKHC ){
 	KHC = "1";
       }
-      string result = out_str1 + "~" + TiCC::toString(out_freq1) +
-	+ "~" + TiCC::toString(out_low_freq1) +
-	+ "~" + out_str2 + "~" + TiCC::toString( out_freq2 )
-	+ "~" + TiCC::toString( out_low_freq2 )
-	+ "~" + KWC + "~" + TiCC::toString( ld ) + "~"
-	+ TiCC::toString(cls) + "~" + canon + "~"
-	+ FLoverlap + "~" + LLoverlap + "~"
-	+ KHC + "~" + TiCC::toString(ngram_point);
+      stringstream ss;
+      ss << out_str1 << "~" << out_freq1
+	 << "~" << out_low_freq1
+	 << "~" << out_str2 << "~" << out_freq2
+	 << "~" << out_low_freq2
+	 << "~" << KWC << "~" << ld << "~"
+	 << cls << "~" << canon << "~"
+	 << FLoverlap << "~" << LLoverlap << "~"
+	 << KHC << "~" << ngram_point;
+      string result = ss.str();
 #pragma omp critical (output)
       {
 	os << result << endl;
       }
+
       if ( local_verbose > 2 ){
 	cerr << "SET result: " << result << endl;
       }
@@ -577,7 +581,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 
 void add_ambi( ostream& os,
 	       const map<UnicodeString,size_t>& dis_count,
-	       const map<string,size_t>& freqMap,
+	       const map<UnicodeString,size_t>& freqMap,
 	       const map<UnicodeString,size_t>& low_freqMap ){
   for ( const auto& entry : dis_count ){
     vector<UnicodeString> parts = TiCC::split_at( entry.first, "~" );
@@ -594,12 +598,12 @@ void add_ambi( ostream& os,
       LLoverlap = "1";
     }
     size_t freq1 = 0;
-    auto it = freqMap.find(TiCC::UnicodeToUTF8(parts[0]));
+    auto it = freqMap.find(parts[0]);
     if ( it != freqMap.end() ){
       freq1 = it->second;
     }
     size_t freq2 = 0;
-    it = freqMap.find(TiCC::UnicodeToUTF8(parts[1]));
+    it = freqMap.find(parts[1]);
     if ( it != freqMap.end() ){
       freq2 = it->second;
     }
@@ -791,7 +795,7 @@ int main( int argc, char **argv ){
     exit(EXIT_FAILURE);
   }
   cout << progname << ": reading clean file: " << frequencyFile << endl;
-  map<string, size_t> freqMap;
+  map<UnicodeString, size_t> freqMap;
   map<UnicodeString, size_t> low_freqMap;
   string line;
   size_t ign = 0;
@@ -802,10 +806,10 @@ int main( int argc, char **argv ){
       continue;
     }
     else {
-      string s = v1[0];
+      UnicodeString s = TiCC::UnicodeFromUTF8(v1[0]);
       size_t freq = TiCC::stringTo<size_t>( v1[1] );
       freqMap[s] = freq;
-      UnicodeString ls = TiCC::UnicodeFromUTF8( s );
+      UnicodeString ls = s;
       ls.toLower();
       if ( freq >= artifreq ){
 	// make sure that the artifrq is counted only once!
@@ -939,7 +943,8 @@ int main( int argc, char **argv ){
       ++err_cnt;
     }
     else {
-      string mainKeyS = parts[0];
+      string key_s = parts[0];
+      UnicodeString mainKeyS = TiCC::UnicodeFromUTF8(key_s);
       if ( ++count % 1000 == 0 ){
 	cout << ".";
 	cout.flush();
@@ -958,7 +963,7 @@ int main( int argc, char **argv ){
 	++err_cnt;
       }
       else {
-	bitType mainKey = TiCC::stringTo<bitType>(mainKeyS);
+	bitType mainKey = TiCC::stringTo<bitType>(key_s);
 	bool isKHC = false;
 	if ( histMap.find( mainKey ) != histMap.end() ){
 	  isKHC = true;
