@@ -143,25 +143,60 @@ int analyze_ngrams( const UnicodeString& us1,
 		    size_t freqTreshold,
 		    map<UnicodeString,set<UnicodeString>>& dis_map,
 		    map<UnicodeString, size_t>& dis_count ){
+  bool following = false;
   vector<UnicodeString> parts1 = split( us1, SEPARATOR );
   vector<UnicodeString> parts2 = split( us2, SEPARATOR );
-  if ( parts1.size() == 1 || parts1.size() != parts2.size() ){
-    return 0; // nothing special
+  if ( parts1.size() == 1 && parts2.size() == 1 ){
+    return 0; // nothing special for unigrams
   }
   UnicodeString diff_part1;
   UnicodeString diff_part2;
-  //
-  // search for a pair of 'uncommon' parts in the 2 ngrams.
-  for ( size_t i=0; i < parts1.size(); ++i ){
-    if ( parts1[i] == parts2[i] ){
-      // ok
+  if ( parts1.size() == parts2.size() ){
+    //
+    // search for a pair of 'uncommon' parts in the 2 ngrams.
+    for ( size_t i=0; i < parts1.size(); ++i ){
+      if ( parts1[i] == parts2[i] ){
+	// ok
+      }
+      else if ( diff_part1.isEmpty() ) {
+	diff_part1 = parts1[i];
+	diff_part2 = parts2[i];
+      }
+      else {
+	return 0; // nothing special
+      }
     }
-    else if ( diff_part1.isEmpty() ) {
-      diff_part1 = parts1[i];
-      diff_part2 = parts2[i];
+  }
+  else {
+    if ( parts1.back() == parts2.back() ){
+      parts1.pop_back();
+      parts2.pop_back();
+    }
+    else if ( parts1.front() == parts2.front() ){
+      parts1.erase(parts1.begin());
+      parts2.erase(parts2.begin());
     }
     else {
-      return 0; // nothing special
+      // no common part at begin or end.
+      return 0;
+    }
+    for ( const auto& w1 : parts1 ){
+      if ( !diff_part1.isEmpty() ){
+	diff_part1 += "_";
+      }
+      diff_part1 += w1;
+    }
+    for ( const auto& w2 : parts2 ){
+      if ( !diff_part2.isEmpty() ){
+	diff_part2 += "_";
+      }
+      diff_part2 += w2;
+    }
+    if ( following ){
+#pragma omp critical (debugout)
+      {
+	cerr << "FOUND 1-2-3 " << diff_part1 << " " << diff_part2 << endl;
+      }
     }
   }
   if ( diff_part1.isEmpty() ) {
@@ -180,7 +215,6 @@ int analyze_ngrams( const UnicodeString& us1,
     // OK a high frequent word. translating probably won't do any good
     return 0; // nothing special
   }
-  bool following = false;
   string lps = TiCC::UnicodeToUTF8( lp1 );
   if ( follow.find( lps ) != follow.end() ){
     following = true;
