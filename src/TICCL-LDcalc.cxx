@@ -114,27 +114,6 @@ bool isClean( const UnicodeString& us, const set<UChar>& alfabet ){
 
 const UChar SEPARATOR = '_';
 
-vector<UnicodeString> split( const UnicodeString& in, UChar symbol ){
-  vector<UnicodeString> results;
-  int  pos = 0;
-  while ( pos >= 0 && pos < in.length() ){
-    UnicodeString res;
-    int p = in.indexOf( symbol, pos );
-    if ( p < 0 ){
-      res = in.tempSubString( pos );
-      pos = p;
-    }
-    else {
-      res = in.tempSubString( pos, p - pos );
-      pos = p + 1;
-    }
-    if ( !res.isEmpty() ){
-      results.push_back( res );
-    }
-  }
-  return results;
-}
-
 set<string> follow;
 
 int analyze_ngrams( const UnicodeString& us1,
@@ -144,8 +123,8 @@ int analyze_ngrams( const UnicodeString& us1,
 		    map<UnicodeString,set<UnicodeString>>& dis_map,
 		    map<UnicodeString, size_t>& dis_count ){
   bool following = false;
-  vector<UnicodeString> parts1 = split( us1, SEPARATOR );
-  vector<UnicodeString> parts2 = split( us2, SEPARATOR );
+  vector<UnicodeString> parts1 = TiCC::split_at( us1, SEPARATOR );
+  vector<UnicodeString> parts2 = TiCC::split_at( us2, SEPARATOR );
   if ( parts1.size() == 1 && parts2.size() == 1 ){
     return 0; // nothing special for unigrams
   }
@@ -245,6 +224,77 @@ int analyze_ngrams( const UnicodeString& us1,
   return 1; // signal a point
 }
 
+class output_record {
+public:
+  output_record(): out_freq1(-1),
+		   out_low_freq1(-1),
+		   out_freq2(-1),
+		   out_low_freq2(-1),
+		   bla(-1),
+		   ld(-1),
+		   cls(-1),
+		   FLoverlap(-1),
+		   LLoverlap(-1),
+		   ngram_point(0),
+		   isKHC(false),
+		   noKHCld(false)
+  { };
+  void sort();
+  int analyze_ngrams( const map<UnicodeString, size_t>&,
+		      size_t,
+		      map<UnicodeString,set<UnicodeString>>&,
+		      map<UnicodeString, size_t>& ) const;
+  bool ld_check();
+  string to_string() const;
+  UnicodeString out_str1;
+  size_t out_freq1;
+  size_t out_low_freq1;
+  UnicodeString out_str2;
+  size_t out_freq2;
+  size_t out_low_freq2;
+  size_t bla;
+  size_t ld;
+  size_t cls;
+  UnicodeString canon;
+  size_t FLoverlap;
+  size_t LLoverlap;
+  UnicodeString KHC;
+  size_t ngram_point;
+  bool isKHC;
+  bool noKHCld;
+};
+
+void output_record::sort(){
+  if ( out_low_freq1 > out_low_freq2 ){
+    out_str1.swap(out_str2);
+    swap( out_freq1, out_freq2 );
+    swap( out_low_freq1, out_low_freq2 );
+  }
+}
+
+int output_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
+				   size_t freqTreshold,
+				   map<UnicodeString,set<UnicodeString>>& dis_map,
+				   map<UnicodeString, size_t>& dis_count ) const
+{
+  return ::analyze_ngrams( out_str1, out_str2,
+			 low_freqMap, freqTreshold, dis_map, dis_count );
+}
+
+bool output_record::ld_check() {
+  UnicodeString ls1 = out_str1;
+  ls1.toLower();
+  UnicodeString ls2 = out_str2;
+  ls2.toLower();
+  ld = ldCompare( ls1, ls2 );
+  if ( ld != 2 ){
+    if ( !( isKHC && noKHCld ) ){
+      return false;
+    }
+  }
+  return true;
+}
+
 void handleTranspositions( ostream& os, const set<string>& s,
 			   const map<UnicodeString,size_t>& freqMap,
 			   const map<UnicodeString,size_t>& low_freqMap,
@@ -255,6 +305,9 @@ void handleTranspositions( ostream& os, const set<string>& s,
 			   bool isKHC,
 			   bool noKHCld,
 			   bool isDIAC ){
+  output_record record;
+  record.isKHC = isKHC;
+  record.noKHCld = noKHCld;
   set<string>::const_iterator it1 = s.begin();
   while ( it1 != s.end() ) {
     bool following = false;
@@ -337,11 +390,19 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	  continue;
 	}
       }
+      record.out_str1 = TiCC::UnicodeFromUTF8(str1);
+      record.out_freq1 = freq1;
+      record.out_low_freq1 = low_freq1;
+      record.out_str2 = TiCC::UnicodeFromUTF8(str2);
+      record.out_freq2 = freq2;
+      record.out_low_freq2 = low_freq2;
 
       size_t canon_freq = 0;
       UnicodeString candidate;
       bool swapped = false;
       if ( low_freq1 > low_freq2 ){
+	swapped = true;
+	record.sort();
 	canon_freq = low_freq1;
 	out_freq1 = freq2;
 	out_low_freq1 = low_freq2;
@@ -350,7 +411,6 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	out_str1 = str2;
 	out_str2 = str1;
 	candidate = ls1;
-	swapped = true;
       }
       else {
 	canon_freq = low_freq2;
@@ -362,6 +422,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	out_str2 = str2;
 	candidate = ls2;
       }
+      assert ( candidate == record.out_str2.toLower() );
       if ( !isClean( candidate, alfabet ) ){
 	if ( following ){
 #pragma omp critical (debugout)
@@ -372,7 +433,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	++it2;
 	continue;
       }
-      int ngram_point = 0;
+      int ngram_point;
       if ( swapped ){
 	ngram_point = analyze_ngrams( us2, us1, low_freqMap, freqTreshold,
 				      dis_map, dis_count );
@@ -381,21 +442,22 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	ngram_point = analyze_ngrams( us1, us2, low_freqMap, freqTreshold,
 				      dis_map, dis_count );
       }
-      unsigned int ld = ldCompare( ls1, ls2 );
-      if ( ld != 2 ){
-	if ( !( isKHC && noKHCld ) ){
-	  if ( following ){
+
+      // int ngram_point = record.analyze_ngrams( low_freqMap, freqTreshold,
+      // 					       dis_map, dis_count );
+
+      if ( !record.ld_check() ){
+	if ( following ){
 #pragma omp critical (debugout)
-	    {
-	      cout << " LD != 2 " << str1 << "," << str2 << endl;
-	    }
+	  {
+	    cout << " LD != 2 " << str1 << "," << str2 << endl;
 	  }
-	  ++it2;
-	  continue;
 	}
+	++it2;
+	continue;
       }
 
-      int cls = max(ls1.length(),ls2.length()) - ld;
+      int cls = max(ls1.length(),ls2.length()) - record.ld;
       string canon = "0";
       if ( canon_freq >= freqTreshold ){
 	canon = "1";
@@ -418,7 +480,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	+ TiCC::toString(out_low_freq1) + "~"
 	+ out_str2 + "~" + TiCC::toString( out_freq2 ) + "~"
 	+ TiCC::toString(out_low_freq2) + "~"
-	+ "~0~" + TiCC::toString( ld ) + "~"
+	+ "~0~" + TiCC::toString( record.ld ) + "~"
 	+ TiCC::toString(cls) + "~" + canon + "~"
 	+ FLoverlap + "~" + LLoverlap + "~"
 	+ KHC + "~" + TiCC::toString(ngram_point);
@@ -676,17 +738,6 @@ void add_ambi( ostream& os,
 }
 
 int main( int argc, char **argv ){
-  // UnicodeString s1 = "Een_Test";
-  // UnicodeString s2 = "een_wat_langere_Tast";
-  // vector<UnicodeString> bla = split( s1, SEPARATOR );
-  // for ( const auto& s : bla ){
-  //   cerr << s << endl;
-  // }
-  // bla = split( s2, SEPARATOR );
-  // for ( const auto& s : bla ){
-  //   cerr << s << endl;
-  // }
-  // exit(EXIT_SUCCESS);
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:t:" );
