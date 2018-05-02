@@ -51,7 +51,7 @@
 using namespace std;
 typedef signed long int bitType;
 
-const int RANK_COUNT=13;
+const int RANK_COUNT=14;
 
 bool verbose = false;
 
@@ -824,9 +824,9 @@ int main( int argc, char **argv ){
       cerr << "bekijk " << line << endl;
     }
     vector<string> parts;
-    if ( TiCC::split_at( line, parts, "~" ) != 13 ){
+    if ( TiCC::split_at( line, parts, "~" ) != RANK_COUNT ){
       cerr << "invalid line: " << line << endl;
-      cerr << "expected 13 ~ separated values." << endl;
+      cerr << "expected " << RANK_COUNT << " ~ separated values." << endl;
       if ( ++failures > 50 ){
 	cerr << "too many invalid lines" << endl;
 	exit(EXIT_FAILURE);
