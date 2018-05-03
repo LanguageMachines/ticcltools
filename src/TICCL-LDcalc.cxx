@@ -231,9 +231,9 @@ public:
 	       low_freq1(-1),
 	       freq2(-1),
 	       low_freq2(-1),
-	       bla(-1),
 	       ld(-1),
 	       cls(-1),
+	       KWC(0),
 	       canon(false),
 	       FLoverlap(false),
 	       LLoverlap(false),
@@ -258,9 +258,9 @@ public:
   UnicodeString str2;
   size_t freq2;
   size_t low_freq2;
-  size_t bla;
   size_t ld;
   size_t cls;
+  bitType KWC;
   bool canon;
   bool FLoverlap;
   bool LLoverlap;
@@ -351,7 +351,7 @@ string ld_record::toString() const {
   stringstream ss;
   ss << str1 << "~" << freq1 << "~" << low_freq1 << "~"
      << str2 << "~" << freq2 << "~" << low_freq2 << "~"
-     << "~0~" << ld << "~"
+     << KWC << "~" << ld << "~"
      << cls << "~" << canon_s << "~"
      << FLoverlap_s << "~" << LLoverlap_s << "~"
      << KHC << "~" << ngram_point;
@@ -461,7 +461,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 }
 
 void compareSets( ostream& os, unsigned int ldValue,
-		  const UnicodeString& KWC,
+		  bitType KWC,
 		  const set<string>& s1, const set<string>& s2,
 		  const map<string,size_t>& freqMap,
 		  const map<UnicodeString,size_t>& low_freqMap,
@@ -995,7 +995,6 @@ int main( int argc, char **argv ){
     }
     else {
       string key_s = parts[0];
-      UnicodeString mainKeyS = TiCC::UnicodeFromUTF8(key_s);
       if ( ++count % 1000 == 0 ){
 	cout << ".";
 	cout.flush();
@@ -1070,7 +1069,7 @@ int main( int argc, char **argv ){
 	    }
 	    continue;
 	  }
-	  compareSets( os, LDvalue, mainKeyS,
+	  compareSets( os, LDvalue, mainKey,
 		       sit1->second, sit2->second,
 		       freqMap, low_freqMap, alfabet,
 		       dis_map, dis_count,
