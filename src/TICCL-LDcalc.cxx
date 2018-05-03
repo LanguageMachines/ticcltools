@@ -250,6 +250,8 @@ public:
 		      size_t,
 		      map<UnicodeString,set<UnicodeString>>&,
 		      map<UnicodeString, size_t>& );
+  bool ld_is_2();
+  bool ld_less_or_equal( size_t );
   bool check( size_t );
   bool is_clean( const set<UChar>& ) const;
   bool test_validity( size_t, const set<UChar>& );
@@ -305,13 +307,27 @@ int ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
   return ngram_point;
 }
 
-bool ld_record::check( size_t freqTreshold ) {
+bool ld_record::ld_is_2( ) {
   ld = ldCompare( ls1, ls2 );
   if ( ld != 2 ){
     if ( !( isKHC && noKHCld ) ){
       return false;
     }
   }
+  return true;
+}
+
+bool ld_record::ld_less_or_equal( size_t ldvalue ) {
+  ld = ldCompare( ls1, ls2 );
+  if ( ld <= ldvalue ){
+    if ( !( isKHC && noKHCld ) ){
+      return false;
+    }
+  }
+  return true;
+}
+
+bool ld_record::check( size_t freqTreshold ) {
   cls = max(ls1.length(),ls2.length()) - ld;
   LLoverlap = false;
   if ( ls1.length() > 1 && ls2.length() > 1
@@ -427,7 +443,8 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	continue;
       }
       record.analyze_ngrams( low_freqMap, freqTreshold, dis_map, dis_count );
-      if ( !record.check( freqTreshold ) ){
+      if ( !record.ld_is_2()
+	   || !record.check( freqTreshold ) ){
 	if ( following ){
 #pragma omp critical (debugout)
 	  {
@@ -495,24 +512,17 @@ void compareSets( ostream& os, unsigned int ldValue,
 	  cout << "SET: string 2 " << str2 << endl;
 	}
       }
+      ld_record record( str1, str2,
+			freqMap, low_freqMap,
+			isKHC, noKHCld, isDIAC );
+      if ( record.ld_less_or_equal( ldValue ) ){
+       	++it2;
+       	continue;
+      }
       size_t freq2 = freqMap.at(str2);
       UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
       UnicodeString ls2 = us2;
       ls2.toLower();
-      unsigned int ld = ldCompare( ls1, ls2 );
-      if ( ld > ldValue ){
-	if ( !( isKHC && noKHCld ) ){
-	  if ( following ){
-#pragma omp critical (debugout)
-	    {
-	      cout << " LD too high " << str1 << "," << str2 << endl;
-	    }
-	  }
-	  ++it2;
-	  continue;
-	}
-      }
-
       size_t out_freq1;
       size_t out_low_freq1;
       size_t out_freq2;
@@ -575,7 +585,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 				      dis_map, dis_count );
       }
 
-      int cls = max(ls1.length(),ls2.length()) - ld;
+      int cls = max(ls1.length(),ls2.length()) - record.ld;
       string canon = "0";
       if ( canon_freq >= freqTreshold ){
 	canon = "1";
@@ -599,7 +609,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 	 << "~" << out_low_freq1
 	 << "~" << out_str2 << "~" << out_freq2
 	 << "~" << out_low_freq2
-	 << "~" << KWC << "~" << ld << "~"
+	 << "~" << KWC << "~" << record.ld << "~"
 	 << cls << "~" << canon << "~"
 	 << FLoverlap << "~" << LLoverlap << "~"
 	 << KHC << "~" << ngram_point;
