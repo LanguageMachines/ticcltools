@@ -225,25 +225,25 @@ int analyze_ngrams( const UnicodeString& us1,
   return 1; // signal a point
 }
 
-class output_record {
+class ld_record {
 public:
-  output_record(): freq1(-1),
-		   low_freq1(-1),
-		   freq2(-1),
-		   low_freq2(-1),
-		   bla(-1),
-		   ld(-1),
-		   cls(-1),
-		   canon(false),
-		   FLoverlap(false),
-		   LLoverlap(false),
-		   ngram_point(0),
-		   isKHC(false),
-		   noKHCld(false)
+  ld_record(): freq1(-1),
+	       low_freq1(-1),
+	       freq2(-1),
+	       low_freq2(-1),
+	       bla(-1),
+	       ld(-1),
+	       cls(-1),
+	       canon(false),
+	       FLoverlap(false),
+	       LLoverlap(false),
+	       ngram_point(0),
+	       isKHC(false),
+	       noKHCld(false)
   { };
-  output_record( const string&, size_t, size_t,
-		 const string&, size_t, size_t,
-		 bool, bool );
+  ld_record( const string&, size_t, size_t,
+	     const string&, size_t, size_t,
+	     bool, bool );
   void sort();
   int analyze_ngrams( const map<UnicodeString, size_t>&,
 		      size_t,
@@ -270,9 +270,9 @@ public:
   bool noKHCld;
 };
 
-output_record::output_record( const string& s1, size_t f1, size_t l_f1,
-			      const string& s2, size_t f2, size_t l_f2,
-			      bool is_KHC, bool no_KHCld ){
+ld_record::ld_record( const string& s1, size_t f1, size_t l_f1,
+		      const string& s2, size_t f2, size_t l_f2,
+		      bool is_KHC, bool no_KHCld ){
   isKHC = is_KHC;
   noKHCld = no_KHCld;
   str1 = TiCC::UnicodeFromUTF8(s1);
@@ -283,7 +283,7 @@ output_record::output_record( const string& s1, size_t f1, size_t l_f1,
   low_freq2 = l_f2;
 }
 
-void output_record::sort(){
+void ld_record::sort(){
   if ( low_freq1 > low_freq2 ){
     str1.swap(str2);
     swap( freq1, freq2 );
@@ -291,17 +291,17 @@ void output_record::sort(){
   }
 }
 
-int output_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
-				   size_t freqTreshold,
-				   map<UnicodeString,set<UnicodeString>>& dis_map,
-				   map<UnicodeString, size_t>& dis_count ){
+int ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
+			       size_t freqTreshold,
+			       map<UnicodeString,set<UnicodeString>>& dis_map,
+			       map<UnicodeString, size_t>& dis_count ){
   ngram_point = ::analyze_ngrams( str1, str2,
 				  low_freqMap, freqTreshold,
 				  dis_map, dis_count );
   return ngram_point;
 }
 
-bool output_record::check( size_t freqTreshold ) {
+bool ld_record::check( size_t freqTreshold ) {
   UnicodeString ls1 = str1;
   ls1.toLower();
   UnicodeString ls2 = str2;
@@ -330,7 +330,7 @@ bool output_record::check( size_t freqTreshold ) {
   return true;
 }
 
-bool output_record::is_clean( const set<UChar>& alfabet ){
+bool ld_record::is_clean( const set<UChar>& alfabet ){
   if ( alfabet.empty() )
     return true;
   UnicodeString ls = str1;
@@ -343,20 +343,19 @@ bool output_record::is_clean( const set<UChar>& alfabet ){
 }
 
 
-string output_record::toString() const {
+string ld_record::toString() const {
   string canon_s = (canon?"1":"0");;
   string FLoverlap_s = (FLoverlap?"1":"0");;
   string LLoverlap_s = (LLoverlap?"1":"0");;
   string KHC = (isKHC?"1":"0");
-  string result = TiCC::UnicodeToUTF8(str1) + "~" + TiCC::toString(freq1) + "~"
-    + TiCC::toString(low_freq1) + "~"
-    + TiCC::UnicodeToUTF8(str2) + "~" + TiCC::toString( freq2 ) + "~"
-    + TiCC::toString(low_freq2) + "~"
-    + "~0~" + TiCC::toString( ld ) + "~"
-    + TiCC::toString(cls) + "~" + canon_s + "~"
-    + FLoverlap_s + "~" + LLoverlap_s + "~"
-    + KHC + "~" + TiCC::toString(ngram_point);
-  return result;
+  stringstream ss;
+  ss << str1 << "~" << freq1 << "~" << low_freq1 << "~"
+     << str2 << "~" << freq2 << "~" << low_freq2 << "~"
+     << "~0~" << ld << "~"
+     << cls << "~" << canon_s << "~"
+     << FLoverlap_s << "~" << LLoverlap_s << "~"
+     << KHC << "~" << ngram_point;
+  return ss.str();
 }
 
 void handleTranspositions( ostream& os, const set<string>& s,
@@ -444,9 +443,9 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	  continue;
 	}
       }
-      output_record record( str1, freq1, low_freq1,
-			    str2, freq2, low_freq2,
-			    isKHC, noKHCld );
+      ld_record record( str1, freq1, low_freq1,
+			str2, freq2, low_freq2,
+			isKHC, noKHCld );
       record.sort();
       if ( !record.is_clean( alfabet ) ){
 	if ( following ){
