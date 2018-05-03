@@ -523,23 +523,14 @@ void compareSets( ostream& os, unsigned int ldValue,
       UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
       UnicodeString ls2 = us2;
       ls2.toLower();
-      size_t out_low_freq1;
-      string out_str1;
-      string out_str2;
       size_t low_freq1 = record.low_freq1;
       size_t low_freq2 = record.low_freq2;
       UnicodeString candidate;
       if ( low_freq1 > low_freq2 ){
-	out_low_freq1 = low_freq2;
-	out_str1 = str2;
-	out_str2 = str1;
 	candidate = record.ls1;
 	record.flip();
       }
       else {
-	out_low_freq1 = low_freq1;
-	out_str1 = str1;
-	out_str2 = str2;
 	candidate = record.ls2;
       }
       if ( !isClean( candidate, alfabet ) ){
@@ -552,11 +543,11 @@ void compareSets( ostream& os, unsigned int ldValue,
 	++it2;
 	continue;
       }
-      if ( out_low_freq1 >= freqTreshold && !isDIAC ){
+      if ( record.low_freq1 >= freqTreshold && !isDIAC ){
 	if ( following ){
 #pragma omp critical (debugout)
 	  {
-	    cout << "lexical word " << out_str1 << endl;
+	    cout << "lexical word " << record.str1 << endl;
 	  }
 	}
 	++it2;
