@@ -243,7 +243,7 @@ public:
   { };
   ld_record( const string&, size_t, size_t,
 	     const string&, size_t, size_t,
-	     bool, bool );
+	     bool, bool, bool );
   void sort();
   int analyze_ngrams( const map<UnicodeString, size_t>&,
 		      size_t,
@@ -252,10 +252,12 @@ public:
   bool check( size_t );
   bool is_clean( const set<UChar>& alfabet );
   string toString() const;
-  UnicodeString str1;
+  string str1;
+  UnicodeString ls1;
   size_t freq1;
   size_t low_freq1;
-  UnicodeString str2;
+  string str2;
+  UnicodeString ls2;
   size_t freq2;
   size_t low_freq2;
   size_t ld;
@@ -268,17 +270,23 @@ public:
   size_t ngram_point;
   bool isKHC;
   bool noKHCld;
+  bool is_diac;
 };
 
 ld_record::ld_record( const string& s1, size_t f1, size_t l_f1,
 		      const string& s2, size_t f2, size_t l_f2,
-		      bool is_KHC, bool no_KHCld ){
+		      bool is_KHC, bool no_KHCld, bool is_diachrone ){
   isKHC = is_KHC;
   noKHCld = no_KHCld;
-  str1 = TiCC::UnicodeFromUTF8(s1);
+  is_diac = is_diachrone;
+  str1 = s1;
+  ls1 = TiCC::UnicodeFromUTF8(s1);
+  ls1.toLower();
   freq1 = f1;
   low_freq1 = l_f1;
-  str2 = TiCC::UnicodeFromUTF8(s2);
+  str2 = s2;
+  ls2 = TiCC::UnicodeFromUTF8(s2);
+  ls2.toLower();
   freq2 = f2;
   low_freq2 = l_f2;
 }
@@ -286,6 +294,7 @@ ld_record::ld_record( const string& s1, size_t f1, size_t l_f1,
 void ld_record::sort(){
   if ( low_freq1 > low_freq2 ){
     str1.swap(str2);
+    ls1.swap(ls2);
     swap( freq1, freq2 );
     swap( low_freq1, low_freq2 );
   }
@@ -295,17 +304,14 @@ int ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 			       size_t freqTreshold,
 			       map<UnicodeString,set<UnicodeString>>& dis_map,
 			       map<UnicodeString, size_t>& dis_count ){
-  ngram_point = ::analyze_ngrams( str1, str2,
+  ngram_point = ::analyze_ngrams( TiCC::UnicodeFromUTF8(str1),
+				  TiCC::UnicodeFromUTF8(str2),
 				  low_freqMap, freqTreshold,
 				  dis_map, dis_count );
   return ngram_point;
 }
 
 bool ld_record::check( size_t freqTreshold ) {
-  UnicodeString ls1 = str1;
-  ls1.toLower();
-  UnicodeString ls2 = str2;
-  ls2.toLower();
   ld = ldCompare( ls1, ls2 );
   if ( ld != 2 ){
     if ( !( isKHC && noKHCld ) ){
@@ -333,10 +339,8 @@ bool ld_record::check( size_t freqTreshold ) {
 bool ld_record::is_clean( const set<UChar>& alfabet ){
   if ( alfabet.empty() )
     return true;
-  UnicodeString ls = str1;
-  ls.toLower();
-  for ( int i=0; i < ls.length(); ++i ){
-    if ( alfabet.find( ls[i] ) == alfabet.end() )
+  for ( int i=0; i < ls1.length(); ++i ){
+    if ( alfabet.find( ls1[i] ) == alfabet.end() )
       return false;
   }
   return true;
@@ -423,7 +427,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
       }
       ld_record record( str1, freq1, low_freq1,
 			str2, freq2, low_freq2,
-			isKHC, noKHCld );
+			isKHC, noKHCld, isDIAC );
       record.sort();
       if ( !record.is_clean( alfabet ) ){
 	if ( following ){
