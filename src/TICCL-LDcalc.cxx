@@ -258,7 +258,7 @@ public:
 		      map<UnicodeString, size_t>& );
   bool ld_is_2();
   bool ld_less_or_equal( size_t );
-  bool check( size_t );
+  void fill_fields( size_t );
   bool is_clean( const set<UChar>& ) const;
   bool test_validity( size_t, const set<UChar>& );
   string toString() const;
@@ -333,7 +333,7 @@ bool ld_record::ld_less_or_equal( size_t ldvalue ) {
   return true;
 }
 
-bool ld_record::check( size_t freqTreshold ) {
+void ld_record::fill_fields( size_t freqTreshold ) {
   cls = max(ls1.length(),ls2.length()) - ld;
   LLoverlap = false;
   if ( ls1.length() > 1 && ls2.length() > 1
@@ -349,7 +349,6 @@ bool ld_record::check( size_t freqTreshold ) {
   if ( low_freq2 >= freqTreshold ){
     canon = true;
   }
-  return true;
 }
 
 bool ld_record::is_clean( const set<UChar>& alfabet ) const{
@@ -446,8 +445,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	continue;
       }
       record.analyze_ngrams( low_freqMap, freqTreshold, dis_map, dis_count );
-      if ( !record.ld_is_2()
-	   || !record.check( freqTreshold ) ){
+      if ( !record.ld_is_2() ){
 	if ( following ){
 #pragma omp critical (debugout)
 	  {
@@ -457,6 +455,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	++it2;
 	continue;
       }
+      record.fill_fields( freqTreshold );
       string result = record.toString();
 #pragma omp critical (output)
       {
@@ -544,7 +543,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 	out_low_freq2 = low_freq1;
 	out_str1 = str2;
 	out_str2 = str1;
-	candidate = ls1;
+	candidate = record.ls1;
 	record.flip();
       }
       else {
@@ -555,7 +554,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 	out_low_freq2 = low_freq2;
 	out_str1 = str1;
 	out_str2 = str2;
-	candidate = ls2;
+	candidate = record.ls2;
       }
       if ( !isClean( candidate, alfabet ) ){
 	if ( following ){
@@ -579,7 +578,7 @@ void compareSets( ostream& os, unsigned int ldValue,
       }
       int ngram_point = record.analyze_ngrams( low_freqMap, freqTreshold,
 					       dis_map, dis_count );
-
+      record.fill_fields( freqTreshold );
       int cls = max(ls1.length(),ls2.length()) - record.ld;
       string canon = "0";
       if ( canon_freq >= freqTreshold ){
@@ -599,16 +598,8 @@ void compareSets( ostream& os, unsigned int ldValue,
       if ( isKHC ){
 	KHC = "1";
       }
-      stringstream ss;
-      ss << out_str1 << "~" << out_freq1
-	 << "~" << out_low_freq1
-	 << "~" << out_str2 << "~" << out_freq2
-	 << "~" << out_low_freq2
-	 << "~" << KWC << "~" << record.ld << "~"
-	 << cls << "~" << canon << "~"
-	 << FLoverlap << "~" << LLoverlap << "~"
-	 << KHC << "~" << ngram_point;
-      string result = ss.str();
+      record.KWC = KWC;
+      string result = record.toString();
 #pragma omp critical (output)
       {
 	os << result << endl;
