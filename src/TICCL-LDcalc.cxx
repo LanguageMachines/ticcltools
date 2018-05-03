@@ -358,7 +358,7 @@ string ld_record::toString() const {
   return ss.str();
 }
 
-void handleTranspositions( ostream& os, const set<string>& ins,
+void handleTranspositions( ostream& os, const set<string>& s,
 			   const map<string,size_t>& freqMap,
 			   const map<UnicodeString,size_t>& low_freqMap,
 			   const set<UChar>& alfabet,
@@ -368,18 +368,7 @@ void handleTranspositions( ostream& os, const set<string>& ins,
 			   bool isKHC,
 			   bool noKHCld,
 			   bool isDIAC ){
-  set<string> s = ins;
-  set<string>::iterator it1 = s.begin();
-  while ( it1 != s.end() ) {
-    auto fit = freqMap.find( *it1 );
-    if ( fit == freqMap.end() ){
-      it1 = s.erase( it1 );
-    }
-    else {
-      ++it1;
-    }
-  }
-  it1 = s.begin();
+  auto it1 = s.begin();
   while ( it1 != s.end() ) {
     bool following = false;
     string str1 = *it1;
@@ -393,7 +382,7 @@ void handleTranspositions( ostream& os, const set<string>& ins,
       }
     }
     size_t freq1 = freqMap.at( str1 );
-    set<string>::const_iterator it2 = it1;
+    auto it2 = it1;
     ++it2;
     while ( it2 != s.end() ) {
       string str2 = *it2;
@@ -486,7 +475,7 @@ void compareSets( ostream& os, unsigned int ldValue,
   // using TiCC::operator<<;
   // cerr << "set 1 " << s1 << endl;
   // cerr << "set 2 " << s2 << endl;
-  set<string>::const_iterator it1 = s1.begin();
+  auto it1 = s1.begin();
   while ( it1 != s1.end() ) {
     bool following = false;
     string str1 = *it1;
@@ -499,22 +488,11 @@ void compareSets( ostream& os, unsigned int ldValue,
 	cout << "SET: string 1 " << str1 << endl;
       }
     }
-    auto fit = freqMap.find( str1 );
-    if ( fit == freqMap.end() ){
-      if ( following ){
-#pragma omp critical (debugout)
-	{
-	  cout << "not found in freq file " << str1 << endl;
-	}
-      }
-      ++it1;
-      continue;
-    }
-    size_t freq1 = fit->second;
+    size_t freq1 = freqMap.at(str1);
     UnicodeString us1 = TiCC::UnicodeFromUTF8( str1 );
     UnicodeString ls1 = us1;
     ls1.toLower();
-    set<string>::const_iterator it2 = s2.begin();
+    auto it2 = s2.begin();
     while ( it2 != s2.end() ) {
       string str2 = *it2;
       if ( follow.find( str2 ) != follow.end() ){
@@ -526,19 +504,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 	  cout << "SET: string 2 " << str2 << endl;
 	}
       }
-      fit = freqMap.find( str2 );
-      if ( fit == freqMap.end() ){
-	if ( following ){
-#pragma omp critical (debugout)
-	  {
-	    cout << "not found in freq file " << str2 << endl;
-	  }
-	}
-	++it2;
-	continue;
-      }
-
-      size_t freq2 = fit->second;
+      size_t freq2 = freqMap.at(str2);
       UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
       UnicodeString ls2 = us2;
       ls2.toLower();
@@ -982,8 +948,18 @@ int main( int argc, char **argv ){
       }
       else {
 	bitType key = TiCC::stringTo<bitType>( v1[0] );
-	for ( size_t i=0; i < v2.size(); ++i )
-	  hashMap[key].insert( v2[i] );
+	for ( size_t i=0; i < v2.size(); ++i ){
+	  auto it = freqMap.find( v2[i] );
+	  if ( it != freqMap.end() ){
+	    // only store words from the .clean lexicon
+	    hashMap[key].insert( v2[i] );
+	  }
+	  else {
+	    if ( verbose > 1 ){
+	      cerr << "skip hash for " << v2[i] << " (not in lexicon)" << endl;
+	    }
+	  }
+	}
       }
     }
   }
