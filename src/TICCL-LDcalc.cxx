@@ -241,8 +241,10 @@ public:
 	       isKHC(false),
 	       noKHCld(false)
   { };
-  ld_record( const string&, size_t, size_t,
-	     const string&, size_t, size_t,
+  ld_record( const string&,
+	     const string&,
+	     const map<string,size_t>&,
+	     const map<UnicodeString,size_t>&,
 	     bool, bool, bool );
   void sort();
   int analyze_ngrams( const map<UnicodeString, size_t>&,
@@ -273,22 +275,23 @@ public:
   bool is_diac;
 };
 
-ld_record::ld_record( const string& s1, size_t f1, size_t l_f1,
-		      const string& s2, size_t f2, size_t l_f2,
+ld_record::ld_record( const string& s1, const string& s2,
+		      const map<string,size_t>& f_map,
+		      const map<UnicodeString,size_t>& low_f_map,
 		      bool is_KHC, bool no_KHCld, bool is_diachrone ){
   isKHC = is_KHC;
   noKHCld = no_KHCld;
   is_diac = is_diachrone;
   str1 = s1;
   ls1 = TiCC::UnicodeFromUTF8(s1);
+  freq1 = f_map.at(s1);
   ls1.toLower();
-  freq1 = f1;
-  low_freq1 = l_f1;
+  low_freq1 = low_f_map.at(ls1);
   str2 = s2;
   ls2 = TiCC::UnicodeFromUTF8(s2);
+  freq2 = f_map.at(s2);
   ls2.toLower();
-  freq2 = f2;
-  low_freq2 = l_f2;
+  low_freq2 = low_f_map.at(ls2);
 }
 
 void ld_record::sort(){
@@ -425,8 +428,8 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	  continue;
 	}
       }
-      ld_record record( str1, freq1, low_freq1,
-			str2, freq2, low_freq2,
+      ld_record record( str1, str2,
+			freqMap, low_freqMap,
 			isKHC, noKHCld, isDIAC );
       record.sort();
       if ( !record.is_clean( alfabet ) ){
