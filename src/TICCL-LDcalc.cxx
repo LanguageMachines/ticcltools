@@ -233,8 +233,9 @@ public:
 		   bla(-1),
 		   ld(-1),
 		   cls(-1),
-		   FLoverlap(-1),
-		   LLoverlap(-1),
+		   canon(false),
+		   FLoverlap(false),
+		   LLoverlap(false),
 		   ngram_point(0),
 		   isKHC(false),
 		   noKHCld(false)
@@ -243,9 +244,9 @@ public:
   int analyze_ngrams( const map<UnicodeString, size_t>&,
 		      size_t,
 		      map<UnicodeString,set<UnicodeString>>&,
-		      map<UnicodeString, size_t>& ) const;
+		      map<UnicodeString, size_t>& );
   bool ld_check();
-  string to_string() const;
+  string toString() const;
   UnicodeString out_str1;
   size_t out_freq1;
   size_t out_low_freq1;
@@ -255,9 +256,9 @@ public:
   size_t bla;
   size_t ld;
   size_t cls;
-  UnicodeString canon;
-  size_t FLoverlap;
-  size_t LLoverlap;
+  bool canon;
+  bool FLoverlap;
+  bool LLoverlap;
   UnicodeString KHC;
   size_t ngram_point;
   bool isKHC;
@@ -275,10 +276,11 @@ void output_record::sort(){
 int output_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 				   size_t freqTreshold,
 				   map<UnicodeString,set<UnicodeString>>& dis_map,
-				   map<UnicodeString, size_t>& dis_count ) const
-{
-  return ::analyze_ngrams( out_str1, out_str2,
-			 low_freqMap, freqTreshold, dis_map, dis_count );
+				   map<UnicodeString, size_t>& dis_count ){
+  ngram_point = ::analyze_ngrams( out_str1, out_str2,
+				  low_freqMap, freqTreshold,
+				  dis_map, dis_count );
+  return ngram_point;
 }
 
 bool output_record::ld_check() {
@@ -292,7 +294,34 @@ bool output_record::ld_check() {
       return false;
     }
   }
+  cls = max(ls1.length(),ls2.length()) - ld;
+  LLoverlap = false;
+  if ( ls1.length() > 1 && ls2.length() > 1
+       && ls1[ls1.length()-1] == ls2[ls2.length()-1]
+       && ls1[ls1.length()-2] == ls2[ls2.length()-2] ){
+    LLoverlap = true;
+  }
+  FLoverlap = false;
+  if ( ls1[0] == ls2[0] ){
+    FLoverlap = true;
+  }
   return true;
+}
+
+string output_record::toString() const {
+  string canon_s = (canon?"1":"0");;
+  string FLoverlap_s = (FLoverlap?"1":"0");;
+  string LLoverlap_s = (LLoverlap?"1":"0");;
+  string KHC = (isKHC?"1":"0");
+  string result = TiCC::UnicodeToUTF8(out_str1) + "~" + TiCC::toString(out_freq1) + "~"
+    + TiCC::toString(out_low_freq1) + "~"
+    + TiCC::UnicodeToUTF8(out_str2) + "~" + TiCC::toString( out_freq2 ) + "~"
+    + TiCC::toString(out_low_freq2) + "~"
+    + "~0~" + TiCC::toString( ld ) + "~"
+    + TiCC::toString(cls) + "~" + canon_s + "~"
+    + FLoverlap_s + "~" + LLoverlap_s + "~"
+    + KHC + "~" + TiCC::toString(ngram_point);
+  return result;
 }
 
 void handleTranspositions( ostream& os, const set<string>& s,
@@ -364,6 +393,12 @@ void handleTranspositions( ostream& os, const set<string>& s,
       UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
       UnicodeString ls2 = us2;
       ls2.toLower();
+      // cerr << endl << endl << "str1=" << str1 << endl;
+      // cerr << "str2=" << str2 << endl;
+      // cerr << "us1=" << us1 << endl;
+      // cerr << "us2=" << us2 << endl;
+      // cerr << "ls1=" << ls1 << endl;
+      // cerr << "ls2=" << ls2 << endl;
 
       size_t out_freq1;
       size_t out_low_freq1;
@@ -399,9 +434,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 
       size_t canon_freq = 0;
       UnicodeString candidate;
-      bool swapped = false;
       if ( low_freq1 > low_freq2 ){
-	swapped = true;
 	record.sort();
 	canon_freq = low_freq1;
 	out_freq1 = freq2;
@@ -422,7 +455,6 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	out_str2 = str2;
 	candidate = ls2;
       }
-      assert ( candidate == record.out_str2.toLower() );
       if ( !isClean( candidate, alfabet ) ){
 	if ( following ){
 #pragma omp critical (debugout)
@@ -433,19 +465,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	++it2;
 	continue;
       }
-      int ngram_point;
-      if ( swapped ){
-	ngram_point = analyze_ngrams( us2, us1, low_freqMap, freqTreshold,
-				      dis_map, dis_count );
-      }
-      else {
-	ngram_point = analyze_ngrams( us1, us2, low_freqMap, freqTreshold,
-				      dis_map, dis_count );
-      }
-
-      // int ngram_point = record.analyze_ngrams( low_freqMap, freqTreshold,
-      // 					       dis_map, dis_count );
-
+      record.analyze_ngrams( low_freqMap, freqTreshold, dis_map, dis_count );
       if ( !record.ld_check() ){
 	if ( following ){
 #pragma omp critical (debugout)
@@ -456,34 +476,18 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	++it2;
 	continue;
       }
-
-      int cls = max(ls1.length(),ls2.length()) - record.ld;
       string canon = "0";
       if ( canon_freq >= freqTreshold ){
 	canon = "1";
+	record.canon = true;
       }
       string FLoverlap = "0";
       if ( ls1[0] == ls2[0] ){
 	FLoverlap = "1";
       }
-      string LLoverlap = "0";
-      if ( ls1.length() > 1 && ls2.length() > 1
-	   && ls1[ls1.length()-1] == ls2[ls2.length()-1]
-	   && ls1[ls1.length()-2] == ls2[ls2.length()-2] ){
-	LLoverlap = "1";
-      }
-      string KHC = "0";
-      if ( isKHC ){
-	KHC = "1";
-      }
-      string result = out_str1 + "~" + TiCC::toString(out_freq1) + "~"
-	+ TiCC::toString(out_low_freq1) + "~"
-	+ out_str2 + "~" + TiCC::toString( out_freq2 ) + "~"
-	+ TiCC::toString(out_low_freq2) + "~"
-	+ "~0~" + TiCC::toString( record.ld ) + "~"
-	+ TiCC::toString(cls) + "~" + canon + "~"
-	+ FLoverlap + "~" + LLoverlap + "~"
-	+ KHC + "~" + TiCC::toString(ngram_point);
+      string LLoverlap = (record.LLoverlap?"1":"0");;
+      string KHC = (record.isKHC?"1":"0");
+      string result = record.toString();
 #pragma omp critical (output)
       {
 	os << result << endl;
