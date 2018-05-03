@@ -246,14 +246,13 @@ public:
 	     const map<string,size_t>&,
 	     const map<UnicodeString,size_t>&,
 	     bool, bool, bool );
-  void sort();
   int analyze_ngrams( const map<UnicodeString, size_t>&,
 		      size_t,
 		      map<UnicodeString,set<UnicodeString>>&,
 		      map<UnicodeString, size_t>& );
   bool check( size_t );
   bool is_clean( const set<UChar>& ) const;
-  bool test_frequencies( size_t ) const;
+  bool test_validity( size_t, const set<UChar>& );
   string toString() const;
   string str1;
   UnicodeString ls1;
@@ -293,15 +292,6 @@ ld_record::ld_record( const string& s1, const string& s2,
   freq2 = f_map.at(s2);
   ls2.toLower();
   low_freq2 = low_f_map.at(ls2);
-}
-
-void ld_record::sort(){
-  if ( low_freq1 > low_freq2 ){
-    str1.swap(str2);
-    ls1.swap(ls2);
-    swap( freq1, freq2 );
-    swap( low_freq1, low_freq2 );
-  }
 }
 
 int ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
@@ -350,7 +340,8 @@ bool ld_record::is_clean( const set<UChar>& alfabet ) const{
   return true;
 }
 
-bool ld_record::test_frequencies( size_t treshold ) const {
+bool ld_record::test_validity( size_t treshold,
+			       const set<UChar>& alfabet ) {
   if ( low_freq1 >= treshold && low_freq2 >= treshold
        && !is_diac ){
     return false;
@@ -364,6 +355,15 @@ bool ld_record::test_frequencies( size_t treshold ) const {
     if ( low_freq2 < treshold ){
       return false;
     }
+  }
+  if ( low_freq1 > low_freq2 ){
+    str1.swap(str2);
+    ls1.swap(ls2);
+    swap( freq1, freq2 );
+    swap( low_freq1, low_freq2 );
+  }
+  if ( !is_clean( alfabet ) ){
+    return false;
   }
   return true;
 }
@@ -422,18 +422,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
       ld_record record( str1, str2,
 			freqMap, low_freqMap,
 			isKHC, noKHCld, isDIAC );
-      if ( !record.test_frequencies( freqTreshold ) ){
-	++it2;
-	continue;
-      }
-      record.sort();
-      if ( !record.is_clean( alfabet ) ){
-	if ( following ){
-#pragma omp critical (debugout)
-	  {
-	    cout << "ignore dirty candidate " << record.str1 << endl;
-	  }
-	}
+      if ( !record.test_validity( freqTreshold, alfabet ) ){
 	++it2;
 	continue;
       }
