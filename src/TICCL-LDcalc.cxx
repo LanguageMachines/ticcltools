@@ -520,38 +520,24 @@ void compareSets( ostream& os, unsigned int ldValue,
        	++it2;
        	continue;
       }
-      size_t freq1 = record.freq1;
-      size_t freq2 = record.freq2;
       UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
       UnicodeString ls2 = us2;
       ls2.toLower();
-      size_t out_freq1;
       size_t out_low_freq1;
-      size_t out_freq2;
-      size_t out_low_freq2;
       string out_str1;
       string out_str2;
       size_t low_freq1 = record.low_freq1;
       size_t low_freq2 = record.low_freq2;
-      size_t canon_freq = 0;
       UnicodeString candidate;
       if ( low_freq1 > low_freq2 ){
-	canon_freq = low_freq1;
-	out_freq1 = freq2;
 	out_low_freq1 = low_freq2;
-	out_freq2 = freq1;
-	out_low_freq2 = low_freq1;
 	out_str1 = str2;
 	out_str2 = str1;
 	candidate = record.ls1;
 	record.flip();
       }
       else {
-	canon_freq = low_freq2;
-	out_freq1 = freq1;
 	out_low_freq1 = low_freq1;
-	out_freq2 = freq2;
-	out_low_freq2 = low_freq2;
 	out_str1 = str1;
 	out_str2 = str2;
 	candidate = record.ls2;
@@ -576,28 +562,9 @@ void compareSets( ostream& os, unsigned int ldValue,
 	++it2;
 	continue;
       }
-      int ngram_point = record.analyze_ngrams( low_freqMap, freqTreshold,
-					       dis_map, dis_count );
+      record.analyze_ngrams( low_freqMap, freqTreshold,
+			     dis_map, dis_count );
       record.fill_fields( freqTreshold );
-      int cls = max(ls1.length(),ls2.length()) - record.ld;
-      string canon = "0";
-      if ( canon_freq >= freqTreshold ){
-	canon = "1";
-      }
-      string FLoverlap = "0";
-      if ( ls1[0] == ls2[0] ){
-	FLoverlap = "1";
-      }
-      string LLoverlap = "0";
-      if ( ls1.length() > 1 && ls2.length() > 1
-	   && ls1[ls1.length()-1] == ls2[ls2.length()-1]
-	   && ls1[ls1.length()-2] == ls2[ls2.length()-2] ){
-	LLoverlap = "1";
-      }
-      string KHC = "0";
-      if ( isKHC ){
-	KHC = "1";
-      }
       record.KWC = KWC;
       string result = record.toString();
 #pragma omp critical (output)
