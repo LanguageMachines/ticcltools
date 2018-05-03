@@ -246,6 +246,12 @@ public:
 	     const map<string,size_t>&,
 	     const map<UnicodeString,size_t>&,
 	     bool, bool, bool );
+  void flip(){
+    str1.swap(str2);
+    ls1.swap(ls2);
+    swap( freq1, freq2 );
+    swap( low_freq1, low_freq2 );
+  }
   int analyze_ngrams( const map<UnicodeString, size_t>&,
 		      size_t,
 		      map<UnicodeString,set<UnicodeString>>&,
@@ -373,10 +379,7 @@ bool ld_record::test_validity( size_t treshold,
     }
   }
   if ( low_freq1 > low_freq2 ){
-    str1.swap(str2);
-    ls1.swap(ls2);
-    swap( freq1, freq2 );
-    swap( low_freq1, low_freq2 );
+    flip();
   }
   if ( !is_clean( alfabet ) ){
     return false;
@@ -496,7 +499,6 @@ void compareSets( ostream& os, unsigned int ldValue,
 	cout << "SET: string 1 " << str1 << endl;
       }
     }
-    size_t freq1 = freqMap.at(str1);
     UnicodeString us1 = TiCC::UnicodeFromUTF8( str1 );
     UnicodeString ls1 = us1;
     ls1.toLower();
@@ -519,7 +521,8 @@ void compareSets( ostream& os, unsigned int ldValue,
        	++it2;
        	continue;
       }
-      size_t freq2 = freqMap.at(str2);
+      size_t freq1 = record.freq1;
+      size_t freq2 = record.freq2;
       UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
       UnicodeString ls2 = us2;
       ls2.toLower();
@@ -529,11 +532,10 @@ void compareSets( ostream& os, unsigned int ldValue,
       size_t out_low_freq2;
       string out_str1;
       string out_str2;
-      size_t low_freq1 = low_freqMap.at(ls1);
-      size_t low_freq2 = low_freqMap.at(ls2);
+      size_t low_freq1 = record.low_freq1;
+      size_t low_freq2 = record.low_freq2;
       size_t canon_freq = 0;
       UnicodeString candidate;
-      bool swapped = false;
       if ( low_freq1 > low_freq2 ){
 	canon_freq = low_freq1;
 	out_freq1 = freq2;
@@ -543,7 +545,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 	out_str1 = str2;
 	out_str2 = str1;
 	candidate = ls1;
-	swapped = true;
+	record.flip();
       }
       else {
 	canon_freq = low_freq2;
@@ -575,15 +577,8 @@ void compareSets( ostream& os, unsigned int ldValue,
 	++it2;
 	continue;
       }
-      int ngram_point = 0;
-      if ( swapped ){
-	ngram_point = analyze_ngrams( us2, us1, low_freqMap, freqTreshold,
-				      dis_map, dis_count );
-      }
-      else {
-	ngram_point = analyze_ngrams( us1, us2, low_freqMap, freqTreshold,
-				      dis_map, dis_count );
-      }
+      int ngram_point = record.analyze_ngrams( low_freqMap, freqTreshold,
+					       dis_map, dis_count );
 
       int cls = max(ls1.length(),ls2.length()) - record.ld;
       string canon = "0";
