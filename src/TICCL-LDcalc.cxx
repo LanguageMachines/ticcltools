@@ -388,7 +388,6 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	cout << "TRANSPOSE: string 1 " << str1 << endl;
       }
     }
-    size_t freq1 = freqMap.at( str1 );
     auto it2 = it1;
     ++it2;
     while ( it2 != s.end() ) {
@@ -402,15 +401,11 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	  cout << "TRANSPOSE string 2 " << str2 << endl;
 	}
       }
-      size_t freq2 = freqMap.at( str2 );
-      UnicodeString us1 = TiCC::UnicodeFromUTF8( str1 );
-      UnicodeString ls1 = us1;
-      ls1.toLower();
-      UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
-      UnicodeString ls2 = us2;
-      ls2.toLower();
-      size_t low_freq1 = low_freqMap.at(ls1);
-      size_t low_freq2 = low_freqMap.at(ls2);
+      ld_record record( str1, str2,
+			freqMap, low_freqMap,
+			isKHC, noKHCld, isDIAC );
+      size_t low_freq1 = low_freqMap.at(record.ls1);
+      size_t low_freq2 = low_freqMap.at(record.ls2);
       if ( low_freq1 >= freqTreshold && low_freq2 >= freqTreshold
 	   && !isDIAC ){
 	++it2;
@@ -428,9 +423,6 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	  continue;
 	}
       }
-      ld_record record( str1, str2,
-			freqMap, low_freqMap,
-			isKHC, noKHCld, isDIAC );
       record.sort();
       if ( !record.is_clean( alfabet ) ){
 	if ( following ){
