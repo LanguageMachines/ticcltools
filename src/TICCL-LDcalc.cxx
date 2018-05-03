@@ -354,8 +354,8 @@ void ld_record::fill_fields( size_t freqTreshold ) {
 bool ld_record::is_clean( const set<UChar>& alfabet ) const{
   if ( alfabet.empty() )
     return true;
-  for ( int i=0; i < ls1.length(); ++i ){
-    if ( alfabet.find( ls1[i] ) == alfabet.end() )
+  for ( int i=0; i < ls2.length(); ++i ){
+    if ( alfabet.find( ls2[i] ) == alfabet.end() )
       return false;
   }
   return true;
@@ -498,9 +498,6 @@ void compareSets( ostream& os, unsigned int ldValue,
 	cout << "SET: string 1 " << str1 << endl;
       }
     }
-    UnicodeString us1 = TiCC::UnicodeFromUTF8( str1 );
-    UnicodeString ls1 = us1;
-    ls1.toLower();
     auto it2 = s2.begin();
     while ( it2 != s2.end() ) {
       string str2 = *it2;
@@ -520,19 +517,13 @@ void compareSets( ostream& os, unsigned int ldValue,
        	++it2;
        	continue;
       }
-      UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
-      UnicodeString ls2 = us2;
-      ls2.toLower();
       size_t low_freq1 = record.low_freq1;
       size_t low_freq2 = record.low_freq2;
       UnicodeString candidate;
       if ( low_freq1 > low_freq2 ){
-	candidate = record.ls1;
 	record.flip();
       }
-      else {
-	candidate = record.ls2;
-      }
+      candidate = record.ls2;
       if ( !isClean( candidate, alfabet ) ){
 	if ( following ){
 #pragma omp critical (debugout)
