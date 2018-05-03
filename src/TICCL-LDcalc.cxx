@@ -252,7 +252,8 @@ public:
 		      map<UnicodeString,set<UnicodeString>>&,
 		      map<UnicodeString, size_t>& );
   bool check( size_t );
-  bool is_clean( const set<UChar>& alfabet );
+  bool is_clean( const set<UChar>& ) const;
+  bool test_frequencies( size_t ) const;
   string toString() const;
   string str1;
   UnicodeString ls1;
@@ -339,7 +340,7 @@ bool ld_record::check( size_t freqTreshold ) {
   return true;
 }
 
-bool ld_record::is_clean( const set<UChar>& alfabet ){
+bool ld_record::is_clean( const set<UChar>& alfabet ) const{
   if ( alfabet.empty() )
     return true;
   for ( int i=0; i < ls1.length(); ++i ){
@@ -349,6 +350,23 @@ bool ld_record::is_clean( const set<UChar>& alfabet ){
   return true;
 }
 
+bool ld_record::test_frequencies( size_t treshold ) const {
+  if ( low_freq1 >= treshold && low_freq2 >= treshold
+       && !is_diac ){
+    return false;
+  }
+  if ( low_freq1 >= low_freq2 ){
+    if ( low_freq1 < treshold ){
+      return false;
+    }
+  }
+  else {
+    if ( low_freq2 < treshold ){
+      return false;
+    }
+  }
+  return true;
+}
 
 string ld_record::toString() const {
   string canon_s = (canon?"1":"0");;
@@ -404,24 +422,9 @@ void handleTranspositions( ostream& os, const set<string>& s,
       ld_record record( str1, str2,
 			freqMap, low_freqMap,
 			isKHC, noKHCld, isDIAC );
-      size_t low_freq1 = low_freqMap.at(record.ls1);
-      size_t low_freq2 = low_freqMap.at(record.ls2);
-      if ( low_freq1 >= freqTreshold && low_freq2 >= freqTreshold
-	   && !isDIAC ){
+      if ( !record.test_frequencies( freqTreshold ) ){
 	++it2;
 	continue;
-      }
-      if ( low_freq1 >= low_freq2 ){
-	if ( low_freq1 < freqTreshold ){
-	  ++it2;
-	  continue;
-	}
-      }
-      else {
-	if ( low_freq2 < freqTreshold ){
-	  ++it2;
-	  continue;
-	}
       }
       record.sort();
       if ( !record.is_clean( alfabet ) ){
