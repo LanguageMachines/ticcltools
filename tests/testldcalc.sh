@@ -27,7 +27,7 @@ datadir=DATA
 
 echo start TICLL-ldcalc
 
-$bindir/TICCL-LDcalc --index $refdir/id.indexNT --hash $refdir/anahash --clean $refdir/clean --LD 2 -t max --artifrq 100000000 -o $outdir/my.ldcalc
+$bindir/TICCL-LDcalc --alph=$datadir/nld.aspell.dict.clip20.lc.chars --index $refdir/id.indexNT --hash $refdir/anahash --clean $refdir/clean --LD 2 -t max --artifrq 100000000 -o $outdir/my.ldcalc
 
 if [ $? -ne 0 ]
 then
