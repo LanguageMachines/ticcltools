@@ -301,8 +301,8 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
       ++ngram_count[disamb_pair];
       // keep pair for later
     }
-    //return true;
-    return false;
+    // signal to discard this ngram (in favor of the unigram within)
+    return true;
   }
 }
 
@@ -1067,9 +1067,10 @@ int main( int argc, char **argv ){
     if ( record_store.find( it.first ) != record_store.end() ){
       record_store[it.first].ngram_point += it.second;
     }
-    // else {
-    //   cerr << "OEPS:" << it.first << " not found" << endl;
-    // }
+    else {
+      // Ok, our data seems to be incomplete
+      // that is not our problem, so iknore
+    }
   }
   ofstream os( outFile );
   for ( const auto& r : record_store ){
