@@ -104,7 +104,7 @@ unsigned int ldCompare( const UnicodeString& s1, const UnicodeString& s2 ){
 
 const UChar SEPARATOR = '_';
 
-set<string> follow;
+set<string> follow_words;
 
 class ld_record {
 public:
@@ -134,9 +134,10 @@ public:
     swap( freq1, freq2 );
     swap( low_freq1, low_freq2 );
   }
-  void analyze_ngrams( const map<UnicodeString, size_t>&,
+  bool analyze_ngrams( const map<UnicodeString, size_t>&,
 		       size_t,
 		       map<UnicodeString,set<UnicodeString>>&,
+		       map<UnicodeString, size_t>&,
 		       map<UnicodeString, size_t>& );
   bool ld_is( size_t );
   bool ld_exceeds( size_t );
@@ -189,17 +190,18 @@ ld_record::ld_record( const string& s1, const string& s2,
   follow = following;
 }
 
-void ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
+bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 				size_t freqThreshold,
 				map<UnicodeString,set<UnicodeString>>& dis_map,
-				map<UnicodeString, size_t>& dis_count ){
+				map<UnicodeString, size_t>& dis_count,
+				map<UnicodeString, size_t>& ngram_count ){
   ngram_point = 0;
   UnicodeString us1 = TiCC::UnicodeFromUTF8(str1);
   UnicodeString us2 = TiCC::UnicodeFromUTF8(str2);
   vector<UnicodeString> parts1 = TiCC::split_at( us1, SEPARATOR );
   vector<UnicodeString> parts2 = TiCC::split_at( us2, SEPARATOR );
   if ( parts1.size() == 1 && parts2.size() == 1 ){
-    return; // nothing special for unigrams
+    return false; // nothing special for unigrams
   }
   UnicodeString diff_part1;
   UnicodeString diff_part2;
@@ -215,7 +217,7 @@ void ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 	diff_part2 = parts2[i];
       }
       else {
-	return; // nothing special
+	return false; // nothing special
       }
     }
   }
@@ -230,7 +232,7 @@ void ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
     }
     else {
       // no common part at begin or end.
-      return;
+      return false;
     }
     for ( const auto& w1 : parts1 ){
       if ( !diff_part1.isEmpty() ){
@@ -254,7 +256,7 @@ void ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
   if ( diff_part1.isEmpty() ) {
     // can this happen?
     // anyway: nothing to do
-    return; // nothing special
+    return false; // nothing special
   }
   //
   // Ok, so we have a pair
@@ -265,7 +267,7 @@ void ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
   if ( entry != low_freqMap.end()
        && entry->second >= freqThreshold ){
     // OK a high frequent word. translating probably won't do any good
-    return; // nothing special
+    return false; // nothing special
   }
   if ( follow ){
 #pragma omp critical (debugout)
@@ -274,6 +276,7 @@ void ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 	   << " in n-grams pair: " << us1 << " # " << us2 << endl;
     }
   }
+  ngram_point = 1;
   if ( diff_part1.length() < 6 ){
     // a 'short' word
     UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
@@ -289,8 +292,18 @@ void ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
       dis_map[disamb_pair].insert( us1 + "~" + us2 );
       ++dis_count[disamb_pair];
     }
+    return false;
   }
-  ngram_point = 1;
+  else {
+    UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
+#pragma omp critical (update)
+    {
+      ++ngram_count[disamb_pair];
+      // keep pair for later
+    }
+    //return true;
+    return false;
+  }
 }
 
 bool ld_record::ld_is( size_t wanted ) {
@@ -433,6 +446,7 @@ void handleTranspositions( const set<string>& s,
 			   const set<UChar>& alfabet,
 			   map<UnicodeString,set<UnicodeString>>& dis_map,
 			   map<UnicodeString, size_t>& dis_count,
+			   map<UnicodeString, size_t>& ngram_count,
 			   size_t freqThreshold,
 			   bool isKHC,
 			   bool noKHCld,
@@ -442,7 +456,7 @@ void handleTranspositions( const set<string>& s,
   while ( it1 != s.end() ) {
     bool following = false;
     string str1 = *it1;
-    if ( follow.find( str1 ) != follow.end() ){
+    if ( follow_words.find( str1 ) != follow_words.end() ){
       following = true;
     }
     if ( following ){
@@ -455,7 +469,7 @@ void handleTranspositions( const set<string>& s,
     ++it2;
     while ( it2 != s.end() ) {
       string str2 = *it2;
-      if ( follow.find( str2 ) != follow.end() ){
+      if ( follow_words.find( str2 ) != follow_words.end() ){
 	following = true;
       }
       if ( following ){
@@ -476,7 +490,11 @@ void handleTranspositions( const set<string>& s,
 	++it2;
 	continue;
       }
-      record.analyze_ngrams( low_freqMap, freqThreshold, dis_map, dis_count );
+      if ( record.analyze_ngrams( low_freqMap, freqThreshold,
+				  dis_map, dis_count, ngram_count ) ){
+	++it2;
+	continue;
+      }
       if ( !record.ld_is( 2 ) ){
 	if ( following ){
 #pragma omp critical (debugout)
@@ -511,6 +529,7 @@ void compareSets( unsigned int ldValue,
 		  const set<UChar>& alfabet,
 		  map<UnicodeString,set<UnicodeString>>& dis_map,
 		  map<UnicodeString, size_t>& dis_count,
+		  map<UnicodeString, size_t>& ngram_count,
 		  size_t freqThreshold,
 		  bool isKHC,
 		  bool noKHCld,
@@ -523,7 +542,7 @@ void compareSets( unsigned int ldValue,
   while ( it1 != s1.end() ) {
     bool following = false;
     string str1 = *it1;
-    if ( follow.find( str1 ) != follow.end() ){
+    if ( follow_words.find( str1 ) != follow_words.end() ){
       following = true;
     }
     if ( following ){
@@ -535,7 +554,7 @@ void compareSets( unsigned int ldValue,
     auto it2 = s2.begin();
     while ( it2 != s2.end() ) {
       string str2 = *it2;
-      if ( follow.find( str2 ) != follow.end() ){
+      if ( follow_words.find( str2 ) != follow_words.end() ){
 	following = true;
       }
       if ( following ){
@@ -556,8 +575,11 @@ void compareSets( unsigned int ldValue,
 	++it2;
 	continue;
       }
-      record.analyze_ngrams( low_freqMap, freqThreshold,
-			     dis_map, dis_count );
+      if ( record.analyze_ngrams( low_freqMap, freqThreshold,
+				  dis_map, dis_count, ngram_count ) ){
+	++it2;
+	continue;
+      }
       record.fill_fields( freqThreshold );
       record.KWC = KWC;
       UnicodeString key = TiCC::UnicodeFromUTF8(record.str1) + "~"
@@ -630,7 +652,7 @@ int main( int argc, char **argv ){
   try {
     opts.set_short_options( "vVho:t:" );
     opts.set_long_options( "diac:,hist:,nohld,artifrq:,LD:,hash:,clean:,"
-			   "alph:,index:,help,version,threads:,follow" );
+			   "alph:,index:,help,version,threads:,follow:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -657,7 +679,7 @@ int main( int argc, char **argv ){
   }
   string value;
   while ( opts.extract( "follow", value ) ){
-    follow.insert( value );
+    follow_words.insert( value );
   }
 
   string indexFile;
@@ -917,6 +939,7 @@ int main( int argc, char **argv ){
   set<bitType> handledTrans;
   map<UnicodeString,set<UnicodeString>> dis_map;
   map<UnicodeString,size_t> dis_count;
+  map<UnicodeString,size_t> ngram_count;
   map<UnicodeString,ld_record> record_store;
   size_t line_nr = 0;
   int err_cnt = 0;
@@ -999,7 +1022,7 @@ int main( int argc, char **argv ){
 	    if ( do_trans ){
 	      handleTranspositions( sit1->second,
 				    freqMap, low_freqMap, alfabet,
-				    dis_map, dis_count,
+				    dis_map, dis_count, ngram_count,
 				    artifreq, isKHC, noKHCld, isDIAC,
 				    record_store );
 	    }
@@ -1021,7 +1044,7 @@ int main( int argc, char **argv ){
 	  compareSets( LDvalue, mainKey,
 		       sit1->second, sit2->second,
 		       freqMap, low_freqMap, alfabet,
-		       dis_map, dis_count,
+		       dis_map, dis_count, ngram_count,
 		       artifreq, isKHC, noKHCld, isDIAC,
 		       record_store );
 	}
@@ -1039,6 +1062,14 @@ int main( int argc, char **argv ){
       amb << val << "#";
     }
     amb << endl;
+  }
+  for ( const auto& it : ngram_count ){
+    if ( record_store.find( it.first ) != record_store.end() ){
+      record_store[it.first].ngram_point += it.second;
+    }
+    // else {
+    //   cerr << "OEPS:" << it.first << " not found" << endl;
+    // }
   }
   ofstream os( outFile );
   for ( const auto& r : record_store ){
