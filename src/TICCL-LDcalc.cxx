@@ -102,17 +102,6 @@ unsigned int ldCompare( const UnicodeString& s1, const UnicodeString& s2 ){
   return result;
 }
 
-bool isClean( const UnicodeString& us, const set<UChar>& alfabet ){
-  if ( alfabet.empty() )
-    return true;
-  for ( int i=0; i < us.length(); ++i ){
-    if ( alfabet.find( us[i] ) == alfabet.end() ){
-      return false;
-    }
-  }
-  return true;
-}
-
 const UChar SEPARATOR = '_';
 
 set<string> follow;
@@ -177,6 +166,7 @@ public:
   bool is_diac;
   bool follow;
 };
+
 
 ld_record::ld_record( const string& s1, const string& s2,
 		      const map<string,size_t>& f_map,
@@ -363,24 +353,6 @@ bool ld_record::ld_exceeds( size_t ldvalue ) {
   return true;
 }
 
-void ld_record::fill_fields( size_t freqThreshold ) {
-  cls = max(ls1.length(),ls2.length()) - ld;
-  LLoverlap = false;
-  if ( ls1.length() > 1 && ls2.length() > 1
-       && ls1[ls1.length()-1] == ls2[ls2.length()-1]
-       && ls1[ls1.length()-2] == ls2[ls2.length()-2] ){
-    LLoverlap = true;
-  }
-  FLoverlap = false;
-  if ( ls1[0] == ls2[0] ){
-    FLoverlap = true;
-  }
-  canon = false;
-  if ( low_freq2 >= freqThreshold ){
-    canon = true;
-  }
-}
-
 bool ld_record::acceptable( size_t threshold, const set<UChar>& alfabet ) {
   if ( low_freq1 >= threshold && !is_diac ){
     if ( follow ){
@@ -422,6 +394,24 @@ void ld_record::sort_high_second(){
   }
 }
 
+void ld_record::fill_fields( size_t freqThreshold ) {
+  cls = max(ls1.length(),ls2.length()) - ld;
+  LLoverlap = false;
+  if ( ls1.length() > 1 && ls2.length() > 1
+       && ls1[ls1.length()-1] == ls2[ls2.length()-1]
+       && ls1[ls1.length()-2] == ls2[ls2.length()-2] ){
+    LLoverlap = true;
+  }
+  FLoverlap = false;
+  if ( ls1[0] == ls2[0] ){
+    FLoverlap = true;
+  }
+  canon = false;
+  if ( low_freq2 >= freqThreshold ){
+    canon = true;
+  }
+}
+
 string ld_record::toString() const {
   string canon_s = (canon?"1":"0");;
   string FLoverlap_s = (FLoverlap?"1":"0");;
@@ -446,7 +436,8 @@ void handleTranspositions( ostream& os, const set<string>& s,
 			   size_t freqThreshold,
 			   bool isKHC,
 			   bool noKHCld,
-			   bool isDIAC ){
+			   bool isDIAC,
+			   map<UnicodeString,ld_record>& record_store ){
   auto it1 = s.begin();
   while ( it1 != s.end() ) {
     bool following = false;
@@ -498,9 +489,12 @@ void handleTranspositions( ostream& os, const set<string>& s,
       }
       record.fill_fields( freqThreshold );
       string result = record.toString();
+      UnicodeString key = TiCC::UnicodeFromUTF8(record.str1) + "~"
+	+ TiCC::UnicodeFromUTF8( record.str2 );
 #pragma omp critical (output)
       {
 	os << result << endl;
+	record_store[key] = record;
       }
       if ( following ){
 	cerr << "Transpose result: " << result << endl;
@@ -522,7 +516,8 @@ void compareSets( ostream& os, unsigned int ldValue,
 		  size_t freqThreshold,
 		  bool isKHC,
 		  bool noKHCld,
-		  bool isDIAC ){
+		  bool isDIAC,
+		  map<UnicodeString,ld_record>& record_store ){
   // using TiCC::operator<<;
   // cerr << "set 1 " << s1 << endl;
   // cerr << "set 2 " << s2 << endl;
@@ -568,11 +563,13 @@ void compareSets( ostream& os, unsigned int ldValue,
       record.fill_fields( freqThreshold );
       record.KWC = KWC;
       string result = record.toString();
+      UnicodeString key = TiCC::UnicodeFromUTF8(record.str1) + "~"
+	+ TiCC::UnicodeFromUTF8( record.str2 );
 #pragma omp critical (output)
       {
 	os << result << endl;
+	record_store[key] = record;
       }
-
       if ( following ){
 	cerr << "SET result: " << result << endl;
       }
@@ -921,10 +918,11 @@ int main( int argc, char **argv ){
   cout << progname << ": read " << hashMap.size() << " hash values" << endl;
 
   size_t count=0;
-  ofstream os( outFile );
+  ofstream os( outFile +".OLD" );
   set<bitType> handledTrans;
   map<UnicodeString,set<UnicodeString>> dis_map;
   map<UnicodeString,size_t> dis_count;
+  map<UnicodeString,ld_record> record_store;
   size_t line_nr = 0;
   int err_cnt = 0;
   while ( getline( indexf, line ) ){
@@ -1007,7 +1005,8 @@ int main( int argc, char **argv ){
 	      handleTranspositions( os, sit1->second,
 				    freqMap, low_freqMap, alfabet,
 				    dis_map, dis_count,
-				    artifreq, isKHC, noKHCld, isDIAC );
+				    artifreq, isKHC, noKHCld, isDIAC,
+				    record_store );
 	    }
 	  }
 	  if ( verbose > 1 ){
@@ -1028,7 +1027,8 @@ int main( int argc, char **argv ){
 		       sit1->second, sit2->second,
 		       freqMap, low_freqMap, alfabet,
 		       dis_map, dis_count,
-		       artifreq, isKHC, noKHCld, isDIAC );
+		       artifreq, isKHC, noKHCld, isDIAC,
+		       record_store );
 	}
       }
     }
@@ -1044,6 +1044,10 @@ int main( int argc, char **argv ){
       amb << val << "#";
     }
     amb << endl;
+  }
+  ofstream os2( outFile );
+  for ( const auto& r : record_store ){
+    os2 << r.second.toString() << endl;
   }
   cout << progname << ": Done" << endl;
 }
