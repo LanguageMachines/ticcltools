@@ -262,6 +262,13 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
   //
   // Ok, so we have a pair
   //
+  if ( follow ){
+#pragma omp critical (debugout)
+    {
+      cerr << "ngram candidate: " << diff_part1 << "~" << diff_part2
+	   << " in n-grams pair: " << us1 << " # " << us2 << endl;
+    }
+  }
   UnicodeString lp1 = diff_part1;
   lp1.toLower();
   auto const& entry = low_freqMap.find( lp1 );
@@ -270,12 +277,13 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
     // OK a high frequent word. translating probably won't do any good
     return false; // nothing special
   }
-  if ( follow ){
-#pragma omp critical (debugout)
-    {
-      cerr << "check candidate: " << diff_part1
-	   << " in n-grams pair: " << us1 << " # " << us2 << endl;
-    }
+  lp1 = diff_part2;
+  lp1.toLower();
+  auto const& entry2 = low_freqMap.find( lp1 );
+  if ( entry2 == low_freqMap.end()
+       || entry2->second < freqThreshold ){
+    // a low frequent word. Not likely as a correction candidate
+    return false; // nothing special
   }
   ngram_point = 1;
   if ( diff_part1.length() < 6 ){
