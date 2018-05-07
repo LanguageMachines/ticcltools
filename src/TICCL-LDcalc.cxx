@@ -120,7 +120,7 @@ set<string> follow;
 int analyze_ngrams( const UnicodeString& us1,
 		    const UnicodeString& us2,
 		    const map<UnicodeString, size_t>& low_freqMap,
-		    size_t freqTreshold,
+		    size_t freqThreshold,
 		    map<UnicodeString,set<UnicodeString>>& dis_map,
 		    map<UnicodeString, size_t>& dis_count ){
   bool following = false;
@@ -191,7 +191,7 @@ int analyze_ngrams( const UnicodeString& us1,
   lp1.toLower();
   auto const& entry = low_freqMap.find( lp1 );
   if ( entry != low_freqMap.end()
-       && entry->second >= freqTreshold ){
+       && entry->second >= freqThreshold ){
     // OK a high frequent word. translating probably won't do any good
     return 0; // nothing special
   }
@@ -245,7 +245,8 @@ public:
 	     const string&,
 	     const map<string,size_t>&,
 	     const map<UnicodeString,size_t>&,
-	     bool, bool, bool );
+	     bool, bool, bool,
+	     bool );
   void flip(){
     str1.swap(str2);
     ls1.swap(ls2);
@@ -256,7 +257,7 @@ public:
 		      size_t,
 		      map<UnicodeString,set<UnicodeString>>&,
 		      map<UnicodeString, size_t>& );
-  bool ld_is_2();
+  bool ld_is( size_t );
   bool ld_less_or_equal( size_t );
   void fill_fields( size_t );
   void sort_high_second();
@@ -283,12 +284,14 @@ public:
   bool isKHC;
   bool noKHCld;
   bool is_diac;
+  bool follow;
 };
 
 ld_record::ld_record( const string& s1, const string& s2,
 		      const map<string,size_t>& f_map,
 		      const map<UnicodeString,size_t>& low_f_map,
-		      bool is_KHC, bool no_KHCld, bool is_diachrone ){
+		      bool is_KHC, bool no_KHCld, bool is_diachrone,
+		      bool following ){
   isKHC = is_KHC;
   noKHCld = no_KHCld;
   is_diac = is_diachrone;
@@ -302,24 +305,44 @@ ld_record::ld_record( const string& s1, const string& s2,
   freq2 = f_map.at(s2);
   ls2.toLower();
   low_freq2 = low_f_map.at(ls2);
+  follow = following;
 }
 
 int ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
-			       size_t freqTreshold,
+			       size_t freqThreshold,
 			       map<UnicodeString,set<UnicodeString>>& dis_map,
 			       map<UnicodeString, size_t>& dis_count ){
   ngram_point = ::analyze_ngrams( TiCC::UnicodeFromUTF8(str1),
 				  TiCC::UnicodeFromUTF8(str2),
-				  low_freqMap, freqTreshold,
+				  low_freqMap, freqThreshold,
 				  dis_map, dis_count );
   return ngram_point;
 }
 
-bool ld_record::ld_is_2( ) {
+bool ld_record::ld_is( size_t wanted ) {
   ld = ldCompare( ls1, ls2 );
-  if ( ld != 2 ){
+  if ( ld != wanted ){
     if ( !( isKHC && noKHCld ) ){
+      if ( follow ){
+#pragma omp critical (debugout)
+	{
+	  cout << "LD " << ld << " ≠ " << wanted << " and rejected, no KHC"
+	       << endl;
+	}
+      }
       return false;
+    }
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cout << "LD " << ld << " ≠ " << wanted << " but kept, KHC"  << endl;
+      }
+    }
+  }
+  if ( follow ){
+#pragma omp critical (debugout)
+    {
+      cout << "LD(" << ls1 << "," << ls2 << ")=" << ld << " OK!" << endl;
     }
   }
   return true;
@@ -335,7 +358,7 @@ bool ld_record::ld_less_or_equal( size_t ldvalue ) {
   return true;
 }
 
-void ld_record::fill_fields( size_t freqTreshold ) {
+void ld_record::fill_fields( size_t freqThreshold ) {
   cls = max(ls1.length(),ls2.length()) - ld;
   LLoverlap = false;
   if ( ls1.length() > 1 && ls2.length() > 1
@@ -348,7 +371,7 @@ void ld_record::fill_fields( size_t freqTreshold ) {
     FLoverlap = true;
   }
   canon = false;
-  if ( low_freq2 >= freqTreshold ){
+  if ( low_freq2 >= freqThreshold ){
     canon = true;
   }
 }
@@ -363,23 +386,16 @@ bool ld_record::is_clean( const set<UChar>& alfabet ) const{
   return true;
 }
 
-bool ld_record::acceptable( size_t treshold, const set<UChar>& alfabet ) {
-  if ( low_freq1 >= treshold && !is_diac ){
+bool ld_record::acceptable( size_t threshold, const set<UChar>& alfabet ) {
+  if ( low_freq1 >= threshold && !is_diac ){
     return false;
   }
   return is_clean( alfabet );
 }
 
-bool ld_record::test_frequency( size_t treshold ){
-  if ( low_freq1 >= low_freq2 ){
-    if ( low_freq1 < treshold ){
-      return false;
-    }
-  }
-  else {
-    if ( low_freq2 < treshold ){
-      return false;
-    }
+bool ld_record::test_frequency( size_t threshold ){
+  if ( low_freq2 < threshold ){
+    return false;
   }
   return true;
 }
@@ -411,7 +427,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 			   const set<UChar>& alfabet,
 			   map<UnicodeString,set<UnicodeString>>& dis_map,
 			   map<UnicodeString, size_t>& dis_count,
-			   size_t freqTreshold,
+			   size_t freqThreshold,
 			   bool isKHC,
 			   bool noKHCld,
 			   bool isDIAC ){
@@ -443,18 +459,18 @@ void handleTranspositions( ostream& os, const set<string>& s,
       }
       ld_record record( str1, str2,
 			freqMap, low_freqMap,
-			isKHC, noKHCld, isDIAC );
-      if ( !record.test_frequency( freqTreshold ) ){
-	++it2;
-	continue;
-      }
+			isKHC, noKHCld, isDIAC, following );
       record.sort_high_second();
-      if ( !record.acceptable( freqTreshold, alfabet ) ){
+      if ( !record.test_frequency( freqThreshold ) ){
 	++it2;
 	continue;
       }
-      record.analyze_ngrams( low_freqMap, freqTreshold, dis_map, dis_count );
-      if ( !record.ld_is_2() ){
+      if ( !record.acceptable( freqThreshold, alfabet ) ){
+	++it2;
+	continue;
+      }
+      record.analyze_ngrams( low_freqMap, freqThreshold, dis_map, dis_count );
+      if ( !record.ld_is( 2 ) ){
 	if ( following ){
 #pragma omp critical (debugout)
 	  {
@@ -464,7 +480,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	++it2;
 	continue;
       }
-      record.fill_fields( freqTreshold );
+      record.fill_fields( freqThreshold );
       string result = record.toString();
 #pragma omp critical (output)
       {
@@ -487,7 +503,7 @@ void compareSets( ostream& os, unsigned int ldValue,
 		  const set<UChar>& alfabet,
 		  map<UnicodeString,set<UnicodeString>>& dis_map,
 		  map<UnicodeString, size_t>& dis_count,
-		  size_t freqTreshold,
+		  size_t freqThreshold,
 		  bool isKHC,
 		  bool noKHCld,
 		  bool isDIAC ){
@@ -521,19 +537,19 @@ void compareSets( ostream& os, unsigned int ldValue,
       }
       ld_record record( str1, str2,
 			freqMap, low_freqMap,
-			isKHC, noKHCld, isDIAC );
+			isKHC, noKHCld, isDIAC, following );
       if ( record.ld_less_or_equal( ldValue ) ){
        	++it2;
        	continue;
       }
       record.sort_high_second();
-      if ( !record.acceptable( freqTreshold, alfabet) ){
+      if ( !record.acceptable( freqThreshold, alfabet) ){
 	++it2;
 	continue;
       }
-      record.analyze_ngrams( low_freqMap, freqTreshold,
+      record.analyze_ngrams( low_freqMap, freqThreshold,
 			     dis_map, dis_count );
-      record.fill_fields( freqTreshold );
+      record.fill_fields( freqThreshold );
       record.KWC = KWC;
       string result = record.toString();
 #pragma omp critical (output)
