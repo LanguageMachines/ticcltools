@@ -258,10 +258,9 @@ public:
 		      map<UnicodeString,set<UnicodeString>>&,
 		      map<UnicodeString, size_t>& );
   bool ld_is( size_t );
-  bool ld_less_or_equal( size_t );
+  bool ld_exceeds( size_t );
   void fill_fields( size_t );
   void sort_high_second();
-  bool is_clean( const set<UChar>& ) const;
   bool test_frequency( size_t );
   bool acceptable( size_t, const set<UChar>& );
   string toString() const;
@@ -348,11 +347,32 @@ bool ld_record::ld_is( size_t wanted ) {
   return true;
 }
 
-bool ld_record::ld_less_or_equal( size_t ldvalue ) {
+bool ld_record::ld_exceeds( size_t ldvalue ) {
   ld = ldCompare( ls1, ls2 );
   if ( ld <= ldvalue ){
     if ( !( isKHC && noKHCld ) ){
+      if ( follow ){
+#pragma omp critical (debugout)
+	{
+	  cout << "LD " << ld << " <= " << ldvalue << " but rejected, no KHC"
+	       << endl;
+	}
+      }
       return false;
+    }
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cout << "LD " << ld << " <= " << ldvalue << " and kept, KHC"
+	     << endl;
+      }
+    }
+  }
+  if ( follow ){
+#pragma omp critical (debugout)
+    {
+      cout << "LD(" << ls1 << "," << ls2 << ") =" << ld
+	   << " rejected > " << ldvalue << endl;
     }
   }
   return true;
@@ -376,21 +396,32 @@ void ld_record::fill_fields( size_t freqThreshold ) {
   }
 }
 
-bool ld_record::is_clean( const set<UChar>& alfabet ) const{
+bool ld_record::acceptable( size_t threshold, const set<UChar>& alfabet ) {
+  if ( low_freq1 >= threshold && !is_diac ){
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cout << str1 << "~" << str2 << " rejected: Lexical, and not diachrone"
+	     << endl;
+      }
+    }
+    return false;
+  }
   if ( alfabet.empty() )
     return true;
   for ( int i=0; i < ls2.length(); ++i ){
-    if ( alfabet.find( ls2[i] ) == alfabet.end() )
+    if ( alfabet.find( ls2[i] ) == alfabet.end() ){
+      if ( follow ){
+#pragma omp critical (debugout)
+	{
+	  cout << str1 << "~" << str2 << " rejected: "
+	       << UnicodeString( ls2[i] ) << " not in alphabet" << endl;
+	}
+      }
       return false;
+    }
   }
   return true;
-}
-
-bool ld_record::acceptable( size_t threshold, const set<UChar>& alfabet ) {
-  if ( low_freq1 >= threshold && !is_diac ){
-    return false;
-  }
-  return is_clean( alfabet );
 }
 
 bool ld_record::test_frequency( size_t threshold ){
@@ -538,7 +569,7 @@ void compareSets( ostream& os, unsigned int ldValue,
       ld_record record( str1, str2,
 			freqMap, low_freqMap,
 			isKHC, noKHCld, isDIAC, following );
-      if ( record.ld_less_or_equal( ldValue ) ){
+      if ( record.ld_exceeds( ldValue ) ){
        	++it2;
        	continue;
       }
