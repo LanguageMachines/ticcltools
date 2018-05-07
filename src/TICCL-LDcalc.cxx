@@ -260,7 +260,7 @@ public:
   bool ld_less_or_equal( size_t );
   void fill_fields( size_t );
   bool is_clean( const set<UChar>& ) const;
-  bool test_validity( size_t, const set<UChar>& );
+  bool test_frequency( size_t );
   string toString() const;
   string str1;
   UnicodeString ls1;
@@ -361,12 +361,7 @@ bool ld_record::is_clean( const set<UChar>& alfabet ) const{
   return true;
 }
 
-bool ld_record::test_validity( size_t treshold,
-			       const set<UChar>& alfabet ) {
-  if ( low_freq1 >= treshold && low_freq2 >= treshold
-       && !is_diac ){
-    return false;
-  }
+bool ld_record::test_frequency( size_t treshold ){
   if ( low_freq1 >= low_freq2 ){
     if ( low_freq1 < treshold ){
       return false;
@@ -379,9 +374,6 @@ bool ld_record::test_validity( size_t treshold,
   }
   if ( low_freq1 > low_freq2 ){
     flip();
-  }
-  if ( !is_clean( alfabet ) ){
-    return false;
   }
   return true;
 }
@@ -440,7 +432,15 @@ void handleTranspositions( ostream& os, const set<string>& s,
       ld_record record( str1, str2,
 			freqMap, low_freqMap,
 			isKHC, noKHCld, isDIAC );
-      if ( !record.test_validity( freqTreshold, alfabet ) ){
+      if ( !record.test_frequency( freqTreshold ) ){
+	  ++it2;
+	  continue;
+      }
+      if ( record.low_freq1 >= freqTreshold && !record.is_diac ){
+	++it2;
+	continue;
+      }
+      if ( !record.is_clean( alfabet ) ){
 	++it2;
 	continue;
       }
@@ -521,14 +521,13 @@ void compareSets( ostream& os, unsigned int ldValue,
       size_t low_freq2 = record.low_freq2;
       UnicodeString candidate;
       if ( low_freq1 > low_freq2 ){
-	record.flip();
+       	record.flip();
       }
-      candidate = record.ls2;
-      if ( !isClean( candidate, alfabet ) ){
+      if ( !record.is_clean( alfabet ) ){
 	if ( following ){
 #pragma omp critical (debugout)
 	  {
-	    cout << "ignore dirty candidate " << candidate << endl;
+	    cout << "ignore dirty candidate " << record.str1 << endl;
 	  }
 	}
 	++it2;
