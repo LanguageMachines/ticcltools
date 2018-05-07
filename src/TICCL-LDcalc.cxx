@@ -259,8 +259,10 @@ public:
   bool ld_is_2();
   bool ld_less_or_equal( size_t );
   void fill_fields( size_t );
+  void sort_high_second();
   bool is_clean( const set<UChar>& ) const;
   bool test_frequency( size_t );
+  bool acceptable( size_t, const set<UChar>& );
   string toString() const;
   string str1;
   UnicodeString ls1;
@@ -361,6 +363,13 @@ bool ld_record::is_clean( const set<UChar>& alfabet ) const{
   return true;
 }
 
+bool ld_record::acceptable( size_t treshold, const set<UChar>& alfabet ) {
+  if ( low_freq1 >= treshold && !is_diac ){
+    return false;
+  }
+  return is_clean( alfabet );
+}
+
 bool ld_record::test_frequency( size_t treshold ){
   if ( low_freq1 >= low_freq2 ){
     if ( low_freq1 < treshold ){
@@ -372,10 +381,13 @@ bool ld_record::test_frequency( size_t treshold ){
       return false;
     }
   }
+  return true;
+}
+
+void ld_record::sort_high_second(){
   if ( low_freq1 > low_freq2 ){
     flip();
   }
-  return true;
 }
 
 string ld_record::toString() const {
@@ -433,14 +445,11 @@ void handleTranspositions( ostream& os, const set<string>& s,
 			freqMap, low_freqMap,
 			isKHC, noKHCld, isDIAC );
       if ( !record.test_frequency( freqTreshold ) ){
-	  ++it2;
-	  continue;
-      }
-      if ( record.low_freq1 >= freqTreshold && !record.is_diac ){
 	++it2;
 	continue;
       }
-      if ( !record.is_clean( alfabet ) ){
+      record.sort_high_second();
+      if ( !record.acceptable( freqTreshold, alfabet ) ){
 	++it2;
 	continue;
       }
@@ -517,29 +526,8 @@ void compareSets( ostream& os, unsigned int ldValue,
        	++it2;
        	continue;
       }
-      size_t low_freq1 = record.low_freq1;
-      size_t low_freq2 = record.low_freq2;
-      UnicodeString candidate;
-      if ( low_freq1 > low_freq2 ){
-       	record.flip();
-      }
-      if ( !record.is_clean( alfabet ) ){
-	if ( following ){
-#pragma omp critical (debugout)
-	  {
-	    cout << "ignore dirty candidate " << record.str1 << endl;
-	  }
-	}
-	++it2;
-	continue;
-      }
-      if ( record.low_freq1 >= freqTreshold && !isDIAC ){
-	if ( following ){
-#pragma omp critical (debugout)
-	  {
-	    cout << "lexical word " << record.str1 << endl;
-	  }
-	}
+      record.sort_high_second();
+      if ( !record.acceptable( freqTreshold, alfabet) ){
 	++it2;
 	continue;
       }
