@@ -188,6 +188,7 @@ ld_record::ld_record( const string& s1, const string& s2,
   ls2.toLower();
   low_freq2 = low_f_map.at(ls2);
   follow = following;
+  KWC = 0;
 }
 
 bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
