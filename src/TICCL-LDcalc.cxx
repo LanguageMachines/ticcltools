@@ -427,7 +427,7 @@ string ld_record::toString() const {
   return ss.str();
 }
 
-void handleTranspositions( ostream& os, const set<string>& s,
+void handleTranspositions( const set<string>& s,
 			   const map<string,size_t>& freqMap,
 			   const map<UnicodeString,size_t>& low_freqMap,
 			   const set<UChar>& alfabet,
@@ -488,16 +488,14 @@ void handleTranspositions( ostream& os, const set<string>& s,
 	continue;
       }
       record.fill_fields( freqThreshold );
-      string result = record.toString();
       UnicodeString key = TiCC::UnicodeFromUTF8(record.str1) + "~"
 	+ TiCC::UnicodeFromUTF8( record.str2 );
 #pragma omp critical (output)
       {
-	os << result << endl;
 	record_store[key] = record;
       }
       if ( following ){
-	cerr << "Transpose result: " << result << endl;
+	cerr << "Transpose result: " << record.toString() << endl;
       }
       ++it2;
     }
@@ -505,7 +503,7 @@ void handleTranspositions( ostream& os, const set<string>& s,
   }
 }
 
-void compareSets( ostream& os, unsigned int ldValue,
+void compareSets( unsigned int ldValue,
 		  bitType KWC,
 		  const set<string>& s1, const set<string>& s2,
 		  const map<string,size_t>& freqMap,
@@ -562,16 +560,14 @@ void compareSets( ostream& os, unsigned int ldValue,
 			     dis_map, dis_count );
       record.fill_fields( freqThreshold );
       record.KWC = KWC;
-      string result = record.toString();
       UnicodeString key = TiCC::UnicodeFromUTF8(record.str1) + "~"
 	+ TiCC::UnicodeFromUTF8( record.str2 );
 #pragma omp critical (output)
       {
-	os << result << endl;
 	record_store[key] = record;
       }
       if ( following ){
-	cerr << "SET result: " << result << endl;
+	cerr << "SET result: " << record.toString() << endl;
       }
       ++it2;
     }
@@ -918,7 +914,6 @@ int main( int argc, char **argv ){
   cout << progname << ": read " << hashMap.size() << " hash values" << endl;
 
   size_t count=0;
-  ofstream os( outFile +".OLD" );
   set<bitType> handledTrans;
   map<UnicodeString,set<UnicodeString>> dis_map;
   map<UnicodeString,size_t> dis_count;
@@ -1002,7 +997,7 @@ int main( int argc, char **argv ){
 	      }
 	    }
 	    if ( do_trans ){
-	      handleTranspositions( os, sit1->second,
+	      handleTranspositions( sit1->second,
 				    freqMap, low_freqMap, alfabet,
 				    dis_map, dis_count,
 				    artifreq, isKHC, noKHCld, isDIAC,
@@ -1023,7 +1018,7 @@ int main( int argc, char **argv ){
 	    }
 	    continue;
 	  }
-	  compareSets( os, LDvalue, mainKey,
+	  compareSets( LDvalue, mainKey,
 		       sit1->second, sit2->second,
 		       freqMap, low_freqMap, alfabet,
 		       dis_map, dis_count,
@@ -1045,9 +1040,9 @@ int main( int argc, char **argv ){
     }
     amb << endl;
   }
-  ofstream os2( outFile );
+  ofstream os( outFile );
   for ( const auto& r : record_store ){
-    os2 << r.second.toString() << endl;
+    os << r.second.toString() << endl;
   }
   cout << progname << ": Done" << endl;
 }
