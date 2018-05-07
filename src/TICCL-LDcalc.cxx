@@ -117,114 +117,6 @@ const UChar SEPARATOR = '_';
 
 set<string> follow;
 
-int analyze_ngrams( const UnicodeString& us1,
-		    const UnicodeString& us2,
-		    const map<UnicodeString, size_t>& low_freqMap,
-		    size_t freqThreshold,
-		    map<UnicodeString,set<UnicodeString>>& dis_map,
-		    map<UnicodeString, size_t>& dis_count ){
-  bool following = false;
-  vector<UnicodeString> parts1 = TiCC::split_at( us1, SEPARATOR );
-  vector<UnicodeString> parts2 = TiCC::split_at( us2, SEPARATOR );
-  if ( parts1.size() == 1 && parts2.size() == 1 ){
-    return 0; // nothing special for unigrams
-  }
-  UnicodeString diff_part1;
-  UnicodeString diff_part2;
-  if ( parts1.size() == parts2.size() ){
-    //
-    // search for a pair of 'uncommon' parts in the 2 ngrams.
-    for ( size_t i=0; i < parts1.size(); ++i ){
-      if ( parts1[i] == parts2[i] ){
-	// ok
-      }
-      else if ( diff_part1.isEmpty() ) {
-	diff_part1 = parts1[i];
-	diff_part2 = parts2[i];
-      }
-      else {
-	return 0; // nothing special
-      }
-    }
-  }
-  else {
-    if ( parts1.back() == parts2.back() ){
-      parts1.pop_back();
-      parts2.pop_back();
-    }
-    else if ( parts1.front() == parts2.front() ){
-      parts1.erase(parts1.begin());
-      parts2.erase(parts2.begin());
-    }
-    else {
-      // no common part at begin or end.
-      return 0;
-    }
-    for ( const auto& w1 : parts1 ){
-      if ( !diff_part1.isEmpty() ){
-	diff_part1 += "_";
-      }
-      diff_part1 += w1;
-    }
-    for ( const auto& w2 : parts2 ){
-      if ( !diff_part2.isEmpty() ){
-	diff_part2 += "_";
-      }
-      diff_part2 += w2;
-    }
-    if ( following ){
-#pragma omp critical (debugout)
-      {
-	cerr << "FOUND 1-2-3 " << diff_part1 << " " << diff_part2 << endl;
-      }
-    }
-  }
-  if ( diff_part1.isEmpty() ) {
-    // can this happen?
-    // anyway: nothing to do
-    return 0; // nothing special
-  }
-  //
-  // Ok, so we have a pair
-  //
-  UnicodeString lp1 = diff_part1;
-  lp1.toLower();
-  auto const& entry = low_freqMap.find( lp1 );
-  if ( entry != low_freqMap.end()
-       && entry->second >= freqThreshold ){
-    // OK a high frequent word. translating probably won't do any good
-    return 0; // nothing special
-  }
-  string lps = TiCC::UnicodeToUTF8( lp1 );
-  if ( follow.find( lps ) != follow.end() ){
-    following = true;
-  }
-  if ( following ){
-#pragma omp critical (debugout)
-    {
-      cerr << "check candidate: " << diff_part1
-	   << " in n-grams pair: " << us1 << " # " << us2 << endl;
-    }
-  }
-  if ( diff_part1.length() < 6 ){
-    // a 'short' word
-    UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
-    if ( following ){
-#pragma omp critical (debugout)
-      {
-	cerr << "store short pair" << disamb_pair << endl;
-      }
-    }
-    // count this short words pair ANS store the original n-gram pair
-#pragma omp critical (update)
-    {
-      dis_map[disamb_pair].insert( us1 + "~" + us2 );
-      ++dis_count[disamb_pair];
-    }
-  }
-  return 1; // signal a point
-}
-
 class ld_record {
 public:
   ld_record(): freq1(-1),
@@ -253,10 +145,10 @@ public:
     swap( freq1, freq2 );
     swap( low_freq1, low_freq2 );
   }
-  int analyze_ngrams( const map<UnicodeString, size_t>&,
-		      size_t,
-		      map<UnicodeString,set<UnicodeString>>&,
-		      map<UnicodeString, size_t>& );
+  void analyze_ngrams( const map<UnicodeString, size_t>&,
+		       size_t,
+		       map<UnicodeString,set<UnicodeString>>&,
+		       map<UnicodeString, size_t>& );
   bool ld_is( size_t );
   bool ld_exceeds( size_t );
   void fill_fields( size_t );
@@ -307,15 +199,108 @@ ld_record::ld_record( const string& s1, const string& s2,
   follow = following;
 }
 
-int ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
-			       size_t freqThreshold,
-			       map<UnicodeString,set<UnicodeString>>& dis_map,
-			       map<UnicodeString, size_t>& dis_count ){
-  ngram_point = ::analyze_ngrams( TiCC::UnicodeFromUTF8(str1),
-				  TiCC::UnicodeFromUTF8(str2),
-				  low_freqMap, freqThreshold,
-				  dis_map, dis_count );
-  return ngram_point;
+void ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
+				size_t freqThreshold,
+				map<UnicodeString,set<UnicodeString>>& dis_map,
+				map<UnicodeString, size_t>& dis_count ){
+  ngram_point = 0;
+  UnicodeString us1 = TiCC::UnicodeFromUTF8(str1);
+  UnicodeString us2 = TiCC::UnicodeFromUTF8(str2);
+  vector<UnicodeString> parts1 = TiCC::split_at( us1, SEPARATOR );
+  vector<UnicodeString> parts2 = TiCC::split_at( us2, SEPARATOR );
+  if ( parts1.size() == 1 && parts2.size() == 1 ){
+    return; // nothing special for unigrams
+  }
+  UnicodeString diff_part1;
+  UnicodeString diff_part2;
+  if ( parts1.size() == parts2.size() ){
+    //
+    // search for a pair of 'uncommon' parts in the 2 ngrams.
+    for ( size_t i=0; i < parts1.size(); ++i ){
+      if ( parts1[i] == parts2[i] ){
+	// ok
+      }
+      else if ( diff_part1.isEmpty() ) {
+	diff_part1 = parts1[i];
+	diff_part2 = parts2[i];
+      }
+      else {
+	return; // nothing special
+      }
+    }
+  }
+  else {
+    if ( parts1.back() == parts2.back() ){
+      parts1.pop_back();
+      parts2.pop_back();
+    }
+    else if ( parts1.front() == parts2.front() ){
+      parts1.erase(parts1.begin());
+      parts2.erase(parts2.begin());
+    }
+    else {
+      // no common part at begin or end.
+      return;
+    }
+    for ( const auto& w1 : parts1 ){
+      if ( !diff_part1.isEmpty() ){
+	diff_part1 += "_";
+      }
+      diff_part1 += w1;
+    }
+    for ( const auto& w2 : parts2 ){
+      if ( !diff_part2.isEmpty() ){
+	diff_part2 += "_";
+      }
+      diff_part2 += w2;
+    }
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "FOUND 1-2-3 " << diff_part1 << " " << diff_part2 << endl;
+      }
+    }
+  }
+  if ( diff_part1.isEmpty() ) {
+    // can this happen?
+    // anyway: nothing to do
+    return; // nothing special
+  }
+  //
+  // Ok, so we have a pair
+  //
+  UnicodeString lp1 = diff_part1;
+  lp1.toLower();
+  auto const& entry = low_freqMap.find( lp1 );
+  if ( entry != low_freqMap.end()
+       && entry->second >= freqThreshold ){
+    // OK a high frequent word. translating probably won't do any good
+    return; // nothing special
+  }
+  if ( follow ){
+#pragma omp critical (debugout)
+    {
+      cerr << "check candidate: " << diff_part1
+	   << " in n-grams pair: " << us1 << " # " << us2 << endl;
+    }
+  }
+  if ( diff_part1.length() < 6 ){
+    // a 'short' word
+    UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "store short pair" << disamb_pair << endl;
+      }
+    }
+    // count this short words pair AND store the original n-gram pair
+#pragma omp critical (update)
+    {
+      dis_map[disamb_pair].insert( us1 + "~" + us2 );
+      ++dis_count[disamb_pair];
+    }
+  }
+  ngram_point = 1;
 }
 
 bool ld_record::ld_is( size_t wanted ) {
