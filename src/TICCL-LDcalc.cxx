@@ -299,19 +299,20 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
   if ( diff_part1.length() < 6 ){
     // a 'short' word
     UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
-    if ( follow ){
-#pragma omp critical (debugout)
-      {
-	cerr << "store short pair: " << disamb_pair << endl;
-      }
-    }
     // count this short words pair AND store the original n-gram pair
 #pragma omp critical (update)
     {
       dis_map[disamb_pair].insert( us1 + "~" + us2 );
       ++dis_count[disamb_pair];
     }
-    return false;
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "stored: short " << disamb_pair << " and forget about "
+	     << str1 << "~" << str2 << endl;
+      }
+    }
+    return true;
   }
   else {
     UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
