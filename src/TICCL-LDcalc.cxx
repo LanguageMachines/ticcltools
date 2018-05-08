@@ -275,6 +275,13 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
   if ( entry != low_freqMap.end()
        && entry->second >= freqThreshold ){
     // OK a high frequent word. translating probably won't do any good
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "ngram candidate part1: " << diff_part1 << "is high frequent: "
+	     << entry->second << " skipping" << endl;
+      }
+    }
     return false; // nothing special
   }
   lp1 = diff_part2;
@@ -283,6 +290,13 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
   if ( entry2 == low_freqMap.end()
        || entry2->second < freqThreshold ){
     // a low frequent word. Not likely as a correction candidate
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "ngram candidate part2: " << diff_part2 << "is low frequent: "
+	     << entry->second << " skipping" << endl;
+      }
+    }
     return false; // nothing special
   }
   ngram_point = 1;
@@ -1012,9 +1026,11 @@ int main( int argc, char **argv ){
 	  }
 	  map<bitType,set<string> >::const_iterator sit1 = hashMap.find(key);
 	  if ( sit1 == hashMap.end() ){
+	    if ( verbose > 1 ){
 #pragma omp critical (debugout)
-	    cerr << progname << ": WARNING: found a key '" << key
-		 << "' in the input that isn't present in the hashes." << endl;
+	      cerr << progname << ": WARNING: found a key '" << key
+		   << "' in the input that isn't present in the hashes." << endl;
+	    }
 	    continue;
 	  }
 	  if ( sit1->second.size() > 0
