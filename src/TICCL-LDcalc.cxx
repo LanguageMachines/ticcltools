@@ -470,6 +470,41 @@ string ld_record::toString() const {
   return ss.str();
 }
 
+bool transpose_pair( ld_record& record,
+		     const map<UnicodeString,size_t>& low_freqMap,
+		     map<UnicodeString,set<UnicodeString>>& dis_map,
+		     map<UnicodeString, size_t>& dis_count,
+		     map<UnicodeString, size_t>& ngram_count,
+		     size_t freqThreshold,
+		     const set<UChar>& alfabet,
+		     bool following ){
+  record.sort_high_second();
+  if ( !record.test_frequency( freqThreshold ) ){
+    return false;
+  }
+  if ( !record.acceptable( freqThreshold, alfabet ) ){
+    return false;
+  }
+  if ( record.analyze_ngrams( low_freqMap, freqThreshold,
+			      dis_map, dis_count, ngram_count ) ){
+    return false;
+  }
+  if ( !record.ld_is( 2 ) ){
+    if ( following ){
+#pragma omp critical (debugout)
+      {
+	cout << " LD != 2 " << record.str1 << "," << record.str2 << endl;
+      }
+    }
+    return false;
+  }
+  record.fill_fields( freqThreshold );
+  if ( following ){
+    cerr << "Transpose result: " << record.toString() << endl;
+  }
+  return true;
+}
+
 void handleTranspositions( const set<string>& s,
 			   const map<string,size_t>& freqMap,
 			   const map<UnicodeString,size_t>& low_freqMap,
@@ -511,39 +546,15 @@ void handleTranspositions( const set<string>& s,
       ld_record record( str1, str2,
 			freqMap, low_freqMap,
 			isKHC, noKHCld, isDIAC, following );
-      record.sort_high_second();
-      if ( !record.test_frequency( freqThreshold ) ){
-	++it2;
-	continue;
-      }
-      if ( !record.acceptable( freqThreshold, alfabet ) ){
-	++it2;
-	continue;
-      }
-      if ( record.analyze_ngrams( low_freqMap, freqThreshold,
-				  dis_map, dis_count, ngram_count ) ){
-	++it2;
-	continue;
-      }
-      if ( !record.ld_is( 2 ) ){
-	if ( following ){
-#pragma omp critical (debugout)
-	  {
-	    cout << " LD != 2 " << str1 << "," << str2 << endl;
-	  }
-	}
-	++it2;
-	continue;
-      }
-      record.fill_fields( freqThreshold );
-      UnicodeString key = TiCC::UnicodeFromUTF8(record.str1) + "~"
-	+ TiCC::UnicodeFromUTF8( record.str2 );
+      if ( transpose_pair( record, low_freqMap,
+			   dis_map, dis_count, ngram_count,
+			   freqThreshold, alfabet, following ) ){
+	UnicodeString key = TiCC::UnicodeFromUTF8(record.str1) + "~"
+	  + TiCC::UnicodeFromUTF8( record.str2 );
 #pragma omp critical (output)
-      {
-	record_store[key] = record;
-      }
-      if ( following ){
-	cerr << "Transpose result: " << record.toString() << endl;
+	{
+	  record_store[key] = record;
+	}
       }
       ++it2;
     }
