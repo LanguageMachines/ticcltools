@@ -125,8 +125,8 @@ public:
 		       map<UnicodeString,set<UnicodeString>>&,
 		       map<UnicodeString, size_t>&,
 		       map<UnicodeString, size_t>& );
-  bool ld_is( size_t );
-  bool ld_exceeds( size_t );
+  bool ld_is( int );
+  bool ld_exceeds( int );
   void fill_fields( size_t );
   void sort_high_second();
   bool test_frequency( size_t );
@@ -141,14 +141,14 @@ public:
   UnicodeString ls2;
   size_t freq2;
   size_t low_freq2;
-  size_t ld;
-  size_t cls;
+  int ld;
+  int cls;
   bitType KWC;
   bool canon;
   bool FLoverlap;
   bool LLoverlap;
   UnicodeString KHC;
-  size_t ngram_point;
+  int ngram_point;
   bool isKHC;
   bool noKHCld;
   bool is_diac;
@@ -160,22 +160,26 @@ ld_record::ld_record( const string& s1, const string& s2,
 		      const map<string,size_t>& f_map,
 		      const map<UnicodeString,size_t>& low_f_map,
 		      bool is_KHC, bool no_KHCld, bool is_diachrone,
-		      bool following ){
-  isKHC = is_KHC;
-  noKHCld = no_KHCld;
-  is_diac = is_diachrone;
-  str1 = s1;
+		      bool following ):
+  str1(s1),
+  str2(s2),
+  ld(-1),
+  cls(0),
+  KWC(0),
+  ngram_point(0),
+  isKHC(is_KHC),
+  noKHCld(no_KHCld),
+  is_diac(is_diachrone)
+{
   ls1 = TiCC::UnicodeFromUTF8(s1);
   freq1 = f_map.at(s1);
   ls1.toLower();
   low_freq1 = low_f_map.at(ls1);
-  str2 = s2;
   ls2 = TiCC::UnicodeFromUTF8(s2);
   freq2 = f_map.at(s2);
   ls2.toLower();
   low_freq2 = low_f_map.at(ls2);
   follow = following;
-  KWC = 0;
 }
 
 UnicodeString ld_record::get_key() const {
@@ -298,7 +302,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
     if ( follow ){
 #pragma omp critical (debugout)
       {
-	cerr << "store short pair" << disamb_pair << endl;
+	cerr << "store short pair: " << disamb_pair << endl;
       }
     }
     // count this short words pair AND store the original n-gram pair
@@ -328,7 +332,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
   }
 }
 
-bool ld_record::ld_is( size_t wanted ) {
+bool ld_record::ld_is( int wanted ) {
   ld = ldCompare( ls1, ls2 );
   if ( ld != wanted ){
     if ( !( isKHC && noKHCld ) ){
@@ -357,10 +361,13 @@ bool ld_record::ld_is( size_t wanted ) {
   return true;
 }
 
-bool ld_record::ld_exceeds( size_t ldvalue ) {
+bool ld_record::ld_exceeds( int ldvalue ) {
   ld = ldCompare( ls1, ls2 );
   if ( ld <= ldvalue ){
+    // reject if the LD exeeds ldvalue AND
+    //   not a Historical word OR nohld is not specified (terrible logic this)
     if ( !( isKHC && noKHCld ) ){
+
       if ( follow ){
 #pragma omp critical (debugout)
 	{
@@ -390,6 +397,7 @@ bool ld_record::ld_exceeds( size_t ldvalue ) {
 
 bool ld_record::acceptable( size_t threshold, const set<UChar>& alfabet ) {
   if ( low_freq1 >= threshold && !is_diac ){
+    // reject correction of lexical words, except for diachrone translations
     if ( follow ){
 #pragma omp critical (debugout)
       {
@@ -399,24 +407,26 @@ bool ld_record::acceptable( size_t threshold, const set<UChar>& alfabet ) {
     }
     return false;
   }
-  if ( alfabet.empty() )
-    return true;
-  for ( int i=0; i < ls2.length(); ++i ){
-    if ( alfabet.find( ls2[i] ) == alfabet.end() ){
-      if ( follow ){
+  if ( !alfabet.empty() ){
+    // reject non lexically clean Corection Candidates
+    for ( int i=0; i < ls2.length(); ++i ){
+      if ( alfabet.find( ls2[i] ) == alfabet.end() ){
+	if ( follow ){
 #pragma omp critical (debugout)
-	{
-	  cout << str1 << "~" << str2 << " rejected: "
-	       << UnicodeString( ls2[i] ) << " not in alphabet" << endl;
+	  {
+	    cout << str1 << "~" << str2 << " rejected: "
+		 << UnicodeString( ls2[i] ) << " not in alphabet" << endl;
+	  }
 	}
+	return false;
       }
-      return false;
     }
   }
   return true;
 }
 
 bool ld_record::test_frequency( size_t threshold ){
+  // avoid non lexical Correction Candidates
   if ( low_freq2 < threshold ){
     return false;
   }
@@ -424,6 +434,7 @@ bool ld_record::test_frequency( size_t threshold ){
 }
 
 void ld_record::sort_high_second(){
+  // order the record with the highest (most probable) freqency as CC
   if ( low_freq1 > low_freq2 ){
     flip();
   }
@@ -551,7 +562,7 @@ void handleTranspositions( const set<string>& s,
 
 bool compare_pair( ld_record& record,
 		   const map<UnicodeString,size_t>& low_freqMap,
-		   size_t ldValue, size_t KWC,
+		   int ldValue, size_t KWC,
 		   map<UnicodeString,set<UnicodeString>>& dis_map,
 		   map<UnicodeString, size_t>& dis_count,
 		   map<UnicodeString, size_t>& ngram_count,
@@ -577,7 +588,7 @@ bool compare_pair( ld_record& record,
   return true;
 }
 
-void compareSets( unsigned int ldValue,
+void compareSets( int ldValue,
 		  bitType KWC,
 		  const set<string>& s1, const set<string>& s2,
 		  const map<string,size_t>& freqMap,
