@@ -108,20 +108,6 @@ set<string> follow_words;
 
 class ld_record {
 public:
-  ld_record(): freq1(-1),
-	       low_freq1(-1),
-	       freq2(-1),
-	       low_freq2(-1),
-	       ld(-1),
-	       cls(-1),
-	       KWC(0),
-	       canon(false),
-	       FLoverlap(false),
-	       LLoverlap(false),
-	       ngram_point(0),
-	       isKHC(false),
-	       noKHCld(false)
-  { };
   ld_record( const string&,
 	     const string&,
 	     const map<string,size_t>&,
@@ -145,6 +131,7 @@ public:
   void sort_high_second();
   bool test_frequency( size_t );
   bool acceptable( size_t, const set<UChar>& );
+  UnicodeString get_key() const;
   string toString() const;
   string str1;
   UnicodeString ls1;
@@ -189,6 +176,11 @@ ld_record::ld_record( const string& s1, const string& s2,
   low_freq2 = low_f_map.at(ls2);
   follow = following;
   KWC = 0;
+}
+
+UnicodeString ld_record::get_key() const {
+  return TiCC::UnicodeFromUTF8( str1 ) + "~"
+    + TiCC::UnicodeFromUTF8( str2 );
 }
 
 bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
@@ -478,6 +470,13 @@ bool transpose_pair( ld_record& record,
 		     size_t freqThreshold,
 		     const set<UChar>& alfabet,
 		     bool following ){
+  if ( following ){
+#pragma omp critical (debugout)
+    {
+      cout << "TRANSPOSE: string 1 " << record.str1
+	   << " string 2 " << record.str2 << endl;
+    }
+  }
   record.sort_high_second();
   if ( !record.test_frequency( freqThreshold ) ){
     return false;
@@ -524,12 +523,6 @@ void handleTranspositions( const set<string>& s,
     if ( follow_words.find( str1 ) != follow_words.end() ){
       following = true;
     }
-    if ( following ){
-#pragma omp critical (debugout)
-      {
-	cout << "TRANSPOSE: string 1 " << str1 << endl;
-      }
-    }
     auto it2 = it1;
     ++it2;
     while ( it2 != s.end() ) {
@@ -537,23 +530,16 @@ void handleTranspositions( const set<string>& s,
       if ( follow_words.find( str2 ) != follow_words.end() ){
 	following = true;
       }
-      if ( following ){
-#pragma omp critical (debugout)
-	{
-	  cout << "TRANSPOSE string 2 " << str2 << endl;
-	}
-      }
       ld_record record( str1, str2,
 			freqMap, low_freqMap,
 			isKHC, noKHCld, isDIAC, following );
       if ( transpose_pair( record, low_freqMap,
 			   dis_map, dis_count, ngram_count,
 			   freqThreshold, alfabet, following ) ){
-	UnicodeString key = TiCC::UnicodeFromUTF8(record.str1) + "~"
-	  + TiCC::UnicodeFromUTF8( record.str2 );
+	UnicodeString key = record.get_key();
 #pragma omp critical (output)
 	{
-	  record_store[key] = record;
+	  record_store.emplace(key,record);
 	}
       }
       ++it2;
@@ -639,11 +625,10 @@ void compareSets( unsigned int ldValue,
       if ( compare_pair( record, low_freqMap, ldValue, KWC,
 			 dis_map, dis_count, ngram_count,
 			 freqThreshold, alfabet, following ) ){
-	UnicodeString key = TiCC::UnicodeFromUTF8(record.str1) + "~"
-	  + TiCC::UnicodeFromUTF8( record.str2 );
+	UnicodeString key = record.get_key();
 #pragma omp critical (output)
 	{
-	  record_store[key] = record;
+	  record_store.emplace(key,record);
 	}
       }
       ++it2;
@@ -1122,7 +1107,7 @@ int main( int argc, char **argv ){
   }
   for ( const auto& it : ngram_count ){
     if ( record_store.find( it.first ) != record_store.end() ){
-      record_store[it.first].ngram_point += it.second;
+      record_store.find(it.first)->second.ngram_point += it.second;
     }
     else {
       // Ok, our data seems to be incomplete
