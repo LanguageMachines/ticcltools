@@ -648,10 +648,10 @@ void compareSets( int ldValue,
   }
 }
 
-void add_ambi( ostream& os,
-	       const map<UnicodeString,size_t>& dis_count,
-	       const map<string,size_t>& freqMap,
-	       const map<UnicodeString,size_t>& low_freqMap ){
+void add_short( ostream& os,
+		const map<UnicodeString,size_t>& dis_count,
+		const map<string,size_t>& freqMap,
+		const map<UnicodeString,size_t>& low_freqMap ){
   for ( const auto& entry : dis_count ){
     vector<UnicodeString> parts = TiCC::split_at( entry.first, "~" );
     int ld = ldCompare( parts[0], parts[1] );
@@ -1106,7 +1106,7 @@ int main( int argc, char **argv ){
   }
   cout << endl << "creating .short file: " << shortFile << endl;
   ofstream shortf( shortFile );
-  add_ambi( shortf, dis_count, freqMap, low_freqMap );
+  add_short( shortf, dis_count, freqMap, low_freqMap );
   cout << endl << "creating .ambi file: " << ambiFile << endl;
   ofstream amb( ambiFile );
   for ( const auto& ambi : dis_map ){
