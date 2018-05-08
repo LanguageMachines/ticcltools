@@ -328,7 +328,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
     if ( follow ){
 #pragma omp critical (debugout)
       {
-	cerr << "stored" << disamb_pair << " and forget about "
+	cerr << "stored: " << disamb_pair << " and forget about "
 	     << str1 << "~" << str2 << endl;
       }
     }
@@ -1102,7 +1102,7 @@ int main( int argc, char **argv ){
     else {
       // Ok, our data seems to be incomplete
       // that is not our problem, so ignore
-      if ( verbose > 0 ){
+      if ( verbose > 1 ){
 	cerr << "ignoring " << it.first << endl;
       }
     }
