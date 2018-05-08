@@ -562,6 +562,35 @@ void handleTranspositions( const set<string>& s,
   }
 }
 
+
+bool compare_pair( ld_record& record,
+		   const map<UnicodeString,size_t>& low_freqMap,
+		   size_t ldValue, size_t KWC,
+		   map<UnicodeString,set<UnicodeString>>& dis_map,
+		   map<UnicodeString, size_t>& dis_count,
+		   map<UnicodeString, size_t>& ngram_count,
+		   size_t freqThreshold,
+		   const set<UChar>& alfabet,
+		   bool following ){
+  if ( record.ld_exceeds( ldValue ) ){
+    return false;
+  }
+  record.sort_high_second();
+  if ( !record.acceptable( freqThreshold, alfabet) ){
+    return false;
+  }
+  if ( record.analyze_ngrams( low_freqMap, freqThreshold,
+				  dis_map, dis_count, ngram_count ) ){
+    return false;
+  }
+  record.fill_fields( freqThreshold );
+  record.KWC = KWC;
+  if ( following ){
+    cerr << "SET result: " << record.toString() << endl;
+  }
+  return true;
+}
+
 void compareSets( unsigned int ldValue,
 		  bitType KWC,
 		  const set<string>& s1, const set<string>& s2,
@@ -607,30 +636,15 @@ void compareSets( unsigned int ldValue,
       ld_record record( str1, str2,
 			freqMap, low_freqMap,
 			isKHC, noKHCld, isDIAC, following );
-      if ( record.ld_exceeds( ldValue ) ){
-       	++it2;
-       	continue;
-      }
-      record.sort_high_second();
-      if ( !record.acceptable( freqThreshold, alfabet) ){
-	++it2;
-	continue;
-      }
-      if ( record.analyze_ngrams( low_freqMap, freqThreshold,
-				  dis_map, dis_count, ngram_count ) ){
-	++it2;
-	continue;
-      }
-      record.fill_fields( freqThreshold );
-      record.KWC = KWC;
-      UnicodeString key = TiCC::UnicodeFromUTF8(record.str1) + "~"
-	+ TiCC::UnicodeFromUTF8( record.str2 );
+      if ( compare_pair( record, low_freqMap, ldValue, KWC,
+			 dis_map, dis_count, ngram_count,
+			 freqThreshold, alfabet, following ) ){
+	UnicodeString key = TiCC::UnicodeFromUTF8(record.str1) + "~"
+	  + TiCC::UnicodeFromUTF8( record.str2 );
 #pragma omp critical (output)
-      {
-	record_store[key] = record;
-      }
-      if ( following ){
-	cerr << "SET result: " << record.toString() << endl;
+	{
+	  record_store[key] = record;
+	}
       }
       ++it2;
     }
