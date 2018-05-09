@@ -319,7 +319,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
     if ( follow ){
 #pragma omp critical (debugout)
       {
-	cerr << "ngram candidate part2: " << diff_part2 << "is low frequent: "
+	cerr << "ngram candidate part2: " << diff_part2 << " is low frequent: "
 	     << entry2->second << " skipping" << endl;
       }
     }
