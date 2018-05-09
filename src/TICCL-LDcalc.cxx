@@ -289,24 +289,30 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 	   << " in n-grams pair: " << us1 << " # " << us2 << endl;
     }
   }
-  UnicodeString lp1 = diff_part1;
-  lp1.toLower();
-  auto const& entry = low_freqMap.find( lp1 );
-  if ( entry != low_freqMap.end()
-       && entry->second >= freqThreshold ){
-    // OK a high frequent word. translating probably won't do any good
-    if ( follow ){
+  UnicodeString lp = diff_part1;
+  lp.toLower();
+  auto const& entry1 = low_freqMap.find( lp );
+  lp = diff_part2;
+  lp.toLower();
+  auto const& entry2 = low_freqMap.find( lp );
+  if ( entry1 != low_freqMap.end()
+       && entry1->second >= freqThreshold ){
+    if ( entry2 != low_freqMap.end()
+       && entry2->second >= freqThreshold ){
+      // both words high frequent. translating probably won't do any good
+      if ( follow ){
 #pragma omp critical (debugout)
-      {
-	cerr << "ngram candidate part1: " << diff_part1 << "is high frequent: "
-	     << entry->second << " skipping" << endl;
+	{
+	  cerr << "ngram part1: " << diff_part1 << " is high frequent: "
+	       << entry1->second << " ngram part2: " << diff_part1
+	       << " is high frequent too: " << entry1->second
+	       << " skipping" << endl;
+	}
       }
+      return true; // no use to keep this
     }
     return false; // nothing special
   }
-  lp1 = diff_part2;
-  lp1.toLower();
-  auto const& entry2 = low_freqMap.find( lp1 );
   if ( entry2 == low_freqMap.end()
        || entry2->second < freqThreshold ){
     // a low frequent word. Not likely as a correction candidate
@@ -314,7 +320,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 #pragma omp critical (debugout)
       {
 	cerr << "ngram candidate part2: " << diff_part2 << "is low frequent: "
-	     << entry->second << " skipping" << endl;
+	     << entry2->second << " skipping" << endl;
       }
     }
     return false; // nothing special
