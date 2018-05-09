@@ -172,13 +172,37 @@ ld_record::ld_record( const string& s1, const string& s2,
   is_diac(is_diachrone)
 {
   ls1 = TiCC::UnicodeFromUTF8(s1);
-  freq1 = f_map.at(s1);
+  auto const it1 = f_map.find( s1 );
+  if ( it1 != f_map.end() ){
+    freq1 = it1->second;
+  }
+  else {
+    freq1 = 0;
+  }
   ls1.toLower();
-  low_freq1 = low_f_map.at(ls1);
+  auto const lit1 = low_f_map.find( ls1 );
+  if ( lit1 != low_f_map.end() ){
+    low_freq1 = lit1->second;
+  }
+  else {
+    low_freq1 = 0;
+  }
   ls2 = TiCC::UnicodeFromUTF8(s2);
-  freq2 = f_map.at(s2);
+  auto const it2 = f_map.find( s2 );
+  if ( it2 != f_map.end() ){
+    freq2 = it2->second;
+  }
+  else {
+    freq2 = 0;
+  }
   ls2.toLower();
-  low_freq2 = low_f_map.at(ls2);
+  auto const lit2 = low_f_map.find( ls2 );
+  if ( lit2 != low_f_map.end() ){
+    low_freq2 = lit2->second;
+  }
+  else {
+    low_freq2 = 0;
+  }
   follow = following;
 }
 
@@ -653,57 +677,18 @@ void add_short( ostream& os,
 		const map<UnicodeString,size_t>& dis_count,
 		const map<string,size_t>& freqMap,
 		const map<UnicodeString,size_t>& low_freqMap,
-		int max_ld ){
+		int max_ld, size_t threshold ){
   for ( const auto& entry : dis_count ){
     vector<UnicodeString> parts = TiCC::split_at( entry.first, "~" );
-    UnicodeString ls1 = parts[0];
-    ls1.toLower();
-    UnicodeString ls2 = parts[1];
-    ls2.toLower();
-    int ld = ldCompare( ls1, ls2 );
-    if ( ld > max_ld ){
+    ld_record rec( TiCC::UnicodeToUTF8(parts[0]), TiCC::UnicodeToUTF8(parts[1]),
+		   freqMap, low_freqMap,
+		   false, false, false, false );
+    if ( rec.ld_exceeds( max_ld ) ){
       continue;
     }
-    int cls = max( ls1.length(), ls2.length()) - ld;
-    string FLoverlap = "0";
-    if ( ls1[0] == ls2[0] ){
-      FLoverlap = "1";
-    }
-    string LLoverlap = "0";
-    if ( ls1.length() > 1 && ls2.length() > 1
-	 && ls1[ls1.length()-1] == ls2[ls2.length()-1]
-	 && ls1[ls1.length()-2] == ls2[ls2.length()-2] ){
-      LLoverlap = "1";
-    }
-    size_t freq1 = 0;
-    auto it = freqMap.find(TiCC::UnicodeToUTF8(parts[0]));
-    if ( it != freqMap.end() ){
-      freq1 = it->second;
-    }
-    size_t freq2 = 0;
-    it = freqMap.find(TiCC::UnicodeToUTF8(parts[1]));
-    if ( it != freqMap.end() ){
-      freq2 = it->second;
-    }
-    size_t low_freq1 = 0;
-    auto it2 = low_freqMap.find(ls1);
-    if ( it2 != low_freqMap.end() ){
-      low_freq1 = it2->second;
-    }
-    size_t low_freq2 = 0;
-    it2 = low_freqMap.find(ls2);
-    if ( it2 != low_freqMap.end() ){
-      low_freq2 = it2->second;
-    }
-    os << parts[0] << "~" << freq1
-       << "~" << low_freq1
-       << "~" << parts[1] << "~" << freq2
-       << "~" << low_freq2
-       << "~0~" << ld
-       << "~" << cls
-       << "~" << 0
-       << "~" << FLoverlap << "~" << LLoverlap
-       << "~0~" << entry.second << endl;
+    rec.fill_fields( threshold );
+    rec.ngram_point = entry.second;
+    os << rec.toString() << endl;
   }
 }
 
@@ -1115,7 +1100,7 @@ int main( int argc, char **argv ){
   }
   cout << endl << "creating .short file: " << shortFile << endl;
   ofstream shortf( shortFile );
-  add_short( shortf, dis_count, freqMap, low_freqMap, LDvalue );
+  add_short( shortf, dis_count, freqMap, low_freqMap, LDvalue, artifreq );
   cout << endl << "creating .ambi file: " << ambiFile << endl;
   ofstream amb( ambiFile );
   for ( const auto& ambi : dis_map ){
