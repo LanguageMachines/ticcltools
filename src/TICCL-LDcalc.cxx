@@ -578,7 +578,7 @@ bool compare_pair( ld_record& record,
     return false;
   }
   if ( record.analyze_ngrams( low_freqMap, freqThreshold,
-				  dis_map, dis_count, ngram_count ) ){
+			      dis_map, dis_count, ngram_count ) ){
     return false;
   }
   record.fill_fields( freqThreshold );
@@ -652,19 +652,27 @@ void compareSets( int ldValue,
 void add_short( ostream& os,
 		const map<UnicodeString,size_t>& dis_count,
 		const map<string,size_t>& freqMap,
-		const map<UnicodeString,size_t>& low_freqMap ){
+		const map<UnicodeString,size_t>& low_freqMap,
+		int max_ld ){
   for ( const auto& entry : dis_count ){
     vector<UnicodeString> parts = TiCC::split_at( entry.first, "~" );
-    int ld = ldCompare( parts[0], parts[1] );
-    int cls = max(parts[0].length(),parts[1].length()) - ld;
+    UnicodeString ls1 = parts[0];
+    ls1.toLower();
+    UnicodeString ls2 = parts[1];
+    ls2.toLower();
+    int ld = ldCompare( ls1, ls2 );
+    if ( ld > max_ld ){
+      continue;
+    }
+    int cls = max( ls1.length(), ls2.length()) - ld;
     string FLoverlap = "0";
-    if ( parts[0][0] == parts[1][0] ){
+    if ( ls1[0] == ls2[0] ){
       FLoverlap = "1";
     }
     string LLoverlap = "0";
-    if ( parts[0].length() > 1 && parts[1].length() > 1
-	 && parts[0][parts[0].length()-1] == parts[1][parts[1].length()-1]
-	 && parts[0][parts[0].length()-2] == parts[1][parts[1].length()-2] ){
+    if ( ls1.length() > 1 && ls2.length() > 1
+	 && ls1[ls1.length()-1] == ls2[ls2.length()-1]
+	 && ls1[ls1.length()-2] == ls2[ls2.length()-2] ){
       LLoverlap = "1";
     }
     size_t freq1 = 0;
@@ -678,12 +686,12 @@ void add_short( ostream& os,
       freq2 = it->second;
     }
     size_t low_freq1 = 0;
-    auto it2 = low_freqMap.find(parts[0]);
+    auto it2 = low_freqMap.find(ls1);
     if ( it2 != low_freqMap.end() ){
       low_freq1 = it2->second;
     }
     size_t low_freq2 = 0;
-    it2 = low_freqMap.find(parts[1]);
+    it2 = low_freqMap.find(ls2);
     if ( it2 != low_freqMap.end() ){
       low_freq2 = it2->second;
     }
@@ -1107,7 +1115,7 @@ int main( int argc, char **argv ){
   }
   cout << endl << "creating .short file: " << shortFile << endl;
   ofstream shortf( shortFile );
-  add_short( shortf, dis_count, freqMap, low_freqMap );
+  add_short( shortf, dis_count, freqMap, low_freqMap, LDvalue );
   cout << endl << "creating .ambi file: " << ambiFile << endl;
   ofstream amb( ambiFile );
   for ( const auto& ambi : dis_map ){
