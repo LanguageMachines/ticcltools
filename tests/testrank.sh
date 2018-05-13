@@ -9,6 +9,16 @@ fi
 
 bindir=/home/sloot/usr/local/bin
 
+if [ ! -d $bindir ]
+then
+    bindir=/exp/sloot/usr/local/bin
+    if [ ! -d $bindir ]
+    then
+	echo "cannot find executables "
+	exit
+    fi
+fi
+
 outdir=TESTRESULTS
 refdir=OUTreference
 testdir=TESTDATA
@@ -27,11 +37,11 @@ fi
 echo "checking RANK results...."
 
 sort $outdir/ngram.ranked > /tmp/rank.sorted
-diff /tmp/rank.sorted $refdir/ngram.sorted > /dev/null 2>&1
+diff /tmp/rank.sorted $refdir/ngram.rank.sorted > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"
-    echo "using: diff /tmp/rank.sorted $refdir/rank.sorted"
+    echo "using: diff /tmp/rank.sorted $refdir/ngram.rank.sorted"
     exit
 else
     echo OK!
