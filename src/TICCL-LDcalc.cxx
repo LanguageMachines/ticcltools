@@ -297,38 +297,34 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
   auto const& entry2 = low_freqMap.find( lp );
   if ( entry1 != low_freqMap.end()
        && entry1->second >= freqThreshold ){
-    if ( entry2 != low_freqMap.end()
-       && entry2->second >= freqThreshold ){
-      // both words high frequent. translating probably won't do any good
-      if ( follow ){
-#pragma omp critical (debugout)
-	{
-	  cerr << "ngram part1: " << diff_part1 << " is high frequent: "
-	       << entry1->second << " ngram part2: " << diff_part1
-	       << " is high frequent too: " << entry1->second
-	       << " skipping" << endl;
-	}
-      }
-      return true; // no use to keep this
-    }
-    return false; // nothing special
-  }
-  if ( entry2 == low_freqMap.end()
-       || entry2->second < freqThreshold ){
-    // a low frequent word. Not likely as a correction candidate
     if ( follow ){
 #pragma omp critical (debugout)
       {
-	cerr << "ngram candidate part2: " << diff_part2 << " is low frequent: "
-	     << entry2->second << " skipping" << endl;
+	cerr << "ngram part1: " << diff_part1 << " is high frequent: "
+	     << "skipping" << endl;
+      }
+    }
+    return true; // no use to keep this
+  }
+  if ( entry2 == low_freqMap.end()
+       || entry2->second < freqThreshold ){
+    // left AND right a low frequent word.
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "both ngram part1: " << diff_part1 << " and part2: "
+	     << diff_part2 << " are low frequent " << endl;
       }
     }
     return false; // nothing special
   }
+
+  // We got here, so the left part is low frequent, and the right isn't
+  // so this IS a potential good correction
   ngram_point = 1;
+  UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
   if ( diff_part1.length() < 6 ){
     // a 'short' word
-    UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
     // count this short words pair AND store the original n-gram pair
 #pragma omp critical (update)
     {
@@ -342,10 +338,9 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 	     << str1 << "~" << str2 << endl;
       }
     }
-    return true;
   }
   else {
-    UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
+    // count the pair
 #pragma omp critical (update)
     {
       ++ngram_count[disamb_pair];
@@ -359,8 +354,8 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 	     << str1 << "~" << str2 << endl;
       }
     }
-    return true;
   }
+  return true; // forget the original parents
 }
 
 bool ld_record::ld_is( int wanted ) {
