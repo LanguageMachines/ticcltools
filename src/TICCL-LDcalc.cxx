@@ -126,7 +126,7 @@ public:
 		       map<UnicodeString, size_t>&,
 		       map<UnicodeString, size_t>& );
   bool ld_is( int );
-  bool ld_exceeds( int );
+  bool ld_check( int );
   void fill_fields( size_t );
   void sort_high_second();
   bool test_frequency( size_t );
@@ -231,29 +231,41 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
     // search for a pair of 'uncommon' parts in the 2 ngrams.
     for ( size_t i=0; i < parts1.size(); ++i ){
       if ( parts1[i] == parts2[i] ){
-	// ok
+	// ok, a common part.
       }
       else if ( diff_part1.isEmpty() ) {
+	// not yet an uncommon part found. store it.
 	diff_part1 = parts1[i];
 	diff_part2 = parts2[i];
       }
       else {
-	return false; // nothing special
+	// another uncommon part. these n-grams are too uncommon
+	return true; // discard
       }
     }
   }
   else {
-    if ( parts1.back() == parts2.back() ){
+    bool uncommon = true;
+    while( !parts1.empty()&& !parts2.empty()
+	   && parts1.back() == parts2.back() ){
+      // remove all common parts at the end.
       parts1.pop_back();
       parts2.pop_back();
+      uncommon = false; // signal this
     }
-    else if ( parts1.front() == parts2.front() ){
+    while( !parts1.empty()&& !parts2.empty()
+	   && parts1.front() == parts2.front() ){
+      // remove all common parts at the end.
       parts1.erase(parts1.begin());
       parts2.erase(parts2.begin());
+      uncommon = false; // signal this
     }
-    else {
-      // no common part at begin or end.
+    if ( uncommon ){
+      // no common parts at begin or end.
       return false;
+    }
+    if ( parts1.empty() || parts2.empty() ){
+      return true; // discard
     }
     for ( const auto& w1 : parts1 ){
       if ( !diff_part1.isEmpty() ){
@@ -387,17 +399,27 @@ bool ld_record::ld_is( int wanted ) {
   return true;
 }
 
-bool ld_record::ld_exceeds( int ldvalue ) {
+bool ld_record::ld_check( int ldvalue ) {
   ld = ldCompare( ls1, ls2 );
   if ( ld <= ldvalue ){
+    // LD is ok
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cout << "LD(" << ls1 << "," << ls2 << ") =" << ld
+	     << " OK,  <= " << ldvalue << endl;
+      }
+    }
+    return true;
+  }
+  else {
     // reject if the LD exeeds ldvalue AND
     //   not a Historical word OR nohld is not specified (terrible logic this)
     if ( !( isKHC && noKHCld ) ){
-
       if ( follow ){
 #pragma omp critical (debugout)
 	{
-	  cout << "LD " << ld << " <= " << ldvalue << " but rejected, no KHC"
+	  cout << "LD " << ld << " > " << ldvalue << " and rejected, no KHC"
 	       << endl;
 	}
       }
@@ -406,10 +428,11 @@ bool ld_record::ld_exceeds( int ldvalue ) {
     if ( follow ){
 #pragma omp critical (debugout)
       {
-	cout << "LD " << ld << " <= " << ldvalue << " and kept, KHC"
+	cout << "LD " << ld << " > " << ldvalue << " but accepted, KHC"
 	     << endl;
       }
     }
+    return true;
   }
   if ( follow ){
 #pragma omp critical (debugout)
@@ -418,7 +441,7 @@ bool ld_record::ld_exceeds( int ldvalue ) {
 	   << " rejected > " << ldvalue << endl;
     }
   }
-  return true;
+  return false;
 }
 
 bool ld_record::acceptable( size_t threshold, const set<UChar>& alfabet ) {
@@ -595,7 +618,7 @@ bool compare_pair( ld_record& record,
 		   size_t freqThreshold,
 		   const set<UChar>& alfabet,
 		   bool following ){
-  if ( record.ld_exceeds( ldValue ) ){
+  if ( !record.ld_check( ldValue ) ){
     return false;
   }
   record.sort_high_second();
@@ -684,7 +707,7 @@ void add_short( ostream& os,
     ld_record rec( TiCC::UnicodeToUTF8(parts[0]), TiCC::UnicodeToUTF8(parts[1]),
 		   freqMap, low_freqMap,
 		   false, false, false, false );
-    if ( rec.ld_exceeds( max_ld ) ){
+    if ( !rec.ld_check( max_ld ) ){
       continue;
     }
     rec.fill_fields( threshold );
