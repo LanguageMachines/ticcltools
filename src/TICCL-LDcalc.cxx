@@ -306,7 +306,6 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
   auto const& entry1 = low_freqMap.find( lp );
   lp = diff_part2;
   lp.toLower();
-  auto const& entry2 = low_freqMap.find( lp );
   if ( entry1 != low_freqMap.end()
        && entry1->second >= freqThreshold ){
     if ( follow ){
@@ -318,21 +317,21 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
     }
     return true; // no use to keep this
   }
-  if ( entry2 == low_freqMap.end()
-       || entry2->second < freqThreshold ){
-    // left AND right a low frequent word.
-    if ( follow ){
-#pragma omp critical (debugout)
-      {
-	cerr << "both ngram part1: " << diff_part1 << " and part2: "
-	     << diff_part2 << " are low frequent " << endl;
-      }
-    }
-    return true; // no use to keep it then
-  }
+//   auto const& entry2 = low_freqMap.find( lp );
+//   if ( entry2 == low_freqMap.end()
+//        || entry2->second < freqThreshold ){
+//     // left AND right a low frequent word.
+//     if ( follow ){
+// #pragma omp critical (debugout)
+//       {
+// 	cerr << "both ngram part1: " << diff_part1 << " and part2: "
+// 	     << diff_part2 << " are low frequent " << endl;
+//       }
+//     }
+//     return true; // no use to keep it then
+// }
 
-  // We got here, so the left part is low frequent, and the right isn't
-  // so this IS a potential good correction
+// so this IS a potential good correction
   ngram_point = 1;
   UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
   if ( diff_part1.length() < 6 ){
