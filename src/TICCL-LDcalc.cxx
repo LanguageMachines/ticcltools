@@ -222,6 +222,13 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
   vector<UnicodeString> parts1 = TiCC::split_at( us1, SEPARATOR );
   vector<UnicodeString> parts2 = TiCC::split_at( us2, SEPARATOR );
   if ( parts1.size() == 1 && parts2.size() == 1 ){
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "ngram candidates: " << parts1[0] << " AND " << parts2[0]
+	     << " are UNIGRAMS: nothing to do" << endl;
+      }
+    }
     return false; // nothing special for unigrams
   }
   UnicodeString diff_part1;
@@ -240,6 +247,13 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
       }
       else {
 	// another uncommon part. these n-grams are too uncommon
+	if ( follow ){
+#pragma omp critical (debugout)
+	  {
+	    cerr << "ngram candidates: " << diff_part1 << " AND " << diff_part2
+		 << " are too different. Discard" << endl;
+	      }
+	}
 	return true; // discard
       }
     }
@@ -262,9 +276,23 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
     }
     if ( uncommon ){
       // no common parts at begin or end.
+      if ( follow ){
+#pragma omp critical (debugout)
+	{
+	  cerr << "ngram candidates: " << diff_part1 << " AND " << diff_part2
+	       << " are too different. Discard" << endl;
+	}
+      }
       return false;
     }
     if ( parts1.empty() || parts2.empty() ){
+      if ( follow ){
+#pragma omp critical (debugout)
+	{
+	  cerr << "ngram candidate is empty after removing commom parts "
+	       << endl;
+	}
+      }
       return true; // discard
     }
     for ( const auto& w1 : parts1 ){
