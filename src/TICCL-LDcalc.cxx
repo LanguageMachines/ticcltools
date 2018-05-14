@@ -328,7 +328,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 	     << diff_part2 << " are low frequent " << endl;
       }
     }
-    return false; // nothing special
+    return true; // no use to keep it then
   }
 
   // We got here, so the left part is low frequent, and the right isn't
