@@ -477,6 +477,13 @@ bool ld_record::acceptable( size_t threshold, const set<UChar>& alfabet ) {
 bool ld_record::test_frequency( size_t threshold ){
   // avoid non lexical Correction Candidates
   if ( low_freq2 < threshold ){
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cout << str1 << "~" << str2 << " rejected: " << str2
+	     << " is low frequent: " << low_freq2 << endl;
+      }
+    }
     return false;
   }
   return true;
@@ -485,6 +492,12 @@ bool ld_record::test_frequency( size_t threshold ){
 void ld_record::sort_high_second(){
   // order the record with the highest (most probable) freqency as CC
   if ( low_freq1 > low_freq2 ){
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cout << "flip " << str1 << "~" << str2 << endl;
+      }
+    }
     flip();
   }
 }
