@@ -260,19 +260,42 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
   }
   else {
     bool uncommon = true;
-    while( !parts1.empty()&& !parts2.empty()
+    using TiCC::operator<<;
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "analyze ngram candidates: " << parts1 << " AND " << parts2
+	     << endl;
+      }
+    }
+
+    while( !parts1.empty() && !parts2.empty()
 	   && parts1.back() == parts2.back() ){
       // remove all common parts at the end.
       parts1.pop_back();
       parts2.pop_back();
       uncommon = false; // signal this
     }
-    while( !parts1.empty()&& !parts2.empty()
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "after reduce END, candidates: " << parts1 << " AND " << parts2
+	     << endl;
+      }
+    }
+    while( !parts1.empty() && !parts2.empty()
 	   && parts1.front() == parts2.front() ){
-      // remove all common parts at the end.
+      // remove all common parts at the begin.
       parts1.erase(parts1.begin());
       parts2.erase(parts2.begin());
       uncommon = false; // signal this
+    }
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "after reduce begin, candidates: " << parts1 << " AND " << parts2
+	     << endl;
+      }
     }
     if ( uncommon ){
       // no common parts at begin or end.
