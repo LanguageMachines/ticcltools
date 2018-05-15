@@ -49,4 +49,14 @@ then
     exit
 fi
 
+sort $outdir/ngram.short.ldcalc  > /tmp/ldcalc.short
+diff /tmp/ldcalc.short $refdir/ngram.ldcalc.short > /dev/null 2>&1
+
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-ldcalc results"
+    echo "using: diff /tmp/ldcalc.short $refdir/ngram.ldcalc.short"
+    exit
+fi
+
 echo "OK"

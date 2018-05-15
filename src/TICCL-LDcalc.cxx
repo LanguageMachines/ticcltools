@@ -26,6 +26,7 @@
 */
 
 #include <unistd.h>
+#include <cassert>
 #include <set>
 #include <map>
 #include <limits>
@@ -101,268 +102,581 @@ unsigned int ldCompare( const UnicodeString& s1, const UnicodeString& s2 ){
   return result;
 }
 
-bool isClean( const UnicodeString& us, const set<UChar>& alfabet ){
-  if ( alfabet.empty() )
-    return true;
-  for ( int i=0; i < us.length(); ++i ){
-    if ( alfabet.find( us[i] ) == alfabet.end() )
-      return false;
-  }
-  return true;
-}
-
 const UChar SEPARATOR = '_';
 
-vector<UnicodeString> split( const UnicodeString& in, UChar symbol ){
-  vector<UnicodeString> results;
-  int  pos = 0;
-  while ( pos >= 0 && pos < in.length() ){
-    UnicodeString res;
-    int p = in.indexOf( symbol, pos );
-    if ( p < 0 ){
-      res = in.tempSubString( pos );
-      pos = p;
-    }
-    else {
-      res = in.tempSubString( pos, p - pos );
-      pos = p + 1;
-    }
-    if ( !res.isEmpty() ){
-      results.push_back( res );
-    }
+set<string> follow_words;
+
+class ld_record {
+public:
+  ld_record( const string&,
+	     const string&,
+	     const map<string,size_t>&,
+	     const map<UnicodeString,size_t>&,
+	     bool, bool, bool,
+	     bool );
+  void flip(){
+    str1.swap(str2);
+    ls1.swap(ls2);
+    swap( freq1, freq2 );
+    swap( low_freq1, low_freq2 );
   }
-  return results;
+  bool analyze_ngrams( const map<UnicodeString, size_t>&,
+		       size_t,
+		       map<UnicodeString,set<UnicodeString>>&,
+		       map<UnicodeString, size_t>&,
+		       map<UnicodeString, size_t>& );
+  bool ld_is( int );
+  bool ld_check( int );
+  void fill_fields( size_t );
+  void sort_high_second();
+  bool test_frequency( size_t );
+  bool acceptable( size_t, const set<UChar>& );
+  UnicodeString get_key() const;
+  string toString() const;
+  string str1;
+  UnicodeString ls1;
+  size_t freq1;
+  size_t low_freq1;
+  string str2;
+  UnicodeString ls2;
+  size_t freq2;
+  size_t low_freq2;
+  int ld;
+  int cls;
+  bitType KWC;
+  bool canon;
+  bool FLoverlap;
+  bool LLoverlap;
+  UnicodeString KHC;
+  int ngram_point;
+  bool isKHC;
+  bool noKHCld;
+  bool is_diac;
+  bool follow;
+};
+
+
+ld_record::ld_record( const string& s1, const string& s2,
+		      const map<string,size_t>& f_map,
+		      const map<UnicodeString,size_t>& low_f_map,
+		      bool is_KHC, bool no_KHCld, bool is_diachrone,
+		      bool following ):
+  str1(s1),
+  str2(s2),
+  ld(-1),
+  cls(0),
+  KWC(0),
+  ngram_point(0),
+  isKHC(is_KHC),
+  noKHCld(no_KHCld),
+  is_diac(is_diachrone)
+{
+  ls1 = TiCC::UnicodeFromUTF8(s1);
+  auto const it1 = f_map.find( s1 );
+  if ( it1 != f_map.end() ){
+    freq1 = it1->second;
+  }
+  else {
+    freq1 = 0;
+  }
+  ls1.toLower();
+  auto const lit1 = low_f_map.find( ls1 );
+  if ( lit1 != low_f_map.end() ){
+    low_freq1 = lit1->second;
+  }
+  else {
+    low_freq1 = 0;
+  }
+  ls2 = TiCC::UnicodeFromUTF8(s2);
+  auto const it2 = f_map.find( s2 );
+  if ( it2 != f_map.end() ){
+    freq2 = it2->second;
+  }
+  else {
+    freq2 = 0;
+  }
+  ls2.toLower();
+  auto const lit2 = low_f_map.find( ls2 );
+  if ( lit2 != low_f_map.end() ){
+    low_freq2 = lit2->second;
+  }
+  else {
+    low_freq2 = 0;
+  }
+  follow = following;
 }
 
-void analyze_ngrams( const UnicodeString& us1,
-		     const UnicodeString& us2,
-		     const map<UnicodeString, size_t>& low_freqMap,
-		     size_t freqTreshold,
-		     int verbose,
-		     map<UnicodeString,set<UnicodeString>>& dis_map,
-		     map<UnicodeString, size_t> dis_count ){
-  return;
-  vector<UnicodeString> parts1 = split( us1, SEPARATOR );
-  vector<UnicodeString> parts2 = split( us2, SEPARATOR );
-  if ( parts1.size() == 1 || parts1.size() != parts2.size() ){
-    return;
+UnicodeString ld_record::get_key() const {
+  return TiCC::UnicodeFromUTF8( str1 ) + "~"
+    + TiCC::UnicodeFromUTF8( str2 );
+}
+
+bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
+				size_t freqThreshold,
+				map<UnicodeString,set<UnicodeString>>& dis_map,
+				map<UnicodeString, size_t>& dis_count,
+				map<UnicodeString, size_t>& ngram_count ){
+  ngram_point = 0;
+  UnicodeString us1 = TiCC::UnicodeFromUTF8(str1);
+  UnicodeString us2 = TiCC::UnicodeFromUTF8(str2);
+  vector<UnicodeString> parts1 = TiCC::split_at( us1, SEPARATOR );
+  vector<UnicodeString> parts2 = TiCC::split_at( us2, SEPARATOR );
+  if ( parts1.size() == 1 && parts2.size() == 1 ){
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "ngram candidates: " << parts1[0] << " AND " << parts2[0]
+	     << " are UNIGRAMS: nothing to do" << endl;
+      }
+    }
+    return false; // nothing special for unigrams
   }
   UnicodeString diff_part1;
   UnicodeString diff_part2;
-  for ( size_t i=0; i < parts1.size(); ++i ){
-    if ( parts1[i] == parts2[i] ){
-      // ok
+  if ( parts1.size() == parts2.size() ){
+    //
+    // search for a pair of 'uncommon' parts in the 2 ngrams.
+    for ( size_t i=0; i < parts1.size(); ++i ){
+      UnicodeString left = parts1[i];
+      left.toLower();
+      UnicodeString right = parts2[i];
+      right.toLower();
+      if ( left == right ){
+	// ok, a common part.
+      }
+      else if ( diff_part1.isEmpty() ) {
+	// not yet an uncommon part found. store it.
+	diff_part1 = parts1[i];
+	diff_part2 = parts2[i];
+      }
+      else {
+	// another uncommon part. these n-grams are too uncommon
+	if ( follow ){
+#pragma omp critical (debugout)
+	  {
+	    cerr << "ngram candidates: " << us1 << " AND " << us2
+		 << " are too different. Discard" << endl;
+	  }
+	}
+	return true; // discard
+      }
     }
-    else if ( diff_part1.isEmpty() ) {
-      diff_part1 = parts1[i];
-      diff_part2 = parts2[i];
+  }
+  else {
+    bool uncommon = true;
+    using TiCC::operator<<;
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "analyze ngram candidates: " << us1 << " AND " << us2
+	     << endl;
+      }
     }
-    else {
-      return;
+
+    while( !parts1.empty() && !parts2.empty() ){
+      UnicodeString left = parts1.back();
+      left.toLower();
+      UnicodeString right = parts2.back();
+      right.toLower();
+      if ( left == right ){
+	// remove all common parts at the end.
+	parts1.pop_back();
+	parts2.pop_back();
+	uncommon = false; // signal this
+      }
+      else {
+	break;
+      }
+    }
+    while( !parts1.empty() && !parts2.empty() ){
+      UnicodeString left = parts1.front();
+      left.toLower();
+      UnicodeString right = parts2.front();
+      right.toLower();
+      if ( left == right ){
+	// remove all common parts at the begin.
+	parts1.erase(parts1.begin());
+	parts2.erase(parts2.begin());
+	uncommon = false; // signal this
+      }
+      else {
+	break;
+      }
+    }
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "after reduction, candidates: " << parts1 << " AND " << parts2
+	     << endl;
+      }
+    }
+    if ( uncommon ){
+      // no common parts at begin or end.
+      if ( follow ){
+#pragma omp critical (debugout)
+	{
+	  cerr << "ngram candidates: " << us1 << " AND " << us2
+	       << " are too different. Discard" << endl;
+	}
+      }
+      return false;
+    }
+    if ( parts1.empty() || parts2.empty() ){
+      if ( follow ){
+#pragma omp critical (debugout)
+	{
+	  cerr << "ngram candidate is empty after removing commom parts "
+	       << endl;
+	}
+      }
+      return true; // discard
+    }
+    for ( const auto& w1 : parts1 ){
+      if ( !diff_part1.isEmpty() ){
+	diff_part1 += "_";
+      }
+      diff_part1 += w1;
+    }
+    for ( const auto& w2 : parts2 ){
+      if ( !diff_part2.isEmpty() ){
+	diff_part2 += "_";
+      }
+      diff_part2 += w2;
+    }
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "FOUND 1-2-3 " << diff_part1 << " " << diff_part2 << endl;
+      }
     }
   }
   if ( diff_part1.isEmpty() ) {
     // can this happen?
-    return;
+    // anyway: nothing to do
+    return false; // nothing special
   }
-  auto const& entry = low_freqMap.find( diff_part1 );
-  if ( entry != low_freqMap.end()
-       && entry->second >= freqTreshold ){
-    // OK a frequent word.
-    return;
-  }
-  if ( verbose > 1 ){
+  //
+  // Ok, so we have a pair
+  //
+  if ( follow ){
 #pragma omp critical (debugout)
     {
-      cerr << "check candidate: " << diff_part1
-	   << " in n-grams pair: " << us1 << " # " << us2 << endl;
+      cerr << "ngram candidate: '" << diff_part1 << "~" << diff_part2
+	   << "' in n-grams pair: " << us1 << " # " << us2 << endl;
     }
   }
+  UnicodeString lp = diff_part1;
+  lp.toLower();
+  auto const& entry1 = low_freqMap.find( lp );
+  lp = diff_part2;
+  lp.toLower();
+  if ( entry1 != low_freqMap.end()
+       && entry1->second >= freqThreshold ){
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "ngram part1: " << diff_part1 << " is high frequent: "
+	     << "skipping" << endl;
+      }
+    }
+    return true; // no use to keep this
+  }
+//   auto const& entry2 = low_freqMap.find( lp );
+//   if ( entry2 == low_freqMap.end()
+//        || entry2->second < freqThreshold ){
+//     // left AND right a low frequent word.
+//     if ( follow ){
+// #pragma omp critical (debugout)
+//       {
+// 	cerr << "both ngram part1: " << diff_part1 << " and part2: "
+// 	     << diff_part2 << " are low frequent " << endl;
+//       }
+//     }
+//     return true; // no use to keep it then
+// }
+
+// so this IS a potential good correction
+  ngram_point = 1;
+  UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
   if ( diff_part1.length() < 6 ){
     // a 'short' word
-    UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
-    // short words
+    // count this short words pair AND store the original n-gram pair
 #pragma omp critical (update)
     {
       dis_map[disamb_pair].insert( us1 + "~" + us2 );
       ++dis_count[disamb_pair];
     }
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "stored: short " << disamb_pair << " and forget about "
+	     << str1 << "~" << str2 << endl;
+      }
+    }
   }
-  return;
+  else {
+    // count the pair
+#pragma omp critical (update)
+    {
+      ++ngram_count[disamb_pair];
+      // keep pair for later
+    }
+    // signal to discard this ngram (in favor of the unigram within)
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "stored: " << disamb_pair << " and forget about "
+	     << str1 << "~" << str2 << endl;
+      }
+    }
+  }
+  return true; // forget the original parents
 }
 
-void handleTranspositions( ostream& os, const set<string>& s,
+bool ld_record::ld_is( int wanted ) {
+  ld = ldCompare( ls1, ls2 );
+  if ( ld != wanted ){
+    if ( !( isKHC && noKHCld ) ){
+      if ( follow ){
+#pragma omp critical (debugout)
+	{
+	  cout << "LD " << ld << " ≠ " << wanted << " and rejected, no KHC"
+	       << endl;
+	}
+      }
+      return false;
+    }
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cout << "LD " << ld << " ≠ " << wanted << " but kept, KHC"  << endl;
+      }
+    }
+  }
+  if ( follow ){
+#pragma omp critical (debugout)
+    {
+      cout << "LD(" << ls1 << "," << ls2 << ")=" << ld << " OK!" << endl;
+    }
+  }
+  return true;
+}
+
+bool ld_record::ld_check( int ldvalue ) {
+  ld = ldCompare( ls1, ls2 );
+  if ( ld <= ldvalue ){
+    // LD is ok
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cout << "LD(" << ls1 << "," << ls2 << ") =" << ld
+	     << " OK,  <= " << ldvalue << endl;
+      }
+    }
+    return true;
+  }
+  else {
+    // reject if the LD exeeds ldvalue AND
+    //   not a Historical word OR nohld is not specified (terrible logic this)
+    if ( !( isKHC && noKHCld ) ){
+      if ( follow ){
+#pragma omp critical (debugout)
+	{
+	  cout << "LD " << ld << " > " << ldvalue << " and rejected, no KHC"
+	       << endl;
+	}
+      }
+      return false;
+    }
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cout << "LD " << ld << " > " << ldvalue << " but accepted, KHC"
+	     << endl;
+      }
+    }
+    return true;
+  }
+  if ( follow ){
+#pragma omp critical (debugout)
+    {
+      cout << "LD(" << ls1 << "," << ls2 << ") =" << ld
+	   << " rejected > " << ldvalue << endl;
+    }
+  }
+  return false;
+}
+
+bool ld_record::acceptable( size_t threshold, const set<UChar>& alfabet ) {
+  if ( low_freq1 >= threshold && !is_diac ){
+    // reject correction of lexical words, except for diachrone translations
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cout << str1 << "~" << str2 << " rejected: Lexical, and not diachrone"
+	     << endl;
+      }
+    }
+    return false;
+  }
+  if ( !alfabet.empty() ){
+    // reject non lexically clean Corection Candidates
+    for ( int i=0; i < ls2.length(); ++i ){
+      if ( alfabet.find( ls2[i] ) == alfabet.end() ){
+	if ( follow ){
+#pragma omp critical (debugout)
+	  {
+	    cout << str1 << "~" << str2 << " rejected: "
+		 << UnicodeString( ls2[i] ) << " not in alphabet" << endl;
+	  }
+	}
+	return false;
+      }
+    }
+  }
+  return true;
+}
+
+bool ld_record::test_frequency( size_t threshold ){
+  // avoid non lexical Correction Candidates
+  if ( low_freq2 < threshold ){
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cout << str1 << "~" << str2 << " rejected: " << str2
+	     << " is low frequent: " << low_freq2 << endl;
+      }
+    }
+    return false;
+  }
+  return true;
+}
+
+void ld_record::sort_high_second(){
+  // order the record with the highest (most probable) freqency as CC
+  if ( low_freq1 > low_freq2 ){
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cout << "flip " << str1 << "~" << str2 << endl;
+      }
+    }
+    flip();
+  }
+}
+
+void ld_record::fill_fields( size_t freqThreshold ) {
+  cls = max(ls1.length(),ls2.length()) - ld;
+  LLoverlap = false;
+  if ( ls1.length() > 1 && ls2.length() > 1
+       && ls1[ls1.length()-1] == ls2[ls2.length()-1]
+       && ls1[ls1.length()-2] == ls2[ls2.length()-2] ){
+    LLoverlap = true;
+  }
+  FLoverlap = false;
+  if ( ls1[0] == ls2[0] ){
+    FLoverlap = true;
+  }
+  canon = false;
+  if ( low_freq2 >= freqThreshold ){
+    canon = true;
+  }
+}
+
+string ld_record::toString() const {
+  string canon_s = (canon?"1":"0");;
+  string FLoverlap_s = (FLoverlap?"1":"0");;
+  string LLoverlap_s = (LLoverlap?"1":"0");;
+  string KHC = (isKHC?"1":"0");
+  stringstream ss;
+  ss << str1 << "~" << freq1 << "~" << low_freq1 << "~"
+     << str2 << "~" << freq2 << "~" << low_freq2 << "~"
+     << KWC << "~" << ld << "~"
+     << cls << "~" << canon_s << "~"
+     << FLoverlap_s << "~" << LLoverlap_s << "~"
+     << KHC << "~" << ngram_point;
+  return ss.str();
+}
+
+bool transpose_pair( ld_record& record,
+		     const map<UnicodeString,size_t>& low_freqMap,
+		     map<UnicodeString,set<UnicodeString>>& dis_map,
+		     map<UnicodeString, size_t>& dis_count,
+		     map<UnicodeString, size_t>& ngram_count,
+		     size_t freqThreshold,
+		     const set<UChar>& alfabet,
+		     bool following ){
+  if ( following ){
+#pragma omp critical (debugout)
+    {
+      cout << "TRANSPOSE: string 1 " << record.str1
+	   << " string 2 " << record.str2 << endl;
+    }
+  }
+  record.sort_high_second();
+  if ( !record.test_frequency( freqThreshold ) ){
+    return false;
+  }
+  if ( !record.acceptable( freqThreshold, alfabet ) ){
+    return false;
+  }
+  if ( record.analyze_ngrams( low_freqMap, freqThreshold,
+			      dis_map, dis_count, ngram_count ) ){
+    return false;
+  }
+  if ( !record.ld_is( 2 ) ){
+    if ( following ){
+#pragma omp critical (debugout)
+      {
+	cout << " LD != 2 " << record.str1 << "," << record.str2 << endl;
+      }
+    }
+    return false;
+  }
+  record.fill_fields( freqThreshold );
+  if ( following ){
+    cerr << "Transpose result: " << record.toString() << endl;
+  }
+  return true;
+}
+
+void handleTranspositions( const set<string>& s,
 			   const map<string,size_t>& freqMap,
 			   const map<UnicodeString,size_t>& low_freqMap,
 			   const set<UChar>& alfabet,
 			   map<UnicodeString,set<UnicodeString>>& dis_map,
-			   map<UnicodeString, size_t> dis_count,
-			   size_t freqTreshold,
+			   map<UnicodeString, size_t>& dis_count,
+			   map<UnicodeString, size_t>& ngram_count,
+			   size_t freqThreshold,
 			   bool isKHC,
 			   bool noKHCld,
-			   bool isDIAC ){
-  set<string>::const_iterator it1 = s.begin();
+			   bool isDIAC,
+			   map<UnicodeString,ld_record>& record_store ){
+  auto it1 = s.begin();
   while ( it1 != s.end() ) {
-    int local_verbose = verbose;
+    bool following = false;
     string str1 = *it1;
-    // if ( str1 == "noodlyk" || str1 == "noorderlyke" ){
-    //   local_verbose = 3;
-    // }
-    if ( local_verbose > 2 ){
-#pragma omp critical (debugout)
-      {
-	cout << "TRANSPOSE: string 1 " << str1 << endl;
-      }
+    if ( follow_words.find( str1 ) != follow_words.end() ){
+      following = true;
     }
-    map<string,size_t>::const_iterator fit = freqMap.find( str1 );
-    if ( fit == freqMap.end() ){
-      if ( local_verbose > 1 ){
-#pragma omp critical (debugout)
-	{
-	  cout << "not found in freq file " << str1 << endl;
-	}
-      }
-      ++it1;
-      continue;
-    }
-    size_t freq1 = fit->second;
-    set<string>::const_iterator it2 = it1;
+    auto it2 = it1;
     ++it2;
     while ( it2 != s.end() ) {
       string str2 = *it2;
-      // if ( str2 == "noodlyk" || str2 == "noorderlyke" ){
-      // 	local_verbose = 3;
-      // }
-      if ( local_verbose > 2 ){
-#pragma omp critical (debugout)
-	{
-	  cout << "TRANSPOSE string 2 " << str2 << endl;
-	}
+      if ( follow_words.find( str2 ) != follow_words.end() ){
+	following = true;
       }
-      map<string,size_t>::const_iterator fit = freqMap.find( str2 );
-      if ( fit == freqMap.end() ){
-	if ( local_verbose > 1 ){
-#pragma omp critical (debugout)
-	  {
-	    cout << "not found in freq file " << str2 << endl;
-	  }
-	}
-	++it2;
-	continue;
-      }
-      size_t freq2 = fit->second;
-      UnicodeString us1 = TiCC::UnicodeFromUTF8( str1 );
-      us1.toLower();
-      UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
-      us2.toLower();
-
-      size_t out_freq1;
-      size_t out_low_freq1;
-      size_t out_freq2;
-      size_t out_low_freq2;
-      string out_str1;
-      string out_str2;
-      size_t low_freq1 = low_freqMap.at(us1);
-      size_t low_freq2 = low_freqMap.at(us2);
-      if ( low_freq1 >= freqTreshold && low_freq2 >= freqTreshold
-	   && !isDIAC ){
-	++it2;
-	continue;
-      }
-      if ( low_freq1 >= low_freq2 ){
-	if ( low_freq1 < freqTreshold ){
-	  ++it2;
-	  continue;
-	}
-      }
-      else {
-	if ( low_freq2 < freqTreshold ){
-	  ++it2;
-	  continue;
-	}
-      }
-
-      size_t canon_freq = 0;
-      UnicodeString candidate;
-      if ( low_freq1 > low_freq2 ){
-	canon_freq = low_freq1;
-	out_freq1 = freq2;
-	out_low_freq1 = low_freq2;
-	out_freq2 = freq1;
-	out_low_freq2 = low_freq1;
-	out_str1 = str2;
-	out_str2 = str1;
-	candidate = us1;
-      }
-      else {
-	canon_freq = low_freq2;
-	out_freq1 = freq1;
-	out_low_freq1 = low_freq1;
-	out_freq2 = freq2;
-	out_low_freq2 = low_freq2;
-	out_str1 = str1;
-	out_str2 = str2;
-	candidate = us2;
-      }
-      if ( !isClean( candidate, alfabet ) ){
-	if ( local_verbose > 1 ){
-#pragma omp critical (debugout)
-	  {
-	    cout << "ignore dirty candidate " << candidate << endl;
-	  }
-	}
-	++it2;
-	continue;
-      }
-      analyze_ngrams( us1, us2, low_freqMap, freqTreshold,
-		      verbose, dis_map, dis_count );
-      unsigned int ld = ldCompare( us1, us2 );
-      if ( ld != 2 ){
-	if ( !( isKHC && noKHCld ) ){
-	  if ( local_verbose > 1 ){
-#pragma omp critical (debugout)
-	    {
-	      cout << " LD != 2 " << str1 << "," << str2 << endl;
-	    }
-	  }
-	  ++it2;
-	  continue;
-	}
-      }
-
-      int cls = max(us1.length(),us2.length()) - ld;
-      string canon = "0";
-      if ( canon_freq >= freqTreshold ){
-	canon = "1";
-      }
-      string FLoverlap = "0";
-      if ( us1[0] == us2[0] ){
-	FLoverlap = "1";
-      }
-      string LLoverlap = "0";
-      if ( us1.length() > 1 && us2.length() > 1
-	   && us1[us1.length()-1] == us2[us2.length()-1]
-	   && us1[us1.length()-2] == us2[us2.length()-2] ){
-	LLoverlap = "1";
-      }
-      string KHC = "0";
-      if ( isKHC ){
-	KHC = "1";
-      }
-      string result = out_str1 + "~" + TiCC::toString(out_freq1) + "~"
-	+ TiCC::toString(out_low_freq1) + "~"
-	+ out_str2 + "~" + TiCC::toString( out_freq2 ) + "~"
-	+ TiCC::toString(out_low_freq2) + "~"
-	+ "~0~" + TiCC::toString( ld ) + "~"
-	+ TiCC::toString(cls) + "~" + canon + "~"
-	+ FLoverlap + "~" + LLoverlap + "~"
-	+ KHC;
+      ld_record record( str1, str2,
+			freqMap, low_freqMap,
+			isKHC, noKHCld, isDIAC, following );
+      if ( transpose_pair( record, low_freqMap,
+			   dis_map, dis_count, ngram_count,
+			   freqThreshold, alfabet, following ) ){
+	UnicodeString key = record.get_key();
 #pragma omp critical (output)
-      {
-	os << result << endl;
-      }
-      if ( local_verbose > 2 ){
-	cerr << "Transpose result: " << result << endl;
+	{
+	  record_store.emplace(key,record);
+	}
       }
       ++it2;
     }
@@ -370,175 +684,88 @@ void handleTranspositions( ostream& os, const set<string>& s,
   }
 }
 
-void compareSets( ostream& os, unsigned int ldValue,
-		  const string& KWC,
+
+bool compare_pair( ld_record& record,
+		   const map<UnicodeString,size_t>& low_freqMap,
+		   int ldValue, size_t KWC,
+		   map<UnicodeString,set<UnicodeString>>& dis_map,
+		   map<UnicodeString, size_t>& dis_count,
+		   map<UnicodeString, size_t>& ngram_count,
+		   size_t freqThreshold,
+		   const set<UChar>& alfabet,
+		   bool following ){
+  if ( !record.ld_check( ldValue ) ){
+    return false;
+  }
+  record.sort_high_second();
+  if ( !record.acceptable( freqThreshold, alfabet) ){
+    return false;
+  }
+  if ( record.analyze_ngrams( low_freqMap, freqThreshold,
+			      dis_map, dis_count, ngram_count ) ){
+    return false;
+  }
+  record.fill_fields( freqThreshold );
+  record.KWC = KWC;
+  if ( following ){
+    cerr << "SET result: " << record.toString() << endl;
+  }
+  return true;
+}
+
+void compareSets( int ldValue,
+		  bitType KWC,
 		  const set<string>& s1, const set<string>& s2,
 		  const map<string,size_t>& freqMap,
 		  const map<UnicodeString,size_t>& low_freqMap,
 		  const set<UChar>& alfabet,
 		  map<UnicodeString,set<UnicodeString>>& dis_map,
-		  map<UnicodeString, size_t> dis_count,
-		  size_t freqTreshold,
+		  map<UnicodeString, size_t>& dis_count,
+		  map<UnicodeString, size_t>& ngram_count,
+		  size_t freqThreshold,
 		  bool isKHC,
 		  bool noKHCld,
-		  bool isDIAC ){
+		  bool isDIAC,
+		  map<UnicodeString,ld_record>& record_store ){
   // using TiCC::operator<<;
   // cerr << "set 1 " << s1 << endl;
   // cerr << "set 2 " << s2 << endl;
-  set<string>::const_iterator it1 = s1.begin();
+  auto it1 = s1.begin();
   while ( it1 != s1.end() ) {
-    int local_verbose = verbose;
+    bool following = false;
     string str1 = *it1;
-    // if ( str1 == "noodlyk" || str1 == "noorderlyke" ){
-    //   local_verbose = 3;
-    // }
-    if ( local_verbose > 2 ){
+    if ( follow_words.find( str1 ) != follow_words.end() ){
+      following = true;
+    }
+    if ( following ){
 #pragma omp critical (debugout)
       {
 	cout << "SET: string 1 " << str1 << endl;
       }
     }
-    map<string,size_t>::const_iterator fit = freqMap.find( str1 );
-    if ( fit == freqMap.end() ){
-      if ( local_verbose > 1 ){
-#pragma omp critical (debugout)
-	{
-	  cout << "not found in freq file " << str1 << endl;
-	}
-      }
-      ++it1;
-      continue;
-    }
-    size_t freq1 = fit->second;
-    UnicodeString us1 = TiCC::UnicodeFromUTF8( str1 );
-    us1.toLower();
-    set<string>::const_iterator it2 = s2.begin();
+    auto it2 = s2.begin();
     while ( it2 != s2.end() ) {
       string str2 = *it2;
-      // if ( str2 == "noodlyk" || str2 == "noorderlyke" ){
-      // 	local_verbose = 3;
-      // }
-      if ( local_verbose > 2 ){
+      if ( follow_words.find( str2 ) != follow_words.end() ){
+	following = true;
+      }
+      if ( following ){
 #pragma omp critical (debugout)
 	{
 	  cout << "SET: string 2 " << str2 << endl;
 	}
       }
-      fit = freqMap.find( str2 );
-      if ( fit == freqMap.end() ){
-	if ( local_verbose > 1 ){
-#pragma omp critical (debugout)
-	  {
-	    cout << "not found in freq file " << str2 << endl;
-	  }
-	}
-	++it2;
-	continue;
-      }
-
-      size_t freq2 = fit->second;
-      UnicodeString us2 = TiCC::UnicodeFromUTF8( str2 );
-      us2.toLower();
-      unsigned int ld = ldCompare( us1, us2 );
-      if ( ld > ldValue ){
-	if ( !( isKHC && noKHCld ) ){
-	  if ( local_verbose > 2 ){
-#pragma omp critical (debugout)
-	    {
-	      cout << " LD too high " << str1 << "," << str2 << endl;
-	    }
-	  }
-	  ++it2;
-	  continue;
-	}
-      }
-
-      size_t out_freq1;
-      size_t out_low_freq1;
-      size_t out_freq2;
-      size_t out_low_freq2;
-      string out_str1;
-      string out_str2;
-      size_t low_freq1 = low_freqMap.at(us1);
-      size_t low_freq2 = low_freqMap.at(us2);
-      size_t canon_freq = 0;
-      UnicodeString candidate;
-      if ( low_freq1 > low_freq2 ){
-	canon_freq = low_freq1;
-	out_freq1 = freq2;
-	out_low_freq1 = low_freq2;
-	out_freq2 = freq1;
-	out_low_freq2 = low_freq1;
-	out_str1 = str2;
-	out_str2 = str1;
-	candidate = us1;
-      }
-      else {
-	canon_freq = low_freq2;
-	out_freq1 = freq1;
-	out_low_freq1 = low_freq1;
-	out_freq2 = freq2;
-	out_low_freq2 = low_freq2;
-	out_str1 = str1;
-	out_str2 = str2;
-	candidate = us2;
-      }
-      if ( !isClean( candidate, alfabet ) ){
-	if ( local_verbose > 1 ){
-#pragma omp critical (debugout)
-	  {
-	    cout << "ignore dirty candidate " << candidate << endl;
-	  }
-	}
-	++it2;
-	continue;
-      }
-      analyze_ngrams( us1, us2, low_freqMap, freqTreshold,
-		      verbose, dis_map, dis_count );
-      if ( out_low_freq1 >= freqTreshold && !isDIAC ){
-	if ( local_verbose > 2 ){
-#pragma omp critical (debugout)
-	  {
-	    cout << "lexical word " << out_str1 << endl;
-	  }
-	}
-	++it2;
-	continue;
-      }
-
-      int cls = max(us1.length(),us2.length()) - ld;
-      string canon = "0";
-      if ( canon_freq >= freqTreshold ){
-	canon = "1";
-      }
-      string FLoverlap = "0";
-      if ( us1[0] == us2[0] ){
-	FLoverlap = "1";
-      }
-      string LLoverlap = "0";
-      if ( us1.length() > 1 && us2.length() > 1
-	   && us1[us1.length()-1] == us2[us2.length()-1]
-	   && us1[us1.length()-2] == us2[us2.length()-2] ){
-	LLoverlap = "1";
-      }
-      string KHC = "0";
-      if ( isKHC ){
-	KHC = "1";
-      }
-      string result = out_str1 + "~" + TiCC::toString(out_freq1) +
-	+ "~" + TiCC::toString(out_low_freq1) +
-	+ "~" + out_str2 + "~" + TiCC::toString( out_freq2 )
-	+ "~" + TiCC::toString( out_low_freq2 )
-	+ "~" + KWC + "~" + TiCC::toString( ld ) + "~"
-	+ TiCC::toString(cls) + "~" + canon + "~"
-	+ FLoverlap + "~" + LLoverlap + "~"
-	+ KHC;
+      ld_record record( str1, str2,
+			freqMap, low_freqMap,
+			isKHC, noKHCld, isDIAC, following );
+      if ( compare_pair( record, low_freqMap, ldValue, KWC,
+			 dis_map, dis_count, ngram_count,
+			 freqThreshold, alfabet, following ) ){
+	UnicodeString key = record.get_key();
 #pragma omp critical (output)
-      {
-	os << result << endl;
-      }
-      if ( local_verbose > 2 ){
-	cerr << "SET result: " << result << endl;
+	{
+	  record_store.emplace(key,record);
+	}
       }
       ++it2;
     }
@@ -546,23 +773,31 @@ void compareSets( ostream& os, unsigned int ldValue,
   }
 }
 
+void add_short( ostream& os,
+		const map<UnicodeString,size_t>& dis_count,
+		const map<string,size_t>& freqMap,
+		const map<UnicodeString,size_t>& low_freqMap,
+		int max_ld, size_t threshold ){
+  for ( const auto& entry : dis_count ){
+    vector<UnicodeString> parts = TiCC::split_at( entry.first, "~" );
+    ld_record rec( TiCC::UnicodeToUTF8(parts[0]), TiCC::UnicodeToUTF8(parts[1]),
+		   freqMap, low_freqMap,
+		   false, false, false, false );
+    if ( !rec.ld_check( max_ld ) ){
+      continue;
+    }
+    rec.fill_fields( threshold );
+    rec.ngram_point = entry.second;
+    os << rec.toString() << endl;
+  }
+}
+
 int main( int argc, char **argv ){
-  // UnicodeString s1 = "Een_Test";
-  // UnicodeString s2 = "een_wat_langere_Tast";
-  // vector<UnicodeString> bla = split( s1, SEPARATOR );
-  // for ( const auto& s : bla ){
-  //   cerr << s << endl;
-  // }
-  // bla = split( s2, SEPARATOR );
-  // for ( const auto& s : bla ){
-  //   cerr << s << endl;
-  // }
-  // exit(EXIT_SUCCESS);
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:t:" );
     opts.set_long_options( "diac:,hist:,nohld,artifrq:,LD:,hash:,clean:,"
-			   "alph:,index:,help,version,threads:" );
+			   "alph:,index:,help,version,threads:,follow:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -586,6 +821,10 @@ int main( int argc, char **argv ){
   }
   while ( opts.extract( 'v' ) ){
     ++verbose;
+  }
+  string value;
+  while ( opts.extract( "follow", value ) ){
+    follow_words.insert( value );
   }
 
   string indexFile;
@@ -624,16 +863,23 @@ int main( int argc, char **argv ){
     }
   }
   string outFile;
+  string shortFile;
   if ( opts.extract( 'o', outFile ) ){
-    if ( !TiCC::match_back( outFile, ".ldcalc" ) )
+    if ( !TiCC::match_back( outFile, ".ldcalc" ) ){
+      shortFile = outFile + ".short.ldcalc";
       outFile += ".ldcalc";
+    }
+    else {
+      shortFile = outFile;
+      shortFile.insert( shortFile.length() - 7, ".short" );
+    }
   }
   else {
     outFile = indexFile + ".ldcalc";
+    shortFile = indexFile + ".short.ldcalc";
   }
   string ambiFile = outFile + ".ambi";
   size_t artifreq = 0;
-  string value;
 
   if ( opts.extract( "artifrq", value ) ){
     if ( !TiCC::stringTo(value,artifreq) ) {
@@ -703,9 +949,8 @@ int main( int argc, char **argv ){
       UnicodeString key = TiCC::UnicodeFromUTF8(vec[0]);
       alfabet.insert(key[0]);
     }
+    cout << progname << ": read " << alfabet.size() << " letters with frequencies" << endl;
   }
-  cout << progname << ": read " << alfabet.size() << " letters with frequencies" << endl;
-
   ifstream ff( frequencyFile  );
   if ( !ff ){
     cerr << progname << ": problem opening " << frequencyFile << endl;
@@ -726,7 +971,7 @@ int main( int argc, char **argv ){
       string s = v1[0];
       size_t freq = TiCC::stringTo<size_t>( v1[1] );
       freqMap[s] = freq;
-      UnicodeString ls = TiCC::UnicodeFromUTF8( s );
+      UnicodeString ls = TiCC::UnicodeFromUTF8(s);
       ls.toLower();
       if ( freq >= artifreq ){
 	// make sure that the artifrq is counted only once!
@@ -743,8 +988,9 @@ int main( int argc, char **argv ){
     }
   }
   cout << progname << ": read " << freqMap.size() << " clean words with frequencies" << endl;
-  cout << progname << ": skipped " << ign << " n-grams" << endl;
-
+  if ( ign > 0 ){
+    cout << progname << ": skipped " << ign << " spaced words in the clean file" << endl;
+  }
   set<bitType> histMap;
   if ( !histconfFile.empty() ){
     ifstream ff( histconfFile );
@@ -824,18 +1070,29 @@ int main( int argc, char **argv ){
       }
       else {
 	bitType key = TiCC::stringTo<bitType>( v1[0] );
-	for ( size_t i=0; i < v2.size(); ++i )
-	  hashMap[key].insert( v2[i] );
+	for ( size_t i=0; i < v2.size(); ++i ){
+	  auto it = freqMap.find( v2[i] );
+	  if ( it != freqMap.end() ){
+	    // only store words from the .clean lexicon
+	    hashMap[key].insert( v2[i] );
+	  }
+	  else {
+	    if ( verbose > 1 ){
+	      cerr << "skip hash for " << v2[i] << " (not in lexicon)" << endl;
+	    }
+	  }
+	}
       }
     }
   }
   cout << progname << ": read " << hashMap.size() << " hash values" << endl;
 
   size_t count=0;
-  ofstream os( outFile );
   set<bitType> handledTrans;
   map<UnicodeString,set<UnicodeString>> dis_map;
   map<UnicodeString,size_t> dis_count;
+  map<UnicodeString,size_t> ngram_count;
+  map<UnicodeString,ld_record> record_store;
   size_t line_nr = 0;
   int err_cnt = 0;
   while ( getline( indexf, line ) ){
@@ -860,7 +1117,7 @@ int main( int argc, char **argv ){
       ++err_cnt;
     }
     else {
-      string mainKeyS = parts[0];
+      string key_s = parts[0];
       if ( ++count % 1000 == 0 ){
 	cout << ".";
 	cout.flush();
@@ -879,7 +1136,7 @@ int main( int argc, char **argv ){
 	++err_cnt;
       }
       else {
-	bitType mainKey = TiCC::stringTo<bitType>(mainKeyS);
+	bitType mainKey = TiCC::stringTo<bitType>(key_s);
 	bool isKHC = false;
 	if ( histMap.find( mainKey ) != histMap.end() ){
 	  isKHC = true;
@@ -898,9 +1155,11 @@ int main( int argc, char **argv ){
 	  }
 	  map<bitType,set<string> >::const_iterator sit1 = hashMap.find(key);
 	  if ( sit1 == hashMap.end() ){
+	    if ( verbose > 1 ){
 #pragma omp critical (debugout)
-	    cerr << progname << ": WARNING: found a key '" << key
-		 << "' in the input that isn't present in the hashes." << endl;
+	      cerr << progname << ": WARNING: found a key '" << key
+		   << "' in the input that isn't present in the hashes." << endl;
+	    }
 	    continue;
 	  }
 	  if ( sit1->second.size() > 0
@@ -915,10 +1174,11 @@ int main( int argc, char **argv ){
 	      }
 	    }
 	    if ( do_trans ){
-	      handleTranspositions( os, sit1->second,
+	      handleTranspositions( sit1->second,
 				    freqMap, low_freqMap, alfabet,
-				    dis_map, dis_count,
-				    artifreq, isKHC, noKHCld, isDIAC );
+				    dis_map, dis_count, ngram_count,
+				    artifreq, isKHC, noKHCld, isDIAC,
+				    record_store );
 	    }
 	  }
 	  if ( verbose > 1 ){
@@ -935,23 +1195,43 @@ int main( int argc, char **argv ){
 	    }
 	    continue;
 	  }
-	  compareSets( os, LDvalue, mainKeyS,
+	  compareSets( LDvalue, mainKey,
 		       sit1->second, sit2->second,
 		       freqMap, low_freqMap, alfabet,
-		       dis_map, dis_count,
-		       artifreq, isKHC, noKHCld, isDIAC );
+		       dis_map, dis_count, ngram_count,
+		       artifreq, isKHC, noKHCld, isDIAC,
+		       record_store );
 	}
       }
     }
   }
+  cout << endl << "creating .short file: " << shortFile << endl;
+  ofstream shortf( shortFile );
+  add_short( shortf, dis_count, freqMap, low_freqMap, LDvalue, artifreq );
   cout << endl << "creating .ambi file: " << ambiFile << endl;
-  ofstream amb ( ambiFile );
+  ofstream amb( ambiFile );
   for ( const auto& ambi : dis_map ){
     amb << ambi.first << "#";
     for ( const auto& val : ambi.second ){
       amb << val << "#";
     }
     amb << endl;
+  }
+  for ( const auto& it : ngram_count ){
+    if ( record_store.find( it.first ) != record_store.end() ){
+      record_store.find(it.first)->second.ngram_point += it.second;
+    }
+    else {
+      // Ok, our data seems to be incomplete
+      // that is not our problem, so ignore
+      if ( verbose > 1 ){
+	cerr << "ignoring " << it.first << endl;
+      }
+    }
+  }
+  ofstream os( outFile );
+  for ( const auto& r : record_store ){
+    os << r.second.toString() << endl;
   }
   cout << progname << ": Done" << endl;
 }

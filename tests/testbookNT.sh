@@ -164,7 +164,7 @@ $bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --char
 
 if [ $? -ne 0 ]
 then
-    echo failed after TICLL-rank
+    echo "failed in TICLL-rank"
     exit
 fi
 

@@ -51,7 +51,7 @@
 using namespace std;
 typedef signed long int bitType;
 
-const int RANK_COUNT=13;
+const int RANK_COUNT=14;
 
 bool verbose = false;
 
@@ -114,6 +114,8 @@ public:
   double khc_rank;
   double cosine;
   double cosine_rank;
+  int ngram_points;
+  double ngram_rank;
   double rank;
 };
 
@@ -142,8 +144,8 @@ record::record( const string& line,
   pairs_combined_rank(-1),
   rank(-10000)
 {
-  vector<string> parts;
-  if ( TiCC::split_at( line, parts, "~" ) == 13 ){
+  vector<string> parts = TiCC::split_at( line, "~" );
+  if ( parts.size() == 14 ){
     variant1 = parts[0];
     freq1 = TiCC::stringTo<size_t>(parts[1]);
     low_freq1 = TiCC::stringTo<size_t>(parts[2]);
@@ -185,6 +187,8 @@ record::record( const string& line,
       khc_rank = 2;
     else
       khc_rank = 1;
+    ngram_points = TiCC::stringTo<int>(parts[13]);
+    ngram_rank = -6.7;
     cosine = lookup( WV, variant2 );
     if ( cosine <= 0.001 )
       cosine_rank = 1;
@@ -305,6 +309,14 @@ string extractLong( const record& rec, const vector<bool>& skip ){
     rank += rec.cosine_rank;
     result += TiCC::toString(rec.cosine_rank) + "#";
   }
+  result += TiCC::toString(rec.ngram_points) + "~";
+  if ( skip[13] ){
+    result += "N#";
+  }
+  else {
+    rank += rec.ngram_rank;
+    result += TiCC::toString(rec.ngram_rank) + "#";
+  }
   result += TiCC::toString(rank) + "#";
   result += TiCC::toString(rec.rank);
   return result;
@@ -346,6 +358,7 @@ void rank( ostream& os, vector<record>& records,
   multimap<size_t,size_t> pairmap1;
   multimap<size_t,size_t> pairmap2;
   multimap<size_t,size_t> pairmap_combined;
+  multimap<int,size_t> ngram_map;
   map<string,int> lowvarmap;
   size_t count = 0;
   vector<record*> recs;
@@ -357,6 +370,7 @@ void rank( ostream& os, vector<record>& records,
     f2lenmap.insert( make_pair(it->f2len, count ) ); // f2lengths sorted from low to high
     ldmap.insert( make_pair(it->ld,count) ); // lds sorted from low to high
     clsmap.insert( make_pair(it->cls,count) ); // cls sorted from low to high
+    ngram_map.insert( make_pair(it->ngram_points,count) ); // ngrampoints sorted from low to high
     size_t var1_cnt = kwc_counts.at(it->kwc);
     it->pairs1 = var1_cnt;
     pairmap1.insert( make_pair(var1_cnt,count )); // #variants sorted from low to high
@@ -412,6 +426,7 @@ void rank( ostream& os, vector<record>& records,
       ++rit;
     }
   }
+
   multimap<size_t,size_t>::const_reverse_iterator rit2 = f2lenmap.rbegin();
   if ( rit2 != f2lenmap.rend() ){
     int ranking = 1;
@@ -439,6 +454,7 @@ void rank( ostream& os, vector<record>& records,
       ++sit;
     }
   }
+
   map<int,size_t>::const_reverse_iterator rit1 = clsmap.rbegin();
   if ( rit1 != clsmap.rend() ){
     int ranking = 1;
@@ -495,6 +511,20 @@ void rank( ostream& os, vector<record>& records,
     }
   }
 
+  multimap<int,size_t>::const_reverse_iterator nit = ngram_map.rbegin();
+  if ( nit != ngram_map.rend() ){
+    int ranking = 1;
+    int last = nit->first;
+    while ( nit != ngram_map.rend() ){
+      if ( nit->first < last ){
+	last = nit->first;
+	++ranking;
+      }
+      recs[nit->second]->ngram_rank = ranking;
+      ++nit;
+    }
+  }
+
   double sum = 0.0;
   vector<record*>::iterator vit = recs.begin();
   while ( vit != recs.end() ){
@@ -511,7 +541,8 @@ void rank( ostream& os, vector<record>& records,
       (skip[9]?0:(*vit)->pairs2_rank) + //
       (skip[10]?0:(*vit)->pairs_combined_rank) + //
       (skip[11]?0:(*vit)->variant_rank) + // # of decappedversions of the CC
-      (skip[12]?0:(*vit)->cosine_rank); // WordVector rank
+      (skip[12]?0:(*vit)->cosine_rank) + // WordVector rank
+      (skip[13]?0:(*vit)->ngram_rank);
     rank = rank/factor;
     sum += rank;
     (*vit)->rank = rank;
@@ -824,9 +855,9 @@ int main( int argc, char **argv ){
       cerr << "bekijk " << line << endl;
     }
     vector<string> parts;
-    if ( TiCC::split_at( line, parts, "~" ) != 13 ){
+    if ( TiCC::split_at( line, parts, "~" ) != RANK_COUNT ){
       cerr << "invalid line: " << line << endl;
-      cerr << "expected 13 ~ separated values." << endl;
+      cerr << "expected " << RANK_COUNT << " ~ separated values." << endl;
       if ( ++failures > 50 ){
 	cerr << "too many invalid lines" << endl;
 	exit(EXIT_FAILURE);

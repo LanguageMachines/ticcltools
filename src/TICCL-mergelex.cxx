@@ -108,7 +108,7 @@ size_t read_words( const string& doc_name, map<string,unsigned int>& wc ){
 
 void usage( const string& name ){
   cerr << "Usage: " << name << " [options] file/dir" << endl;
-  cerr << "\t TICCL-mergelex will create a merged lexicond from range of" << endl;
+  cerr << "\t TICCL-mergelex will create a merged lexicon from range of" << endl;
   cerr << "\t lexicon files in TICCL-lexstat or FoLiA-stats format." << endl;
   cerr << "The output will be a 2 or 4 columned tab separated file, extension: *tsv " << endl;
   cerr << "\t (4 columns when -p is specified)" << endl;
