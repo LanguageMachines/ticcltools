@@ -26,7 +26,7 @@ datadir=DATA
 
 echo "start TICLL-rank"
 
-$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.ranked --debugfile $outdir/ngram.debug.ranked --artifrq 100000000 --clip 1 --skipcols=10,11 $refdir/ngram.ldcalc
+$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.ranked --debugfile $outdir/ngram.debug.ranked --artifrq 0 --clip 1 --skipcols=10,11 $refdir/ngram.ldcalc
 
 if [ $? -ne 0 ]
 then
