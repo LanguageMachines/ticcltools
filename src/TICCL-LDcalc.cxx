@@ -863,15 +863,22 @@ int main( int argc, char **argv ){
     }
   }
   string outFile;
+  string shortFile;
   if ( opts.extract( 'o', outFile ) ){
-    if ( !TiCC::match_back( outFile, ".ldcalc" ) )
+    if ( !TiCC::match_back( outFile, ".ldcalc" ) ){
+      shortFile = outFile + ".short.ldcalc";
       outFile += ".ldcalc";
+    }
+    else {
+      shortFile = outFile;
+      shortFile.insert( shortFile.length() - 7, ".short" );
+    }
   }
   else {
     outFile = indexFile + ".ldcalc";
+    shortFile = indexFile + ".short.ldcalc";
   }
   string ambiFile = outFile + ".ambi";
-  string shortFile = outFile + ".short";
   size_t artifreq = 0;
 
   if ( opts.extract( "artifrq", value ) ){
