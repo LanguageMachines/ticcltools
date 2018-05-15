@@ -49,7 +49,7 @@ then
     exit
 fi
 
-sort $outdir/ngram.ldcalc.short  > /tmp/ldcalc.short
+sort $outdir/ngram.short.ldcalc  > /tmp/ldcalc.short
 diff /tmp/ldcalc.short $refdir/ngram.ldcalc.short > /dev/null 2>&1
 
 if [ $? -ne 0 ]
