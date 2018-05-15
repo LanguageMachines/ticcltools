@@ -217,8 +217,8 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 				map<UnicodeString, size_t>& dis_count,
 				map<UnicodeString, size_t>& ngram_count ){
   ngram_point = 0;
-  UnicodeString us1 = ls1; // TiCC::UnicodeFromUTF8(str1);
-  UnicodeString us2 = ls2; // TiCC::UnicodeFromUTF8(str2);
+  UnicodeString us1 = TiCC::UnicodeFromUTF8(str1);
+  UnicodeString us2 = TiCC::UnicodeFromUTF8(str2);
   vector<UnicodeString> parts1 = TiCC::split_at( us1, SEPARATOR );
   vector<UnicodeString> parts2 = TiCC::split_at( us2, SEPARATOR );
   if ( parts1.size() == 1 && parts2.size() == 1 ){
@@ -237,7 +237,11 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
     //
     // search for a pair of 'uncommon' parts in the 2 ngrams.
     for ( size_t i=0; i < parts1.size(); ++i ){
-      if ( parts1[i] == parts2[i] ){
+      UnicodeString left = parts1[i];
+      left.toLower();
+      UnicodeString right = parts2[i];
+      right.toLower();
+      if ( left == right ){
 	// ok, a common part.
       }
       else if ( diff_part1.isEmpty() ) {
@@ -250,9 +254,9 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 	if ( follow ){
 #pragma omp critical (debugout)
 	  {
-	    cerr << "ngram candidates: " << diff_part1 << " AND " << diff_part2
+	    cerr << "ngram candidates: " << us1 << " AND " << us2
 		 << " are too different. Discard" << endl;
-	      }
+	  }
 	}
 	return true; // discard
       }
@@ -264,36 +268,45 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
     if ( follow ){
 #pragma omp critical (debugout)
       {
-	cerr << "analyze ngram candidates: " << parts1 << " AND " << parts2
+	cerr << "analyze ngram candidates: " << us1 << " AND " << us2
 	     << endl;
       }
     }
 
-    while( !parts1.empty() && !parts2.empty()
-	   && parts1.back() == parts2.back() ){
-      // remove all common parts at the end.
-      parts1.pop_back();
-      parts2.pop_back();
-      uncommon = false; // signal this
-    }
-    if ( follow ){
-#pragma omp critical (debugout)
-      {
-	cerr << "after reduce END, candidates: " << parts1 << " AND " << parts2
-	     << endl;
+    while( !parts1.empty() && !parts2.empty() ){
+      UnicodeString left = parts1.back();
+      left.toLower();
+      UnicodeString right = parts2.back();
+      right.toLower();
+      if ( left == right ){
+	// remove all common parts at the end.
+	parts1.pop_back();
+	parts2.pop_back();
+	uncommon = false; // signal this
+      }
+      else {
+	break;
       }
     }
-    while( !parts1.empty() && !parts2.empty()
-	   && parts1.front() == parts2.front() ){
-      // remove all common parts at the begin.
-      parts1.erase(parts1.begin());
-      parts2.erase(parts2.begin());
-      uncommon = false; // signal this
+    while( !parts1.empty() && !parts2.empty() ){
+      UnicodeString left = parts1.front();
+      left.toLower();
+      UnicodeString right = parts2.front();
+      right.toLower();
+      if ( left == right ){
+	// remove all common parts at the begin.
+	parts1.erase(parts1.begin());
+	parts2.erase(parts2.begin());
+	uncommon = false; // signal this
+      }
+      else {
+	break;
+      }
     }
     if ( follow ){
 #pragma omp critical (debugout)
       {
-	cerr << "after reduce begin, candidates: " << parts1 << " AND " << parts2
+	cerr << "after reduction, candidates: " << parts1 << " AND " << parts2
 	     << endl;
       }
     }
@@ -302,7 +315,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
       if ( follow ){
 #pragma omp critical (debugout)
 	{
-	  cerr << "ngram candidates: " << diff_part1 << " AND " << diff_part2
+	  cerr << "ngram candidates: " << us1 << " AND " << us2
 	       << " are too different. Discard" << endl;
 	}
       }
@@ -348,8 +361,8 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
   if ( follow ){
 #pragma omp critical (debugout)
     {
-      cerr << "ngram candidate: " << diff_part1 << "~" << diff_part2
-	   << " in n-grams pair: " << us1 << " # " << us2 << endl;
+      cerr << "ngram candidate: '" << diff_part1 << "~" << diff_part2
+	   << "' in n-grams pair: " << us1 << " # " << us2 << endl;
     }
   }
   UnicodeString lp = diff_part1;
