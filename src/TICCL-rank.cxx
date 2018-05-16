@@ -689,6 +689,8 @@ int main( int argc, char **argv ){
   }
 #endif
 
+  //#define TESTWV
+#ifdef TESTWV
   size_t num_vec = 20;
   if ( opts.extract( "numvec", value ) ){
     if ( !TiCC::stringTo(value,num_vec) ) {
@@ -696,6 +698,7 @@ int main( int argc, char **argv ){
       exit( EXIT_FAILURE );
     }
   }
+#endif
   if ( !opts.empty() ){
     cerr << "unsupported options : " << opts.toString() << endl;
     usage(progname);
@@ -762,7 +765,6 @@ int main( int argc, char **argv ){
       exit(1);
     }
     cerr << "loaded " << WV.size() << " word vectors" << endl;
-    //#define TESTWV
 #ifdef TESTWV
     vector<word_dist> wv_result;
     if ( !WV.lookup( "dofter", num_vec, wv_result ) ){
@@ -1039,8 +1041,8 @@ int main( int argc, char **argv ){
       in.seekg( *it );
       getline( in, line );
       records.push_back( record( line, artifreq, vec ) );
-      int tmp = 0;
       if ( verbose ){
+	int tmp = 0;
 #pragma omp critical (count)
 	tmp = ++count;
 	//
