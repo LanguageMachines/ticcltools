@@ -548,32 +548,68 @@ void rank( ostream& os, vector<record>& records,
     (*vit)->rank = rank;
     ++vit;
   }
-  multimap<double,string> outv;
-  vit = recs.begin();
+
   if ( recs.size() == 1 ){
-    (*vit)->rank = 1.0;
-    outv.insert( make_pair( 1.0 , extractResults(**vit) ) );
+    recs[0]->rank = 1.0;
   }
   else {
-    while ( vit != recs.end() ){
-      (*vit)->rank = 1 -  (*vit)->rank/sum;
-      outv.insert( make_pair( (*vit)->rank, extractResults(**vit) ) );
-      ++vit;
+    for ( auto& it : recs ){
+      it->rank = 1 - it->rank/sum;
     }
   }
-  multimap<double,string>::const_reverse_iterator oit = outv.rbegin();
-  int cnt = 1;
-  stringstream outstr;
-  while ( oit != outv.rend() ){
-    outstr << oit->second << endl;
-    if ( clip != 0 && ++cnt > clip ){
-      break;
-    }
-    ++oit;
+
+  multimap<size_t, record*, std::greater<size_t>> ccf_sort; // sort descending records on CC frequency;
+  vit = recs.begin();
+  while ( vit != recs.end() ){
+    ccf_sort.insert( make_pair( (*vit)->freq2, *vit ) );
+    ++vit;
   }
+
+  if ( clip > 0 ){
+    int cnt = 1;
+    auto it = ccf_sort.begin();
+    while ( ++it != ccf_sort.end() ){
+      if ( ++cnt > clip )
+	break;
+    }
+    ccf_sort.erase( it, ccf_sort.end() ); // only keep 'clip' values
+  }
+
+  multimap< double, record*, std::greater<double> > o_vec;
+  // we sort the output of one CC frequency descending on rank
+  size_t last = 0;
+  for ( const auto& it : ccf_sort ){
+    if ( last == 0 ){
+      last = it.first;
+    }
+    else if ( last != it.first ){
+      // a new key
+      // output the vector;
+      stringstream outstr;
+      for ( const auto& oit : o_vec ){
+	outstr << extractResults(*oit.second) << endl;
+      }
 #pragma omp critical (output)
-  {
-    os << outstr.rdbuf();
+      {
+	os << outstr.rdbuf();
+      }
+      o_vec.clear();
+      last = it.first;
+    }
+    // add to the vector
+    o_vec.insert( make_pair(it.second->rank, it.second ) );
+
+  }
+  if ( !o_vec.empty() ){
+    // output the last items
+    stringstream outstr;
+    for ( const auto& oit : o_vec ){
+      outstr << extractResults(*oit.second) << endl;
+    }
+#pragma omp critical (output)
+    {
+      os << outstr.rdbuf();
+    }
   }
   if ( db ){
     vector<record*>::iterator vit = recs.begin();
