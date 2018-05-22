@@ -333,7 +333,8 @@ string extractResults( const record& rec ){
 }
 
 
-void rank( ostream& os, vector<record>& records,
+void rank( vector<record>& records,
+	   multimap<size_t, record, std::greater<size_t>>& results,
 	   int clip,
 	   const map<bitType,size_t>& kwc_counts,
 	   const map<bitType,size_t>& kwc2_counts,
@@ -565,52 +566,20 @@ void rank( ostream& os, vector<record>& records,
     ++vit;
   }
 
-  if ( clip > 0 ){
-    int cnt = 1;
-    auto it = ccf_sort.begin();
-    while ( ++it != ccf_sort.end() ){
-      if ( ++cnt > clip )
-	break;
-    }
-    ccf_sort.erase( it, ccf_sort.end() ); // only keep 'clip' values
-  }
-
-  multimap< double, record*, std::greater<double> > o_vec;
-  // we sort the output of one CC frequency descending on rank
-  size_t last = 0;
-  for ( const auto& it : ccf_sort ){
-    if ( last == 0 ){
-      last = it.first;
-    }
-    else if ( last != it.first ){
-      // a new key
-      // output the vector;
-      stringstream outstr;
-      for ( const auto& oit : o_vec ){
-	outstr << extractResults(*oit.second) << endl;
-      }
-#pragma omp critical (output)
-      {
-	os << outstr.rdbuf();
-      }
-      o_vec.clear();
-      last = it.first;
-    }
-    // add to the vector
-    o_vec.insert( make_pair(it.second->rank, it.second ) );
-
-  }
-  if ( !o_vec.empty() ){
-    // output the last items
-    stringstream outstr;
-    for ( const auto& oit : o_vec ){
-      outstr << extractResults(*oit.second) << endl;
-    }
-#pragma omp critical (output)
+  int cnt = 0;
+  auto it = ccf_sort.begin();
+  while ( it != ccf_sort.end() ){
+    ++cnt;
+    if ( clip > 0 && cnt > clip )
+      break;
+    // store the result vector
+#pragma omp critical (store)
     {
-      os << outstr.rdbuf();
+      results.insert( make_pair(it->first,*it->second) );
     }
+    ++it;
   }
+
   if ( db ){
     vector<record*>::iterator vit = recs.begin();
     multimap<double,string> outv;
@@ -1054,6 +1023,7 @@ int main( int argc, char **argv ){
   }
   count = 0;
 
+  multimap<size_t,record, std::greater<size_t>> results;
   cout << "Start the work, with " << work.size()
        << " iterations on " << numThreads << " thread(s)." << endl;
 #pragma omp parallel for schedule(dynamic,1)
@@ -1065,7 +1035,7 @@ int main( int argc, char **argv ){
       if ( verbose ){
 #pragma omp critical (log)
 	{
-	cerr << "looked up: " << work[i]._s << endl;
+	  cerr << "looked up: " << work[i]._s << endl;
 	}
       }
     }
@@ -1098,7 +1068,32 @@ int main( int argc, char **argv ){
       }
       ++it;
     }
-    ::rank( os, records, clip, kwc_counts, kwc2_counts, db, skip, skip_factor );
+    ::rank( records, results, clip, kwc_counts, kwc2_counts, db, skip, skip_factor );
+  }
+  multimap< double, record*, std::greater<double> > o_vec;
+  // we sort the output of one CC frequency descending on rank
+  size_t last = 0;
+  for ( auto& it : results ){
+    if ( last == 0 ){
+      last = it.first;
+    }
+    else if ( last != it.first ){
+      // a new key
+      // output the vector;
+      for ( const auto& oit : o_vec ){
+	os << extractResults(*oit.second) << endl;
+      }
+      o_vec.clear();
+      last = it.first;
+    }
+    // add to the vector
+    o_vec.insert( make_pair(it.second.rank, &it.second ) );
+  }
+  if ( !o_vec.empty() ){
+    // output the last items
+    for ( const auto& oit : o_vec ){
+      os << extractResults(*oit.second) << endl;
+    }
   }
   cout << "results in " << outFile << endl;
 }
