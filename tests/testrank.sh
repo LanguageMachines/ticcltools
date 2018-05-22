@@ -36,12 +36,11 @@ fi
 
 echo "checking RANK results...."
 
-sort $outdir/ngram.ranked > /tmp/rank.sorted
-diff /tmp/rank.sorted $refdir/ngram.rank.sorted > /dev/null 2>&1
+diff $outdir/ngram.ranked $refdir/ngram.rank.sorted > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"
-    echo "using: diff /tmp/rank.sorted $refdir/ngram.rank.sorted"
+    echo "using: diff $outdir/ngram.ranked $refdir/ngram.rank.sorted"
     exit
 else
     echo OK!
