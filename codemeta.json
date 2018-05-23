@@ -1,0 +1,155 @@
+{
+    "@context": [
+        "https://doi.org/10.5063/schema/codemeta-2.0",
+        "http://schema.org",
+        {
+            "entryPoints": { "@reverse": "schema:actionApplication" },
+            "interfaceType": { "@id": "codemeta:interfaceType" }
+        }
+    ],
+    "@type": "SoftwareSourceCode",
+    "identifier": "ticcltools",
+    "name": "TICCLTools",
+    "version": "0.6",
+    "description": "TicclTools is a collection of programs to process datafiles, together they constitute the bulk of TICCL: Text Induced Corpus-Cleanup. This software consists of individual modules that are invoked by the pipeline system PICCL.",
+    "license": "https://spdx.org/licenses/GPL-3.0",
+	"url": "https://github.com/LanguageMachines/ticcltools",
+    "author": [
+		{
+			"@type": "Person",
+			"givenName": "Martin",
+			"familyName": "Reynaert",
+			"email": "reynaert@uvt.nl",
+			"affiliation": {
+				"@id": "https://www.ru.nl/clst",
+				"@type": "Organization",
+				"name": "Centre for Language and Speech Technology",
+				"url": "https://www.ru.nl/clst",
+				"parentOrganization": {
+					"@id": "https://www.ru.nl/cls",
+					"@type": "Organization",
+					"name": "Centre for Language Studies",
+					"url": "https://www.ru.nl/cls",
+					"parentOrganization": {
+						"@id": "https://www.ru.nl",
+						"name": "Radboud University",
+						"@type": "Organization",
+						"url": "https://www.ru.nl",
+						"location": {
+							"@type": "Place",
+							"name": "Nijmegen"
+						}
+					}
+
+				}
+			}
+		},
+		{
+			"@type": "Person",
+			"givenName": "Ko",
+			"familyName": "van der Sloot",
+			"email": "k.vandersloot@let.ru.nl",
+			"affiliation": { "@id": "https://www.ru.nl/clst" }
+		}
+	],
+	"sourceOrganization": { "@id": "https://www.ru.nl/clst" },
+	"programmingLanguage": {
+		"@type": "ComputerLanguage",
+		"identifier": "c++",
+		"name": "C++"
+	},
+	"operatingSystem": "POSIX",
+	"codeRepository": "https://github.com/LanguageMachines/ticcltools",
+    "softwareRequirements": [
+        {
+			"@type": "SoftwareApplication",
+			"identifier": "ticcutils",
+			"name": "Ticcutils"
+		}
+	],
+	"funder": [
+		{
+			"@type": "Organization",
+			"name": "CLARIN-NL"
+		},
+		{
+			"@type": "Organization",
+			"name": "CLARIAH",
+			"url": "https://www.clariah.nl"
+		}
+	],
+	"readme": "https://github.com/LanguageMachines/ticcltools/blob/master/README.md",
+	"issueTracker": "https://github.com/LanguageMachines/ticcltools/issues",
+	"contIntegration": "https://travis-ci.org/LanguageMachines/ticcltools",
+	"releaseNotes": "https://github.com/LanguageMachines/ticcltools/releases",
+	"developmentStatus": "active",
+	"keywords":  [ "nlp", "natural language processing", "ocr", "normalization" ],
+    "referencePublication": [
+		{
+			"@type": "ScholarlyArticle",
+			"name": "PICCL: Philosophical Integrator of Computational and Corpus Libraries",
+			"author": [ "Martin Reynaert", "Maarten van Gompel", "Ko van der Sloot", "Antal van den Bosch" ],
+			"pageStart": "75",
+			"pageEnd": 79,
+			"isPartOf": {
+				"@type": "PublicationIssue",
+				"datePublised": "2015",
+				"name": "Proceedings of CLARIN Annual Conference 2015",
+				"location": "Wrocław, Poland"
+			},
+            "url": "http://www.nederlab.nl/cms/wp-content/uploads/2015/10/Reynaert_PICCL-Philosophical-Integrator-of-Computational-and-Corpus-Libraries.pdf"
+		}
+	],
+	"dateCreated": "2015",
+    "entryPoints": [
+        {
+            "@type": "EntryPoint",
+            "urlTemplate": "file:///TICCL-indexer",
+            "name": "TICCL-indexer",
+            "description": "A tool to create an exhaustive index to all lexical variants given a particular Levenshtein or edit distance in a corpus.",
+            "interfaceType": "CLI"
+        },
+        {
+            "@type": "EntryPoint",
+            "urlTemplate": "file:///TICCL-indexerNT",
+            "name": "TICCL-indexerNT",
+            "description": "A tool to create an exhaustive index to all lexical variants given a particular Levenshtein or edit distance in a corpus.",
+            "interfaceType": "CLI"
+        },
+        {
+            "@type": "EntryPoint",
+            "urlTemplate": "file:///TICCL-anahash",
+            "name": "TICCL-anahash",
+            "description": "A tool to create anagram hashes from a word frequency file. Also creates a 'alphabet' file of the unicode characters that are present in the corpus.",
+            "interfaceType": "CLI"
+        },
+        {
+            "@type": "EntryPoint",
+            "urlTemplate": "file:///TICCL-LDcalc",
+            "name": "TICCL-LDcalc",
+            "description": "A pre-processing tool for TICCL-rank. Gathers the info from TICC-anahash, TICCL-indexer, TICCL-lexstat and TICCL-unk",
+            "interfaceType": "CLI"
+        },
+        {
+            "@type": "EntryPoint",
+            "urlTemplate": "file:///TICCL-rank",
+            "name": "TICCL-rank",
+            "description": "ranks a word varian list according to a lot of criteria",
+            "interfaceType": "CLI"
+        },
+        {
+            "@type": "EntryPoint",
+            "urlTemplate": "file:///TICCL-unk",
+            "name": "TICCL-unk",
+            "description": "a cleanup tool for word frequency lists. creates a 'clean' file with desirable words, an 'unk' file with uncorrectable words and a 'punct' file with words that would be clean after removing puncuation.",
+            "interfaceType": "CLI"
+        },
+        {
+            "@type": "EntryPoint",
+            "urlTemplate": "file:///TICCL-lexstat",
+            "name": "TICCL-lexstat",
+            "description": "convert an 'alphabet' file (from TICCL-anahash) into a frequency list of hashes and optionally a list of confusions.",
+            "interfaceType": "CLI"
+        }
+    ]
+}
