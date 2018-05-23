@@ -29,6 +29,7 @@ then
     exit
 fi
 
+
 echo "checking chain results...."
 diff $outdir/chaintest.ranked.chained.debug $refdir/rank.chained.debug >& /dev/null
 if [ $? -ne 0 ]
