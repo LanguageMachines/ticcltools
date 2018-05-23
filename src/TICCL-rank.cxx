@@ -1070,8 +1070,8 @@ int main( int argc, char **argv ){
     }
     ::rank( records, results, clip, kwc_counts, kwc2_counts, db, skip, skip_factor );
   }
-  multimap< double, map<string,record*>, std::greater<double> > o_vec;
-  // we sort the output of one CC frequency descending on rank, and alphabeticaly on first word
+  multimap< double, record*, std::greater<double> > o_vec;
+  // we sort the output of one CC frequency descending on rank
   size_t last = 0;
   for ( auto& it : results ){
     if ( last == 0 ){
@@ -1081,30 +1081,18 @@ int main( int argc, char **argv ){
       // a new key
       // output the vector;
       for ( const auto& oit : o_vec ){
-	for ( const auto& vit: oit.second ){
-	  os << extractResults(*vit.second) << endl;
-	}
+	os << extractResults(*oit.second) << endl;
       }
       o_vec.clear();
       last = it.first;
     }
     // add to the vector
-    auto my_map_it = o_vec.find( it.second.rank );
-    if ( my_map_it == o_vec.end () ) {
-      map<string,record*> new_map;
-      new_map[it.second.variant1] = &it.second;
-      o_vec.insert( make_pair( it.second.rank, new_map ) );
-    }
-    else {
-      my_map_it->second.insert( make_pair( it.second.variant1, &it.second ) );
-    }
+    o_vec.insert( make_pair( it.second.rank, &it.second ) );
   }
   if ( !o_vec.empty() ){
     // output the last items
     for ( const auto& oit : o_vec ){
-      for ( const auto& vit: oit.second ){
-	os << extractResults(*vit.second) << endl;
-      }
+      os << extractResults(*oit.second) << endl;
     }
   }
   cout << "results in " << outFile << endl;
