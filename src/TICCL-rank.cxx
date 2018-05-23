@@ -1057,7 +1057,7 @@ int main( int argc, char **argv ){
 	int numt = omp_get_thread_num();
 	if ( numt == 0 && tmp % 10000 == 0 ){
 #else
-	if ( tmp % 10000 == 0 ){
+        if ( tmp % 10000 == 0 ){
 #endif
 	  cout << ".";
 	  cout.flush();
@@ -1070,8 +1070,9 @@ int main( int argc, char **argv ){
     }
     ::rank( records, results, clip, kwc_counts, kwc2_counts, db, skip, skip_factor );
   }
-  multimap< double, record*, std::greater<double> > o_vec;
-  // we sort the output of one CC frequency descending on rank
+
+  multimap< double, multimap<string,record*>, std::greater<double> > o_vec;
+  // we sort the output of one CC frequency descending on rank, and alphabeticaly on first word
   size_t last = 0;
   for ( auto& it : results ){
     if ( last == 0 ){
@@ -1081,18 +1082,30 @@ int main( int argc, char **argv ){
       // a new key
       // output the vector;
       for ( const auto& oit : o_vec ){
-	os << extractResults(*oit.second) << endl;
+        for ( const auto& vit: oit.second ){
+          os << extractResults(*vit.second) << endl;
+        }
       }
       o_vec.clear();
       last = it.first;
     }
     // add to the vector
-    o_vec.insert( make_pair( it.second.rank, &it.second ) );
+    auto my_map_it = o_vec.find( it.second.rank );
+    if ( my_map_it == o_vec.end () ) {
+      multimap<string,record*> new_map;
+      new_map.insert( make_pair( it.second.variant1, &it.second ) );
+      o_vec.insert( make_pair( it.second.rank, new_map ) );
+    }
+    else {
+      my_map_it->second.insert( make_pair( it.second.variant1, &it.second ) );
+    }
   }
   if ( !o_vec.empty() ){
     // output the last items
     for ( const auto& oit : o_vec ){
-      os << extractResults(*oit.second) << endl;
+      for ( const auto& vit: oit.second ){
+        os << extractResults(*vit.second) << endl;
+      }
     }
   }
   cout << "results in " << outFile << endl;
