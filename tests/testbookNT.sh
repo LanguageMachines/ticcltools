@@ -170,12 +170,11 @@ fi
 
 echo "checking RANK results...."
 
-sort $outdir/TESTDP035.tsv.clean.NT.ldcalc.ranked > /tmp/rank.NT.sorted
-diff /tmp/rank.NT.sorted $refdir/rank.NT.sorted > /dev/null 2>&1
+diff $outdir/TESTDP035.tsv.clean.NT.ldcalc.ranked $refdir/ranked.NT > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"
-    echo "using: diff /tmp/rank.NT.sorted $refdir/rank.NT.sorted"
+    echo "using: $outdir/TESTDP035.tsv.clean.NT.ldcalc.ranked $refdir/ranked.NT"
     exit
 else
     echo OK!
