@@ -203,7 +203,7 @@ S_Class classify( const UnicodeString& word,
   int word_len = word.length();
   if ( word_len < 2 ){
     if ( verbose ){
-      cerr << "UITGANG 0: word to short: Ignore" << endl;
+      cerr << "UITGANG 0: word too short: Ignore" << endl;
     }
     return IGNORE;
   }
@@ -604,14 +604,14 @@ void classify_one_entry( const UnicodeString& orig_word, unsigned int freq,
   if ( parts.size() == 2
        && word.length() < 6 ){
     if ( verbose ){
-      cerr << "to short bigram: " << word << endl;
+      cerr << "too short bigram: " << word << endl;
     }
     return;
   }
   else if ( parts.size() == 3
 	    && word.length() < 8 ){
     if ( verbose ){
-      cerr << "to short trigram: " << word << endl;
+      cerr << "too short trigram: " << word << endl;
     }
     return;
   }
