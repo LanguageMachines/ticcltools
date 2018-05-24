@@ -48,7 +48,7 @@ fi
 
 echo "and now caseless"
 
-$bindir/TICCL-chain --caseless -o $outdir/caseless.ranked.chained $refdir/book.ranked
+$bindir/TICCL-chain -tmax --caseless -o $outdir/caseless.ranked.chained $refdir/book.ranked
 
 if [ $? -ne 0 ]
 then
