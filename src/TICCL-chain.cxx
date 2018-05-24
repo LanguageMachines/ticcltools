@@ -155,16 +155,14 @@ bool chain_class::fill( const string& line ){
 	  cerr << "lookup " << a_word << " in " << tit->second << endl;
 	}
 	if ( tit->second.find( a_word ) == tit->second.end() ){
-	  table[head].insert( a_word );
-	  if ( verbosity > 3 ){
-	    cerr << "added " << a_word << " to table of " << head
-		 << " ==> " << table[head] << endl;
-	  }
+	  string msg = "Error: " + a_word
+	    + " has a heads entry, but no table entry!";
+	  throw logic_error( msg );
 	}
       }
       else {
 	string msg = "Error: " + a_word
-	  + " has a heads entry, but no table entry!";
+	  + " has no head entry!";
 	throw logic_error( msg );
       }
     }
