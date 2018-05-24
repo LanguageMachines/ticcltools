@@ -19,7 +19,7 @@ datadir=DATA
 
 echo "start TICLL-chain"
 
-$bindir/TICCL-chain -v -t max $refdir/book.ranked -o $outdir/book.chained
+$bindir/TICCL-chain -v $refdir/book.ranked -o $outdir/book.chained
 
 if [ $? -ne 0 ]
 then
@@ -48,7 +48,7 @@ fi
 
 echo "and now caseless"
 
-$bindir/TICCL-chain -tmax --caseless -o $outdir/caseless.ranked.chained $refdir/book.ranked
+$bindir/TICCL-chain --caseless -o $outdir/caseless.ranked.chained $refdir/book.ranked
 
 if [ $? -ne 0 ]
 then

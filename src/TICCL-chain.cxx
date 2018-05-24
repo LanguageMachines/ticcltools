@@ -182,26 +182,17 @@ void chain_class::debug_info( const string& name ){
 
 void chain_class::output( const string& out_file ){
   ofstream os( out_file );
-#pragma omp parallel for
-  for ( size_t i=0; i < table.size(); ++i ){
-    auto t_it = table.begin();
-    advance( t_it, i );
-    for ( const auto& s : t_it->second ){
-#pragma omp critical
-      {
-	os << s << "#" << var_freq[s] << "#" << t_it->first
-	   << "#" << var_freq[t_it->first]
-	   << "#" << ld( t_it->first, s, caseless ) << "#C" << endl;
-      }
+  for ( const auto& t_it : table ){
+    for ( const auto& s : t_it.second ){
+      os << s << "#" << var_freq[s] << "#" << t_it.first
+	 << "#" << var_freq[t_it.first]
+	 << "#" << ld( t_it.first, s, caseless ) << "#C" << endl;
     }
   }
 }
 
 void usage( const string& name ){
   cerr << "usage: " << name << endl;
-  cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
-  cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
-  cerr << "\t\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
   cerr << "\t--caseless Calculate the Levensthein (or edit) distance ignoring case." << endl;
   cerr << "\t-o <outputfile> name of the outputfile." << endl;
   cerr << "\t-h or --help this message." << endl;
@@ -213,8 +204,8 @@ void usage( const string& name ){
 int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
-    opts.set_short_options( "vVho:t:" );
-    opts.set_long_options( "caseless,threads:" );
+    opts.set_short_options( "vVho:" );
+    opts.set_long_options( "caseless" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -242,32 +233,6 @@ int main( int argc, char **argv ){
   bool caseless = opts.extract( "caseless" );
   string out_file;
   opts.extract( 'o', out_file );
-  string value = "1";
-  if ( !opts.extract( 't', value ) ){
-    opts.extract( "threads", value );
-  }
-#ifdef HAVE_OPENMP
-  int numThreads = 1;
-  if ( TiCC::lowercase(value) == "max" ){
-    numThreads = omp_get_max_threads() - 2;
-    omp_set_num_threads( numThreads );
-    cout << "running on " << numThreads << " threads." << endl;
-  }
-  else {
-    if ( !TiCC::stringTo(value,numThreads) ) {
-      cerr << "illegal value for -t (" << value << ")" << endl;
-      exit( EXIT_FAILURE );
-    }
-    omp_set_num_threads( numThreads );
-    cout << "running on " << numThreads << " threads." << endl;
-  }
-#else
-  if ( value != "1" ){
-    cerr << "unable to set number of threads!.\nNo OpenMP support available!"
-	 <<endl;
-    exit(EXIT_FAILURE);
-  }
-#endif
 
   if ( !opts.empty() ){
     cerr << "unsupported options : " << opts.toString() << endl;
