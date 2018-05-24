@@ -37,12 +37,11 @@ then
     exit
 fi
 
-sort $outdir/book.chained > /tmp/chaintest.ranked.chained
-diff /tmp/chaintest.ranked.chained $refdir/rank.chained >& /dev/null
+diff $outdir/book.chained $refdir/rank.chained >& /dev/null
 if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"
-    echo "using diff /tmp/chaintest.ranked.chained $refdir/rank.chained"
+    echo "using diff $outdir/book.chained $refdir/rank.chained"
     exit
 fi
 
@@ -58,12 +57,11 @@ fi
 
 echo "checking caseless chain results...."
 
-sort $outdir/caseless.ranked.chained > /tmp/caseless.ranked.chained
-diff /tmp/caseless.ranked.chained $refdir/caseless.rank.chained >& /dev/null
+diff $outdir/caseless.ranked.chained $refdir/caseless.rank.chained >& /dev/null
 if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"
-    echo "using diff /tmp/caseless.ranked.chained $refdir/caseless.rank.chained"
+    echo "using diff $outdir/caseless.ranked.chained $refdir/caseless.rank.chained"
     exit
 else
     echo OK!
