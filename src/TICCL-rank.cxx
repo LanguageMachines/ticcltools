@@ -352,7 +352,7 @@ void rank( vector<record>& records,
 #endif
     }
   }
-  multimap<size_t,size_t> freqmap;
+  multimap<size_t,size_t,std::greater<size_t>> freqmap;
   multimap<size_t,size_t> f2lenmap;
   multimap<int,size_t> ldmap;
   multimap<int,size_t> clsmap;
@@ -367,7 +367,7 @@ void rank( vector<record>& records,
 	it != records.end();
 	++it ){
     recs.push_back( &*it );
-    freqmap.insert( make_pair(it->reduced_freq2, count ) ); // freqs sorted from low to high
+    freqmap.insert( make_pair(it->reduced_freq2, count ) ); // freqs sorted from high to low
     f2lenmap.insert( make_pair(it->f2len, count ) ); // f2lengths sorted from low to high
     ldmap.insert( make_pair(it->ld,count) ); // lds sorted from low to high
     clsmap.insert( make_pair(it->cls,count) ); // cls sorted from low to high
@@ -414,17 +414,15 @@ void rank( vector<record>& records,
     }
   }
 
-  multimap<size_t,size_t>::const_reverse_iterator rit = freqmap.rbegin();
-  if ( rit != freqmap.rend() ){
+  if ( !freqmap.empty() ){
     int ranking = 1;
-    size_t last = rit->first;
-    while ( rit != freqmap.rend() ){
-      if ( rit->first < last ){
-	last = rit->first;
+    size_t last = freqmap.begin()->first;
+    for( const auto& rit : freqmap ){
+      if ( rit.first < last ){
+	last = rit.first;
 	++ranking;
       }
-      recs[rit->second]->freq_rank = ranking;
-      ++rit;
+      recs[rit.second]->freq_rank = ranking;
     }
   }
 
