@@ -182,12 +182,18 @@ void chain_class::debug_info( const string& name ){
 
 void chain_class::output( const string& out_file ){
   ofstream os( out_file );
+  multimap<size_t, string,std::greater<size_t>> out_map;
   for ( const auto& t_it : table ){
     for ( const auto& s : t_it.second ){
-      os << s << "#" << var_freq[s] << "#" << t_it.first
-	 << "#" << var_freq[t_it.first]
-	 << "#" << ld( t_it.first, s, caseless ) << "#C" << endl;
+      stringstream oss;
+      oss << s << "#" << var_freq[s] << "#" << t_it.first
+	  << "#" << var_freq[t_it.first]
+	  << "#" << ld( t_it.first, s, caseless ) << "#C";
+      out_map.insert( make_pair( var_freq[t_it.first], oss.str() ) );
     }
+  }
+  for ( const auto& t_it : out_map ){
+    os << t_it.second << endl;
   }
 }
 
