@@ -170,7 +170,7 @@ fi
 
 echo "checking RANK results...."
 
-diff $outdir/TESTDP035.tsv.clean.NT.ldcalc.ranked $refdir/ranked.NT > /dev/null 2>&1
+diff $outdir/TESTDP035.tsv.clean.NT.ldcalc.ranked $refdir/book.NT.ranked > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"
