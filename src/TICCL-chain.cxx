@@ -50,6 +50,7 @@
 
 using namespace std;
 typedef signed long int bitType;
+using TiCC::operator<<;
 
 unsigned int ldCompare( const icu::UnicodeString& s1, const icu::UnicodeString& s2 ){
   const size_t len1 = s1.length(), len2 = s2.length();
@@ -119,15 +120,14 @@ bool chain_class::fill( const string& line ){
       if ( head2.empty() ){
 	// the correction candidate also has no head
 	// we add it as a new head for a_word, with a table
-	if ( verbosity > 3 ){
-	  cerr << "candidate : " << candidate << " not in heads too." << endl;
-	}
-	if ( verbosity > 3 ){
-	  cerr << "add (" << a_word << "," << candidate << ") to heads " << endl;
-	  cerr << "add " << a_word << " to table of " << candidate << endl;
-	}
 	heads[a_word] = candidate;
 	table[candidate].insert( a_word );
+	if ( verbosity > 3 ){
+	  cerr << "candidate : " << candidate << " not in heads too." << endl;
+	  cerr << "add (" << a_word << "," << candidate << ") to heads " << endl;
+	  cerr << "add " << a_word << " to table of " << candidate
+	       << " ==> " << table[candidate] << endl;
+	}
       }
       else {
 	// the candidate knows its head already
@@ -151,11 +151,13 @@ bool chain_class::fill( const string& line ){
       auto const tit = table.find( head );
       if ( tit != table.end() ){
 	// there MUST be some candidates registered for the head
+	cerr << "lookup " << a_word << " in " << tit->second << endl;
 	if ( tit->second.find( a_word ) == tit->second.end() ){
-	  if ( verbosity > 3 ){
-	    cerr << "add " << a_word << " to table of " << head << endl;
-	  }
 	  table[head].insert( a_word );
+	  if ( verbosity > 3 ){
+	    cerr << "added " << a_word << " to table of " << head
+		 << " ==> " << table[head] << endl;
+	  }
 	}
       }
       else {
@@ -171,7 +173,6 @@ bool chain_class::fill( const string& line ){
 void chain_class::debug_info( const string& name ){
   string out_file = name + ".debug";
   ofstream db( out_file );
-  using TiCC::operator<<;
   for ( const auto& it : table ){
     db << var_freq[it.first] << " " << it.first
        << " " << it.second << endl;
