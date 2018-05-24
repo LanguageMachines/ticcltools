@@ -16,17 +16,14 @@ outdir=OUT
 refdir=OUTreference/BOOK
 datadir=DATA
 
-echo start TICLL-stuff
-
-sort -t'#' -s -k4 -gr $refdir/rank.sorted > $outdir/chaintest.ranked
 
 echo "start TICLL-chain"
 
-$bindir/TICCL-chain -v -t max $outdir/chaintest.ranked
+$bindir/TICCL-chain -v -t max $refdir/book.ranked
 
 if [ $? -ne 0 ]
 then
-    echo failed after TICLL-chain
+    echo failed INSIDE TICLL-chain
     exit
 fi
 
@@ -56,7 +53,7 @@ $bindir/TICCL-chain --caseless -o $outdir/caseless.ranked.chained $outdir/chaint
 
 if [ $? -ne 0 ]
 then
-    echo failed after TICLL-chain
+    echo failed inside TICLL-chain
     exit
 fi
 
