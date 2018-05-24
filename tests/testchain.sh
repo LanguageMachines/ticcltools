@@ -19,7 +19,7 @@ datadir=DATA
 
 echo "start TICLL-chain"
 
-$bindir/TICCL-chain -v -t max $refdir/book.ranked
+$bindir/TICCL-chain -v -t max $refdir/book.ranked -o $outdir/book.chained
 
 if [ $? -ne 0 ]
 then
@@ -29,16 +29,15 @@ fi
 
 
 echo "checking chain results...."
-diff $outdir/chaintest.ranked.chained.debug $refdir/rank.chained.debug >& /dev/null
+diff $outdir/book.chained.debug $refdir/rank.chained.debug >& /dev/null
 if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"
-    echo "using diff $outdir/chaintest.ranked.chained.debug $refdir/rank.chained.debug"
+    echo "using diff $outdir/book.chained.debug $refdir/rank.chained.debug"
     exit
 fi
 
-
-sort $outdir/chaintest.ranked.chained > /tmp/chaintest.ranked.chained
+sort $outdir/book.chained > /tmp/chaintest.ranked.chained
 diff /tmp/chaintest.ranked.chained $refdir/rank.chained >& /dev/null
 if [ $? -ne 0 ]
 then

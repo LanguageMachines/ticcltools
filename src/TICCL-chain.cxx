@@ -151,7 +151,9 @@ bool chain_class::fill( const string& line ){
       auto const tit = table.find( head );
       if ( tit != table.end() ){
 	// there MUST be some candidates registered for the head
-	cerr << "lookup " << a_word << " in " << tit->second << endl;
+	if ( verbosity > 3 ){
+	  cerr << "lookup " << a_word << " in " << tit->second << endl;
+	}
 	if ( tit->second.find( a_word ) == tit->second.end() ){
 	  table[head].insert( a_word );
 	  if ( verbosity > 3 ){
