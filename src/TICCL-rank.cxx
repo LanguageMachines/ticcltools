@@ -333,13 +333,13 @@ string extractResults( const record& rec ){
 }
 
 template <typename TObject, typename TMember, typename TValue>
-void set_val( TObject* object, TMember member, TValue value )
+void set_val( TObject& object, TMember member, TValue value )
 {
-    ( *object ).*member = value;
+    ( object ).*member = value;
 }
 
 template< class Tmap, typename TMember > void rank_map( const Tmap& f_map,
-							vector<record*>& recs,
+							vector<record>& recs,
 							TMember member ){
   if ( f_map.empty() ){
     return;
@@ -355,7 +355,7 @@ template< class Tmap, typename TMember > void rank_map( const Tmap& f_map,
   }
 }
 
-void rank( vector<record>& records,
+void rank( vector<record>& recs,
 	   multimap<size_t, record, std::greater<size_t>>& results,
 	   int clip,
 	   const map<bitType,size_t>& kwc_counts,
@@ -366,11 +366,11 @@ void rank( vector<record>& records,
     {
 #ifdef HAVE_OPENMP
       int numt = omp_get_thread_num();
-      cerr << numt << "-RANK " << records[0].variant1
-	   << " " << records.size() << endl;
+      cerr << numt << "-RANK " << recs[0].variant1
+	   << " " << recs.size() << endl;
 #else
-      cerr << "RANK " << records[0].variant1
-	   << " " << records.size() << endl;
+      cerr << "RANK " << recs[0].variant1
+	   << " " << recs.size() << endl;
 #endif
     }
   }
@@ -384,38 +384,34 @@ void rank( vector<record>& records,
   multimap<size_t,size_t,std::greater<size_t>> ngram_map;
   map<string,int> lowvarmap;
   size_t count = 0;
-  vector<record*> recs;
-  for ( vector<record>::iterator it = records.begin();
-	it != records.end();
-	++it ){
-    recs.push_back( &*it );
-    freqmap.insert( make_pair(it->reduced_freq2, count ) ); // freqs descending
-    f2lenmap.insert( make_pair(it->f2len, count ) ); // f2lengths descending
-    ldmap.insert( make_pair(it->ld,count) ); // lds sorted from low to high
-    cslmap.insert( make_pair(it->csl,count) ); // csl sorted descending
-    ngram_map.insert( make_pair(it->ngram_points,count) ); // ngrampoints sorted descending
-    size_t var1_cnt = kwc_counts.at(it->kwc);
-    it->pairs1 = var1_cnt;
+  for ( auto it : recs ){
+    freqmap.insert( make_pair(it.reduced_freq2, count ) ); // freqs descending
+    f2lenmap.insert( make_pair(it.f2len, count ) ); // f2lengths descending
+    ldmap.insert( make_pair(it.ld,count) ); // lds sorted ASCENDING
+    cslmap.insert( make_pair(it.csl,count) ); // csl sorted descending
+    ngram_map.insert( make_pair(it.ngram_points,count) ); // ngrampoints sorted descending
+    size_t var1_cnt = kwc_counts.at(it.kwc);
+    it.pairs1 = var1_cnt;
     pairmap1.insert( make_pair(var1_cnt,count )); // #variants descending
     size_t var2_cnt = 0;
     try {
-      var2_cnt += kwc2_counts.at(it->kwc);
+      var2_cnt += kwc2_counts.at(it.kwc);
     }
     catch(...){
     }
-    it->pairs2 = var2_cnt;
+    it.pairs2 = var2_cnt;
     pairmap2.insert( make_pair(var2_cnt,count )); // #variants decending
     size_t var_combined_cnt = var1_cnt + var2_cnt;
-    it->pairs_combined = var_combined_cnt;
+    it.pairs_combined = var_combined_cnt;
     pairmap_combined.insert( make_pair(var_combined_cnt,count )); // #variants descending
 
-    ++lowvarmap[it->lowervariant2]; // count frequency of variants
+    ++lowvarmap[it.lowervariant2]; // count frequency of variants
     ++count;
   }
   using TiCC::operator<<;
   multimap<int,size_t,std::greater<int>> lower_variantmap; // descending map
   count = 0;
-  for ( const auto& it : records ){
+  for ( const auto& it : recs ){
     lower_variantmap.insert( make_pair( lowvarmap[it.lowervariant2], count ) );
     ++count;
   }
@@ -427,8 +423,8 @@ void rank( vector<record>& records,
 	last = it1.first;
 	++ranking;
       }
-      recs[it1.second]->variant_count = it1.first;
-      recs[it1.second]->variant_rank = ranking;
+      recs[it1.second].variant_count = it1.first;
+      recs[it1.second].variant_rank = ranking;
     }
   }
 
@@ -440,7 +436,7 @@ void rank( vector<record>& records,
    	last = sit.first;
    	++ranking;
       }
-      recs[sit.second]->ld_rank = ranking;
+      recs[sit.second].ld_rank = ranking;
     }
   }
 
@@ -453,42 +449,42 @@ void rank( vector<record>& records,
   rank_map( ngram_map, recs, &record::ngram_rank );
 
   double sum = 0.0;
-  vector<record*>::iterator vit = recs.begin();
+  vector<record>::iterator vit = recs.begin();
   while ( vit != recs.end() ){
     double rank =
-      (skip[0]?0:(*vit)->f2len_rank) +  // number of characters in the frequency
-      (skip[1]?0:(*vit)->freq_rank) +   // frequency of the CC
-      (skip[2]?0:(*vit)->ld_rank) +     // levenshtein distance
-      (skip[3]?0:(*vit)->csl_rank) +    // common longest substring
-      (skip[4]?0:(*vit)->canon_rank) +  // is it a validated word form
-      (skip[5]?0:(*vit)->fl_rank) +     // first character equality
-      (skip[6]?0:(*vit)->ll_rank) +     // last 2 characters equality
-      (skip[7]?0:(*vit)->khc_rank) +    // known historical confusion
-      (skip[8]?0:(*vit)->pairs1_rank) + //
-      (skip[9]?0:(*vit)->pairs2_rank) + //
-      (skip[10]?0:(*vit)->pairs_combined_rank) + //
-      (skip[11]?0:(*vit)->variant_rank) + // # of decapped versions of the CC
-      (skip[12]?0:(*vit)->cosine_rank) + // WordVector rank
-      (skip[13]?0:(*vit)->ngram_rank);
+      (skip[0]?0:(*vit).f2len_rank) +  // number of characters in the frequency
+      (skip[1]?0:(*vit).freq_rank) +   // frequency of the CC
+      (skip[2]?0:(*vit).ld_rank) +     // levenshtein distance
+      (skip[3]?0:(*vit).csl_rank) +    // common longest substring
+      (skip[4]?0:(*vit).canon_rank) +  // is it a validated word form
+      (skip[5]?0:(*vit).fl_rank) +     // first character equality
+      (skip[6]?0:(*vit).ll_rank) +     // last 2 characters equality
+      (skip[7]?0:(*vit).khc_rank) +    // known historical confusion
+      (skip[8]?0:(*vit).pairs1_rank) + //
+      (skip[9]?0:(*vit).pairs2_rank) + //
+      (skip[10]?0:(*vit).pairs_combined_rank) + //
+      (skip[11]?0:(*vit).variant_rank) + // # of decapped versions of the CC
+      (skip[12]?0:(*vit).cosine_rank) + // WordVector rank
+      (skip[13]?0:(*vit).ngram_rank);
     rank = rank/factor;
     sum += rank;
-    (*vit)->rank = rank;
+    (*vit).rank = rank;
     ++vit;
   }
 
   if ( recs.size() == 1 ){
-    recs[0]->rank = 1.0;
+    recs[0].rank = 1.0;
   }
   else {
     for ( auto& it : recs ){
-      it->rank = 1 - it->rank/sum;
+      it.rank = 1 - it.rank/sum;
     }
   }
 
   multimap<size_t, record*, std::greater<size_t>> ccf_sort; // sort descending records on CC frequency;
   vit = recs.begin();
   while ( vit != recs.end() ){
-    ccf_sort.insert( make_pair( (*vit)->freq2, *vit ) );
+    ccf_sort.insert( make_pair( (*vit).freq2, &*vit ) );
     ++vit;
   }
 
@@ -507,10 +503,10 @@ void rank( vector<record>& records,
   }
 
   if ( db ){
-    vector<record*>::iterator vit = recs.begin();
+    vector<record>::iterator vit = recs.begin();
     multimap<double,string,greater<double>> outv;
     while ( vit != recs.end() ){
-      outv.insert( make_pair( (*vit)->rank, extractLong(**vit, skip) ) );
+      outv.insert( make_pair( (*vit).rank, extractLong(*vit, skip) ) );
       ++vit;
     }
     stringstream outstr;
