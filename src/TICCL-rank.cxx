@@ -145,6 +145,7 @@ record::record( const string& line,
   rank(-10000)
 {
   vector<string> parts = TiCC::split_at( line, "~" );
+  // file a record with the 14 parts of one line from a LDcalc output file
   if ( parts.size() == 14 ){
     variant1 = parts[0];
     freq1 = TiCC::stringTo<size_t>(parts[1]);
@@ -153,7 +154,7 @@ record::record( const string& line,
     icu::UnicodeString us = TiCC::UnicodeFromUTF8( variant2 );
     us.toLower();
     lowervariant2 = TiCC::UnicodeToUTF8( us );
-    variant_rank = -2000;
+    variant_rank = -2000;  // bogus value, is set later
     freq2 = TiCC::stringTo<size_t>(parts[4]);
     f2len = parts[4].length();
     reduced_freq2 = freq2;
@@ -161,12 +162,12 @@ record::record( const string& line,
       reduced_freq2 -= artifreq;
     }
     low_freq2 = TiCC::stringTo<size_t>(parts[5]);
-    freq_rank = -20;
+    freq_rank = -20;  // bogus value, is set later
     kwc   = TiCC::stringTo<bitType>(parts[6]);
     ld    = TiCC::stringTo<int>(parts[7]);
-    ld_rank = -4.5;
+    ld_rank = -4.5;  // bogus value, is set later
     csl   = TiCC::stringTo<int>(parts[8]);
-    csl_rank = -5.6;
+    csl_rank = -5.6; // bogus value, is set later
     canon = TiCC::stringTo<int>(parts[9]);
     if ( canon == 0 )
       canon_rank = 10;
@@ -188,7 +189,7 @@ record::record( const string& line,
     else
       khc_rank = 1;
     ngram_points = TiCC::stringTo<int>(parts[13]);
-    ngram_rank = -6.7;
+    ngram_rank = -6.7;  // bogus value, is set later
     cosine = lookup( WV, variant2 );
     if ( cosine <= 0.001 )
       cosine_rank = 1;
@@ -341,16 +342,24 @@ void set_val( TObject& object, TMember member, TValue value )
 template< class Tmap, typename TMember > void rank_map( const Tmap& f_map,
 							vector<record>& recs,
 							TMember member ){
+  // the map is a (multi-)map, sorted descending on the first value
+  // whichs is an integer value.
+  // the second value of the map is an index in the vector of records.
+  // so the map contains records, sorted descending on specific values
+  // e.g:
+  //  cslmap holds the CommonSubstringLengths of all vectors, longest first
   if ( f_map.empty() ){
     return;
   }
-  int ranking = 1;
-  size_t last = f_map.begin()->first;
+  size_t last = f_map.begin()->first; // start with the longest
+  int ranking = 1;                   // it will be ranked 1
   for ( const auto& rit : f_map ){
     if ( rit.first < last ){
+      // we find a shorter. so ranking is incermented (meaning LOWER ranking)
       last = rit.first;
       ++ranking;
     }
+    // set the currect reanking for the record at hand
     set_val( recs[rit.second], member, ranking );
   }
 }
@@ -377,7 +386,7 @@ void rank( vector<record>& recs,
   multimap<size_t,size_t,std::greater<size_t>> freqmap;  // freqs sorted descending
   multimap<size_t,size_t,std::greater<size_t>> f2lenmap; // f2 lenghts sorted descending
   multimap<size_t,size_t> ldmap;
-  multimap<size_t,size_t, std::greater<size_t>> cslmap; // Common substring lengths deescending
+  multimap<size_t,size_t, std::greater<size_t>> cslmap; // Common substring lengths descending
   multimap<size_t,size_t,std::greater<size_t>> pairmap1;
   multimap<size_t,size_t,std::greater<size_t>> pairmap2;
   multimap<size_t,size_t,std::greater<size_t>> pairmap_combined;
@@ -385,6 +394,10 @@ void rank( vector<record>& recs,
   map<string,int> lowvarmap;
   size_t count = 0;
   for ( auto it : recs ){
+    // for every record, we store information in descending multimaps
+    // So in freqmap, the (index of) the records with highest freq
+    //   are stored in front
+    //same for f2len, ld, csl and ngram points
     freqmap.insert( make_pair(it.reduced_freq2, count ) ); // freqs descending
     f2lenmap.insert( make_pair(it.f2len, count ) ); // f2lengths descending
     ldmap.insert( make_pair(it.ld,count) ); // lds sorted ASCENDING
@@ -403,12 +416,11 @@ void rank( vector<record>& recs,
     pairmap2.insert( make_pair(var2_cnt,count )); // #variants decending
     size_t var_combined_cnt = var1_cnt + var2_cnt;
     it.pairs_combined = var_combined_cnt;
-    pairmap_combined.insert( make_pair(var_combined_cnt,count )); // #variants descending
-
+    pairmap_combined.insert( make_pair(var_combined_cnt,count ));
+    // #combined variants descending
     ++lowvarmap[it.lowervariant2]; // count frequency of variants
     ++count;
   }
-  using TiCC::operator<<;
   multimap<int,size_t,std::greater<int>> lower_variantmap; // descending map
   count = 0;
   for ( const auto& it : recs ){
