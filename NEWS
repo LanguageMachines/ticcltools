@@ -1,3 +1,48 @@
+ticcltools 0.6 2018-06-05
+[Ko vander Sloot]
+Intermediate release, with a lot of new code to handle N-grams
+Also a lot of refactoring is done, for more clear and maintainable code.
+This is work in progress still.
+
+* TICCL-unk:
+  - more extensive acronym detection
+  - fixed artifreq problems in 'clean' punctuated words
+  - added filters for 'unwanted' characters
+  - added a ligature filter to convert evil ligatures
+  - normalize all hyphens to a 'normal' one (-)
+  - use a better definition of punctuation (unicode character class is not
+    good enough to decide)
+
+* TICCL-lexstat:
+  - the 'separator' symbol should get freq=0, so it isn't counted
+  - the clip value is added to the output filename
+
+* TICCL-indexer:
+  - indexer and indexerNT now produce the same output, using different
+    strategies when a --foci files is used.
+
+* TICCL-LDcalc:
+  major overhaul for n-grams
+  - added a ngram point column to the output (so NOT backward compatible!)
+  - produce a '.short' list for short word corrections
+  - produce a '.ambi' file with a list of n-grams related to short words
+  - prune a lot of ngrams from the output
+
+* TICCL-rank:
+ - output is sorted now
+ - honor the ngram-points from the new LDcalc. (so NOT backward compatible!)
+
+* TICCL-chain: new module to chain ranked files
+
+* TICCL-lexclean:
+  -added a -x option for 'inverse' alphabet
+
+* TICCL-anahash:
+  - added a --list option to produce a list of words and anagram values
+
+[Maarten van Gompel]
+* added metadata file: codemeta.json
+
 ticcltools 0.5 2018-02-19
 [Ko van der Sloot]
 * updated configuration. also for Mac OSX
