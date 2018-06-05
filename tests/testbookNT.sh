@@ -147,7 +147,7 @@ then
 fi
 
 echo "checking LDCALC results...."
-sort $outdir/TESTDP035.tsv.clean.NT.ldcalc  > /tmp/ldcalc.NT
+sort -s $outdir/TESTDP035.tsv.clean.NT.ldcalc  > /tmp/ldcalc.NT
 
 diff /tmp/ldcalc.NT $refdir/ldcalc.NT > /dev/null 2>&1
 
