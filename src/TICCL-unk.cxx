@@ -748,6 +748,7 @@ void usage( const string& name ){
   cerr << "\t-o 'name'\t create outputfile(s) with prefix 'name'" << endl;
   cerr << "\t--alph='file'\t name of the alphabet file" << endl;
   cerr << "\t--background='file'\t validated lexicon file" << endl;
+  cerr << "\t--corpus='file'\t DEPRECATED, use --background" << endl;
   cerr << "\t--artifrq='value'\t the default value for missing frequencies"
        << endl;
   cerr << "\t\t in the validated lexicon. (default = 0)" << endl;
@@ -765,7 +766,7 @@ int main( int argc, char *argv[] ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
-    opts.set_long_options( "acro,alph:,background:,artifrq:,filter:,help,version" );
+    opts.set_long_options( "acro,alph:,corpus:,background:,artifrq:,filter:,help,version" );
     opts.parse_args( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -792,6 +793,12 @@ int main( int argc, char *argv[] ){
   bool doAcro = opts.extract("acro");
   verbose = opts.extract('v');
   opts.extract("background", background_file);
+  if ( background_file.empty() ){
+    opts.extract("corpus", background_file);
+    if ( !background_file.empty() ){
+      cerr << "WARNING!: you used the deprecated --corpus option. Please change to --background" << endl;
+    }
+  }
   opts.extract("alph", alphafile);
   string value;
   if ( opts.extract( "artifrq", value ) ){
