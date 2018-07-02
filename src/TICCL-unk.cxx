@@ -932,7 +932,7 @@ int main( int argc, char *argv[] ){
       v0.toLower();
       decap_clean_words[v0] += freq;
     }
-    cout << "read a blackground lexion with " << clean_words.size()
+    cout << "read a blackground lexicon with " << clean_words.size()
 	 << " entries." << endl;
 
   }
