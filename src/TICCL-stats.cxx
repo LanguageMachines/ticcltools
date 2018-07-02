@@ -200,7 +200,8 @@ size_t word_inventory( const string& docName,
 		       size_t ngram,
 		       const string& sep,
 		       map<string,unsigned int>& wc,
-		       set<string>& emps ){
+		       set<string>& emps,
+		       bool dolines ){
   vector<string> buffer(ngram);
   size_t buf_cnt = 0;
   size_t wordTotal = 0;
@@ -210,6 +211,10 @@ size_t word_inventory( const string& docName,
   string emph_start;
   string emph_word;
   while ( getline( is, line ) ){
+    if ( dolines ){
+      buffer.clear();
+      buf_cnt = 0;
+    }
     vector<string> v;
     TiCC::split( line, v );
     for ( const auto& word : v ){
@@ -270,7 +275,8 @@ void usage( const string& name ){
   cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
   cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
   cerr << "\t\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
-  cerr << "\t-h\t this message" << endl;
+  cerr << "\t-h\t this message." << endl;
+  cerr << "\t-n\t newlines delimit the input." << endl;
   cerr << "\t-v\t very verbose output." << endl;
   cerr << "\t-V\t show version " << endl;
   cerr << "\t-e\t expr: specify the expression all input files should match with." << endl;
@@ -280,7 +286,7 @@ void usage( const string& name ){
 }
 
 int main( int argc, char *argv[] ){
-  CL_Options opts( "hVvpe:t:o:RX", "clip:,lower,ngram:,underscore,hemp:,threads:" );
+  CL_Options opts( "hnVvpe:t:o:RX", "clip:,lower,ngram:,underscore,hemp:,threads:" );
   try {
     opts.init(argc,argv);
   }
@@ -306,7 +312,11 @@ int main( int argc, char *argv[] ){
     exit(EXIT_SUCCESS);
   }
   verbose = opts.extract( 'v' );
+  bool dolines = opts.extract( 'n' );
   bool doXML = opts.extract( 'X' );
+  if ( doXML && dolines ){
+    cerr << "options -X and -n conflict!" << endl;
+  }
   bool dopercentage = opts.extract('p');
   bool lowercase = opts.extract("lower");
   bool recursiveDirs = opts.extract( 'R' );
@@ -408,7 +418,7 @@ int main( int argc, char *argv[] ){
       word_count = word_xml_inventory( docName, lowercase, ngram, sep, wc, hemp );
     }
     else {
-      word_count = word_inventory( docName, lowercase, ngram, sep, wc, hemp );
+      word_count = word_inventory( docName, lowercase, ngram, sep, wc, hemp, dolines );
     }
     wordTotal += word_count;
 #pragma omp critical
@@ -435,6 +445,11 @@ int main( int argc, char *argv[] ){
     }
   }
   string filename = outputPrefix + ".wordfreqlist";
+  string path = dirname( filename ) + "/";
+  if ( !TiCC::createPath( path ) ){
+    cerr << "unable to create a path: " << path << endl;
+    exit(EXIT_FAILURE);
+  }
   string ng = toString(ngram);
   filename += "." + ng + ".tsv";
   create_wf_list( wc, filename, wordTotal, clip, dopercentage );
