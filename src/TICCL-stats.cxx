@@ -91,8 +91,9 @@ void create_wf_list( const map<string, unsigned int>& wc,
 	 << " degrees";
     if ( clip > 0 ){
       cout << "(" << totalIn - total << " of the original " << totalIn
-	   << " words were clipped.)" << endl;
+	   << " words were clipped.)";
     }
+    cout << endl;
   }
 }
 
