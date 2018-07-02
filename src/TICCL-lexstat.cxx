@@ -76,7 +76,8 @@ void create_output( string& name, const map<UChar,size_t>& chars,
     }
     ++it;
   }
-  os << "## Alphabetsize: " << reverse.size() << endl;
+  os << "## Alphabetsize: " << reverse.size() + (separator.isEmpty()?0:1)
+     << endl;
   os << "## Original file : " << orig << " with " << count
      << " accepted characters and " << out_count << " clipped characters."
      << endl;
