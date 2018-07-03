@@ -339,23 +339,24 @@ void set_val( TObject& object, TMember member, TValue value )
     ( object ).*member = value;
 }
 
-template< class Tmap, typename TMember > void rank_map( const Tmap& f_map,
-							vector<record>& recs,
-							TMember member ){
+template< class Tmap, typename TMember >
+void rank_desc_map( const Tmap& desc_map,
+		    vector<record>& recs,
+		    TMember member ){
   // the map is a (multi-)map, sorted descending on the first value
   // whichs is an integer value.
   // the second value of the map is an index in the vector of records.
   // so the map contains records, sorted descending on specific values
   // e.g:
   //  cslmap holds the CommonSubstringLengths of all vectors, longest first
-  if ( f_map.empty() ){
+  if ( desc_map.empty() ){
     return;
   }
-  size_t last = f_map.begin()->first; // start with the longest
-  int ranking = 1;                   // it will be ranked 1
-  for ( const auto& rit : f_map ){
+  size_t last = desc_map.begin()->first; // start with the longest
+  int ranking = 1;                    // it will be ranked 1
+  for ( const auto& rit : desc_map ){
     if ( rit.first < last ){
-      // we find a shorter. so ranking is incermented (meaning LOWER ranking)
+      // we find a shorter. so ranking is incremented (meaning LOWER ranking)
       last = rit.first;
       ++ranking;
     }
@@ -452,13 +453,13 @@ void rank( vector<record>& recs,
     }
   }
 
-  rank_map( freqmap, recs, &record::freq_rank );
-  rank_map( f2lenmap, recs, &record::f2len_rank );
-  rank_map( cslmap, recs, &record::csl_rank );
-  rank_map( pairmap1, recs, &record::pairs1_rank );
-  rank_map( pairmap2, recs, &record::pairs2_rank );
-  rank_map( pairmap_combined, recs, &record::pairs_combined_rank );
-  rank_map( ngram_map, recs, &record::ngram_rank );
+  rank_desc_map( freqmap, recs, &record::freq_rank );
+  rank_desc_map( f2lenmap, recs, &record::f2len_rank );
+  rank_desc_map( cslmap, recs, &record::csl_rank );
+  rank_desc_map( pairmap1, recs, &record::pairs1_rank );
+  rank_desc_map( pairmap2, recs, &record::pairs2_rank );
+  rank_desc_map( pairmap_combined, recs, &record::pairs_combined_rank );
+  rank_desc_map( ngram_map, recs, &record::ngram_rank );
 
   double sum = 0.0;
   vector<record>::iterator vit = recs.begin();
