@@ -74,6 +74,9 @@ ostream& operator<<( ostream& os, const S_Class& cl ){
 }
 
 bool fillAlpha( istream& is, set<UChar>& alphabet ){
+  int l_cnt = 0;
+  int u_cnt = 0;
+  int s_cnt = 0;
   string line;
   while ( getline( is, line ) ){
     if ( line.size() == 0 || line[0] == '#' ){
@@ -87,11 +90,23 @@ bool fillAlpha( istream& is, set<UChar>& alphabet ){
     }
     UnicodeString us = TiCC::UnicodeFromUTF8( v[0] );
     us.toLower();
-    alphabet.insert( us[0] );
+    if ( alphabet.find( us[0] ) == alphabet.end() ){
+      alphabet.insert( us[0] );
+      ++l_cnt;
+    }
     us.toUpper();
-    alphabet.insert( us[0] );
+    if ( alphabet.find( us[0] ) == alphabet.end() ){
+      alphabet.insert( us[0] );
+      ++u_cnt;
+    }
+    else {
+      ++s_cnt;
+    }
     // for now, we don't use the other fields
   }
+  cout << "read an alphabet with " << u_cnt << " uppercase characters, "
+       << l_cnt-s_cnt << " lowercase characters and " << s_cnt
+       << " other symbols." << endl;
   return true;
 }
 
@@ -878,11 +893,11 @@ int main( int argc, char *argv[] ){
       cerr << "unable to open alphabet file: " << alphafile << endl;
       exit(EXIT_FAILURE);
     }
+    cout << "read an alphabet from: " << alphafile << endl;
     if ( !fillAlpha( as, alphabet ) ){
       cerr << "serious problems reading alphabet file: " << alphafile << endl;
       exit(EXIT_FAILURE);
     }
-    cout << "read an alphabet of " << alphabet.size() << " characters." << endl;
   }
 
   map<UnicodeString,unsigned int> clean_words;
