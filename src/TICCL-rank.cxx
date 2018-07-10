@@ -52,6 +52,7 @@ using namespace std;
 typedef signed long int bitType;
 
 const int RANK_COUNT=14;
+const string SEPARATOR = "_";
 
 bool verbose = false;
 
@@ -986,12 +987,11 @@ int main( int argc, char **argv ){
 	tmp = ++count;
 	//
 	// omp single isn't allowed here. trick!
+	int numt = 0;
 #ifdef HAVE_OPENMP
-	int numt = omp_get_thread_num();
-	if ( numt == 0 && tmp % 10000 == 0 ){
-#else
-        if ( tmp % 10000 == 0 ){
+	numt = omp_get_thread_num();
 #endif
+	if ( numt == 0 && tmp % 10000 == 0 ){
 	  cout << ".";
 	  cout.flush();
 	  if ( tmp % 500000 == 0 ){
