@@ -27,7 +27,7 @@ datadir=DATA
 
 echo "start TICLL-anahash --list"
 
-$bindir/TICCL-anahash --alph $datadir/nld.aspell.dict.clip20.lc.chars --list $testdir/clean
+$bindir/TICCL-anahash --alph $datadir/nld.aspell.dict.clip20.lc.chars --list -o $outdir/analist $testdir/clean
 
 if [ $? -ne 0 ]
 then
@@ -36,11 +36,11 @@ then
 fi
 
 echo "checking ANAHASH results...."
-diff $testdir/clean.list $refdir/ok.list > /dev/null 2>&1
+diff $outdir/analist $refdir/ok.list > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-anahash --list results"
-    echo "using: diff $testdir/clean.list $refdir/ok.list"
+    echo "using: diff $outdir/analist $refdir/ok.list"
     exit
 else
     echo "OK"
