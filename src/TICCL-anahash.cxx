@@ -176,6 +176,7 @@ void usage( const string& name ){
   cerr << "\t--separator='char'\t The separator symbol for n-grams.(default '_')" << endl;
   cerr << "\t--clip=<clip> : cut off frequency of the alphabet. (freq 0 is NEVER clipped)" << endl;
   cerr << "\t-h or --help\t this message " << endl;
+  cerr << "\t-o 'output_name' write output to file 'output_name'" << endl;
   cerr << "\t--artifrq='value': if value > 0, create a separate list of anagram" << endl;
   cerr << "\t\t values that have a lexical frequency < 'artifrq' " << endl;
   cerr << "\t\t for n-grams, only those n-grams are written where at least one" << endl;
@@ -189,7 +190,7 @@ void usage( const string& name ){
 int main( int argc, char *argv[] ){
   TiCC::CL_Options opts;
   try {
-    opts.set_short_options( "vVh" );
+    opts.set_short_options( "vVho:" );
     opts.set_long_options( "alph:,background:,artifrq:,clip:,help,version,ngrams,list,separator:" );
     opts.init( argc, argv );
   }
@@ -238,6 +239,8 @@ int main( int argc, char *argv[] ){
     }
   }
   bool do_ngrams = opts.extract( "ngrams" );
+  string out_file_name;
+  opts.extract( "o", out_file_name );
   if ( !opts.empty() ){
     cerr << "unsupported options : " << opts.toString() << endl;
     usage(progname);
@@ -274,13 +277,22 @@ int main( int argc, char *argv[] ){
     cerr << "unable to open alphabet file: " << alphafile << endl;
     exit(EXIT_FAILURE);
   }
+  if ( out_file_name.empty() ){
+    out_file_name = file_name;
+    if ( list ){
+      out_file_name += ".list";
+    }
+    else {
+      out_file_name += ".anahash";
+    }
+  }
+
   map<UChar,bitType> alphabet;
   if ( !fillAlpha( as, alphabet, clip ) ){
     cerr << "serious problems reading alphabet file: " << alphafile << endl;
     exit(EXIT_FAILURE);
   }
   bool doMerge = false;
-  string out_file_name = file_name;
   string foci_file_name = file_name;
   if ( list ){
     if ( artifreq > 0 ){
@@ -291,14 +303,12 @@ int main( int argc, char *argv[] ){
       cerr << "option --background not supported for --list" << endl;
       exit( EXIT_FAILURE);
     }
-    out_file_name = file_name + ".list";
     if ( !TiCC::createPath( out_file_name ) ){
       cerr << "unable to open output file: " << out_file_name << endl;
       exit(EXIT_FAILURE);
     }
   }
   else {
-    out_file_name = file_name + ".anahash";
     if ( !TiCC::createPath( out_file_name ) ){
       cerr << "unable to open output file: " << out_file_name << endl;
       exit(EXIT_FAILURE);
