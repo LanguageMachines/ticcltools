@@ -1100,6 +1100,14 @@ int main( int argc, char **argv ){
   map<UnicodeString,ld_record> record_store;
   size_t line_nr = 0;
   int err_cnt = 0;
+
+  size_t file_lines = 0;
+  while ( getline( indexf, line ) ){
+    ++file_lines;
+  }
+  cout << progname << ": " << file_lines << " character confusion values to be read.\n\t\tWe indicate progress by printing a dot for every 1000 confusion values processed" << endl;
+  indexf.clear();
+  indexf.seekg( 0 );
   while ( getline( indexf, line ) ){
     if ( err_cnt > 9 ){
       cerr << progname << ": FATAL ERROR: too many problems in indexfile: " << indexFile
