@@ -286,6 +286,18 @@ int main( int argc, char *argv[] ){
       out_file_name += ".anahash";
     }
   }
+  else if ( list ){
+    // assure .list suffix
+    if ( !TiCC::match_back( out_file_name, ".list" ) ){
+      out_file_name += ".list";
+    }
+  }
+  else {
+    // assure .anahash suffix
+    if ( !TiCC::match_back( out_file_name, ".anahash" ) ){
+      out_file_name += ".anahash";
+    }
+  }
 
   map<UChar,bitType> alphabet;
   if ( !fillAlpha( as, alphabet, clip ) ){

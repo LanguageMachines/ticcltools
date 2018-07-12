@@ -36,11 +36,11 @@ then
 fi
 
 echo "checking ANAHASH results...."
-diff $outdir/analist $refdir/ok.list > /dev/null 2>&1
+diff $outdir/analist.list $refdir/ok.list > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-anahash --list results"
-    echo "using: diff $outdir/analist $refdir/ok.list"
+    echo "using: diff $outdir/analist.list $refdir/ok.list"
     exit
 else
     echo "OK"
