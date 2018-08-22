@@ -70,6 +70,12 @@ void usage( const string& progname ){
   cerr << "\t\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
   cerr << "\t--LD <distance> The Levensthein (or edit) distance to use" << endl;
   cerr << "\t--artifrq <artifreq> " << endl;
+  cerr << "\t--low=<low>\t skip entries from the anagram file shorter than "
+       << endl;
+  cerr << "\t\t'low' characters. (default = 5)" << endl;
+  cerr << "\t--high=<high>\t skip entries from the anagram file longer than "
+       << endl;
+  cerr << "\t\t'high' characters. (default=35)" << endl;
   cerr << "\t-h or --help this message " << endl;
   cerr << "\t-v be verbose, repeat to be more verbose " << endl;
   cerr << "\t-V or --version show version " << endl;
@@ -801,8 +807,8 @@ int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:t:" );
-    opts.set_long_options( "diac:,hist:,nohld,artifrq:,LD:,hash:,clean:,"
-			   "alph:,index:,help,version,threads:,follow:" );
+    opts.set_long_options( "diac:,hist:,nohld,artifrq:,LD:,hash:,clean:,alph:,"
+			   "index:,help,version,threads:,follow:,low:,high:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -892,6 +898,21 @@ int main( int argc, char **argv ){
       exit( EXIT_FAILURE );
     }
   }
+  unsigned int low = 5;
+  if ( opts.extract( "low", value ) ){
+    if ( !TiCC::stringTo(value,low) ){
+      cerr << progname << ": illegal value for --low (" << value << ")" << endl;
+      exit( EXIT_FAILURE );
+    }
+  }
+
+  unsigned int high = 35;
+  if ( opts.extract( "high", value ) ){
+    if ( !TiCC::stringTo(value,high) ) {
+      cerr << progname << ": illegal value for --high (" << value << ")" << endl;
+      exit( EXIT_FAILURE );
+    }
+  }
   value = "1";
   if ( !opts.extract( 't', value ) ){
     opts.extract( "threads", value );
@@ -966,6 +987,7 @@ int main( int argc, char **argv ){
   map<UnicodeString, size_t> low_freqMap;
   string line;
   size_t ign = 0;
+  size_t skipped = 0;
   while ( getline( ff, line ) ){
     vector<string> v1;
     if ( TiCC::split( line, v1 ) != 2 ){
@@ -974,6 +996,14 @@ int main( int argc, char **argv ){
     }
     else {
       string s = v1[0];
+      if ( low > 0 && s.size() < low ){
+	++skipped;
+	continue;
+      }
+      if ( high > 0 && s.size() > high ){
+	++skipped;
+	continue;
+      }
       size_t freq = TiCC::stringTo<size_t>( v1[1] );
       freqMap[s] = freq;
       UnicodeString ls = TiCC::UnicodeFromUTF8(s);
@@ -992,7 +1022,12 @@ int main( int argc, char **argv ){
       }
     }
   }
-  cout << progname << ": read " << freqMap.size() << " clean words with frequencies" << endl;
+  cout << progname << ": read " << freqMap.size()
+       << " clean words with frequencies." << endl;
+  if ( skipped > 0 ){
+    cout << progname << ": skipped " << skipped << " out-of-band words."
+	 << endl;
+  }
   if ( ign > 0 ){
     cout << progname << ": skipped " << ign << " spaced words in the clean file" << endl;
   }
