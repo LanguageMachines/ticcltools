@@ -907,6 +907,7 @@ int main( int argc, char *argv[] ){
   map<UnicodeString,unsigned int> punct_acro_words;
   map<UnicodeString,unsigned int> compound_acro_words;
   map<UnicodeString,UnicodeString> punct_words;
+  map<UnicodeString,unsigned int> back_lexicon;
   if ( !background_file.empty() ){
     if ( artifreq == 0 ){
       cerr << "a background file is specified (--background option), but artifreq is NOT set "
@@ -943,19 +944,23 @@ int main( int argc, char *argv[] ){
       else {
 	freq = artifreq;
       }
-      UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
-      clean_words[v0] += freq;
-      v0.toLower();
-      decap_clean_words[v0] += freq;
+      UnicodeString word = TiCC::UnicodeFromUTF8(v[0]);
+      back_lexicon[word] = freq;
     }
-    cout << "read a blackground lexicon with " << clean_words.size()
+    cout << "read a blackground lexicon with " << back_lexicon.size()
 	 << " entries." << endl;
 
+    for ( const auto& it : back_lexicon ){
+      UnicodeString w = it.first;
+      clean_words[w] += it.second;
+      w.toLower();
+      decap_clean_words[w] += it.second;
+    }
   }
   string line;
   size_t line_cnt = 0 ;
   size_t err_cnt = 0;
-  map<UnicodeString,unsigned> my_lexicon;
+  map<UnicodeString,unsigned> fore_lexicon;
   while ( getline( is, line ) ){
     ++line_cnt;
     line = TiCC::trim( line );
@@ -979,12 +984,13 @@ int main( int argc, char *argv[] ){
       continue;
     }
 
-    UnicodeString orig_word = TiCC::UnicodeFromUTF8(v[0]);
+    UnicodeString word = TiCC::UnicodeFromUTF8(v[0]);
     unsigned int freq = TiCC::stringTo<unsigned int>(v[1]);
-    my_lexicon[orig_word] = freq;
+    fore_lexicon[word] = freq;
   }
-  cout << "start classifying a lexion with " << line_cnt << " entries"<< endl;
-  for ( const auto& wf : my_lexicon ){
+  cout << "start classifying the foreground lexicon with "
+       << fore_lexicon.size() << " entries"<< endl;
+  for ( const auto& wf : fore_lexicon ){
     classify_one_entry( wf.first, wf.second,
 			clean_words, decap_clean_words,
 			unk_words, punct_words,
