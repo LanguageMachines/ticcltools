@@ -901,7 +901,7 @@ int main( int argc, char *argv[] ){
     }
   }
 
-  map<UnicodeString,unsigned int> clean_words;
+  map<UnicodeString,unsigned int> all_clean_words;
   map<UnicodeString,unsigned int> decap_clean_words;
   map<UnicodeString,unsigned int> unk_words;
   map<UnicodeString,unsigned int> punct_acro_words;
@@ -952,7 +952,7 @@ int main( int argc, char *argv[] ){
 
     for ( const auto& it : back_lexicon ){
       UnicodeString w = it.first;
-      clean_words[w] += it.second;
+      all_clean_words[w] += it.second;
       w.toLower();
       decap_clean_words[w] += it.second;
     }
@@ -992,7 +992,7 @@ int main( int argc, char *argv[] ){
        << fore_lexicon.size() << " entries"<< endl;
   for ( const auto& wf : fore_lexicon ){
     classify_one_entry( wf.first, wf.second,
-			clean_words, decap_clean_words,
+			all_clean_words, decap_clean_words,
 			unk_words, punct_words,
 			punct_acro_words, compound_acro_words,
 			doAcro, alphabet, artifreq );
@@ -1000,7 +1000,7 @@ int main( int argc, char *argv[] ){
   cout << "generating output files" << endl;
   cout << "using artifrq=" << artifreq << endl;
   map<unsigned int, set<UnicodeString> > wf;
-  for ( const auto& it : clean_words ){
+  for ( const auto& it : all_clean_words ){
     wf[it.second].insert( it.first );
   }
   map<unsigned int, set<UnicodeString> >::const_reverse_iterator wit = wf.rbegin();
