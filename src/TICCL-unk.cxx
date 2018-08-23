@@ -861,18 +861,18 @@ int main( int argc, char *argv[] ){
   }
   string unk_file_name = output_name + ".unk";
   string fore_clean_file_name = output_name + ".fore.clean";
-  string all_clean_file_name = output_name + ".all.clean";
+  string all_clean_file_name = output_name + ".clean";
   string punct_file_name = output_name + ".punct";
   string acro_file_name = output_name + ".acro";
 
-  if ( !TiCC::createPath( fore_clean_file_name ) ){
-    cerr << "unable to open output file: " << fore_clean_file_name << endl;
+  if ( !TiCC::createPath( all_clean_file_name ) ){
+    cerr << "unable to open output file: " << all_clean_file_name << endl;
     exit(EXIT_FAILURE);
   }
-  ofstream fcs( fore_clean_file_name );
+  ofstream acs( all_clean_file_name );
   if ( !background_file.empty() ){
-    if ( !TiCC::createPath( all_clean_file_name ) ){
-      cerr << "unable to open output file: " << all_clean_file_name << endl;
+    if ( !TiCC::createPath( fore_clean_file_name ) ){
+      cerr << "unable to open output file: " << fore_clean_file_name << endl;
       exit(EXIT_FAILURE);
     }
   }
@@ -1008,7 +1008,19 @@ int main( int argc, char *argv[] ){
   cout << "generating output files" << endl;
   cout << "using artifrq=" << artifreq << endl;
   if ( !background_file.empty() ){
-    ofstream acs( all_clean_file_name );
+    ofstream fcs( fore_clean_file_name );
+    map<unsigned int, set<UnicodeString> > wf;
+    for ( const auto& it : fore_clean_words ){
+      wf[it.second].insert( it.first );
+    }
+    auto wit = wf.rbegin();
+    while ( wit != wf.rend() ){
+      for ( const auto& sit : wit->second ){
+	fcs << sit << "\t" << wit->first << endl;
+      }
+      ++wit;
+    }
+    cout << "created separate " << fore_clean_file_name << endl;
     for ( const auto& it : fore_clean_words ){
       unsigned int f1 = all_clean_words[it.first];
       unsigned int freq = it.second;
@@ -1017,8 +1029,22 @@ int main( int argc, char *argv[] ){
       }
       all_clean_words[it.first] += freq;
     }
-    map<unsigned int, set<UnicodeString> > wf;
+    wf.clear();
     for ( const auto& it : all_clean_words ){
+      wf[it.second].insert( it.first );
+    }
+    wit = wf.rbegin();
+    while ( wit != wf.rend() ){
+      for ( const auto& sit : wit->second ){
+	acs << sit << "\t" << wit->first << endl;
+      }
+      ++wit;
+    }
+    cout << "created " << all_clean_file_name << endl;
+  }
+  else {
+    map<unsigned int, set<UnicodeString> > wf;
+    for ( const auto& it : fore_clean_words ){
       wf[it.second].insert( it.first );
     }
     map<unsigned int, set<UnicodeString> >::const_reverse_iterator wit = wf.rbegin();
@@ -1031,22 +1057,10 @@ int main( int argc, char *argv[] ){
     cout << "created " << all_clean_file_name << endl;
   }
   map<unsigned int, set<UnicodeString> > wf;
-  for ( const auto& it : fore_clean_words ){
-    wf[it.second].insert( it.first );
-  }
-  map<unsigned int, set<UnicodeString> >::const_reverse_iterator wit = wf.rbegin();
-  while ( wit != wf.rend() ){
-    for ( const auto& sit : wit->second ){
-      fcs << sit << "\t" << wit->first << endl;
-    }
-    ++wit;
-  }
-  cout << "created " << fore_clean_file_name << endl;
-  wf.clear();
   for ( const auto& uit : unk_words ){
     wf[uit.second].insert( uit.first );
   }
-  wit = wf.rbegin();
+  auto wit = wf.rbegin();
   while ( wit != wf.rend() ){
     for ( const auto& sit : wit->second ){
       us << sit << "\t" << wit->first << endl;
