@@ -49,7 +49,7 @@ then
     echo "using: diff $outdir/unktest.unk $refdir/unk"
     exit
 fi
-diff $outdir/unktest.clean $refdir/clean > /dev/null 2>&1
+diff $outdir/unktest.all.clean $refdir/clean > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-UNK clean results"
@@ -88,11 +88,11 @@ then
     echo "using: diff $outdir/unktest2.unk $refdir/unk2"
     exit
 fi
-diff $outdir/unktest2.clean $refdir/clean2 > /dev/null 2>&1
+diff $outdir/unktest2.fore.clean $refdir/clean2 > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-UNK clean2 results"
-    echo "using: diff $outdir/unktest2.clean $refdir/clean2"
+    echo "using: diff $outdir/unktest2.fore.clean $refdir/clean2"
     exit
 fi
 diff $outdir/unktest2.acro $refdir/acro2 > /dev/null 2>&1

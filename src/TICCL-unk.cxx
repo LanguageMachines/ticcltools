@@ -860,15 +860,22 @@ int main( int argc, char *argv[] ){
     output_name = file_name;
   }
   string unk_file_name = output_name + ".unk";
-  string clean_file_name = output_name + ".clean";
+  string fore_clean_file_name = output_name + ".fore.clean";
+  string all_clean_file_name = output_name + ".all.clean";
   string punct_file_name = output_name + ".punct";
   string acro_file_name = output_name + ".acro";
 
-  if ( !TiCC::createPath( clean_file_name ) ){
-    cerr << "unable to open output file: " << clean_file_name << endl;
+  if ( !TiCC::createPath( fore_clean_file_name ) ){
+    cerr << "unable to open output file: " << fore_clean_file_name << endl;
     exit(EXIT_FAILURE);
   }
-  ofstream cs( clean_file_name );
+  ofstream fcs( fore_clean_file_name );
+  if ( !background_file.empty() ){
+    if ( !TiCC::createPath( all_clean_file_name ) ){
+      cerr << "unable to open output file: " << all_clean_file_name << endl;
+      exit(EXIT_FAILURE);
+    }
+  }
   if ( !TiCC::createPath( unk_file_name ) ){
     cerr << "unable to open output file: " << unk_file_name << endl;
     exit(EXIT_FAILURE);
@@ -902,6 +909,7 @@ int main( int argc, char *argv[] ){
   }
 
   map<UnicodeString,unsigned int> all_clean_words;
+  map<UnicodeString,unsigned int> fore_clean_words;
   map<UnicodeString,unsigned int> decap_clean_words;
   map<UnicodeString,unsigned int> unk_words;
   map<UnicodeString,unsigned int> punct_acro_words;
@@ -992,25 +1000,48 @@ int main( int argc, char *argv[] ){
        << fore_lexicon.size() << " entries"<< endl;
   for ( const auto& wf : fore_lexicon ){
     classify_one_entry( wf.first, wf.second,
-			all_clean_words, decap_clean_words,
+			fore_clean_words, decap_clean_words,
 			unk_words, punct_words,
 			punct_acro_words, compound_acro_words,
 			doAcro, alphabet, artifreq );
   }
   cout << "generating output files" << endl;
   cout << "using artifrq=" << artifreq << endl;
+  if ( !background_file.empty() ){
+    ofstream acs( all_clean_file_name );
+    for ( const auto& it : fore_clean_words ){
+      unsigned int f1 = all_clean_words[it.first];
+      unsigned int freq = it.second;
+      if ( freq > artifreq && f1 >= artifreq ){
+	freq -= artifreq;
+      }
+      all_clean_words[it.first] += freq;
+    }
+    map<unsigned int, set<UnicodeString> > wf;
+    for ( const auto& it : all_clean_words ){
+      wf[it.second].insert( it.first );
+    }
+    map<unsigned int, set<UnicodeString> >::const_reverse_iterator wit = wf.rbegin();
+    while ( wit != wf.rend() ){
+      for ( const auto& sit : wit->second ){
+	acs << sit << "\t" << wit->first << endl;
+      }
+      ++wit;
+    }
+    cout << "created " << all_clean_file_name << endl;
+  }
   map<unsigned int, set<UnicodeString> > wf;
-  for ( const auto& it : all_clean_words ){
+  for ( const auto& it : fore_clean_words ){
     wf[it.second].insert( it.first );
   }
   map<unsigned int, set<UnicodeString> >::const_reverse_iterator wit = wf.rbegin();
   while ( wit != wf.rend() ){
     for ( const auto& sit : wit->second ){
-      cs << sit << "\t" << wit->first << endl;
+      fcs << sit << "\t" << wit->first << endl;
     }
     ++wit;
   }
-  cout << "created " << clean_file_name << endl;
+  cout << "created " << fore_clean_file_name << endl;
   wf.clear();
   for ( const auto& uit : unk_words ){
     wf[uit.second].insert( uit.first );
