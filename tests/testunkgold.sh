@@ -50,6 +50,13 @@ then
     echo "using: diff $outdir/gold1.clean $refdir/gold1.clean"
     exit
 fi
+diff $outdir/gold1.fore.clean $refdir/gold1.fore.clean > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    echo "differences in Ticcl-UNK fore.clean results"
+    echo "using: diff $outdir/gold1.fore.clean $refdir/gold1.fore.clean"
+    exit
+fi
 diff $outdir/gold1.acro $refdir/gold1.acro > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
