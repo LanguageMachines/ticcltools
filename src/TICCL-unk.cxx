@@ -1011,7 +1011,16 @@ int main( int argc, char *argv[] ){
     ofstream fcs( fore_clean_file_name );
     map<unsigned int, set<UnicodeString> > wf;
     for ( const auto& it : fore_clean_words ){
-      wf[it.second].insert( it.first );
+      unsigned int freq = it.second;
+      auto back_it = back_lexicon.find( it.first );
+      if ( back_it != back_lexicon.end() ){
+	// add background frequency to the foreground
+	freq += back_it->second;
+      }
+      if ( freq > artifreq && (freq -  artifreq) > artifreq ){
+      	freq -= artifreq;
+      }
+      wf[freq].insert( it.first );
     }
     auto wit = wf.rbegin();
     while ( wit != wf.rend() ){
