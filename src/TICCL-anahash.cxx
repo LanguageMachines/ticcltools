@@ -375,7 +375,7 @@ int main( int argc, char *argv[] ){
     cout << "created a list file: " << out_file_name << endl;
     exit( EXIT_SUCCESS );
   }
-  set<bitType> foci;
+  map<bitType, set<icu::UnicodeString> > foci;
   if ( artifreq > 0 ){ // so NOT when creating a simple list!
     for ( const auto& it : freq_list ){
       icu::UnicodeString word = it.first;
@@ -405,19 +405,19 @@ int main( int argc, char *argv[] ){
 	    }
 	  }
 	  if ( accept ){
-	    foci.insert( h );
+	    word.toLower();
+	    foci[h].insert( word );
 	  }
 	}
       }
       else {
 	bitType freq = it.second;
 	if ( freq < artifreq ){
-	  icu::UnicodeString l_part = word;
-	  l_part.toLower();
-	  const auto l_it = freq_list.find(l_part);
+	  word.toLower();
+	  const auto l_it = freq_list.find(word);
 	  if ( l_it == freq_list.end()
 	       || l_it->second < artifreq ){
-	    foci.insert( h );
+	    foci[h].insert(word);
 	  }
 	}
       }
@@ -426,9 +426,10 @@ int main( int argc, char *argv[] ){
   if ( artifreq > 0 ){
     cout << "generating foci file: " << foci_file_name << " with " << foci.size() << " entries" << endl;
     ofstream fos( foci_file_name );
-    for ( const auto& f : foci ){
-      fos << f << endl;
-    }
+    create_output( fos, foci );
+    // for ( const auto& f : foci ){
+    //   fos << f.first << endl;
+    // }
   }
   if ( doMerge ){
     cerr << "merge background corpus: " << backfile << endl;
