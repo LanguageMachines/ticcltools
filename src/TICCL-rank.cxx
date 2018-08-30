@@ -495,18 +495,34 @@ void rank( vector<record>& recs,
     }
   }
 
-  auto it = recs.begin();
-  int cnt = 0;
-  while ( it != recs.end() ){
-    ++cnt;
-    if ( clip > 0 && cnt > clip )
-      break;
-    // store the result vector
-#pragma omp critical (store)
-    {
-      results.insert( make_pair(it->rank,*it) );
+  // sort records on variant and rank
+  map<string,multimap<double,record*,std::greater<double>>> output;
+  for ( auto& it : recs ){
+    string variant = it.variant1;
+    auto p = output.find(variant);
+    if ( p != output.end()  ){
+      p->second.insert( make_pair( it.rank, &it) );
     }
-    ++it;
+    else {
+      multimap<double,record*,std::greater<double>> tmp;
+      tmp.insert( make_pair( it.rank, &it ) );
+      output.insert( make_pair(variant,tmp) );
+    }
+  }
+
+  // now extract the first 'clip' records for every variant, (best ranked)
+  for ( const auto& it : output ){
+    const auto& mm = it.second;
+    int cnt = 0;
+    for ( const auto& it : mm ){
+      // store the result vector
+#pragma omp critical (store)
+      {
+	results.insert( make_pair(it.first,*it.second) );
+      }
+      if ( ++cnt >= clip )
+	break;
+    }
   }
 
   if ( db ){
@@ -655,11 +671,27 @@ void rank( vector<record>& recs,
     }
   }
 
-  multimap<size_t, record*, std::greater<size_t>> ccf_sort; // sort descending records on CC frequency;
-  vit = recs.begin();
-  while ( vit != recs.end() ){
-    ccf_sort.insert( make_pair( (*vit).freq2, &*vit ) );
-    ++vit;
+  // sort records on variant and rank
+  map<string,multimap<double,record*,std::greater<double>>> output;
+  for ( auto& it : recs ){
+    string variant = it.variant1;
+    auto p = output.find(variant);
+    if ( p != output.end()  ){
+      p->second.insert( make_pair( it.rank, &it) );
+    }
+    else {
+      multimap<double,record*,std::greater<double>> tmp;
+      tmp.insert( make_pair( it.rank, &it ) );
+      output.insert( make_pair(variant,tmp) );
+    }
+  }
+
+  // now extract the first record for every variant, (best ranked)
+  // and sort on freq
+  multimap<size_t, record*, std::greater<size_t>> ccf_sort;
+  for ( const auto& vit : output ){
+    auto &mm = vit.second;
+    ccf_sort.insert( make_pair( mm.begin()->second->freq2, mm.begin()->second ) );
   }
 
   int cnt = 0;
