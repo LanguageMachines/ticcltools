@@ -367,8 +367,168 @@ void rank_desc_map( const Tmap& desc_map,
 }
 
 void rank( vector<record>& recs,
-	   multimap<size_t, record, std::greater<size_t>>& results,
+	   multimap<double, record, std::greater<double>>& results,
 	   int clip,
+	   const map<bitType,size_t>& kwc_counts,
+	   const map<bitType,size_t>& kwc2_counts,
+	   ostream* db, vector<bool>& skip, int factor ){
+  if (verbose ){
+#pragma omp critical (log)
+    {
+#ifdef HAVE_OPENMP
+      int numt = omp_get_thread_num();
+      cerr << numt << "-RANK " << recs[0].variant1
+	   << " " << recs.size() << endl;
+#else
+      cerr << "RANK " << recs[0].variant1
+	   << " " << recs.size() << endl;
+#endif
+    }
+  }
+  multimap<size_t,size_t,std::greater<size_t>> freqmap;  // freqs sorted descending
+  multimap<size_t,size_t,std::greater<size_t>> f2lenmap; // f2 lenghts sorted descending
+  multimap<size_t,size_t> ldmap;
+  multimap<size_t,size_t, std::greater<size_t>> cslmap; // Common substring lengths descending
+  multimap<size_t,size_t,std::greater<size_t>> pairmap1;
+  multimap<size_t,size_t,std::greater<size_t>> pairmap2;
+  multimap<size_t,size_t,std::greater<size_t>> pairmap_combined;
+  multimap<size_t,size_t,std::greater<size_t>> ngram_map;
+  map<string,int> lowvarmap;
+  size_t count = 0;
+  for ( auto it : recs ){
+    // for every record, we store information in descending multimaps
+    // So in freqmap, the (index of) the records with highest freq
+    //   are stored in front
+    //same for f2len, ld, csl and ngram points
+    freqmap.insert( make_pair(it.reduced_freq2, count ) ); // freqs descending
+    f2lenmap.insert( make_pair(it.f2len, count ) ); // f2lengths descending
+    ldmap.insert( make_pair(it.ld,count) ); // lds sorted ASCENDING
+    cslmap.insert( make_pair(it.csl,count) ); // csl sorted descending
+    ngram_map.insert( make_pair(it.ngram_points,count) ); // ngrampoints sorted descending
+    size_t var1_cnt = kwc_counts.at(it.kwc);
+    it.pairs1 = var1_cnt;
+    pairmap1.insert( make_pair(var1_cnt,count )); // #variants descending
+    size_t var2_cnt = 0;
+    try {
+      var2_cnt += kwc2_counts.at(it.kwc);
+    }
+    catch(...){
+    }
+    it.pairs2 = var2_cnt;
+    pairmap2.insert( make_pair(var2_cnt,count )); // #variants decending
+    size_t var_combined_cnt = var1_cnt + var2_cnt;
+    it.pairs_combined = var_combined_cnt;
+    pairmap_combined.insert( make_pair(var_combined_cnt,count ));
+    // #combined variants descending
+    ++lowvarmap[it.lowervariant2]; // count frequency of variants
+    ++count;
+  }
+  multimap<int,size_t,std::greater<int>> lower_variantmap; // descending map
+  count = 0;
+  for ( const auto& it : recs ){
+    lower_variantmap.insert( make_pair( lowvarmap[it.lowervariant2], count ) );
+    ++count;
+  }
+  if ( !lower_variantmap.empty() ){
+    int ranking = 1;
+    int last = lower_variantmap.begin()->first;
+    for ( const auto& it1 : lower_variantmap ){
+      if ( it1.first < last ){
+	last = it1.first;
+	++ranking;
+      }
+      recs[it1.second].variant_count = it1.first;
+      recs[it1.second].variant_rank = ranking;
+    }
+  }
+
+  if ( !ldmap.empty() ){
+    int ranking = 1;
+    size_t last = ldmap.begin()->first;
+    for ( const auto& sit : ldmap ){
+      if ( sit.first > last ){
+   	last = sit.first;
+   	++ranking;
+      }
+      recs[sit.second].ld_rank = ranking;
+    }
+  }
+
+  rank_desc_map( freqmap, recs, &record::freq_rank );
+  rank_desc_map( f2lenmap, recs, &record::f2len_rank );
+  rank_desc_map( cslmap, recs, &record::csl_rank );
+  rank_desc_map( pairmap1, recs, &record::pairs1_rank );
+  rank_desc_map( pairmap2, recs, &record::pairs2_rank );
+  rank_desc_map( pairmap_combined, recs, &record::pairs_combined_rank );
+  rank_desc_map( ngram_map, recs, &record::ngram_rank );
+
+  double sum = 0.0;
+  vector<record>::iterator vit = recs.begin();
+  while ( vit != recs.end() ){
+    double rank =
+      (skip[0]?0:(*vit).f2len_rank) +  // number of characters in the frequency
+      (skip[1]?0:(*vit).freq_rank) +   // frequency of the CC
+      (skip[2]?0:(*vit).ld_rank) +     // levenshtein distance
+      (skip[3]?0:(*vit).csl_rank) +    // common longest substring
+      (skip[4]?0:(*vit).canon_rank) +  // is it a validated word form
+      (skip[5]?0:(*vit).fl_rank) +     // first character equality
+      (skip[6]?0:(*vit).ll_rank) +     // last 2 characters equality
+      (skip[7]?0:(*vit).khc_rank) +    // known historical confusion
+      (skip[8]?0:(*vit).pairs1_rank) + //
+      (skip[9]?0:(*vit).pairs2_rank) + //
+      (skip[10]?0:(*vit).pairs_combined_rank) + //
+      (skip[11]?0:(*vit).variant_rank) + // # of decapped versions of the CC
+      (skip[12]?0:(*vit).cosine_rank) + // WordVector rank
+      (skip[13]?0:(*vit).ngram_rank);
+    rank = rank/factor;
+    sum += rank;
+    (*vit).rank = rank;
+    ++vit;
+  }
+
+  if ( recs.size() == 1 ){
+    recs[0].rank = 1.0;
+  }
+  else {
+    for ( auto& it : recs ){
+      it.rank = 1 - it.rank/sum;
+    }
+  }
+
+  auto it = recs.begin();
+  int cnt = 0;
+  while ( it != recs.end() ){
+    ++cnt;
+    if ( clip > 0 && cnt > clip )
+      break;
+    // store the result vector
+#pragma omp critical (store)
+    {
+      results.insert( make_pair(it->rank,*it) );
+    }
+    ++it;
+  }
+
+  if ( db ){
+    vector<record>::iterator vit = recs.begin();
+    multimap<double,string,greater<double>> outv;
+    while ( vit != recs.end() ){
+      outv.insert( make_pair( (*vit).rank, extractLong(*vit, skip) ) );
+      ++vit;
+    }
+    stringstream outstr;
+    for ( const auto& oit : outv ){
+      outstr << oit.second << endl;
+    }
+#pragma omp critical (debugoutput)
+    {
+      *db << outstr.rdbuf();
+    }
+  }
+}
+
+void rank( vector<record>& recs,
+	   multimap<size_t, record, std::greater<size_t>>& results,
 	   const map<bitType,size_t>& kwc_counts,
 	   const map<bitType,size_t>& kwc2_counts,
 	   ostream* db, vector<bool>& skip, int factor ){
@@ -506,7 +666,7 @@ void rank( vector<record>& recs,
   auto it = ccf_sort.begin();
   while ( it != ccf_sort.end() ){
     ++cnt;
-    if ( clip > 0 && cnt > clip )
+    if ( cnt > 1 )
       break;
     // store the result vector
 #pragma omp critical (store)
@@ -958,6 +1118,7 @@ int main( int argc, char **argv ){
   count = 0;
 
   multimap<size_t,record, std::greater<size_t>> results;
+  multimap<double,record, std::greater<double>> full_results;
   cout << "Start the work, with " << work.size()
        << " iterations on " << numThreads << " thread(s)." << endl;
 #pragma omp parallel for schedule(dynamic,1)
@@ -1001,43 +1162,73 @@ int main( int argc, char **argv ){
       }
       ++it;
     }
-    ::rank( records, results, clip, kwc_counts, kwc2_counts, db, skip, skip_factor );
-  }
-
-  multimap< double, multimap<string,record*>, std::greater<double> > o_vec;
-  // we sort the output of one CC frequency descending on rank, and alphabeticaly on first word
-  size_t last = 0;
-  for ( auto& it : results ){
-    if ( last == 0 ){
-      last = it.first;
-    }
-    else if ( last != it.first ){
-      // a new key
-      // output the vector;
-      for ( const auto& oit : o_vec ){
-        for ( const auto& vit: oit.second ){
-          os << extractResults(*vit.second) << endl;
-        }
-      }
-      o_vec.clear();
-      last = it.first;
-    }
-    // add to the vector
-    auto my_map_it = o_vec.find( it.second.rank );
-    if ( my_map_it == o_vec.end () ) {
-      multimap<string,record*> new_map;
-      new_map.insert( make_pair( it.second.variant1, &it.second ) );
-      o_vec.insert( make_pair( it.second.rank, new_map ) );
+    if ( clip == 1 ){
+      ::rank( records, results, kwc_counts, kwc2_counts, db, skip, skip_factor );
     }
     else {
-      my_map_it->second.insert( make_pair( it.second.variant1, &it.second ) );
+      ::rank( records, full_results, clip, kwc_counts, kwc2_counts, db, skip, skip_factor );
     }
   }
-  if ( !o_vec.empty() ){
-    // output the last items
-    for ( const auto& oit : o_vec ){
-      for ( const auto& vit: oit.second ){
-        os << extractResults(*vit.second) << endl;
+
+  if ( clip == 1 ){
+    // we sort the output of one CC frequency descending on rank,
+    // and alphabeticaly on first word
+    // needed for chaining
+    multimap< double, multimap<string,record*>, std::greater<double> > o_vec;
+    size_t last = 0;
+    for ( auto& it : results ){
+      if ( last == 0 ){
+	last = it.first;
+      }
+      else if ( last != it.first ){
+	// a new key
+	// output the vector;
+	for ( const auto& oit : o_vec ){
+	  for ( const auto& vit: oit.second ){
+	    os << extractResults(*vit.second) << endl;
+	  }
+	}
+	o_vec.clear();
+	last = it.first;
+      }
+      // add to the vector
+      auto my_map_it = o_vec.find( it.second.rank );
+      if ( my_map_it == o_vec.end () ) {
+	multimap<string,record*> new_map;
+	new_map.insert( make_pair( it.second.variant1, &it.second ) );
+	o_vec.insert( make_pair( it.second.rank, new_map ) );
+      }
+      else {
+	my_map_it->second.insert( make_pair( it.second.variant1, &it.second ) );
+      }
+    }
+    if ( !o_vec.empty() ){
+      // output the last items
+      for ( const auto& oit : o_vec ){
+	for ( const auto& vit: oit.second ){
+	  os << extractResults(*vit.second) << endl;
+	}
+      }
+    }
+  }
+  else {
+    // output the result
+    multimap<string,multimap<double,string,std::greater<double>>> output;
+    for ( auto& it : full_results ){
+      string variant = it.second.variant1;
+      auto p = output.find(variant);
+      if ( p != output.end()  ){
+	p->second.insert( make_pair( it.first, extractResults(it.second) ) );
+      }
+      else {
+	multimap<double,string,std::greater<double>> tmp;
+	tmp.insert( make_pair( it.first, extractResults(it.second) ) );
+	output.insert( make_pair(variant,tmp) );
+      }
+    }
+    for ( const auto& it : output ){
+      for ( const auto& its : it.second ){
+	os << its.second << endl;
       }
     }
   }
