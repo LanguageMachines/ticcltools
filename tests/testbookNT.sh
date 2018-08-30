@@ -174,7 +174,7 @@ diff $outdir/TESTDP035.tsv.clean.NT.ldcalc.ranked $refdir/book.NT.ranked > /dev/
 if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"
-    echo "using: $outdir/TESTDP035.tsv.clean.NT.ldcalc.ranked $refdir/ranked.NT"
+    echo "using: diff $outdir/TESTDP035.tsv.clean.NT.ldcalc.ranked $refdir/book.NT.ranked"
     exit
 else
     echo OK!
