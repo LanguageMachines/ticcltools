@@ -495,15 +495,17 @@ void rank( vector<record>& recs,
     }
   }
 
-  // sort records on variant and rank
+  // sort records on alphabeticaly on variant and descending on rank
   map<string,multimap<double,record*,std::greater<double>>> output;
   for ( auto& it : recs ){
     string variant = it.variant1;
     auto p = output.find(variant);
     if ( p != output.end()  ){
       p->second.insert( make_pair( it.rank, &it) );
+      // rank sorted descending per variant.
     }
     else {
+      // new variant.
       multimap<double,record*,std::greater<double>> tmp;
       tmp.insert( make_pair( it.rank, &it ) );
       output.insert( make_pair(variant,tmp) );
