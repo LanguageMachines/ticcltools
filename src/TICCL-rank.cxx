@@ -367,7 +367,7 @@ void rank_desc_map( const Tmap& desc_map,
 }
 
 void rank( vector<record>& recs,
-	   multimap<double, record, std::greater<double>>& results,
+	   map<string,multimap<double,record,std::greater<double>>>& results,
 	   int clip,
 	   const map<bitType,size_t>& kwc_counts,
 	   const map<bitType,size_t>& kwc2_counts,
@@ -516,14 +516,17 @@ void rank( vector<record>& recs,
   for ( const auto& it : output ){
     const auto& mm = it.second;
     int cnt = 0;
-    for ( const auto& it : mm ){
-      // store the result vector
-#pragma omp critical (store)
-      {
-	results.insert( make_pair(it.first,*it.second) );
-      }
-      if ( ++cnt >= clip )
+    multimap<double,record,std::greater<double>> tmp;
+    for ( const auto& mit : mm ){
+      tmp.insert( make_pair( mit.first, *mit.second ) );
+      if ( ++cnt >= clip ){
 	break;
+      }
+    }
+    // store the result vector
+#pragma omp critical (store)
+    {
+      results.insert( make_pair(it.first,tmp) );
     }
   }
 
@@ -1151,8 +1154,9 @@ int main( int argc, char **argv ){
   }
   count = 0;
 
+
+  map<string,multimap<double,record,std::greater<double>>> full_results;
   multimap<size_t,record, std::greater<size_t>> results;
-  multimap<double,record, std::greater<double>> full_results;
   cout << "Start the work, with " << work.size()
        << " iterations on " << numThreads << " thread(s)." << endl;
 #pragma omp parallel for schedule(dynamic,1)
@@ -1247,22 +1251,10 @@ int main( int argc, char **argv ){
   }
   else {
     // output the result
-    multimap<string,multimap<double,string,std::greater<double>>> output;
-    for ( auto& it : full_results ){
-      string variant = it.second.variant1;
-      auto p = output.find(variant);
-      if ( p != output.end()  ){
-	p->second.insert( make_pair( it.first, extractResults(it.second) ) );
-      }
-      else {
-	multimap<double,string,std::greater<double>> tmp;
-	tmp.insert( make_pair( it.first, extractResults(it.second) ) );
-	output.insert( make_pair(variant,tmp) );
-      }
-    }
-    for ( const auto& it : output ){
-      for ( const auto& its : it.second ){
-	os << its.second << endl;
+    // map<string,multimap<double,record,std::greater<double>>> full_results;
+    for ( const auto& it : full_results ){
+      for( const auto& mit : it.second ){
+	os << extractResults( mit.second) << endl;
       }
     }
   }
