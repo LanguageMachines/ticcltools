@@ -49,10 +49,13 @@
 #include "ticcl/word2vec.h"
 
 using namespace std;
+using TiCC::operator<<;
+
 typedef signed long int bitType;
 
 const int RANK_COUNT=14;
 const string SEPARATOR = "_";
+set<string> follow_words;
 
 bool verbose = false;
 
@@ -97,8 +100,8 @@ public:
   size_t f2len_rank;
   int ld;
   double ld_rank;
-  int csl;
-  double csl_rank;
+  int cls;
+  double cls_rank;
   int canon;
   double canon_rank;
   size_t pairs1;
@@ -167,8 +170,8 @@ record::record( const string& line,
     kwc   = TiCC::stringTo<bitType>(parts[6]);
     ld    = TiCC::stringTo<int>(parts[7]);
     ld_rank = -4.5;  // bogus value, is set later
-    csl   = TiCC::stringTo<int>(parts[8]);
-    csl_rank = -5.6; // bogus value, is set later
+    cls   = TiCC::stringTo<int>(parts[8]);
+    cls_rank = -5.6; // bogus value, is set later
     canon = TiCC::stringTo<int>(parts[9]);
     if ( canon == 0 )
       canon_rank = 10;
@@ -231,13 +234,13 @@ string extractLong( const record& rec, const vector<bool>& skip ){
     rank += rec.ld_rank;
     result += TiCC::toString(rec.ld_rank) + "#";
   }
-  result += TiCC::toString(rec.csl) + "~";
+  result += TiCC::toString(rec.cls) + "~";
   if ( skip[3] ){
     result += "N#";
   }
   else {
-    rank += rec.csl_rank;
-    result += TiCC::toString(rec.csl_rank) + "#";
+    rank += rec.cls_rank;
+    result += TiCC::toString(rec.cls_rank) + "#";
   }
   result += TiCC::toString(rec.canon) + "~";
   if ( skip[4] ){
@@ -349,7 +352,7 @@ void rank_desc_map( const Tmap& desc_map,
   // the second value of the map is an index in the vector of records.
   // so the map contains records, sorted descending on specific values
   // e.g:
-  //  cslmap holds the CommonSubstringLengths of all vectors, longest first
+  //  clsmap holds the CommonSubstringLengths of all vectors, longest first
   if ( desc_map.empty() ){
     return;
   }
@@ -372,23 +375,22 @@ void rank( vector<record>& recs,
 	   const map<bitType,size_t>& kwc_counts,
 	   const map<bitType,size_t>& kwc2_counts,
 	   ostream* db, vector<bool>& skip, int factor ){
-  if (verbose ){
+  bool follow = follow_words.find(recs.begin()->variant1) != follow_words.end();
+  if ( follow||verbose ){
 #pragma omp critical (log)
     {
 #ifdef HAVE_OPENMP
       int numt = omp_get_thread_num();
-      cerr << numt << "-RANK " << recs[0].variant1
-	   << " " << recs.size() << endl;
-#else
-      cerr << "RANK " << recs[0].variant1
-	   << " " << recs.size() << endl;
+      cerr << numt << "-";
 #endif
+      cerr << "RANK " << recs[0].variant1
+	   << " with " << recs.size() << " variants" << endl;
     }
   }
   multimap<size_t,size_t,std::greater<size_t>> freqmap;  // freqs sorted descending
   multimap<size_t,size_t,std::greater<size_t>> f2lenmap; // f2 lenghts sorted descending
   multimap<size_t,size_t> ldmap;
-  multimap<size_t,size_t, std::greater<size_t>> cslmap; // Common substring lengths descending
+  multimap<size_t,size_t, std::greater<size_t>> clsmap; // Common substring lengths descending
   multimap<size_t,size_t,std::greater<size_t>> pairmap1;
   multimap<size_t,size_t,std::greater<size_t>> pairmap2;
   multimap<size_t,size_t,std::greater<size_t>> pairmap_combined;
@@ -399,11 +401,11 @@ void rank( vector<record>& recs,
     // for every record, we store information in descending multimaps
     // So in freqmap, the (index of) the records with highest freq
     //   are stored in front
-    //same for f2len, ld, csl and ngram points
+    //same for f2len, ld, cls and ngram points
     freqmap.insert( make_pair(it.reduced_freq2, count ) ); // freqs descending
     f2lenmap.insert( make_pair(it.f2len, count ) ); // f2lengths descending
     ldmap.insert( make_pair(it.ld,count) ); // lds sorted ASCENDING
-    cslmap.insert( make_pair(it.csl,count) ); // csl sorted descending
+    clsmap.insert( make_pair(it.cls,count) ); // cls sorted descending
     ngram_map.insert( make_pair(it.ngram_points,count) ); // ngrampoints sorted descending
     size_t var1_cnt = kwc_counts.at(it.kwc);
     it.pairs1 = var1_cnt;
@@ -429,16 +431,32 @@ void rank( vector<record>& recs,
     lower_variantmap.insert( make_pair( lowvarmap[it.lowervariant2], count ) );
     ++count;
   }
-  if ( !lower_variantmap.empty() ){
-    int ranking = 1;
-    int last = lower_variantmap.begin()->first;
-    for ( const auto& it1 : lower_variantmap ){
-      if ( it1.first < last ){
-	last = it1.first;
-	++ranking;
-      }
-      recs[it1.second].variant_count = it1.first;
-      recs[it1.second].variant_rank = ranking;
+  if ( follow ){
+    cout << "1 f2lenmap = " << f2lenmap << endl;
+    cout << "2 freqmap = " << freqmap << endl;
+    cout << "3 ldmap = " << ldmap << endl;
+    cout << "4 clsmap = " << clsmap << endl;
+    cout << "9 pairmap1 = " << pairmap1 << endl;
+    cout << "10 pairmap2 = " << pairmap2 << endl;
+    cout << "11 pairmap_combined = " << pairmap_combined << endl;
+    //    cout << "12-a lowvarmap = " << lowvarmap << endl;
+    cout << "12 lower_variantmap = " << lower_variantmap << endl;
+    cout << "14 ngram_map = " << ngram_map << endl;
+  }
+
+  rank_desc_map( f2lenmap, recs, &record::f2len_rank );
+  if ( follow ){
+    cout << "step 1: f2len_rank: " << endl;
+    for ( const auto& r : recs ){
+      cout << "\t" << r.variant2 << " rank= " << r.f2len_rank << endl;
+    }
+  }
+
+  rank_desc_map( freqmap, recs, &record::freq_rank );
+  if ( follow ){
+    cout << "step 2: freq_rank: " << endl;
+    for ( const auto& r : recs ){
+      cout << "\t" << r.variant2 << " rank= " << r.freq_rank << endl;
     }
   }
 
@@ -453,14 +471,106 @@ void rank( vector<record>& recs,
       recs[sit.second].ld_rank = ranking;
     }
   }
+  if ( follow ){
+    cout << "step 3: ld_rank: " << endl;
+    for ( const auto& r : recs ){
+      cout << "\t" << r.variant2 << " rank= " << r.ld_rank << endl;
+    }
+  }
 
-  rank_desc_map( freqmap, recs, &record::freq_rank );
-  rank_desc_map( f2lenmap, recs, &record::f2len_rank );
-  rank_desc_map( cslmap, recs, &record::csl_rank );
+  rank_desc_map( clsmap, recs, &record::cls_rank );
+  if ( follow ){
+    cout << "step 4: cls_rank: " << endl;
+    for ( const auto& r : recs ){
+      cout << "\t" << r.variant2 << " rank= " << r.cls_rank << endl;
+    }
+  }
+
+  if ( follow ){
+    cout << "step 5: canon_rank: " << endl;
+    for ( const auto& r : recs ){
+      cout << "\t" << r.variant2 << " rank= " << r.canon_rank << endl;
+    }
+  }
+
+  if ( follow ){
+    cout << "step 6: fl_rank: " << endl;
+    for ( const auto& r : recs ){
+      cout << "\t" << r.variant2 << " rank= " << r.fl_rank << endl;
+    }
+  }
+
+  if ( follow ){
+    cout << "step 7: ll_rank: " << endl;
+    for ( const auto& r : recs ){
+      cout << "\t" << r.variant2 << " rank= " << r.ll_rank << endl;
+    }
+  }
+
+  if ( follow ){
+    cout << "step 8: khc_rank: " << endl;
+    for ( const auto& r : recs ){
+      cout << "\t" << r.variant2 << " rank= " << r.khc_rank << endl;
+    }
+  }
+
   rank_desc_map( pairmap1, recs, &record::pairs1_rank );
+  if ( follow ){
+    cout << "step 9: pairs1_rank: " << endl;
+    for ( const auto& r : recs ){
+      cout << "\t" << r.variant2 << " rank= " << r.pairs1_rank << endl;
+    }
+  }
+
   rank_desc_map( pairmap2, recs, &record::pairs2_rank );
+  if ( follow ){
+    cout << "step 10: pairs2_rank: " << endl;
+    for ( const auto& r : recs ){
+      cout << "\t" << r.variant2 << " rank= " << r.pairs2_rank << endl;
+    }
+  }
+
   rank_desc_map( pairmap_combined, recs, &record::pairs_combined_rank );
+  if ( follow ){
+    cout << "step 11: pairs_combined_rank: " << endl;
+    for ( const auto& r : recs ){
+      cout << "\t" << r.variant2 << " rank= " << r.pairs_combined_rank << endl;
+    }
+  }
+
+  if ( !lower_variantmap.empty() ){
+    int ranking = 1;
+    int last = lower_variantmap.begin()->first;
+    for ( const auto& it1 : lower_variantmap ){
+      if ( it1.first < last ){
+	last = it1.first;
+	++ranking;
+      }
+      recs[it1.second].variant_count = it1.first;
+      recs[it1.second].variant_rank = ranking;
+    }
+  }
+  if ( follow ){
+    cout << "step 12: lower_variant_rank: " << endl;
+    for ( const auto& r : recs ){
+      cout << "\t" << r.variant2 << " count=" << r.variant_count << " rank= " << r.variant_rank << endl;
+    }
+  }
+
+  if ( follow ){
+    cout << "step 13: cosine_rank: " << endl;
+    for ( const auto& r : recs ){
+      cout << "\t" << r.variant2 << " rank= " << r.cosine_rank << endl;
+    }
+  }
+
   rank_desc_map( ngram_map, recs, &record::ngram_rank );
+  if ( follow ){
+    cout << "step 14: ngram_rank: " << endl;
+    for ( const auto& r : recs ){
+      cout << "\t" << r.variant2 << " rank= " << r.ngram_rank << endl;
+    }
+  }
 
   double sum = 0.0;
   vector<record>::iterator vit = recs.begin();
@@ -469,7 +579,7 @@ void rank( vector<record>& recs,
       (skip[0]?0:(*vit).f2len_rank) +  // number of characters in the frequency
       (skip[1]?0:(*vit).freq_rank) +   // frequency of the CC
       (skip[2]?0:(*vit).ld_rank) +     // levenshtein distance
-      (skip[3]?0:(*vit).csl_rank) +    // common longest substring
+      (skip[3]?0:(*vit).cls_rank) +    // common longest substring
       (skip[4]?0:(*vit).canon_rank) +  // is it a validated word form
       (skip[5]?0:(*vit).fl_rank) +     // first character equality
       (skip[6]?0:(*vit).ll_rank) +     // last 2 characters equality
@@ -537,13 +647,9 @@ void rank( vector<record>& recs,
       outv.insert( make_pair( (*vit).rank, extractLong(*vit, skip) ) );
       ++vit;
     }
-    stringstream outstr;
-    for ( const auto& oit : outv ){
-      outstr << oit.second << endl;
-    }
 #pragma omp critical (debugoutput)
-    {
-      *db << outstr.rdbuf();
+    for ( const auto& oit : outv ){
+      *db << oit.second << endl;
     }
   }
 }
@@ -558,7 +664,7 @@ int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:t:" );
-    opts.set_long_options( "alph:,debugfile:,skipcols:,charconf:,charconfreq:,artifrq:,wordvec:,clip:,numvec:,threads:" );
+    opts.set_long_options( "alph:,debugfile:,skipcols:,charconf:,charconfreq:,artifrq:,wordvec:,clip:,numvec:,threads:,verbose,follow:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -579,7 +685,7 @@ int main( int argc, char **argv ){
     cerr << PACKAGE_STRING << endl;
     exit(EXIT_SUCCESS);
   }
-  bool verbose = opts.extract( 'v' );
+  bool verbose = opts.extract( 'v' ) || opts.extract("verbose");
   string alfabetFile;
   string lexstatFile;
   string freqOutFile;
@@ -642,6 +748,14 @@ int main( int argc, char **argv ){
   }
 #endif
 
+  while ( opts.extract( "follow", value ) ){
+    follow_words.insert( value );
+  }
+  if ( !follow_words.empty() && numThreads > 1 ){
+    cerr << "FORCING # threads to 1 because of --follow option!" << endl;
+    numThreads = 1;
+    omp_set_num_threads( numThreads );
+  }
   //#define TESTWV
 #ifdef TESTWV
   size_t num_vec = 20;
@@ -773,7 +887,6 @@ int main( int argc, char **argv ){
       cerr << "you may not skip all value using --skipcols." << endl;
       exit(EXIT_FAILURE);
     }
-    using TiCC::operator<<;
     cerr << "skips = " << skip_cols << endl;
     // no stuf it in a bool vector
     for ( int i=0; i < RANK_COUNT; ++i ){
@@ -834,7 +947,6 @@ int main( int argc, char **argv ){
     pos = input.tellg();
   }
   cout << endl << "Done indexing" << endl;
-
   map<bitType,size_t> kwc2_counts;
   map<bitType,string> kwc_string;
 
@@ -975,7 +1087,7 @@ int main( int argc, char **argv ){
   map<string,multimap<double,record,std::greater<double>>> results;
   cout << "Start the work, with " << work.size()
        << " iterations on " << numThreads << " thread(s)." << endl;
-#pragma omp parallel for schedule(dynamic,1)
+#pragma omp parallel for schedule(dynamic,1) shared(verbose,db)
   for( size_t i=0; i < work.size(); ++i ){
     const set<streamsize>& ids = work[i]._st;
     vector<word_dist> vec;
