@@ -751,11 +751,15 @@ int main( int argc, char **argv ){
   while ( opts.extract( "follow", value ) ){
     follow_words.insert( value );
   }
+
+#ifdef HAVE_OPENMP
   if ( !follow_words.empty() && numThreads > 1 ){
     cerr << "FORCING # threads to 1 because of --follow option!" << endl;
     numThreads = 1;
     omp_set_num_threads( numThreads );
   }
+#endif
+
   //#define TESTWV
 #ifdef TESTWV
   size_t num_vec = 20;
