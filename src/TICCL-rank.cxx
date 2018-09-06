@@ -763,14 +763,14 @@ int main( int argc, char **argv ){
     for( size_t i=0; i < vec.size(); ++i ){
       int kol = TiCC::stringTo<int>(vec[i]);
       if ( kol <= 0 || kol > RANK_COUNT ){
-	cerr << "invalid skip value in -R. All values must be between 1 and "
+	cerr << "invalid skip value in --skipcols. All values must be between 1 and "
 	     << RANK_COUNT << endl;
 	exit(EXIT_FAILURE);
       }
       skip_cols.insert(kol);
     }
     if ( skip_cols.size() == (unsigned)RANK_COUNT ){
-      cerr << "you may not skip all value using -R." << endl;
+      cerr << "you may not skip all value using --skipcols." << endl;
       exit(EXIT_FAILURE);
     }
     using TiCC::operator<<;
