@@ -397,7 +397,7 @@ void rank( vector<record>& recs,
   multimap<size_t,size_t,std::greater<size_t>> ngram_map;
   map<string,int> lowvarmap;
   size_t count = 0;
-  for ( auto it : recs ){
+  for ( auto& it : recs ){
     // for every record, we store information in descending multimaps
     // So in freqmap, the (index of) the records with highest freq
     //   are stored in front

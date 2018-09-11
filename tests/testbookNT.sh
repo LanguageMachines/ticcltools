@@ -24,7 +24,7 @@ refdir=OUTreference/BOOK
 datadir=DATA
 foliadir=BOOK
 
-echo start TICLL-stuff
+echo "start TICLL-stuff"
 
 $bindir/TICCL-lexstat --separator=_ --clip=20 --LD=2 $datadir/nld.aspell.dict
 
@@ -160,7 +160,7 @@ fi
 
 echo "start TICLL-rank"
 
-$bindir/TICCL-rank -t 1 --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/TESTDP035.tsv.clean.NT.ldcalc.ranked --debugfile $outdir/.TESTDP035.tsv.clean.ldcalc.debug.ranked --artifrq 0 --clip 5 --skipcols=10,11 $outdir/TESTDP035.tsv.clean.NT.ldcalc 2> $outdir/.TESTDP035.RANK.stderr
+$bindir/TICCL-rank -t 1 --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/TESTDP035.tsv.clean.NT.ldcalc.ranked --debugfile $outdir/TESTDP035.tsv.clean.NT.ldcalc.debug.ranked --artifrq 0 --clip 5 --skipcols=10,11 $outdir/TESTDP035.tsv.clean.NT.ldcalc 2> $outdir/.TESTDP035.RANK.stderr
 
 if [ $? -ne 0 ]
 then
@@ -175,6 +175,15 @@ if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"
     echo "using: diff $outdir/TESTDP035.tsv.clean.NT.ldcalc.ranked $refdir/book.NT.ranked"
+    exit
+fi
+
+sort  $outdir/TESTDP035.tsv.clean.NT.ldcalc.debug.ranked > $outdir/TESTDP035.tsv.clean.NT.ldcalc.debug.ranked.sorted
+diff $outdir/TESTDP035.tsv.clean.NT.ldcalc.debug.ranked.sorted $refdir/book.NT.debug.ranked.sorted > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    echo "differences in TICLL-rank debug results"
+    echo "using: diff $outdir/TESTDP035.tsv.clean.NT.ldcalc.debug.ranked.sorted $refdir/book.NT.debug.ranked.sorted"
     exit
 else
     echo OK!
