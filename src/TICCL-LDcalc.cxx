@@ -129,7 +129,7 @@ public:
     swap( low_freq1, low_freq2 );
   }
   bool analyze_ngrams( const map<UnicodeString, size_t>&,
-		       size_t,
+		       size_t, size_t,
 		       map<UnicodeString,set<UnicodeString>>&,
 		       map<UnicodeString, size_t>&,
 		       map<UnicodeString, size_t>& );
@@ -224,6 +224,7 @@ UnicodeString ld_record::get_key() const {
 
 bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 				size_t freqThreshold,
+				size_t low_limit,
 				map<UnicodeString,set<UnicodeString>>& dis_map,
 				map<UnicodeString, size_t>& dis_count,
 				map<UnicodeString, size_t>& ngram_count ){
@@ -409,7 +410,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 // so this IS a potential good correction
   ngram_point = 1;
   UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
-  if ( diff_part1.length() < 6 ){
+  if ( (size_t)diff_part1.length() < low_limit ){
     // a 'short' word
     // count this short words pair AND store the original n-gram pair
 #pragma omp critical (update)
@@ -615,6 +616,7 @@ bool transpose_pair( ld_record& record,
 		     map<UnicodeString, size_t>& dis_count,
 		     map<UnicodeString, size_t>& ngram_count,
 		     size_t freqThreshold,
+		     size_t low_limit,
 		     const set<UChar>& alfabet,
 		     bool following ){
   if ( following ){
@@ -631,7 +633,7 @@ bool transpose_pair( ld_record& record,
   if ( !record.acceptable( freqThreshold, alfabet ) ){
     return false;
   }
-  if ( record.analyze_ngrams( low_freqMap, freqThreshold,
+  if ( record.analyze_ngrams( low_freqMap, freqThreshold, low_limit,
 			      dis_map, dis_count, ngram_count ) ){
     return false;
   }
@@ -659,6 +661,7 @@ void handleTranspositions( const set<string>& s,
 			   map<UnicodeString, size_t>& dis_count,
 			   map<UnicodeString, size_t>& ngram_count,
 			   size_t freqThreshold,
+			   size_t low_limit,
 			   bool isKHC,
 			   bool noKHCld,
 			   bool isDIAC,
@@ -682,7 +685,7 @@ void handleTranspositions( const set<string>& s,
 			isKHC, noKHCld, isDIAC, following );
       if ( transpose_pair( record, low_freqMap,
 			   dis_map, dis_count, ngram_count,
-			   freqThreshold, alfabet, following ) ){
+			   freqThreshold, low_limit, alfabet, following ) ){
 	UnicodeString key = record.get_key();
 #pragma omp critical (output)
 	{
@@ -703,6 +706,7 @@ bool compare_pair( ld_record& record,
 		   map<UnicodeString, size_t>& dis_count,
 		   map<UnicodeString, size_t>& ngram_count,
 		   size_t freqThreshold,
+		   size_t low_limit,
 		   const set<UChar>& alfabet,
 		   bool following ){
   if ( !record.ld_check( ldValue ) ){
@@ -712,7 +716,7 @@ bool compare_pair( ld_record& record,
   if ( !record.acceptable( freqThreshold, alfabet) ){
     return false;
   }
-  if ( record.analyze_ngrams( low_freqMap, freqThreshold,
+  if ( record.analyze_ngrams( low_freqMap, freqThreshold, low_limit,
 			      dis_map, dis_count, ngram_count ) ){
     return false;
   }
@@ -734,6 +738,7 @@ void compareSets( int ldValue,
 		  map<UnicodeString, size_t>& dis_count,
 		  map<UnicodeString, size_t>& ngram_count,
 		  size_t freqThreshold,
+		  size_t low_limit,
 		  bool isKHC,
 		  bool noKHCld,
 		  bool isDIAC,
@@ -771,7 +776,7 @@ void compareSets( int ldValue,
 			isKHC, noKHCld, isDIAC, following );
       if ( compare_pair( record, low_freqMap, ldValue, KWC,
 			 dis_map, dis_count, ngram_count,
-			 freqThreshold, alfabet, following ) ){
+			 freqThreshold, low_limit, alfabet, following ) ){
 	UnicodeString key = record.get_key();
 #pragma omp critical (output)
 	{
@@ -898,17 +903,17 @@ int main( int argc, char **argv ){
       exit( EXIT_FAILURE );
     }
   }
-  unsigned int low = 5;
+  int low_limit = 5;
   if ( opts.extract( "low", value ) ){
-    if ( !TiCC::stringTo(value,low) ){
+    if ( !TiCC::stringTo(value,low_limit) ){
       cerr << progname << ": illegal value for --low (" << value << ")" << endl;
       exit( EXIT_FAILURE );
     }
   }
 
-  unsigned int high = 35;
+  int high_limit = 35;
   if ( opts.extract( "high", value ) ){
-    if ( !TiCC::stringTo(value,high) ) {
+    if ( !TiCC::stringTo(value,high_limit) ) {
       cerr << progname << ": illegal value for --high (" << value << ")" << endl;
       exit( EXIT_FAILURE );
     }
@@ -996,17 +1001,17 @@ int main( int argc, char **argv ){
     }
     else {
       string s = v1[0];
-      if ( low > 0 && s.size() < low ){
+      UnicodeString ls = TiCC::UnicodeFromUTF8(s);
+      if ( low_limit > 0 && ls.length() < low_limit ){
 	++skipped;
 	continue;
       }
-      if ( high > 0 && s.size() > high ){
+      if ( high_limit > 0 && ls.length() > high_limit ){
 	++skipped;
 	continue;
       }
       size_t freq = TiCC::stringTo<size_t>( v1[1] );
       freqMap[s] = freq;
-      UnicodeString ls = TiCC::UnicodeFromUTF8(s);
       ls.toLower();
       if ( freq >= artifreq ){
 	// make sure that the artifrq is counted only once!
@@ -1225,7 +1230,7 @@ int main( int argc, char **argv ){
 	      handleTranspositions( sit1->second,
 				    freqMap, low_freqMap, alfabet,
 				    dis_map, dis_count, ngram_count,
-				    artifreq, isKHC, noKHCld, isDIAC,
+				    artifreq, low_limit, isKHC, noKHCld, isDIAC,
 				    record_store );
 	    }
 	  }
@@ -1247,7 +1252,7 @@ int main( int argc, char **argv ){
 		       sit1->second, sit2->second,
 		       freqMap, low_freqMap, alfabet,
 		       dis_map, dis_count, ngram_count,
-		       artifreq, isKHC, noKHCld, isDIAC,
+		       artifreq, low_limit, isKHC, noKHCld, isDIAC,
 		       record_store );
 	}
       }
