@@ -129,7 +129,7 @@ public:
     swap( low_freq1, low_freq2 );
   }
   bool analyze_ngrams( const map<UnicodeString, size_t>&,
-		       size_t, size_t,
+		       size_t, size_t, set<UnicodeString>&,
 		       map<UnicodeString,set<UnicodeString>>&,
 		       map<UnicodeString, size_t>&,
 		       map<UnicodeString, size_t>& );
@@ -225,6 +225,7 @@ UnicodeString ld_record::get_key() const {
 bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 				size_t freqThreshold,
 				size_t low_limit,
+				set<UnicodeString>& variants_set,
 				map<UnicodeString,set<UnicodeString>>& dis_map,
 				map<UnicodeString, size_t>& dis_count,
 				map<UnicodeString, size_t>& ngram_count ){
@@ -242,6 +243,30 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
       }
     }
     return false; // nothing special for unigrams
+  }
+  for ( const auto& p : parts1 ){
+    if ( variants_set.find(p) != variants_set.end() ){
+      // this is already seen and handled
+      if ( follow ){
+#pragma omp critical (debugout)
+	{
+	  cerr << "ngram part " << p << " is already taken care of" << endl;
+	}
+      }
+      return true; // DISCARD!
+    }
+  }
+  for ( const auto& p : parts2 ){
+    if ( variants_set.find(p) != variants_set.end() ){
+      // this is already seen and handled
+      if ( follow ){
+#pragma omp critical (debugout)
+	{
+	  cerr << "ngram part " << p << " is already taken care of" << endl;
+	}
+      }
+      return true; // DISCARD!
+    }
   }
   UnicodeString diff_part1;
   UnicodeString diff_part2;
@@ -434,11 +459,18 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
       // keep pair for later
     }
     // signal to discard this ngram (in favor of the unigram within)
+    #pragma omp critical (update)
+    {
+      variants_set.insert( diff_part1 );
+      variants_set.insert( diff_part2 );
+    }
     if ( follow ){
 #pragma omp critical (debugout)
       {
 	cerr << "stored: " << disamb_pair << " and forget about "
 	     << str1 << "~" << str2 << endl;
+	cerr << "also added " << diff_part1 << " and " <<  diff_part2
+	     << " to the variants set" << endl;
       }
     }
   }
@@ -612,6 +644,7 @@ string ld_record::toString() const {
 
 bool transpose_pair( ld_record& record,
 		     const map<UnicodeString,size_t>& low_freqMap,
+		     set<UnicodeString>& variants_set,
 		     map<UnicodeString,set<UnicodeString>>& dis_map,
 		     map<UnicodeString, size_t>& dis_count,
 		     map<UnicodeString, size_t>& ngram_count,
@@ -634,7 +667,7 @@ bool transpose_pair( ld_record& record,
     return false;
   }
   if ( record.analyze_ngrams( low_freqMap, freqThreshold, low_limit,
-			      dis_map, dis_count, ngram_count ) ){
+			      variants_set, dis_map, dis_count, ngram_count ) ){
     return false;
   }
   if ( !record.ld_is( 2 ) ){
@@ -657,6 +690,7 @@ void handleTranspositions( const set<string>& s,
 			   const map<string,size_t>& freqMap,
 			   const map<UnicodeString,size_t>& low_freqMap,
 			   const set<UChar>& alfabet,
+			   set<UnicodeString>& variants_set,
 			   map<UnicodeString,set<UnicodeString>>& dis_map,
 			   map<UnicodeString, size_t>& dis_count,
 			   map<UnicodeString, size_t>& ngram_count,
@@ -684,6 +718,7 @@ void handleTranspositions( const set<string>& s,
 			freqMap, low_freqMap,
 			isKHC, noKHCld, isDIAC, following );
       if ( transpose_pair( record, low_freqMap,
+			   variants_set,
 			   dis_map, dis_count, ngram_count,
 			   freqThreshold, low_limit, alfabet, following ) ){
 	UnicodeString key = record.get_key();
@@ -702,6 +737,7 @@ void handleTranspositions( const set<string>& s,
 bool compare_pair( ld_record& record,
 		   const map<UnicodeString,size_t>& low_freqMap,
 		   int ldValue, size_t KWC,
+		   set<UnicodeString>& variants_set,
 		   map<UnicodeString,set<UnicodeString>>& dis_map,
 		   map<UnicodeString, size_t>& dis_count,
 		   map<UnicodeString, size_t>& ngram_count,
@@ -717,7 +753,7 @@ bool compare_pair( ld_record& record,
     return false;
   }
   if ( record.analyze_ngrams( low_freqMap, freqThreshold, low_limit,
-			      dis_map, dis_count, ngram_count ) ){
+			      variants_set, dis_map, dis_count, ngram_count ) ){
     return false;
   }
   record.fill_fields( freqThreshold );
@@ -734,6 +770,7 @@ void compareSets( int ldValue,
 		  const map<string,size_t>& freqMap,
 		  const map<UnicodeString,size_t>& low_freqMap,
 		  const set<UChar>& alfabet,
+		  set<UnicodeString>& variants_set,
 		  map<UnicodeString,set<UnicodeString>>& dis_map,
 		  map<UnicodeString, size_t>& dis_count,
 		  map<UnicodeString, size_t>& ngram_count,
@@ -775,6 +812,7 @@ void compareSets( int ldValue,
 			freqMap, low_freqMap,
 			isKHC, noKHCld, isDIAC, following );
       if ( compare_pair( record, low_freqMap, ldValue, KWC,
+			 variants_set,
 			 dis_map, dis_count, ngram_count,
 			 freqThreshold, low_limit, alfabet, following ) ){
 	UnicodeString key = record.get_key();
@@ -1134,6 +1172,7 @@ int main( int argc, char **argv ){
 
   size_t count=0;
   set<bitType> handledTrans;
+  set<UnicodeString> variants_set;
   map<UnicodeString,set<UnicodeString>> dis_map;
   map<UnicodeString,size_t> dis_count;
   map<UnicodeString,size_t> ngram_count;
@@ -1229,6 +1268,7 @@ int main( int argc, char **argv ){
 	    if ( do_trans ){
 	      handleTranspositions( sit1->second,
 				    freqMap, low_freqMap, alfabet,
+				    variants_set,
 				    dis_map, dis_count, ngram_count,
 				    artifreq, low_limit, isKHC, noKHCld, isDIAC,
 				    record_store );
@@ -1251,6 +1291,7 @@ int main( int argc, char **argv ){
 	  compareSets( LDvalue, mainKey,
 		       sit1->second, sit2->second,
 		       freqMap, low_freqMap, alfabet,
+		       variants_set,
 		       dis_map, dis_count, ngram_count,
 		       artifreq, low_limit, isKHC, noKHCld, isDIAC,
 		       record_store );
