@@ -960,6 +960,13 @@ int main( int argc, char **argv ){
   if ( !opts.extract( 't', value ) ){
     opts.extract( "threads", value );
   }
+  if ( value != "1" ){
+    cerr << "\n\n\t\tWARNING!" << endl;
+    cerr << "\n\tnumber of threads is fixed to 1, because of experimental code"
+	 << endl;
+    cerr << "\n\t\tWARNING! WARNING! WARNING!" << endl;
+    value = "1";
+  }
 #ifdef HAVE_OPENMP
   int numThreads;
   if ( TiCC::lowercase(value) == "max" ){
