@@ -364,7 +364,7 @@ void rank_desc_map( const Tmap& desc_map,
       last = rit.first;
       ++ranking;
     }
-    // set the currect reanking for the record at hand
+    // set the currect ranking for the record at hand
     set_val( recs[rit.second], member, ranking );
   }
 }
