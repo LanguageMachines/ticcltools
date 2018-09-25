@@ -56,6 +56,38 @@ else
 fi
 
 
+echo "start TICLL-rank clip=5 , with artifreq"
+
+$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.c5.af.ranked --debugfile $outdir/ngram.debug5.af.ranked --subtractartifrqoverall 100000000 --clip 5 --skipcols=10,11 $refdir/ngram.ldcalc
+
+if [ $? -ne 0 ]
+then
+    echo "failed in TICLL-rank"
+    exit
+fi
+
+echo "checking RANK clip5 artifrq results...."
+
+diff $outdir/ngram.c5.af.ranked $refdir/ngram.c5.af.rank > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    echo "differences in TICLL-rank results"
+    echo "using: diff $outdir/ngram.c5.af.ranked $refdir/ngram.c5.af.rank"
+    exit
+fi
+
+sort $outdir/ngram.debug5.af.ranked > $outdir/ngram.debug5.af.rank.sorted
+diff $outdir/ngram.debug5.af.rank.sorted $refdir/ngram.debug5.af.rank.sorted > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    echo "differences in TICLL-rank debug results"
+    echo "using: diff $outdir/ngram.debug5.af.rank.sorted $refdir/ngram.debug5.af.rank.sorted"
+    exit
+else
+    echo OK!
+fi
+
+
 echo "start TICLL-rank clip=1"
 
 $bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.ranked --debugfile $outdir/ngram.debug.ranked --artifrq 0 --clip 1 --skipcols=10,11 $refdir/ngram.ldcalc
