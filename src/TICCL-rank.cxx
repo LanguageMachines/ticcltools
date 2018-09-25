@@ -73,7 +73,12 @@ void usage( const string& name ){
   cerr << "\t--clip 'clip'\t limit the number of variants per word to 'clip'." << endl;
   cerr << "\t--debugfile 'debug'\t produce a more verbose outputfile in parallel." << endl;
   cerr << "\t\t\t (for debugging.)" << endl;
-  cerr << "\t--artifrq 'arti'\t decrease frequencies with value 'arti'." << endl;
+  cerr << "\t--artifrq 'arti'\t OBSOLETE. decrease frequencies with value 'arti'." << endl;
+  cerr << "\t\t\t (which should match the artifreq used in TICCL-LDcalc)" << endl;
+  cerr << "\t\t\t This option is obsolete. use --subtractartifrqoverall." << endl;
+  cerr << "\t--subtractartifrqoverall 'arti'\t decrease ALL frequencies with value 'arti'." << endl;
+  cerr << "\t\t\t (which should match the artifreq used in TICCL-LDcalc)" << endl;
+  cerr << "\t--subtractartifrqfeature1 'arti'\t decrease the frequencies for feature 1 with value 'arti'." << endl;
   cerr << "\t\t\t (which should match the artifreq used in TICCL-LDcalc)" << endl;
   cerr << "\t--skipcols=arglist\t skip the named columns in the ranking." << endl;
   cerr << "\t\t\t e.g. if arglist=3,9, then the columns 3 and 9 are not used." << endl;
@@ -83,7 +88,7 @@ void usage( const string& name ){
 
 class record {
 public:
-  record( const string &, size_t, const vector<word_dist>& );
+  record( const string &, size_t, size_t, const vector<word_dist>& );
   string variant1;
   string variant2;
   string lowervariant2;
@@ -135,7 +140,8 @@ float lookup( const vector<word_dist>& vec,
 }
 
 record::record( const string& line,
-		size_t artifreq,
+		size_t sub_artifreq,
+		size_t sub_artifreq_f2,
 		const vector<word_dist>& WV ):
   variant_count(-1),
   f2len_rank(-1),
@@ -159,11 +165,19 @@ record::record( const string& line,
     us.toLower();
     lowervariant2 = TiCC::UnicodeToUTF8( us );
     variant_rank = -2000;  // bogus value, is set later
-    freq2 = TiCC::stringTo<size_t>(parts[4]);
-    f2len = parts[4].length();
+    string f2_string = parts[4];
+    freq2 = TiCC::stringTo<size_t>( f2_string );
     reduced_freq2 = freq2;
-    if ( artifreq > 0 && reduced_freq2 >= artifreq ){
-      reduced_freq2 -= artifreq;
+    if ( sub_artifreq > 0 && reduced_freq2 >= sub_artifreq ){
+      reduced_freq2 -= sub_artifreq;
+    }
+    if ( sub_artifreq_f2 > 0 && freq2 >= sub_artifreq_f2 ){
+      size_t rf2 = freq2 - sub_artifreq_f2;
+      string rf2_string = toString( rf2 );
+      f2len = rf2_string.length();
+    }
+    else {
+      f2len = f2_string.length();
     }
     low_freq2 = TiCC::stringTo<size_t>(parts[5]);
     freq_rank = -20;  // bogus value, is set later
@@ -397,6 +411,7 @@ void rank( vector<record>& recs,
   multimap<size_t,size_t,std::greater<size_t>> ngram_map;
   map<string,int> lowvarmap;
   size_t count = 0;
+
   for ( auto& it : recs ){
     // for every record, we store information in descending multimaps
     // So in freqmap, the (index of) the records with highest freq
@@ -664,7 +679,9 @@ int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:t:" );
-    opts.set_long_options( "alph:,debugfile:,skipcols:,charconf:,charconfreq:,artifrq:,wordvec:,clip:,numvec:,threads:,verbose,follow:" );
+    opts.set_long_options( "alph:,debugfile:,skipcols:,charconf:,charconfreq:,"
+			   "artifrq:,subtractartifrqoverall:,subtractartifrqfeature1:,"
+			   "wordvec:,clip:,numvec:,threads:,verbose,follow:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -694,7 +711,8 @@ int main( int argc, char **argv ){
   string debugFile;
   int clip = 0;
   string skipC;
-  size_t artifreq = 0;
+  size_t sub_artifreq = 0;
+  size_t sub_artifreq_f1 = 0;
   if ( !opts.extract("charconf",lexstatFile) ){
     cerr << "missing --charconf option" << endl;
     exit(EXIT_FAILURE);
@@ -715,9 +733,24 @@ int main( int argc, char **argv ){
       exit( EXIT_FAILURE );
     }
   }
-  if ( opts.extract( "artifrq", value ) ){
-    if ( !TiCC::stringTo(value,artifreq) ) {
-      cerr << "illegal value for --artifrq (" << value << ")" << endl;
+  if ( opts.extract( "subtractartifrqoverall", value ) ){
+    if ( !TiCC::stringTo(value,sub_artifreq) ) {
+      cerr << "illegal value for --subtractartifrqoverall (" << value << ")" << endl;
+      exit( EXIT_FAILURE );
+    }
+  }
+  if ( sub_artifreq == 0 ){
+    if ( opts.extract( "artifrq", value ) ){
+      cerr << "WARNING: Obsolete option 'artifrq'. Use 'subtractartifrqoverall' instead." << endl;
+      if ( !TiCC::stringTo(value,sub_artifreq) ) {
+	cerr << "illegal value for --artifrq (" << value << ")" << endl;
+	exit( EXIT_FAILURE );
+      }
+    }
+  }
+  if ( opts.extract( "subtractartifrqfeature1", value ) ){
+    if ( !TiCC::stringTo(value,sub_artifreq_f1) ) {
+      cerr << "illegal value for --subtractartifrqfeature1 (" << value << ")" << endl;
       exit( EXIT_FAILURE );
     }
   }
@@ -1111,7 +1144,7 @@ int main( int argc, char **argv ){
       string line;
       in.seekg( *it );
       getline( in, line );
-      records.push_back( record( line, artifreq, vec ) );
+      records.push_back( record( line, sub_artifreq, sub_artifreq_f1, vec ) );
       if ( verbose ){
 	int tmp = 0;
 #pragma omp critical (count)
