@@ -56,9 +56,9 @@ else
 fi
 
 
-echo "start TICLL-rank clip=5 , with --subtractartifrqoverall "
+echo "start TICLL-rank clip=5 , with --subtractartifrqfeature2 "
 
-$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.c5.af.ranked --debugfile $outdir/ngram.debug5.af.ranked --subtractartifrqoverall 100000000 --clip 5 --skipcols=10,11 $refdir/ngram.ldcalc
+$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.c5.af.ranked --debugfile $outdir/ngram.debug5.af.ranked --subtractartifrqfeature2 100000000 --clip 5 --skipcols=10,11 $refdir/ngram.ldcalc
 
 if [ $? -ne 0 ]
 then
@@ -66,7 +66,7 @@ then
     exit
 fi
 
-echo "checking RANK clip5 --subtractartifrqoverall results...."
+echo "checking RANK clip5 --subtractartifrqfeature2 results...."
 
 diff $outdir/ngram.c5.af.ranked $refdir/ngram.c5.af.rank > /dev/null 2>&1
 if [ $? -ne 0 ]
@@ -88,9 +88,9 @@ else
 fi
 
 
-echo "start TICLL-rank clip=5 , with --subtractartifrqoverall and --subtractartifrqfeature1"
+echo "start TICLL-rank clip=5 , with --subtractartifrqfeature1 and --subtractartifrqfeature2"
 
-$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.c5.af1.ranked --debugfile $outdir/ngram.debug5.af1.ranked --subtractartifrqoverall 100000000 --subtractartifrqfeature1 100000000 --clip 5 --skipcols=10,11 $refdir/ngram.ldcalc
+$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.c5.af1.ranked --debugfile $outdir/ngram.debug5.af1.ranked --subtractartifrqfeature1 100000000 --subtractartifrqfeature2 100000000 --clip 5 --skipcols=10,11 $refdir/ngram.ldcalc
 
 if [ $? -ne 0 ]
 then
