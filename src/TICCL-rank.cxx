@@ -75,8 +75,8 @@ void usage( const string& name ){
   cerr << "\t\t\t (for debugging.)" << endl;
   cerr << "\t--artifrq 'arti'\t OBSOLETE. decrease frequencies with value 'arti'." << endl;
   cerr << "\t\t\t (which should match the artifreq used in TICCL-LDcalc)" << endl;
-  cerr << "\t\t\t This option is obsolete. use --subtractartifrqoverall." << endl;
-  cerr << "\t--subtractartifrqoverall 'arti'\t decrease ALL frequencies with value 'arti'." << endl;
+  cerr << "\t\t\t This option is obsolete. use --subtractartifrqfeature2." << endl;
+  cerr << "\t--subtractartifrqfeature2 'arti'\t decrease ALL frequencies with value 'arti'." << endl;
   cerr << "\t\t\t (which should match the artifreq used in TICCL-LDcalc)" << endl;
   cerr << "\t--subtractartifrqfeature1 'arti'\t decrease the frequencies for feature 1 with value 'arti'." << endl;
   cerr << "\t\t\t (which should match the artifreq used in TICCL-LDcalc)" << endl;
