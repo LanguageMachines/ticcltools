@@ -173,8 +173,9 @@ record::record( const string& line,
     }
     if ( sub_artifreq_f2 > 0 && freq2 >= sub_artifreq_f2 ){
       size_t rf2 = freq2 - sub_artifreq_f2;
-      string rf2_string = toString( rf2 );
+      string rf2_string = TiCC::toString( rf2 );
       f2len = rf2_string.length();
+      //      cerr << "f2len is nu: " << f2len << " (" << rf2_string << ") was " <<  f2_string.length() << " (" << f2_string << ")" << endl;
     }
     else {
       f2len = f2_string.length();
