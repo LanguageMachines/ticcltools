@@ -26,7 +26,7 @@ datadir=DATA
 
 echo "start TICLL-rank clip=5"
 
-$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.c5.ranked --debugfile $outdir/ngram.debug5.ranked --artifrq 0 --clip 5 --skipcols=10,11 $refdir/ngram.ldcalc
+$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.c5.ranked --debugfile $outdir/ngram.debug5.ranked --clip 5 --skipcols=10,11 $refdir/ngram.ldcalc
 
 if [ $? -ne 0 ]
 then
@@ -56,7 +56,7 @@ else
 fi
 
 
-echo "start TICLL-rank clip=5 , with artifreq"
+echo "start TICLL-rank clip=5 , with --subtractartifrqoverall "
 
 $bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.c5.af.ranked --debugfile $outdir/ngram.debug5.af.ranked --subtractartifrqoverall 100000000 --clip 5 --skipcols=10,11 $refdir/ngram.ldcalc
 
@@ -66,7 +66,7 @@ then
     exit
 fi
 
-echo "checking RANK clip5 artifrq results...."
+echo "checking RANK clip5 --subtractartifrqoverall results...."
 
 diff $outdir/ngram.c5.af.ranked $refdir/ngram.c5.af.rank > /dev/null 2>&1
 if [ $? -ne 0 ]
@@ -82,6 +82,38 @@ if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank debug results"
     echo "using: diff $outdir/ngram.debug5.af.rank.sorted $refdir/ngram.debug5.af.rank.sorted"
+    exit
+else
+    echo OK!
+fi
+
+
+echo "start TICLL-rank clip=5 , with --subtractartifrqoverall and --subtractartifrqfeature1"
+
+$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.c5.af1.ranked --debugfile $outdir/ngram.debug51.af.ranked --subtractartifrqoverall 100000000 --subtractartifrqfeature1 100000000 --clip 5 --skipcols=10,11 $refdir/ngram.ldcalc
+
+if [ $? -ne 0 ]
+then
+    echo "failed in TICLL-rank"
+    exit
+fi
+
+echo "checking RANK clip5 artifrq results...."
+
+diff $outdir/ngram.c5.af1.ranked $refdir/ngram.c5.af1.rank > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    echo "differences in TICLL-rank results"
+    echo "using: diff $outdir/ngram.c5.af1.ranked $refdir/ngram.c5.af1.rank"
+    exit
+fi
+
+sort $outdir/ngram.debug5.af1.ranked > $outdir/ngram.debug5.af1.rank.sorted
+diff $outdir/ngram.debug5.af1.rank.sorted $refdir/ngram.debug5.af1.rank.sorted > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    echo "differences in TICLL-rank debug results"
+    echo "using: diff $outdir/ngram.debug5.af1.rank.sorted $refdir/ngram.debug5.af1.rank.sorted"
     exit
 else
     echo OK!
