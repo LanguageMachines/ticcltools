@@ -73,13 +73,11 @@ void usage( const string& name ){
   cerr << "\t--clip 'clip'\t limit the number of variants per word to 'clip'." << endl;
   cerr << "\t--debugfile 'debug'\t produce a more verbose outputfile in parallel." << endl;
   cerr << "\t\t\t (for debugging.)" << endl;
-  cerr << "\t--artifrq 'arti'\t OBSOLETE. decrease frequencies with value 'arti'." << endl;
-  cerr << "\t\t\t (which should match the artifreq used in TICCL-LDcalc)" << endl;
-  cerr << "\t\t\t This option is obsolete. use --subtractartifrqoverall." << endl;
-  cerr << "\t--subtractartifrqoverall 'arti'\t decrease ALL frequencies with value 'arti'." << endl;
-  cerr << "\t\t\t (which should match the artifreq used in TICCL-LDcalc)" << endl;
   cerr << "\t--subtractartifrqfeature1 'arti'\t decrease the frequencies for feature 1 with value 'arti'." << endl;
   cerr << "\t\t\t (which should match the artifreq used in TICCL-LDcalc)" << endl;
+  cerr << "\t--subtractartifrqfeature2 'arti'\t decrease the frequencies for feature 2 with value 'arti'." << endl;
+  cerr << "\t\t\t (which should match the artifreq used in TICCL-LDcalc)" << endl;
+  cerr << "\t--artifrq 'arti'\t OBSOLETE. use --subtractartifrqfeature2." << endl;
   cerr << "\t--skipcols=arglist\t skip the named columns in the ranking." << endl;
   cerr << "\t\t\t e.g. if arglist=3,9, then the columns 3 and 9 are not used." << endl;
   cerr << "\t-v\t\t run (very) verbose" << endl;
@@ -681,7 +679,7 @@ int main( int argc, char **argv ){
   try {
     opts.set_short_options( "vVho:t:" );
     opts.set_long_options( "alph:,debugfile:,skipcols:,charconf:,charconfreq:,"
-			   "artifrq:,subtractartifrqoverall:,subtractartifrqfeature1:,"
+			   "artifrq:,subtractartifrqfeature1:,subtractartifrqfeature2:,"
 			   "wordvec:,clip:,numvec:,threads:,verbose,follow:" );
     opts.init( argc, argv );
   }
@@ -734,15 +732,15 @@ int main( int argc, char **argv ){
       exit( EXIT_FAILURE );
     }
   }
-  if ( opts.extract( "subtractartifrqoverall", value ) ){
+  if ( opts.extract( "subtractartifrqfeature2", value ) ){
     if ( !TiCC::stringTo(value,sub_artifreq) ) {
-      cerr << "illegal value for --subtractartifrqoverall (" << value << ")" << endl;
+      cerr << "illegal value for --subtractartifrqfeature2 (" << value << ")" << endl;
       exit( EXIT_FAILURE );
     }
   }
   if ( sub_artifreq == 0 ){
     if ( opts.extract( "artifrq", value ) ){
-      cerr << "WARNING: Obsolete option 'artifrq'. Use 'subtractartifrqoverall' instead." << endl;
+      cerr << "WARNING: Obsolete option 'artifrq'. Use 'subtractartifrqfeature2' instead." << endl;
       if ( !TiCC::stringTo(value,sub_artifreq) ) {
 	cerr << "illegal value for --artifrq (" << value << ")" << endl;
 	exit( EXIT_FAILURE );
