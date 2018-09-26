@@ -87,16 +87,21 @@ void usage( const string& name ){
 class record {
 public:
   record( const string &, size_t, size_t, const vector<word_dist>& );
-  string variant1;
-  string variant2;
-  string lowervariant2;
+#ifdef NEW
+  bool check_ngram_redundancy( set<string>& ) const;
+#endif
+  string extractResults() const;
+  string extractLong( const vector<bool>& skip ) const;
+  string variant;
+  string candidate;
+  string lower_candidate;
   double variant_count;
   double variant_rank;
-  size_t freq1;
-  size_t low_freq1;
-  size_t freq2;
-  size_t reduced_freq2;
-  size_t low_freq2;
+  size_t variant_freq;
+  size_t low_variant_freq;
+  size_t candidate_freq;
+  size_t reduced_candidate_freq;
+  size_t low_candidate_freq;
   double freq_rank;
   bitType kwc;
   size_t f2len;
@@ -153,24 +158,24 @@ record::record( const string& line,
   rank(-10000)
 {
   vector<string> parts = TiCC::split_at( line, "~" );
-  // file a record with the 14 parts of one line from a LDcalc output file
-  if ( parts.size() == 14 ){
-    variant1 = parts[0];
-    freq1 = TiCC::stringTo<size_t>(parts[1]);
-    low_freq1 = TiCC::stringTo<size_t>(parts[2]);
-    variant2 = parts[3];
-    icu::UnicodeString us = TiCC::UnicodeFromUTF8( variant2 );
+  // file a record with the RANK_COUNT parts of one line from a LDcalc output file
+  if ( parts.size() == RANK_COUNT ){
+    variant = parts[0];
+    variant_freq = TiCC::stringTo<size_t>(parts[1]);
+    low_variant_freq = TiCC::stringTo<size_t>(parts[2]);
+    candidate = parts[3];
+    icu::UnicodeString us = TiCC::UnicodeFromUTF8( candidate );
     us.toLower();
-    lowervariant2 = TiCC::UnicodeToUTF8( us );
+    lower_candidate = TiCC::UnicodeToUTF8( us );
     variant_rank = -2000;  // bogus value, is set later
     string f2_string = parts[4];
-    freq2 = TiCC::stringTo<size_t>( f2_string );
-    reduced_freq2 = freq2;
-    if ( sub_artifreq > 0 && reduced_freq2 >= sub_artifreq ){
-      reduced_freq2 -= sub_artifreq;
+    candidate_freq = TiCC::stringTo<size_t>( f2_string );
+    reduced_candidate_freq = candidate_freq;
+    if ( sub_artifreq > 0 && reduced_candidate_freq >= sub_artifreq ){
+      reduced_candidate_freq -= sub_artifreq;
     }
-    if ( sub_artifreq_f2 > 0 && freq2 >= sub_artifreq_f2 ){
-      size_t rf2 = freq2 - sub_artifreq_f2;
+    if ( sub_artifreq_f2 > 0 && candidate_freq >= sub_artifreq_f2 ){
+      size_t rf2 = candidate_freq - sub_artifreq_f2;
       string rf2_string = TiCC::toString( rf2 );
       f2len = rf2_string.length();
       //      cerr << "f2len is nu: " << f2len << " (" << rf2_string << ") was " <<  f2_string.length() << " (" << f2_string << ")" << endl;
@@ -178,7 +183,7 @@ record::record( const string& line,
     else {
       f2len = f2_string.length();
     }
-    low_freq2 = TiCC::stringTo<size_t>(parts[5]);
+    low_candidate_freq = TiCC::stringTo<size_t>(parts[5]);
     freq_rank = -20;  // bogus value, is set later
     kwc   = TiCC::stringTo<bitType>(parts[6]);
     ld    = TiCC::stringTo<int>(parts[7]);
@@ -207,7 +212,7 @@ record::record( const string& line,
       khc_rank = 1;
     ngram_points = TiCC::stringTo<int>(parts[13]);
     ngram_rank = -6.7;  // bogus value, is set later
-    cosine = lookup( WV, variant2 );
+    cosine = lookup( WV, candidate );
     if ( cosine <= 0.001 )
       cosine_rank = 1;
     else
@@ -215,138 +220,173 @@ record::record( const string& line,
   }
 }
 
-string extractLong( const record& rec, const vector<bool>& skip ){
-  string result = rec.variant1 + "#";
-  result += TiCC::toString(rec.freq1) + "#";
-  result += TiCC::toString(rec.low_freq1) + "#";
-  result += rec.variant2 + "#";
-  result += TiCC::toString(rec.freq2) + "#";
-  result += TiCC::toString(rec.low_freq2) + "#";
-  result += TiCC::toString(rec.kwc) + "#";
-  result += TiCC::toString(rec.f2len) + "~";
-  double rank = 0;
+#ifdef NEW
+bool record::check_ngram_redundancy( set<string>& variants_set ) const{
+  bool discard = false;
+  if ( ngram_points > 0 ){
+    // we have to look for already accepted 'variants'
+    vector<string> parts = TiCC::split_at(variant,SEPARATOR);
+#pragma omp critical (update)
+    {
+      cerr << "bekijk: " << variant << "~" << candidate << endl;
+    }
+    if ( parts.size() == 1 ){
+      return false;
+    }
+    for ( const auto& p : parts ){
+      if ( variants_set.find( p ) != variants_set.end() ){
+	// ok, discard this one!
+	discard = true;
+	break;
+      }
+    }
+    if ( !discard ){
+#pragma omp critical (update)
+      {
+	for ( const auto& p : parts ){
+	  if ( p.size() > 3 ){
+	    variants_set.insert( p );
+	  }
+	}
+      }
+    }
+  }
+  return discard;
+}
+#endif
+
+string record::extractLong( const vector<bool>& skip ) const {
+  string result = variant + "#";
+  result += TiCC::toString(variant_freq) + "#";
+  result += TiCC::toString(low_variant_freq) + "#";
+  result += candidate + "#";
+  result += TiCC::toString(candidate_freq) + "#";
+  result += TiCC::toString(low_candidate_freq) + "#";
+  result += TiCC::toString(kwc) + "#";
+  result += TiCC::toString(f2len) + "~";
+  double the_rank = 0;
   if ( skip[0] ){
     result += "N#";  }
   else {
-    rank += rec.f2len_rank;
-    result += TiCC::toString(rec.f2len_rank) + "#";
+    the_rank += f2len_rank;
+    result += TiCC::toString(f2len_rank) + "#";
   }
-  result += TiCC::toString(rec.reduced_freq2) + "~";
+  result += TiCC::toString(reduced_candidate_freq) + "~";
   if ( skip[1] ){
     result += "N#";
   }
   else {
-    rank += rec.freq_rank;
-    result += TiCC::toString(rec.freq_rank) + "#";
+    the_rank += freq_rank;
+    result += TiCC::toString(freq_rank) + "#";
   }
-  result += TiCC::toString(rec.ld) + "~";
+  result += TiCC::toString(ld) + "~";
   if ( skip[2] ){
     result += "N#";
   }
   else {
-    rank += rec.ld_rank;
-    result += TiCC::toString(rec.ld_rank) + "#";
+    the_rank += ld_rank;
+    result += TiCC::toString(ld_rank) + "#";
   }
-  result += TiCC::toString(rec.cls) + "~";
+  result += TiCC::toString(cls) + "~";
   if ( skip[3] ){
     result += "N#";
   }
   else {
-    rank += rec.cls_rank;
-    result += TiCC::toString(rec.cls_rank) + "#";
+    the_rank += cls_rank;
+    result += TiCC::toString(cls_rank) + "#";
   }
-  result += TiCC::toString(rec.canon) + "~";
+  result += TiCC::toString(canon) + "~";
   if ( skip[4] ){
     result += "N#";
   }
   else {
-    rank += rec.canon_rank;
-    result += TiCC::toString(rec.canon_rank) + "#";
+    the_rank += canon_rank;
+    result += TiCC::toString(canon_rank) + "#";
   }
-  result += TiCC::toString(rec.fl) + "~";
+  result += TiCC::toString(fl) + "~";
   if ( skip[5] ){
     result += "N#";
   }
   else {
-    rank += rec.fl_rank;
-    result += TiCC::toString(rec.fl_rank) + "#";
+    the_rank += fl_rank;
+    result += TiCC::toString(fl_rank) + "#";
   }
-  result += TiCC::toString(rec.ll) + "~";
+  result += TiCC::toString(ll) + "~";
   if ( skip[6] ){
     result += "N#";
   }
   else {
-    rank += rec.ll_rank;
-    result += TiCC::toString(rec.ll_rank) + "#";
+    the_rank += ll_rank;
+    result += TiCC::toString(ll_rank) + "#";
   }
-  result += TiCC::toString(rec.khc) + "~";
+  result += TiCC::toString(khc) + "~";
   if ( skip[7] ){
     result += "N#";
   }
   else {
-    rank += rec.khc_rank;
-    result += TiCC::toString(rec.khc_rank) + "#";
+    the_rank += khc_rank;
+    result += TiCC::toString(khc_rank) + "#";
   }
-  result += TiCC::toString(rec.pairs1) + "~";
+  result += TiCC::toString(pairs1) + "~";
   if ( skip[8] ){
     result += "N#";
   }
   else {
-    rank += rec.pairs1_rank;
-    result += TiCC::toString(rec.pairs1_rank) + "#";
+    the_rank += pairs1_rank;
+    result += TiCC::toString(pairs1_rank) + "#";
   }
-  result += TiCC::toString(rec.pairs2) + "~";
+  result += TiCC::toString(pairs2) + "~";
   if ( skip[9] ){
     result += "N#";
   }
   else {
-    rank += rec.pairs2_rank;
-    result += TiCC::toString(rec.pairs2_rank) + "#";
+    the_rank += pairs2_rank;
+    result += TiCC::toString(pairs2_rank) + "#";
   }
-  result += TiCC::toString(rec.pairs_combined) + "~";
+  result += TiCC::toString(pairs_combined) + "~";
   if ( skip[10] ){
     result += "N#";
   }
   else {
-    rank += rec.pairs_combined_rank;
-    result += TiCC::toString(rec.pairs_combined_rank) + "#";
+    the_rank += pairs_combined_rank;
+    result += TiCC::toString(pairs_combined_rank) + "#";
   }
-  result += TiCC::toString(rec.variant_count) + "~";
+  result += TiCC::toString(variant_count) + "~";
   if ( skip[11] ){
     result += "N#";
   }
   else {
-    rank += rec.variant_rank;
-    result += TiCC::toString(rec.variant_rank) + "#";
+    the_rank += variant_rank;
+    result += TiCC::toString(variant_rank) + "#";
   }
-  result += TiCC::toString(rec.cosine) + "~";
+  result += TiCC::toString(cosine) + "~";
   if ( skip[12] ){
     result += "N#";
   }
   else {
-    rank += rec.cosine_rank;
-    result += TiCC::toString(rec.cosine_rank) + "#";
+    the_rank += cosine_rank;
+    result += TiCC::toString(cosine_rank) + "#";
   }
-  result += TiCC::toString(rec.ngram_points) + "~";
+  result += TiCC::toString(ngram_points) + "~";
   if ( skip[13] ){
     result += "N#";
   }
   else {
-    rank += rec.ngram_rank;
-    result += TiCC::toString(rec.ngram_rank) + "#";
+    the_rank += ngram_rank;
+    result += TiCC::toString(ngram_rank) + "#";
   }
-  result += TiCC::toString(rank) + "#";
-  result += TiCC::toString(rec.rank);
+  result += TiCC::toString(the_rank) + "#";
+  result += TiCC::toString(rank);
   return result;
 }
 
-string extractResults( const record& rec ){
-  string result = rec.variant1 + "#";
-  result += TiCC::toString(rec.freq1) + "#";
-  result += rec.variant2 + "#";
-  result += TiCC::toString(rec.freq2) + "#";
-  result += TiCC::toString(rec.ld) + "#";
-  result += TiCC::toString(rec.rank);
+string record::extractResults() const {
+  string result = variant + "#";
+  result += TiCC::toString(variant_freq) + "#";
+  result += candidate + "#";
+  result += TiCC::toString(candidate_freq) + "#";
+  result += TiCC::toString(ld) + "#";
+  result += TiCC::toString(rank);
   return result;
 }
 
@@ -388,7 +428,7 @@ void rank( vector<record>& recs,
 	   const map<bitType,size_t>& kwc_counts,
 	   const map<bitType,size_t>& kwc2_counts,
 	   ostream* db, vector<bool>& skip, int factor ){
-  bool follow = follow_words.find(recs.begin()->variant1) != follow_words.end();
+  bool follow = follow_words.find(recs.begin()->variant) != follow_words.end();
   if ( follow||verbose ){
 #pragma omp critical (log)
     {
@@ -396,7 +436,7 @@ void rank( vector<record>& recs,
       int numt = omp_get_thread_num();
       cerr << numt << "-";
 #endif
-      cerr << "RANK " << recs[0].variant1
+      cerr << "RANK " << recs[0].variant
 	   << " with " << recs.size() << " variants" << endl;
     }
   }
@@ -416,7 +456,7 @@ void rank( vector<record>& recs,
     // So in freqmap, the (index of) the records with highest freq
     //   are stored in front
     //same for f2len, ld, cls and ngram points
-    freqmap.insert( make_pair(it.reduced_freq2, count ) ); // freqs descending
+    freqmap.insert( make_pair(it.reduced_candidate_freq, count ) ); // freqs descending
     f2lenmap.insert( make_pair(it.f2len, count ) ); // f2lengths descending
     ldmap.insert( make_pair(it.ld,count) ); // lds sorted ASCENDING
     clsmap.insert( make_pair(it.cls,count) ); // cls sorted descending
@@ -436,13 +476,13 @@ void rank( vector<record>& recs,
     it.pairs_combined = var_combined_cnt;
     pairmap_combined.insert( make_pair(var_combined_cnt,count ));
     // #combined variants descending
-    ++lowvarmap[it.lowervariant2]; // count frequency of variants
+    ++lowvarmap[it.lower_candidate]; // count frequency of variants
     ++count;
   }
   multimap<int,size_t,std::greater<int>> lower_variantmap; // descending map
   count = 0;
   for ( const auto& it : recs ){
-    lower_variantmap.insert( make_pair( lowvarmap[it.lowervariant2], count ) );
+    lower_variantmap.insert( make_pair( lowvarmap[it.lower_candidate], count ) );
     ++count;
   }
   if ( follow ){
@@ -462,7 +502,7 @@ void rank( vector<record>& recs,
   if ( follow ){
     cout << "step 1: f2len_rank: " << endl;
     for ( const auto& r : recs ){
-      cout << "\t" << r.variant2 << " rank= " << r.f2len_rank << endl;
+      cout << "\t" << r.candidate << " rank= " << r.f2len_rank << endl;
     }
   }
 
@@ -470,7 +510,7 @@ void rank( vector<record>& recs,
   if ( follow ){
     cout << "step 2: freq_rank: " << endl;
     for ( const auto& r : recs ){
-      cout << "\t" << r.variant2 << " rank= " << r.freq_rank << endl;
+      cout << "\t" << r.candidate << " rank= " << r.freq_rank << endl;
     }
   }
 
@@ -488,7 +528,7 @@ void rank( vector<record>& recs,
   if ( follow ){
     cout << "step 3: ld_rank: " << endl;
     for ( const auto& r : recs ){
-      cout << "\t" << r.variant2 << " rank= " << r.ld_rank << endl;
+      cout << "\t" << r.candidate << " rank= " << r.ld_rank << endl;
     }
   }
 
@@ -496,35 +536,35 @@ void rank( vector<record>& recs,
   if ( follow ){
     cout << "step 4: cls_rank: " << endl;
     for ( const auto& r : recs ){
-      cout << "\t" << r.variant2 << " rank= " << r.cls_rank << endl;
+      cout << "\t" << r.candidate << " rank= " << r.cls_rank << endl;
     }
   }
 
   if ( follow ){
     cout << "step 5: canon_rank: " << endl;
     for ( const auto& r : recs ){
-      cout << "\t" << r.variant2 << " rank= " << r.canon_rank << endl;
+      cout << "\t" << r.candidate << " rank= " << r.canon_rank << endl;
     }
   }
 
   if ( follow ){
     cout << "step 6: fl_rank: " << endl;
     for ( const auto& r : recs ){
-      cout << "\t" << r.variant2 << " rank= " << r.fl_rank << endl;
+      cout << "\t" << r.candidate << " rank= " << r.fl_rank << endl;
     }
   }
 
   if ( follow ){
     cout << "step 7: ll_rank: " << endl;
     for ( const auto& r : recs ){
-      cout << "\t" << r.variant2 << " rank= " << r.ll_rank << endl;
+      cout << "\t" << r.candidate << " rank= " << r.ll_rank << endl;
     }
   }
 
   if ( follow ){
     cout << "step 8: khc_rank: " << endl;
     for ( const auto& r : recs ){
-      cout << "\t" << r.variant2 << " rank= " << r.khc_rank << endl;
+      cout << "\t" << r.candidate << " rank= " << r.khc_rank << endl;
     }
   }
 
@@ -532,7 +572,7 @@ void rank( vector<record>& recs,
   if ( follow ){
     cout << "step 9: pairs1_rank: " << endl;
     for ( const auto& r : recs ){
-      cout << "\t" << r.variant2 << " rank= " << r.pairs1_rank << endl;
+      cout << "\t" << r.candidate << " rank= " << r.pairs1_rank << endl;
     }
   }
 
@@ -540,7 +580,7 @@ void rank( vector<record>& recs,
   if ( follow ){
     cout << "step 10: pairs2_rank: " << endl;
     for ( const auto& r : recs ){
-      cout << "\t" << r.variant2 << " rank= " << r.pairs2_rank << endl;
+      cout << "\t" << r.candidate << " rank= " << r.pairs2_rank << endl;
     }
   }
 
@@ -548,7 +588,7 @@ void rank( vector<record>& recs,
   if ( follow ){
     cout << "step 11: pairs_combined_rank: " << endl;
     for ( const auto& r : recs ){
-      cout << "\t" << r.variant2 << " rank= " << r.pairs_combined_rank << endl;
+      cout << "\t" << r.candidate << " rank= " << r.pairs_combined_rank << endl;
     }
   }
 
@@ -567,14 +607,14 @@ void rank( vector<record>& recs,
   if ( follow ){
     cout << "step 12: lower_variant_rank: " << endl;
     for ( const auto& r : recs ){
-      cout << "\t" << r.variant2 << " count=" << r.variant_count << " rank= " << r.variant_rank << endl;
+      cout << "\t" << r.candidate << " count=" << r.variant_count << " rank= " << r.variant_rank << endl;
     }
   }
 
   if ( follow ){
     cout << "step 13: cosine_rank: " << endl;
     for ( const auto& r : recs ){
-      cout << "\t" << r.variant2 << " rank= " << r.cosine_rank << endl;
+      cout << "\t" << r.candidate << " rank= " << r.cosine_rank << endl;
     }
   }
 
@@ -582,7 +622,7 @@ void rank( vector<record>& recs,
   if ( follow ){
     cout << "step 14: ngram_rank: " << endl;
     for ( const auto& r : recs ){
-      cout << "\t" << r.variant2 << " rank= " << r.ngram_rank << endl;
+      cout << "\t" << r.candidate << " rank= " << r.ngram_rank << endl;
     }
   }
 
@@ -622,7 +662,7 @@ void rank( vector<record>& recs,
   // sort records on alphabeticaly on variant and descending on rank
   map<string,multimap<double,record*,std::greater<double>>> output;
   for ( auto& it : recs ){
-    string variant = it.variant1;
+    string variant = it.variant;
     auto p = output.find(variant);
     if ( p != output.end()  ){
       p->second.insert( make_pair( it.rank, &it) );
@@ -658,7 +698,7 @@ void rank( vector<record>& recs,
     vector<record>::iterator vit = recs.begin();
     multimap<double,string,greater<double>> outv;
     while ( vit != recs.end() ){
-      outv.insert( make_pair( (*vit).rank, extractLong(*vit, skip) ) );
+      outv.insert( make_pair( (*vit).rank, vit->extractLong(skip) ) );
       ++vit;
     }
 #pragma omp critical (debugoutput)
@@ -924,7 +964,7 @@ int main( int argc, char **argv ){
       exit(EXIT_FAILURE);
     }
     cerr << "skips = " << skip_cols << endl;
-    // no stuf it in a bool vector
+    // now stuff it in a bool vector
     for ( int i=0; i < RANK_COUNT; ++i ){
       if ( skip_cols.find(i+1) != skip_cols.end() ){
 	skip[i] = true;
@@ -968,8 +1008,8 @@ int main( int argc, char **argv ){
       }
     }
     else {
-      string variant1 = parts[0];
-      fileIds[variant1].insert( pos );
+      string variant = parts[0];
+      fileIds[variant].insert( pos );
       bitType kwc = TiCC::stringTo<bitType>(parts[6]);
       ++kwc_counts[kwc];
       if ( ++count % 10000 == 0 ){
@@ -1123,6 +1163,7 @@ int main( int argc, char **argv ){
   map<string,multimap<double,record,std::greater<double>>> results;
   cout << "Start the work, with " << work.size()
        << " iterations on " << numThreads << " thread(s)." << endl;
+  set<string> variants_set;
 #pragma omp parallel for schedule(dynamic,1) shared(verbose,db)
   for( size_t i=0; i < work.size(); ++i ){
     const set<streamsize>& ids = work[i]._st;
@@ -1140,10 +1181,21 @@ int main( int argc, char **argv ){
     vector<record> records;
     set<streamsize>::const_iterator it = ids.begin();
     while ( it != ids.end() ){
-      string line;
       in.seekg( *it );
+      ++it;
+      string line;
       getline( in, line );
-      records.push_back( record( line, sub_artifreq, sub_artifreq_f1, vec ) );
+      record rec( line, sub_artifreq, sub_artifreq_f1, vec );
+#ifdef NEW
+      if ( rec.check_ngram_redundancy( variants_set ) ){
+#pragma omp critical (log)
+	{
+	  cerr << "skipping " << rec.variant << "~" << rec.candidate << endl;
+	}
+	continue;
+      }
+#endif
+      records.push_back( rec );
       if ( verbose ){
 	int tmp = 0;
 #pragma omp critical (count)
@@ -1162,7 +1214,6 @@ int main( int argc, char **argv ){
 	  }
 	}
       }
-      ++it;
     }
     ::rank( records, results, clip, kwc_counts, kwc2_counts, db, skip, skip_factor );
   }
@@ -1175,14 +1226,14 @@ int main( int argc, char **argv ){
     multimap< size_t, multimap<double, string, std::greater<double>>, std::greater<size_t> > o_vec;
     for ( auto& it : results ){
       const record *rec = &it.second.begin()->second;
-      auto oit = o_vec.find( rec->freq2 );
+      auto oit = o_vec.find( rec->candidate_freq );
       if ( oit != o_vec.end() ){
-	oit->second.insert( make_pair( rec->rank, extractResults(*rec) ) );
+	oit->second.insert( make_pair( rec->rank, rec->extractResults() ) );
       }
       else {
 	multimap<double, string, std::greater<double>> tmp;
-	tmp.insert( make_pair( rec->rank, extractResults(*rec) ) );
-	o_vec.insert( make_pair( rec->freq2, tmp ) );
+	tmp.insert( make_pair( rec->rank, rec->extractResults() ) );
+	o_vec.insert( make_pair( rec->candidate_freq, tmp ) );
       }
     }
     // output the results
@@ -1197,7 +1248,7 @@ int main( int argc, char **argv ){
     // map<string,multimap<double,record,std::greater<double>>> results;
     for ( const auto& it : results ){
       for( const auto& mit : it.second ){
-	os << extractResults( mit.second) << endl;
+	os << mit.second.extractResults() << endl;
       }
     }
   }
