@@ -29,6 +29,7 @@
 #include <map>
 #include <limits>
 #include <vector>
+#include <algorithm>
 #include <cstdlib>
 #include <string>
 #include <stdexcept>
@@ -87,9 +88,6 @@ void usage( const string& name ){
 class record {
 public:
   record( const string &, size_t, size_t, const vector<word_dist>& );
-#ifdef NEW
-  bool check_ngram_redundancy( set<string>& ) const;
-#endif
   string extractResults() const;
   string extractLong( const vector<bool>& skip ) const;
   string variant;
@@ -219,41 +217,6 @@ record::record( const string& line,
       cosine_rank = 10;
   }
 }
-
-#ifdef NEW
-bool record::check_ngram_redundancy( set<string>& variants_set ) const{
-  bool discard = false;
-  if ( ngram_points > 0 ){
-    // we have to look for already accepted 'variants'
-    vector<string> parts = TiCC::split_at(variant,SEPARATOR);
-#pragma omp critical (update)
-    {
-      cerr << "bekijk: " << variant << "~" << candidate << endl;
-    }
-    if ( parts.size() == 1 ){
-      return false;
-    }
-    for ( const auto& p : parts ){
-      if ( variants_set.find( p ) != variants_set.end() ){
-	// ok, discard this one!
-	discard = true;
-	break;
-      }
-    }
-    if ( !discard ){
-#pragma omp critical (update)
-      {
-	for ( const auto& p : parts ){
-	  if ( p.size() > 3 ){
-	    variants_set.insert( p );
-	  }
-	}
-      }
-    }
-  }
-  return discard;
-}
-#endif
 
 string record::extractLong( const vector<bool>& skip ) const {
   string result = variant + "#";
@@ -708,6 +671,100 @@ void rank( vector<record>& recs,
   }
 }
 
+void collect_ngrams( const vector<record>& records, set<string>& variants_set ){
+  vector<record> sorted = records;
+  //  cerr << "\nCollecting NEW variant " << records[0].variant << endl;
+  // for ( auto const& it : records ){
+  //   cerr << it.variant << "~" << it.candidate << "::" << it.ngram_points << endl;
+  // }
+  // cerr << endl;
+  sort( sorted.begin(), sorted.end(),
+	[]( const record& lhs, const record& rhs ){
+	  return lhs.ngram_points > rhs.ngram_points;} );
+  // cerr << "OUT: " << endl;
+  // for ( auto const& it : sorted ){
+  //   cerr << it.variant << "~" << it.candidate << "::" << it.ngram_points << endl;
+  // }
+  // cerr << endl;
+  set<string> variants;
+  auto it = sorted.begin();
+  while ( it != sorted.end() ){
+    if ( verbose ){
+#pragma omp critical (log)
+      {
+	cerr << "NEXT it: " << it->variant << "~" << it->candidate
+	     << "::" << it->ngram_points << endl;
+      }
+    }
+    if ( it->ngram_points > 0 ){
+      if ( verbose ){
+#pragma omp critical (log)
+	{
+	  cerr << "Remember: " << it->variant << endl;
+	}
+      }
+      variants.insert( it->variant );
+    }
+    ++it;
+  }
+#pragma omp critical (update)
+  {
+    variants_set.insert( variants.begin(), variants.end() );
+  }
+}
+
+vector<record> filter_ngrams( const vector<record>& records,
+			      const set<string>& variants_set ){
+  //  cerr << "\nexamining NEW variant " << records[0].variant << endl;
+  // for ( auto const& it : records ){
+  //   cerr << it.variant << "~" << it.candidate << "::" << it.ngram_points << endl;
+  // }
+  // cerr << endl;
+  vector<record> result;
+  auto it = records.begin();
+  while ( it != records.end() ){
+    if ( verbose ){
+#pragma omp critical (log)
+      {
+	cerr << "NEXT it: " << it->variant << "~" << it->candidate
+	     << "::" << it->ngram_points << endl;
+      }
+    }
+    if ( it->ngram_points == 0 ){
+      vector<string> parts = TiCC::split_at(it->variant,SEPARATOR);
+      if ( verbose ){
+#pragma omp critical (log)
+	{
+	  cerr << "bekijk variant: " << it->variant << "~" << it->candidate
+	       << "::" << it->ngram_points << endl;
+	}
+      }
+      bool forget = false;
+      for ( const auto& p: parts ){
+	if ( variants_set.find(p) != variants_set.end() ){
+	  if ( verbose ){
+#pragma omp critical (log)
+	    {
+	      cerr << "ERASE: " << it->variant << "~" << it->candidate
+		   << "::" << it->ngram_points << endl;
+	    }
+	  }
+	  forget = true;
+	  break;
+	}
+      }
+      if ( !forget ){
+	result.push_back( *it );
+      }
+    }
+    else {
+      result.push_back( *it );
+    }
+    ++it;
+  }
+  return result;
+}
+
 struct wid {
   wid( const string& s, const set<streamsize>& st ): _s(s), _st(st) {};
   string _s;
@@ -1159,11 +1216,48 @@ int main( int argc, char **argv ){
   }
   count = 0;
 
-
-  map<string,multimap<double,record,std::greater<double>>> results;
-  cout << "Start the work, with " << work.size()
+  cout << "Start searching for ngram proof, with " << work.size()
        << " iterations on " << numThreads << " thread(s)." << endl;
   set<string> variants_set;
+#pragma omp parallel for schedule(dynamic,1) shared(variants_set,verbose)
+  for( size_t i=0; i < work.size(); ++i ){
+    const set<streamsize>& ids = work[i]._st;
+    ifstream in( inFile );
+    vector<record> records;
+    set<streamsize>::const_iterator it = ids.begin();
+    while ( it != ids.end() ){
+      vector<word_dist> vec;
+      in.seekg( *it );
+      ++it;
+      string line;
+      getline( in, line );
+      record rec( line, sub_artifreq, sub_artifreq_f1, vec );
+      records.push_back( rec );
+      if ( verbose ){
+	int tmp = 0;
+#pragma omp critical (count)
+	tmp = ++count;
+	//
+	// omp single isn't allowed here. trick!
+	int numt = 0;
+#ifdef HAVE_OPENMP
+	numt = omp_get_thread_num();
+#endif
+	if ( numt == 0 && tmp % 10000 == 0 ){
+	  cout << ".";
+	  cout.flush();
+	  if ( tmp % 500000 == 0 ){
+	    cout << endl << tmp << endl;
+	  }
+	}
+      }
+    }
+    collect_ngrams( records, variants_set );
+  }
+
+  map<string,multimap<double,record,std::greater<double>>> results;
+  cout << "Start the REAL work, with " << work.size()
+       << " iterations on " << numThreads << " thread(s)." << endl;
 #pragma omp parallel for schedule(dynamic,1) shared(verbose,db)
   for( size_t i=0; i < work.size(); ++i ){
     const set<streamsize>& ids = work[i]._st;
@@ -1186,15 +1280,6 @@ int main( int argc, char **argv ){
       string line;
       getline( in, line );
       record rec( line, sub_artifreq, sub_artifreq_f1, vec );
-#ifdef NEW
-      if ( rec.check_ngram_redundancy( variants_set ) ){
-#pragma omp critical (log)
-	{
-	  cerr << "skipping " << rec.variant << "~" << rec.candidate << endl;
-	}
-	continue;
-      }
-#endif
       records.push_back( rec );
       if ( verbose ){
 	int tmp = 0;
@@ -1215,6 +1300,7 @@ int main( int argc, char **argv ){
 	}
       }
     }
+    records = filter_ngrams( records, variants_set );
     ::rank( records, results, clip, kwc_counts, kwc2_counts, db, skip, skip_factor );
   }
 
