@@ -607,8 +607,17 @@ void rank( vector<record>& recs,
       (skip[11]?0:(*vit).variant_rank) + // # of decapped versions of the CC
       (skip[12]?0:(*vit).cosine_rank) + // WordVector rank
       (skip[13]?0:(*vit).ngram_rank);
+    if ( follow ){
+      cerr << "Rank=" << rank << endl;
+    }
     rank = rank/factor;
+    if ( follow ){
+      cerr << "Rank/" << factor << " = " << rank << endl;
+    }
     sum += rank;
+    if ( follow ){
+      cerr << "Sum =" << sum << endl;
+    }
     (*vit).rank = rank;
     ++vit;
   }
@@ -618,7 +627,13 @@ void rank( vector<record>& recs,
   }
   else {
     for ( auto& it : recs ){
+      if ( follow ){
+	cerr << "Rank=(1-" << it.rank << "/" << sum << ") = ";
+      }
       it.rank = 1 - it.rank/sum;
+      if ( follow ){
+	cerr << it.rank << endl;
+      }
     }
   }
 
@@ -1301,7 +1316,9 @@ int main( int argc, char **argv ){
       }
     }
     records = filter_ngrams( records, variants_set );
-    ::rank( records, results, clip, kwc_counts, kwc2_counts, db, skip, skip_factor );
+    if ( !records.empty() ){
+      ::rank( records, results, clip, kwc_counts, kwc2_counts, db, skip, skip_factor );
+    }
   }
 
   if ( clip == 1 ){
