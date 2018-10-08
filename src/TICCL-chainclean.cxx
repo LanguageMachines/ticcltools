@@ -220,24 +220,29 @@ int main( int argc, char **argv ){
       }
       ++it;
     }
-    cerr << "found " << cc_freqs.size() << " CC's for: " << part.first << endl;
-    cerr << cc_freqs << endl;
+    //    cerr << "found " << cc_freqs.size() << " CC's for: " << part.first << endl;
+    //    cerr << cc_freqs << endl;
     for ( const auto& cc : cc_freqs ){
-      auto it = records.begin();
-      while ( it != records.end() ){
-	if ( cc.first == it->cc ){
-	  bool match = false;
-	  for ( const auto& p : it->v_parts ){
-	    if ( p == part.first ){
-	      match = true;
-	      break;
+      if ( cc.second == 1 ){
+	continue;
+      }
+      else {
+	auto it = records.begin();
+	while ( it != records.end() ){
+	  if ( cc.first == it->cc ){
+	    bool match = false;
+	    for ( const auto& p : it->v_parts ){
+	      if ( p == part.first ){
+		match = true;
+		break;
+	      }
+	    }
+	    if ( match ){
+	      output_records.push_back( *it );
 	    }
 	  }
-	  if ( match ){
-	    output_records.push_back( *it );
-	  }
+	  ++it;
 	}
-	++it;
       }
     }
   }
