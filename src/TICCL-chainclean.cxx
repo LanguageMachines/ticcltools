@@ -202,7 +202,9 @@ int main( int argc, char **argv ){
   }
   cout << "found " << parts_freq.size() << " unknown parts" << endl;
   list<record> output_records;
+  bool show = false;
   for ( const auto& part : parts_freq ) {
+    show = ( part.first == "necticut" );
     map<string,int> cc_freqs;
     auto it = records.begin();
     while ( it != records.end() ){
@@ -216,20 +218,38 @@ int main( int argc, char **argv ){
 	}
 	if ( match ){
 	  ++cc_freqs[it->cc];
+	  if ( show ){
+	    cerr << "for: " << part.first << " increment " << it->cc << endl;
+	  }
 	}
       }
+      // else {
+      // 	output_records.push_back( *it );
+      // }
       ++it;
     }
     //    cerr << "found " << cc_freqs.size() << " CC's for: " << part.first << endl;
     //    cerr << cc_freqs << endl;
+    multimap<int,string,std::greater<int>> desc_cc;
+    // sort on highest frequency first.
+    // DOES IT REALLY MATTER???
     for ( const auto& cc : cc_freqs ){
-      if ( cc.second == 1 ){
-	continue;
+      desc_cc.insert( make_pair(cc.second,cc.first) );
+    }
+    for ( const auto& dcc : desc_cc ){
+      if ( false && dcc.first == 1 ){
+	if ( show ){
+	  cerr << "skip rest at: " << dcc.second << "[" << dcc.first << "]" << endl;
+	}
+	break;
       }
       else {
+	if ( show ){
+	  cerr << "BEKIJK: " << dcc.second << "[" << dcc.first << "]" << endl;
+	}
 	auto it = records.begin();
 	while ( it != records.end() ){
-	  if ( cc.first == it->cc ){
+	  if ( dcc.second == it->cc ){
 	    bool match = false;
 	    for ( const auto& p : it->v_parts ){
 	      if ( p == part.first ){
