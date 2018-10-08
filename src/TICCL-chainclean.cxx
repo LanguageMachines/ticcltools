@@ -201,7 +201,7 @@ int main( int argc, char **argv ){
     }
   }
   cout << "found " << parts_freq.size() << " unknown parts" << endl;
-  list<record> output_records;
+  map<string,record> output_records;
   bool show = false;
   for ( const auto& part : parts_freq ) {
     show = ( part.first == "necticut" );
@@ -223,9 +223,9 @@ int main( int argc, char **argv ){
 	  }
 	}
       }
-      // else {
-      // 	output_records.push_back( *it );
-      // }
+      else {
+	//       	output_records.insert( make_pair(it->variant, *it ) );
+      }
       ++it;
     }
     //    cerr << "found " << cc_freqs.size() << " CC's for: " << part.first << endl;
@@ -249,16 +249,37 @@ int main( int argc, char **argv ){
 	}
 	auto it = records.begin();
 	while ( it != records.end() ){
-	  if ( dcc.second == it->cc ){
-	    bool match = false;
-	    for ( const auto& p : it->v_parts ){
-	      if ( p == part.first ){
-		match = true;
+	  vector<string> cc_parts = TiCC::split_at( it->cc, SEPARATOR );
+	  bool match = false;
+	  for( const auto& cp : cc_parts ){
+	    if ( dcc.second == cp ){
+	      // CC match
+	      for ( const auto& p : it->v_parts ){
+		if ( p == part.first ){
+		  // variant match too
+		  match = true;
+		  break;
+		}
+	      }
+	      if ( match ){
+		if ( show ){
+		  cerr << "both " << cp << " and " << part.first
+		       << " matched in: " << it->variant << "#"
+		       << it->cc << endl;
+		}
+		string key = part.first + cp;
+		if ( output_records.find( key )
+		     == output_records.end() ) {
+		  if ( show ){
+		    cerr << "save " << it->variant << "#" << it->cc << endl;
+		  }
+		  output_records.insert( make_pair( key, *it ) );
+		}
+		else {
+		  //		  cerr << "ALREADY THERE??? " << cp << endl;
+		}
 		break;
 	      }
-	    }
-	    if ( match ){
-	      output_records.push_back( *it );
 	    }
 	  }
 	  ++it;
@@ -268,8 +289,8 @@ int main( int argc, char **argv ){
   }
   ofstream os( out_name );
   for ( const auto& it : output_records ){
-    os << it.variant << "#" << it.v_freq << "#" << it.cc << "#"
-       << it.cc_freq << "#" << it.ld << "#C" << endl;
+    os << it.second.variant << "#" << it.second.v_freq << "#" << it.second.cc
+       << "#" << it.second.cc_freq << "#" << it.second.ld << "#C" << endl;
   }
   cout << "results in " << out_name << endl;
 }
