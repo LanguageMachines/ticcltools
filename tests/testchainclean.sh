@@ -17,9 +17,9 @@ refdir=OUTreference/BOOK
 testdata=TESTDATA
 
 
-echo "start TICLL-chainclean"
+echo "start TICCL-chainclean"
 
-$bindir/TICCL-chainclean --lexicon $testdata/chain.clean -o /tmp/chained.clean $testdata/test.chained
+$bindir/TICCL-chainclean --lexicon $testdata/chain.clean -o /tmp/chained.clean $testdata/test.chained $1
 
 if [ $? -ne 0 ]
 then
