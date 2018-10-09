@@ -313,7 +313,8 @@ int main( int argc, char **argv ){
 		       << " matched in: " << rec << endl;
 		}
 		key = part.second + cp;
-		if ( kept.find( key ) == kept.end() ){
+		if ( rec->v_parts.size() == 2
+		     || kept.find( key ) == kept.end() ){
 		  if ( local_show ){
 		    cerr << "INSERT: " << rec << " (" << key << ")" << endl;
 		  }
