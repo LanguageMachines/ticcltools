@@ -83,6 +83,16 @@ ostream& operator<<( ostream& os, const record& rec ){
   return os;
 }
 
+ostream& operator<<( ostream& os, const record *rec ){
+  if ( rec ){
+    os << *rec;
+  }
+  else {
+    os << "NULL";
+  }
+  return os;
+}
+
 int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
@@ -219,17 +229,31 @@ int main( int argc, char **argv ){
   //
   // Maybe (but why) sorting parts_freq on freqency is needed?
   //
-  map<string,record> output_records;
+  multimap<int,string,std::greater<int>> desc_parts_freq;
+  // sort on highest frequency first.
+  // DOES IT REALLY MATTER???
+  for ( const auto& cc : parts_freq ){
+    desc_parts_freq.insert( make_pair(cc.second,cc.first) );
+  }
+
+  list<record*> copy_records;
+  for ( auto& rec : records ){
+    copy_records.push_back( &rec );
+  }
   bool show = false;
-  for ( const auto& part : parts_freq ) {
-    show = follow_words.find( part.first ) != follow_words.end();
+  for ( const auto& part : desc_parts_freq ) {
+    set<string> kept;
+    show =follow_words.find( part.second ) != follow_words.end();
+    if ( show ){
+      cerr << "\n  Loop for part: " << part.second << endl;
+    }
     map<string,int> cc_freqs;
     auto it = records.begin();
     while ( it != records.end() ){
       if ( it->v_parts.size() != 1 ){
 	bool match = false;
 	for ( const auto& p : it->v_parts ){
-	  if ( p == part.first ){
+	  if ( p == part.second ){
 	    match = true;
 	    break;
 	  }
@@ -237,13 +261,13 @@ int main( int argc, char **argv ){
 	if ( match ){
 	  ++cc_freqs[it->cc];
 	  if ( show ){
-	    cerr << "for: " << part.first << " increment " << it->cc << endl;
+	    cerr << "for: " << part.second << " increment " << it->cc << endl;
 	  }
 	}
       }
       ++it;
     }
-    //    cerr << "found " << cc_freqs.size() << " CC's for: " << part.first << endl;
+    //    cerr << "found " << cc_freqs.size() << " CC's for: " << part.second << endl;
     //    cerr << cc_freqs << endl;
     multimap<int,string,std::greater<int>> desc_cc;
     // sort on highest frequency first.
@@ -255,23 +279,29 @@ int main( int argc, char **argv ){
       if ( show ){
 	cerr << "BEKIJK: " << dcc.second << "[" << dcc.first << "]" << endl;
       }
-      auto it = records.begin();
-      while ( it != records.end() ){
-	if ( it->v_parts.size() == 1 ){
-	  // if ( show ){
-	  //   cerr << "save " << *it << endl;
-	  // }
-	  string key = it->variant + it->cc;
-	  output_records.insert( make_pair( key, *it ) );
+      auto it = copy_records.begin();
+      while ( it != copy_records.end() ){
+	record* rec = *it;
+	if ( !rec ){
+	  ++it;
+	  continue;
 	}
-	else {
-	  vector<string> cc_parts = TiCC::split_at( it->cc, SEPARATOR );
+	string key = rec->variant + rec->cc;
+	if ( rec->v_parts.size() > 1 ){
+	  show = false;
+	  for ( const auto& p : rec->v_parts ){
+	    show |= follow_words.find( p ) != follow_words.end();
+	  }
+	  // if ( show ){
+	  //   cerr << "bekijk met " << dcc.second << ":" << rec << endl;
+	  // }
+	  vector<string> cc_parts = TiCC::split_at( rec->cc, SEPARATOR );
 	  bool match = false;
 	  for( const auto& cp : cc_parts ){
 	    if ( dcc.second == cp ){
 	      // CC match
-	      for ( const auto& p : it->v_parts ){
-		if ( p == part.first ){
+	      for ( const auto& p : rec->v_parts ){
+		if ( p == part.second ){
 		  // variant match too
 		  match = true;
 		  break;
@@ -279,23 +309,23 @@ int main( int argc, char **argv ){
 	      }
 	      if ( match ){
 		if ( show ){
-		  cerr << "both " << cp << " and " << part.first
-		       << " matched in: " << *it << endl;
+		  cerr << "both " << cp << " and " << part.second
+		       << " matched in: " << rec << endl;
 		}
-		string key = it->variant + it->cc;
-		if ( output_records.find( key )
-		     == output_records.end() ) {
+		key = part.second + cp;
+		if ( kept.find( key ) == kept.end() ){
 		  if ( show ){
-		    cerr << "save " << *it << endl;
+		    cerr << "INSERT: " << rec << " (" << key << ")" << endl;
 		  }
-		  output_records.insert( make_pair( key, *it ) );
+		  kept.insert( key );
 		}
 		else {
 		  if ( show ){
-		    cerr << "IGNORE: " << *it << endl;
+		    cerr << "IGNORE: " << rec << " (" << key << ")" << endl;
 		  }
+		  *it = 0;
 		}
-	      break;
+		break;
 	      }
 	    }
 	  }
@@ -305,8 +335,14 @@ int main( int argc, char **argv ){
     }
   }
   ofstream os( out_name );
-  for ( const auto& it : output_records ){
-    os << it.second << endl;
+  cerr << "copy_records.size()= " << copy_records.size() << endl;
+  int count = 0;
+  for ( const auto it : copy_records ){
+    if ( it != 0 ){
+      ++count;
+      os << it << endl;
+    }
   }
+  cerr << "copy_records.count()= " << count << endl;
   cout << "results in " << out_name << endl;
 }
