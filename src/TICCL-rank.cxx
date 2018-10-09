@@ -893,7 +893,10 @@ int main( int argc, char **argv ){
 #endif
 
   while ( opts.extract( "follow", value ) ){
-    follow_words.insert( value );
+    vector<string> parts = TiCC::split_at( value, "," );
+    for ( const auto& p : parts ){
+      follow_words.insert( p );
+    }
   }
 
 #ifdef HAVE_OPENMP
