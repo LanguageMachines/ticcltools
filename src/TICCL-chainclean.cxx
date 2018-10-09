@@ -52,6 +52,8 @@ using namespace std;
 typedef signed long int bitType;
 using TiCC::operator<<;
 
+set<string> follow_words;
+
 void usage( const string& name ){
   cerr << "usage: " << name << "[options] chainfile " << endl;
   cerr << "\t\t The chainfiles is an outputfile from TICCL-chain." << endl;
@@ -76,11 +78,16 @@ public:
   string ld;
 };
 
+ostream& operator<<( ostream& os, const record& rec ){
+  os << rec.variant << "#" << rec.v_freq << "#" << rec.cc << "#" << rec.cc_freq << "#" << rec.ld << "#C";
+  return os;
+}
+
 int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
-    opts.set_long_options( "lexicon:,artifreq:" );
+    opts.set_long_options( "lexicon:,artifreq:,follow:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -119,6 +126,14 @@ int main( int argc, char **argv ){
     cerr << "missing --lexcion options"<< endl;
     exit(EXIT_FAILURE);
   }
+
+  while ( opts.extract( "follow", value ) ){
+    vector<string> parts = TiCC::split_at( value, "," );
+    for ( const auto& p : parts ){
+      follow_words.insert( p );
+    }
+  }
+
   string out_name;
   opts.extract( 'o', out_name );
   if ( !opts.empty() ){
@@ -201,10 +216,13 @@ int main( int argc, char **argv ){
     }
   }
   cout << "found " << parts_freq.size() << " unknown parts" << endl;
+  //
+  // Maybe (but why) sorting parts_freq on freqency is needed?
+  //
   map<string,record> output_records;
   bool show = false;
   for ( const auto& part : parts_freq ) {
-    show = ( part.first == "necticut" );
+    show = follow_words.find( part.first ) != follow_words.end();
     map<string,int> cc_freqs;
     auto it = records.begin();
     while ( it != records.end() ){
@@ -223,9 +241,6 @@ int main( int argc, char **argv ){
 	  }
 	}
       }
-      else {
-	//       	output_records.insert( make_pair(it->variant, *it ) );
-      }
       ++it;
     }
     //    cerr << "found " << cc_freqs.size() << " CC's for: " << part.first << endl;
@@ -237,60 +252,52 @@ int main( int argc, char **argv ){
       desc_cc.insert( make_pair(cc.second,cc.first) );
     }
     for ( const auto& dcc : desc_cc ){
-      if ( false && dcc.first == 1 ){
-	if ( show ){
-	  cerr << "skip rest at: " << dcc.second << "[" << dcc.first << "]" << endl;
-	}
-	break;
+      if ( show ){
+	cerr << "BEKIJK: " << dcc.second << "[" << dcc.first << "]" << endl;
       }
-      else {
-	if ( show ){
-	  cerr << "BEKIJK: " << dcc.second << "[" << dcc.first << "]" << endl;
-	}
-	auto it = records.begin();
-	while ( it != records.end() ){
-	  vector<string> cc_parts = TiCC::split_at( it->cc, SEPARATOR );
-	  bool match = false;
-	  for( const auto& cp : cc_parts ){
-	    if ( dcc.second == cp ){
-	      // CC match
-	      for ( const auto& p : it->v_parts ){
-		if ( p == part.first ){
-		  // variant match too
-		  match = true;
-		  break;
-		}
-	      }
-	      if ( match ){
-		if ( show ){
-		  cerr << "both " << cp << " and " << part.first
-		       << " matched in: " << it->variant << "#"
-		       << it->cc << endl;
-		}
-		string key = part.first + cp;
-		if ( output_records.find( key )
-		     == output_records.end() ) {
-		  if ( show ){
-		    cerr << "save " << it->variant << "#" << it->cc << endl;
-		  }
-		  output_records.insert( make_pair( key, *it ) );
-		}
-		else {
-		  //		  cerr << "ALREADY THERE??? " << cp << endl;
-		}
+      auto it = records.begin();
+      while ( it != records.end() ){
+	vector<string> cc_parts = TiCC::split_at( it->cc, SEPARATOR );
+	bool match = false;
+	for( const auto& cp : cc_parts ){
+	  if ( dcc.second == cp ){
+	    // CC match
+	    for ( const auto& p : it->v_parts ){
+	      if ( p == part.first ){
+		// variant match too
+		match = true;
 		break;
 	      }
 	    }
-	  }
-	  ++it;
+	    if ( match ){
+	      if ( show ){
+		cerr << "both " << cp << " and " << part.first
+		     << " matched in: " << *it << endl;
+	      }
+	      string key = part.first + cp;
+	      if ( output_records.find( key )
+		   == output_records.end() ) {
+		if ( show ){
+		  cerr << "save " << *it << endl;
+		}
+		output_records.insert( make_pair( key, *it ) );
+	      }
+	      else {
+		if ( show ){
+		  cerr << "IGNORE: " << *it << endl;
+		}
+	      }
+	      break;
+	    }
+	    }
 	}
+	++it;
       }
     }
   }
   ofstream os( out_name );
   for ( const auto& it : output_records ){
-    os << it.second.variant << "#" << it.second.v_freq << "#" << it.second.cc
-       << "#" << it.second.cc_freq << "#" << it.second.ld << "#C" << endl;
+    os << it.second << endl;
   }
   cout << "results in " << out_name << endl;
 }
