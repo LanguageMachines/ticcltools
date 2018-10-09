@@ -257,39 +257,48 @@ int main( int argc, char **argv ){
       }
       auto it = records.begin();
       while ( it != records.end() ){
-	vector<string> cc_parts = TiCC::split_at( it->cc, SEPARATOR );
-	bool match = false;
-	for( const auto& cp : cc_parts ){
-	  if ( dcc.second == cp ){
-	    // CC match
-	    for ( const auto& p : it->v_parts ){
-	      if ( p == part.first ){
-		// variant match too
-		match = true;
-		break;
-	      }
-	    }
-	    if ( match ){
-	      if ( show ){
-		cerr << "both " << cp << " and " << part.first
-		     << " matched in: " << *it << endl;
-	      }
-	      string key = part.first + cp;
-	      if ( output_records.find( key )
-		   == output_records.end() ) {
-		if ( show ){
-		  cerr << "save " << *it << endl;
-		}
-		output_records.insert( make_pair( key, *it ) );
-	      }
-	      else {
-		if ( show ){
-		  cerr << "IGNORE: " << *it << endl;
+	if ( it->v_parts.size() == 1 ){
+	  // if ( show ){
+	  //   cerr << "save " << *it << endl;
+	  // }
+	  string key = it->variant + it->cc;
+	  output_records.insert( make_pair( key, *it ) );
+	}
+	else {
+	  vector<string> cc_parts = TiCC::split_at( it->cc, SEPARATOR );
+	  bool match = false;
+	  for( const auto& cp : cc_parts ){
+	    if ( dcc.second == cp ){
+	      // CC match
+	      for ( const auto& p : it->v_parts ){
+		if ( p == part.first ){
+		  // variant match too
+		  match = true;
+		  break;
 		}
 	      }
+	      if ( match ){
+		if ( show ){
+		  cerr << "both " << cp << " and " << part.first
+		       << " matched in: " << *it << endl;
+		}
+		string key = it->variant + it->cc;
+		if ( output_records.find( key )
+		     == output_records.end() ) {
+		  if ( show ){
+		    cerr << "save " << *it << endl;
+		  }
+		  output_records.insert( make_pair( key, *it ) );
+		}
+		else {
+		  if ( show ){
+		    cerr << "IGNORE: " << *it << endl;
+		  }
+		}
 	      break;
+	      }
 	    }
-	    }
+	  }
 	}
 	++it;
       }
