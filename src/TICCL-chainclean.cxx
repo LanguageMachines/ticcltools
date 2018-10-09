@@ -330,6 +330,14 @@ int main( int argc, char **argv ){
 	    }
 	  }
 	}
+	else {
+	  if ( rec->variant == part.second ){
+	    if ( show ){
+	      cerr << "remove transaltion of unknown part: " << rec << endl;
+	    }
+	    *it = 0;
+	  }
+	}
 	++it;
       }
     }
