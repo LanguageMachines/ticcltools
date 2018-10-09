@@ -288,11 +288,11 @@ int main( int argc, char **argv ){
 	}
 	string key = rec->variant + rec->cc;
 	if ( rec->v_parts.size() > 1 ){
-	  show = false;
+	  bool local_show = false;
 	  for ( const auto& p : rec->v_parts ){
-	    show |= follow_words.find( p ) != follow_words.end();
+	    local_show |= follow_words.find( p ) != follow_words.end();
 	  }
-	  // if ( show ){
+	  // if ( local_show ){
 	  //   cerr << "bekijk met " << dcc.second << ":" << rec << endl;
 	  // }
 	  vector<string> cc_parts = TiCC::split_at( rec->cc, SEPARATOR );
@@ -308,19 +308,19 @@ int main( int argc, char **argv ){
 		}
 	      }
 	      if ( match ){
-		if ( show ){
+		if ( local_show ){
 		  cerr << "both " << cp << " and " << part.second
 		       << " matched in: " << rec << endl;
 		}
 		key = part.second + cp;
 		if ( kept.find( key ) == kept.end() ){
-		  if ( show ){
+		  if ( local_show ){
 		    cerr << "INSERT: " << rec << " (" << key << ")" << endl;
 		  }
 		  kept.insert( key );
 		}
 		else {
-		  if ( show ){
+		  if ( local_show ){
 		    cerr << "IGNORE: " << rec << " (" << key << ")" << endl;
 		  }
 		  *it = 0;
@@ -333,7 +333,8 @@ int main( int argc, char **argv ){
 	else {
 	  if ( rec->variant == part.second ){
 	    if ( show ){
-	      cerr << "remove transaltion of unknown part: " << rec << endl;
+	      cerr << "remove translation of unknown part: " << part.second
+		   << " in " << rec << endl;
 	    }
 	    *it = 0;
 	  }
