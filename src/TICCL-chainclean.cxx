@@ -74,6 +74,7 @@ public:
   vector<string> v_parts;
   string v_freq;
   string cc;
+  vector<string> cc_parts;
   string cc_freq;
   string ld;
 };
@@ -216,6 +217,7 @@ int main( int argc, char **argv ){
   map<string,int> parts_freq;
   for ( auto& rec : records ){
     rec.v_parts = TiCC::split_at( rec.variant, SEPARATOR );
+    rec.cc_parts = TiCC::split_at( rec.cc, SEPARATOR );
     if ( rec.v_parts.size() == 1 ){
       continue;
     }
@@ -235,15 +237,23 @@ int main( int argc, char **argv ){
   for ( const auto& cc : parts_freq ){
     desc_parts_freq.insert( make_pair(cc.second,cc.first) );
   }
+  if ( verbosity > 0 ){
+    cerr << "The unknown parts:" << endl;
+    for ( const auto& it : desc_parts_freq ){
+      cerr << it.first << "\t" << it.second << endl;
+    }
+  }
 
   list<record*> copy_records;
   for ( auto& rec : records ){
     copy_records.push_back( &rec );
   }
   bool show = false;
+  set<record*> done;
   for ( const auto& part : desc_parts_freq ) {
     set<string> kept;
-    show =follow_words.find( part.second ) != follow_words.end();
+    show = (verbosity>0 )
+    || follow_words.find( part.second ) != follow_words.end();
     if ( show ){
       cerr << "\n  Loop for part: " << part.second << endl;
     }
@@ -259,21 +269,27 @@ int main( int argc, char **argv ){
 	  }
 	}
 	if ( match ){
-	  ++cc_freqs[it->cc];
-	  if ( show ){
-	    cerr << "for: " << part.second << " increment " << it->cc << endl;
+	  for ( const auto& cp : it->cc_parts ){
+	    ++cc_freqs[cp];
+	    if ( show ){
+	      cerr << "for: " << part.second << " increment " << cp << endl;
+	    }
 	  }
 	}
       }
       ++it;
     }
-    //    cerr << "found " << cc_freqs.size() << " CC's for: " << part.second << endl;
-    //    cerr << cc_freqs << endl;
     multimap<int,string,std::greater<int>> desc_cc;
     // sort on highest frequency first.
     // DOES IT REALLY MATTER???
     for ( const auto& cc : cc_freqs ){
       desc_cc.insert( make_pair(cc.second,cc.first) );
+    }
+    if ( verbosity > 0 ){
+      cerr << "found " << desc_cc.size() << " CC's for: " << part.second << endl;
+      for ( const auto& it : desc_cc ){
+	cerr << it.first << "\t" << it.second << endl;
+      }
     }
     for ( const auto& dcc : desc_cc ){
       if ( show ){
@@ -286,18 +302,21 @@ int main( int argc, char **argv ){
 	  ++it;
 	  continue;
 	}
+	if ( done.find( rec ) != done.end() ){
+	  ++it;
+	  continue;
+	}
 	string key = rec->variant + rec->cc;
 	if ( rec->v_parts.size() > 1 ){
-	  bool local_show = false;
+	  bool local_show = verbosity > 0;
 	  for ( const auto& p : rec->v_parts ){
 	    local_show |= follow_words.find( p ) != follow_words.end();
 	  }
 	  // if ( local_show ){
 	  //   cerr << "bekijk met " << dcc.second << ":" << rec << endl;
 	  // }
-	  vector<string> cc_parts = TiCC::split_at( rec->cc, SEPARATOR );
 	  bool match = false;
-	  for( const auto& cp : cc_parts ){
+	  for( const auto& cp : rec->cc_parts ){
 	    if ( dcc.second == cp ){
 	      // CC match
 	      for ( const auto& p : rec->v_parts ){
@@ -318,6 +337,7 @@ int main( int argc, char **argv ){
 		  if ( local_show ){
 		    cerr << "INSERT: " << rec << " (" << key << ")" << endl;
 		  }
+		  done.insert( rec );
 		  kept.insert( key );
 		}
 		else {
