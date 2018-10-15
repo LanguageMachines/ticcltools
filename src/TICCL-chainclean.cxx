@@ -249,9 +249,9 @@ int main( int argc, char **argv ){
     copy_records.push_back( &rec );
   }
   bool show = false;
-  set<record*> done;
+  set<record*> done_records;
+  map<string,string> done;
   for ( const auto& part : desc_parts_freq ) {
-    set<string> kept;
     show = (verbosity>0 )
     || follow_words.find( part.second ) != follow_words.end();
     if ( show ){
@@ -302,7 +302,7 @@ int main( int argc, char **argv ){
 	  ++it;
 	  continue;
 	}
-	if ( done.find( rec ) != done.end() ){
+	if ( done_records.find( rec ) != done_records.end() ){
 	  ++it;
 	  continue;
 	}
@@ -331,20 +331,28 @@ int main( int argc, char **argv ){
 		  cerr << "both " << cp << " and " << part.second
 		       << " matched in: " << rec << endl;
 		}
-		key = part.second + cp;
-		if ( rec->v_parts.size() == 2
-		     || kept.find( key ) == kept.end() ){
-		  if ( local_show ){
-		    cerr << "INSERT: " << rec << " (" << key << ")" << endl;
+		if ( done.find( cp ) != done.end() ){
+		  string v = done[cp];
+		  if ( rec->variant.find(v ) != string::npos ){
+		    if ( local_show ){
+		      cerr << "IGNORE: " << rec << endl;
+		    }
+		    *it = 0;
 		  }
-		  done.insert( rec );
-		  kept.insert( key );
+		  else {
+		    if ( local_show ){
+		      cerr << "INSERT: " << rec << endl;
+		    }
+		    done[rec->cc] = rec->variant;
+		    done_records.insert(rec);
+		  }
 		}
 		else {
 		  if ( local_show ){
-		    cerr << "IGNORE: " << rec << " (" << key << ")" << endl;
+		    cerr << "INSERT: " << rec << endl;
 		  }
-		  *it = 0;
+		  done[rec->cc] = rec->variant;
+		  done_records.insert(rec);
 		}
 		break;
 	      }
@@ -352,13 +360,15 @@ int main( int argc, char **argv ){
 	  }
 	}
 	else {
-	  if ( rec->variant == part.second ){
-	    if ( show ){
-	      cerr << "remove translation of unknown part: " << part.second
-		   << " in " << rec << endl;
-	    }
-	    *it = 0;
-	  }
+	  // if ( rec->variant == part.second ){
+	  //   if ( show ){
+	  //     cerr << "remove translation of unknown part: " << part.second
+	  // 	   << " in " << rec << endl;
+	  //   }
+	  //   *it = 0;
+	  // }
+	  done[rec->cc] = rec->variant;
+	  done_records.insert(rec);
 	}
 	++it;
       }
