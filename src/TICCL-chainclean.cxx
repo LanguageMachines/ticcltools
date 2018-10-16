@@ -253,7 +253,7 @@ int main( int argc, char **argv ){
   map<string,string> done;
   for ( const auto& part : desc_parts_freq ) {
     show = (verbosity>0 )
-    || follow_words.find( part.second ) != follow_words.end();
+      || follow_words.find( part.second ) != follow_words.end();
     if ( show ){
       cerr << "\n  Loop for part: " << part.second << endl;
     }
@@ -285,7 +285,7 @@ int main( int argc, char **argv ){
     for ( const auto& cc : cc_freqs ){
       desc_cc.insert( make_pair(cc.second,cc.first) );
     }
-    if ( verbosity > 0 ){
+    if ( show ){
       cerr << "found " << desc_cc.size() << " CC's for: " << part.second << endl;
       for ( const auto& it : desc_cc ){
 	cerr << it.first << "\t" << it.second << endl;
@@ -360,13 +360,13 @@ int main( int argc, char **argv ){
 	  }
 	}
 	else {
-	  // if ( rec->variant == part.second ){
-	  //   if ( show ){
-	  //     cerr << "remove translation of unknown part: " << part.second
-	  // 	   << " in " << rec << endl;
-	  //   }
-	  //   *it = 0;
-	  // }
+	  if ( rec->variant == part.second ){
+	    if ( true||show ){
+	      cerr << "remove translation of unknown part: " << part.second
+		   << " in " << rec << endl;
+	    }
+	    *it = 0;
+	  }
 	  done[rec->cc] = rec->variant;
 	  done_records.insert(rec);
 	}
