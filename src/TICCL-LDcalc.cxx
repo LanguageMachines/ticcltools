@@ -393,21 +393,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
     }
     return true; // no use to keep this
   }
-//   auto const& entry2 = low_freqMap.find( lp );
-//   if ( entry2 == low_freqMap.end()
-//        || entry2->second < freqThreshold ){
-//     // left AND right a low frequent word.
-//     if ( follow ){
-// #pragma omp critical (debugout)
-//       {
-// 	cerr << "both ngram part1: " << diff_part1 << " and part2: "
-// 	     << diff_part2 << " are low frequent " << endl;
-//       }
-//     }
-//     return true; // no use to keep it then
-// }
-
-// so this IS a potential good correction
+  // so this IS a potential good correction
   ngram_point = 1;
   UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
   if ( (size_t)diff_part1.length() < low_limit ){
@@ -1273,9 +1259,18 @@ int main( int argc, char **argv ){
     }
     amb << endl;
   }
+  map<UnicodeString,unsigned int> low_ngramcount;
+  for ( const auto& ng : ngram_count ){
+    UnicodeString lv = ng.first;
+    lv.toLower();
+    low_ngramcount[lv] += ng.second;
+  }
   for ( const auto& it : ngram_count ){
     if ( record_store.find( it.first ) != record_store.end() ){
-      record_store.find(it.first)->second.ngram_point += it.second;
+      UnicodeString lv = it.first;
+      lv.toLower();
+      assert( low_ngramcount.find( lv ) != low_ngramcount.end() );
+      record_store.find(it.first)->second.ngram_point += low_ngramcount[lv];
     }
     else {
       // Ok, our data seems to be incomplete
