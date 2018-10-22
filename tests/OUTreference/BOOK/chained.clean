@@ -857,6 +857,7 @@ serges#1#series#1001096685#1#C
 nation’s#1#National#1001095598#2#C
 the-United#1#the_United#1001095582#1#C
 the_Un:ted#1#the_United#1001095582#1#C
+the_Ünited#1#the_United#1001095582#1#C
 Usance#1#since#1001089460#2#C
 inces#1#since#1001089460#2#C
 minae#1#since#1001089460#2#C
@@ -2298,6 +2299,7 @@ orporated#1#operated#1000206190#2#C
 umerated#1#operated#1000206190#2#C
 educa-_tion#1#Education#1000205075#2#C
 discover-#1#discovered#1000204968#2#C
+discover-_ed#1#discovered#1000204968#2#C
 ieparate#1#separate#1000204680#1#C
 sepiarated#1#separate#1000204680#2#C
 prelides#1#provides#1000204449#2#C
@@ -2428,6 +2430,7 @@ agues#4#goes#1000181383#2#C
 MfLw#1#male#1000181139#2#C
 fettles#1#females#1000181043#2#C
 moan-#1#mean#1000180759#2#C
+Ca_rolina#1#Carolina#1000180246#1#C
 Capolita#1#Carolina#1000180246#2#C
 Caroliha#1#Carolina#1000180246#1#C
 N.Carolina#1#Carolina#1000180246#2#C
@@ -2477,6 +2480,7 @@ Figuares#1#figure#1000174944#2#C
 and.are#1#and_are#1000174899#1#C
 Cividad#7#divided#1000174780#2#C
 dividI#1#divided#1000174780#2#C
+dividI_ed#1#divided#1000174780#2#C
 Coastof#1#coast#1000174686#2#C
 Wcoast#1#coast#1000174686#1#C
 coaft#87#coast#1000174686#1#C
@@ -2773,6 +2777,7 @@ ue,in#1#begin#1000139215#2#C
 Port,on#3#portion#1000138673#1#C
 Portida#1#portion#1000138673#2#C
 incipal#1#principal#1000138601#2#C
+pr_incipal#1#principal#1000138601#1#C
 princi_pal#1#principal#1000138601#1#C
 filhing#1#fighting#1000138387#2#C
 fisting#1#fighting#1000138387#2#C
@@ -2883,6 +2888,7 @@ NcwJerfey#1#New_Jersey#1000127392#3#C
 NcwJersey#1#New_Jersey#1000127392#2#C
 NeW-Jersey#1#New_Jersey#1000127392#1#C
 Nevv-Jerfey#3#New_Jersey#1000127392#4#C
+New-J_erfey#1#New_Jersey#1000127392#3#C
 New-Jcrfey#2#New_Jersey#1000127392#3#C
 New-Jefsey#1#New_Jersey#1000127392#2#C
 New-Jeifey#1#New_Jersey#1000127392#3#C
@@ -3497,6 +3503,7 @@ W.by#2#baby#1000073997#2#C
 a-A!t#1#apart#1000073843#2#C
 tiesand#1#time_and#1000073814#2#C
 cellent#1#excellent#1000073283#2#C
+ex_cellent#1#excellent#1000073283#1#C
 annuallv#1#annually#1000073098#1#C
 i6ic#1#Eric#1000072976#2#C
 Durot#1#drop#1000072914#2#C
@@ -4462,6 +4469,7 @@ N'ova-Scotia#1#Nova_Scotia#1000032445#2#C
 Ncva-Scotia#1#Nova_Scotia#1000032445#2#C
 Not'a-Scotia#1#Nova_Scotia#1000032445#3#C
 Nova-8_cotia#1#Nova_Scotia#1000032445#3#C
+Nova-S_cotia#2#Nova_Scotia#1000032445#2#C
 Nova-ScOtia#1#Nova_Scotia#1000032445#1#C
 Nova-Scctia#1#Nova_Scotia#1000032445#2#C
 Nova-Scntia#1#Nova_Scotia#1000032445#2#C
@@ -5086,6 +5094,7 @@ Cavones#1#caves#1000019058#2#C
 quoinn#1#Quinn#1000019010#1#C
 Beverly,a#1#Beverly#1000018984#2#C
 retreat-#1#retreated#1000018973#2#C
+retreat-_ed#1#retreated#1000018973#2#C
 ihuals#1#ideals#1000018953#2#C
 RanDOLPH,a#1#Randolph#1000018949#2#C
 Randolph,a#3#Randolph#1000018949#2#C
@@ -5727,6 +5736,7 @@ odorif#1#Doris#1000011058#2#C
 country-its#1#country_is#1000011041#2#C
 Midway,a#2#Midway#1000011036#2#C
 overwhelm-#1#overwhelmed#1000011022#2#C
+overwhelm-_ed#1#overwhelmed#1000011022#2#C
 Inhab#2#inhabit#1000011019#2#C
 inhab#1#inhabit#1000011019#2#C
 inhabi#1#inhabit#1000011019#1#C
@@ -8641,6 +8651,7 @@ Trelawney#1#Trelawny#1000000888#1#C
 of_Rto#1#Oporto#1000000887#2#C
 Peek’s_Kill#1#Peekskill#1000000886#2#C
 Connecticut,one#1#Connecticut_on#1000000885#2#C
+hicago_ri_ver#1#Chicago_River#1000000884#2#C
 Patapfco#9#Patapsco#1000000881#1#C
 Patapico#1#Patapsco#1000000881#1#C
 Pataplco#1#Patapsco#1000000881#1#C
@@ -12592,6 +12603,7 @@ myrtle-wax#1#myrtle_wax#1000000004#1#C
 ofBcllisle#1#of_Bellisle#1000000004#2#C
 parti-coloured#1#parti_colored#1000000004#2#C
 sal-ammoniac#1#sal_ammonia#1000000004#2#C
+sal_ammoniac#1#sal_ammonia#1000000004#1#C
 salt-pits#2#salt_pits#1000000004#1#C
 wide-adorned#1#side_adorned#1000000004#2#C
 ter'-works#1#term_works#1000000004#2#C
@@ -12920,6 +12932,7 @@ AnclotePoint#1#Anclote_Point#1000000001#1#C
 and_VV#1#Andovr#1000000001#2#C
 Androscoggin,or#1#Androscoggin_or#1000000001#1#C
 Anegada,one#1#Anegada_one#1000000001#1#C
+AnnapolisRiver_in#1#Annapolis_river_on#1000000001#2#C
 Anne’sIslands#1#Anne_Islands#1000000001#2#C
 Anzerma,is#1#Anserma_is#1000000001#2#C
 Apalachesor#1#Apalache_or#1000000001#1#C

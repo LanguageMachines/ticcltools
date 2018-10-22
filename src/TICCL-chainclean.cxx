@@ -295,6 +295,10 @@ int main( int argc, char **argv ){
       if ( show ){
 	cerr << "BEKIJK: " << dcc.second << "[" << dcc.first << "]" << endl;
       }
+      if ( dcc.first <=1 ){
+	// hapaxes are always fine
+	break;
+      }
       auto it = copy_records.begin();
       while ( it != copy_records.end() ){
 	record* rec = *it;
