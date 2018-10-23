@@ -337,6 +337,7 @@ int main( int argc, char **argv ){
       if ( show ){
 	cerr << "BEKIJK: " << cand_cor << "[" << dcc.first << "]" << endl;
       }
+      map<string,int> uniq;
       auto it = copy_records.begin();
       while ( it != copy_records.end() ){
 	record* rec = *it;
@@ -372,6 +373,10 @@ int main( int argc, char **argv ){
 	    }
 	    done[corr] = vari;
 	    done_records.insert(rec);
+	    if ( rec->cc_parts.size() == 1 ){
+	      // so this is a unigram CC
+	      ++uniq[vari];
+	    }
 	  }
 	}
 	else {
@@ -394,7 +399,14 @@ int main( int argc, char **argv ){
 	    if ( cand_cor == cor_part ){
 	      // CC match
 	      for ( const auto& p : rec->v_parts ){
-		if ( p == unk_part ){
+		string p_part;
+		if ( do_low2 ){
+		  p_part = TiCC::utf8_lowercase( p );
+		}
+		else {
+		  p_part = p;
+		}
+		if ( p_part == unk_part ){
 		  // variant match too
 		  match = true;
 		  break;
@@ -404,29 +416,41 @@ int main( int argc, char **argv ){
 		if ( local_show ){
 		  cerr << "both " << cor_part << " and " << unk_part
 		       << " matched in: " << rec << endl;
-		  cerr << "DCC=" << dcc.second << "[" << dcc.first << "]" << endl;
+		}
+		string lvar;
+		if ( do_low2 ){
+		  lvar = TiCC::utf8_lowercase(rec->variant);
+		}
+		else {
+		  lvar = rec->variant;
 		}
 		if ( done.find( cor_part ) != done.end() ){
 		  string v = done[cor_part];
-		  if ( rec->variant.find(v ) != string::npos ){
+		  if ( uniq.find( unk_part ) != uniq.end() ){
 		    if ( local_show ){
-		      cerr << "REMOVE: " << rec << endl;
+		      cerr << "REMOVE uni: " << rec << endl;
+		    }
+		    *it = 0;
+		  }
+		  else if ( lvar.find( v ) != string::npos ){
+		    if ( local_show ){
+		      cerr << "REMOVE match: " << rec << endl;
 		    }
 		    *it = 0;
 		  }
 		  else {
 		    if ( local_show ){
-		      cerr << "KEEP: " << rec << endl;
+		      cerr << "KEEP 1: " << rec << endl;
 		    }
-		    done[cor_part] = rec->variant;
+		    done[cor_part] = lvar;
 		    done_records.insert(rec);
 		  }
 		}
 		else {
 		  if ( local_show ){
-		    cerr << "KEEP: " << rec << endl;
+		    cerr << "KEEP 2: " << rec << endl;
 		  }
-		  done[cor_part] = rec->variant;
+		  done[cor_part] = lvar;
 		  done_records.insert(rec);
 		}
 		break;

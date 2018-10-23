@@ -2031,7 +2031,6 @@ Town,a#5#towns#1000118664#2#C
 don,a#1#towns#1000118664#4#C
 mstown,a#1#towns#1000118664#4#C
 stow_N,a#1#towns#1000118664#4#C
-stow_n,a#1#towns#1000118664#4#C
 tawnv#1#towns#1000118664#2#C
 totvnS#1#towns#1000118664#2#C
 tovyns#1#towns#1000118664#2#C
@@ -2681,7 +2680,6 @@ iuppofe#1#suppose#1000065206#2#C
 Bav_on#2#Baron#1000065186#2#C
 Bay,on#4#Baron#1000065186#2#C
 Yapon#1#Baron#1000065186#2#C
-bav_on#1#Baron#1000065186#2#C
 bay-on#1#Baron#1000065186#2#C
 Nomony#1#colony#1000065101#2#C
 viating#1#visiting#1000064914#2#C
@@ -3821,7 +3819,6 @@ Long-ifland#1#Long_Island#1000026291#2#C
 LongIfiand#1#Long_Island#1000026291#3#C
 LongIiland#1#Long_Island#1000026291#2#C
 LongIsland#9#Long_Island#1000026291#1#C
-Long_Ifland#1#Long_Island#1000026291#1#C
 Longdfiand#1#Long_Island#1000026291#4#C
 Longliland#1#Long_Island#1000026291#2#C
 Nepot#1#depot#1000026272#1#C
@@ -7443,7 +7440,6 @@ JJiand#1#Briand#1000001193#2#C
 Sugar-Loaf#1#Sugarloaf#1000001193#1#C
 Matanze#1#matinee#1000001192#2#C
 Eaft_and#2#Eastland#1000001189#2#C
-eaft_and#2#Eastland#1000001189#2#C
 eait_and#1#Eastland#1000001189#2#C
 Wiandats#1#Wyandotte#1000001188#4#C
 Wyandots#3#Wyandotte#1000001188#2#C
@@ -9075,10 +9071,7 @@ inhabitants-including#1#inhabitants_including#1000000257#1#C
 ByranTown#1#Branton#1000000256#2#C
 The_eaft#1#thereat#1000000256#2#C
 The_reft#2#thereat#1000000256#2#C
-the_Eaft#1#thereat#1000000256#2#C
-the_eaft#26#thereat#1000000256#2#C
 the_eait#2#thereat#1000000256#2#C
-the_reft#4#thereat#1000000256#2#C
 Dock-street#1#Dock_Street#1000000254#1#C
 Pemaquid,a#1#Pemaquid#1000000254#2#C
 VaseRiver#1#as_river#1000000254#2#C
@@ -9697,7 +9690,6 @@ South-Washington#1#South_Washington#1000000133#1#C
 The_ifle#1#Theile#1000000133#2#C
 the_IJle#1#Theile#1000000133#2#C
 the_Ijle#1#Theile#1000000133#2#C
-the_ifle#1#Theile#1000000133#2#C
 Winnipeg,or#1#Winnipeg_for#1000000133#2#C
 Tabooronm#1#taboo_on#1000000133#2#C
 Pennsylvania.-Also#2#Pennsylvania_also#1000000132#2#C
@@ -10372,7 +10364,6 @@ Sinepuxent,a#1#Sinepuxent#1000000060#2#C
 SouthAnna#1#South_Anna#1000000060#1#C
 Cipariso#1#Caparison#1000000059#2#C
 Havre-de-Grace#1#Havre_de_Grace#1000000059#2#C
-IJland_one#1#Island_one#1000000059#1#C
 Island,one#2#Island_one#1000000059#1#C
 Leogane,a#1#Leogane#1000000059#2#C
 Milton,the#1#Milton_the#1000000059#1#C
@@ -10546,7 +10537,6 @@ SablePoint#1#Sable_Point#1000000047#1#C
 Salvadore,St#1#Salvadores#1000000047#2#C
 Stuart’sIsland#1#Stuart_Island#1000000047#2#C
 It_vas#1#Tavas#1000000047#2#C
-it_vas#1#Tavas#1000000047#2#C
 Versailles,the#1#Versailles_the#1000000047#1#C
 Will’s-Town#1#Willistown#1000000047#2#C
 Fairfield,the#1#airfield_the#1000000047#2#C
@@ -12131,7 +12121,6 @@ Elmore,the#1#Elmore_the#1000000002#1#C
 Ephrata,or#1#Ephrata_on#1000000002#2#C
 Federalfbui#1#Federal_but#1000000002#2#C
 fize_In#1#Fidelin#1000000002#2#C
-fize_in#1#Fidelin#1000000002#2#C
 FisHingBay_in#1#Fishing_Bay_on#1000000002#2#C
 Flats,the#1#Flats_The#1000000002#1#C
 Fuego.See#1#Fuego_se#1000000002#2#C
