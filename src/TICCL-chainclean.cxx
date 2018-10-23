@@ -282,22 +282,36 @@ int main( int argc, char **argv ){
     auto it = records.begin();
     while ( it != records.end() ){
       //      if ( it->v_parts.size() != 1 ){
-	bool match = false;
-	for ( const auto& p : it->v_parts ){
-	  if ( p == unk_part ){
-	    match = true;
-	    break;
+      bool match = false;
+      for ( const auto& p : it->v_parts ){
+	string v_part;
+	if ( do_low1 ){
+	  v_part = TiCC::utf8_lowercase(p);
+	}
+	else {
+	  v_part = p;
+	}
+	if ( p == unk_part ){
+	  match = true;
+	  break;
+	}
+      }
+      if ( match ){
+	for ( const auto& cp : it->cc_parts ){
+	  string c_part;
+	  if ( do_low2 ){
+	    c_part = TiCC::utf8_lowercase(cp);
+	  }
+	  else {
+	    c_part = cp;
+	  }
+	  ++cc_freqs[c_part];
+	  if ( show ){
+	    cerr << "for: " << unk_part << " increment " << c_part << endl;
 	  }
 	}
-	if ( match ){
-	  for ( const auto& cp : it->cc_parts ){
-	    ++cc_freqs[cp];
-	    if ( show ){
-	      cerr << "for: " << unk_part << " increment " << cp << endl;
-	    }
-	  }
-	}
-	//      }
+      }
+      //      }
       ++it;
     }
     multimap<int,string,std::greater<int>> desc_cc;
@@ -390,6 +404,7 @@ int main( int argc, char **argv ){
 		if ( local_show ){
 		  cerr << "both " << cor_part << " and " << unk_part
 		       << " matched in: " << rec << endl;
+		  cerr << "DCC=" << dcc.second << "[" << dcc.first << "]" << endl;
 		}
 		if ( done.find( cor_part ) != done.end() ){
 		  string v = done[cor_part];
