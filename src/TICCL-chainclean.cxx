@@ -174,6 +174,7 @@ int main( int argc, char **argv ){
     cerr << "problem opening input file: " << in_name << endl;
     exit(1);
   }
+  bool do_low1 = false;
   set<string> valid_words;
   ifstream lexicon( lex_name );
   string line;
@@ -191,7 +192,12 @@ int main( int argc, char **argv ){
       exit( EXIT_FAILURE );
     }
     if ( freq >= artifreq ){
-      valid_words.insert( vec[0] );
+      if ( do_low1 ){
+	valid_words.insert( TiCC::utf8_lowercase( vec[0] ) );
+      }
+      else {
+	valid_words.insert( vec[0] );
+      }
     }
   }
   cout << "read " << valid_words.size() << " validated words from "
@@ -222,8 +228,15 @@ int main( int argc, char **argv ){
       continue;
     }
     for ( const auto& p : rec.v_parts ){
-      if ( valid_words.find( p ) == valid_words.end() ){
-	++parts_freq[p];
+      string key;
+      if ( do_low1 ){
+	key = TiCC::utf8_lowercase( p );
+      }
+      else {
+	key = p;
+      }
+      if ( valid_words.find( key ) == valid_words.end() ){
+	++parts_freq[key];
       }
     }
   }
@@ -249,21 +262,29 @@ int main( int argc, char **argv ){
     copy_records.push_back( &rec );
   }
   bool show = false;
+  bool do_low2 = true;
   set<record*> done_records;
   map<string,string> done;
   for ( const auto& part : desc_parts_freq ) {
+    string unk_part;
+    if ( do_low2 ){
+      unk_part = TiCC::utf8_lowercase(part.second);
+    }
+    else {
+      unk_part = part.second;
+    }
     show = (verbosity>0 )
-      || follow_words.find( part.second ) != follow_words.end();
+      || follow_words.find( unk_part ) != follow_words.end();
     if ( show ){
-      cerr << "\n  Loop for part: " << part.second << endl;
+      cerr << "\n  Loop for part: " << part.second << "/" << unk_part << endl;
     }
     map<string,int> cc_freqs;
     auto it = records.begin();
     while ( it != records.end() ){
-      if ( it->v_parts.size() != 1 ){
+      //      if ( it->v_parts.size() != 1 ){
 	bool match = false;
 	for ( const auto& p : it->v_parts ){
-	  if ( p == part.second ){
+	  if ( p == unk_part ){
 	    match = true;
 	    break;
 	  }
@@ -272,11 +293,11 @@ int main( int argc, char **argv ){
 	  for ( const auto& cp : it->cc_parts ){
 	    ++cc_freqs[cp];
 	    if ( show ){
-	      cerr << "for: " << part.second << " increment " << cp << endl;
+	      cerr << "for: " << unk_part << " increment " << cp << endl;
 	    }
 	  }
 	}
-      }
+	//      }
       ++it;
     }
     multimap<int,string,std::greater<int>> desc_cc;
@@ -286,18 +307,21 @@ int main( int argc, char **argv ){
       desc_cc.insert( make_pair(cc.second,cc.first) );
     }
     if ( show ){
-      cerr << "found " << desc_cc.size() << " CC's for: " << part.second << endl;
+      cerr << "found " << desc_cc.size() << " CC's for: " << unk_part << endl;
       for ( const auto& it : desc_cc ){
 	cerr << it.first << "\t" << it.second << endl;
       }
     }
     for ( const auto& dcc : desc_cc ){
-      if ( show ){
-	cerr << "BEKIJK: " << dcc.second << "[" << dcc.first << "]" << endl;
+      string cand_cor;
+      if ( do_low2 ){
+	cand_cor = TiCC::utf8_lowercase( dcc.second );
       }
-      if ( dcc.first <=1 ){
-	// hapaxes are always fine
-	break;
+      else {
+	cand_cor = dcc.second;
+      }
+      if ( show ){
+	cerr << "BEKIJK: " << cand_cor << "[" << dcc.first << "]" << endl;
       }
       auto it = copy_records.begin();
       while ( it != copy_records.end() ){
@@ -307,24 +331,56 @@ int main( int argc, char **argv ){
 	  continue;
 	}
 	if ( done_records.find( rec ) != done_records.end() ){
+	  if ( show && rec->variant.find( unk_part) != string::npos ) {
+	    cerr << "skip already done " << rec << endl;
+	  }
 	  ++it;
 	  continue;
 	}
-	string key = rec->variant + rec->cc;
-	if ( rec->v_parts.size() > 1 ){
+	if ( rec->v_parts.size() == 1 ){
+	  string vari;
+	  string corr;
+	  if ( do_low2 ){
+	    vari = TiCC::utf8_lowercase( rec->variant );
+	    corr = TiCC::utf8_lowercase( rec->cc );
+	  }
+	  else {
+	    vari = rec->variant;
+	    corr = rec->cc;
+	  }
+	  if ( vari == unk_part
+	       && corr.find(cand_cor) != string::npos ){
+	    // this is (might be) THE desired CC
+	    if ( show ){
+	      cerr << "UNI gram: both " << unk_part << " and " << cand_cor
+		   << " matched in: " << rec << endl;
+	      cerr << "KEEP: " << rec << endl;
+	    }
+	    done[corr] = vari;
+	    done_records.insert(rec);
+	  }
+	}
+	else {
 	  bool local_show = verbosity > 0;
 	  for ( const auto& p : rec->v_parts ){
 	    local_show |= follow_words.find( p ) != follow_words.end();
 	  }
 	  // if ( local_show ){
-	  //   cerr << "bekijk met " << dcc.second << ":" << rec << endl;
+	  //   cerr << "bekijk met " << cand_cor << ":" << rec << endl;
 	  // }
 	  bool match = false;
 	  for( const auto& cp : rec->cc_parts ){
-	    if ( dcc.second == cp ){
+	    string cor_part;
+	    if ( do_low2 ){
+	      cor_part = TiCC::utf8_lowercase( cp );
+	    }
+	    else {
+	      cor_part = cp;
+	    }
+	    if ( cand_cor == cor_part ){
 	      // CC match
 	      for ( const auto& p : rec->v_parts ){
-		if ( p == part.second ){
+		if ( p == unk_part ){
 		  // variant match too
 		  match = true;
 		  break;
@@ -332,47 +388,36 @@ int main( int argc, char **argv ){
 	      }
 	      if ( match ){
 		if ( local_show ){
-		  cerr << "both " << cp << " and " << part.second
+		  cerr << "both " << cor_part << " and " << unk_part
 		       << " matched in: " << rec << endl;
 		}
-		if ( done.find( cp ) != done.end() ){
-		  string v = done[cp];
+		if ( done.find( cor_part ) != done.end() ){
+		  string v = done[cor_part];
 		  if ( rec->variant.find(v ) != string::npos ){
 		    if ( local_show ){
-		      cerr << "IGNORE: " << rec << endl;
+		      cerr << "REMOVE: " << rec << endl;
 		    }
 		    *it = 0;
 		  }
 		  else {
 		    if ( local_show ){
-		      cerr << "INSERT: " << rec << endl;
+		      cerr << "KEEP: " << rec << endl;
 		    }
-		    done[rec->cc] = rec->variant;
+		    done[cor_part] = rec->variant;
 		    done_records.insert(rec);
 		  }
 		}
 		else {
 		  if ( local_show ){
-		    cerr << "INSERT: " << rec << endl;
+		    cerr << "KEEP: " << rec << endl;
 		  }
-		  done[rec->cc] = rec->variant;
+		  done[cor_part] = rec->variant;
 		  done_records.insert(rec);
 		}
 		break;
 	      }
 	    }
 	  }
-	}
-	else {
-	  if ( rec->variant == part.second ){
-	    if ( true||show ){
-	      cerr << "remove translation of unknown part: " << part.second
-		   << " in " << rec << endl;
-	    }
-	    *it = 0;
-	  }
-	  done[rec->cc] = rec->variant;
-	  done_records.insert(rec);
 	}
 	++it;
       }
