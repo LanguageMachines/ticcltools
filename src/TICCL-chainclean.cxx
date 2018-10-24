@@ -174,7 +174,7 @@ int main( int argc, char **argv ){
     cerr << "problem opening input file: " << in_name << endl;
     exit(1);
   }
-  bool do_low1 = false;
+  bool do_low1 = true;
   set<string> valid_words;
   ifstream lexicon( lex_name );
   string line;
@@ -291,7 +291,13 @@ int main( int argc, char **argv ){
 	else {
 	  v_part = p;
 	}
-	if ( p == unk_part ){
+	if ( show ){
+	  cerr << "ZOEK: " << v_part << endl;
+	}
+	if ( v_part == unk_part ){
+	  if ( show ){
+	    cerr << "found: " << unk_part << endl;
+	  }
 	  match = true;
 	  break;
 	}
