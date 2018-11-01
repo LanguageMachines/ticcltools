@@ -466,16 +466,26 @@ int main( int argc, char **argv ){
     }
   }
   ofstream os( out_name );
-  cerr << "copy_records.size()= " << copy_records.size() << endl;
   int count = 0;
   for ( const auto it : copy_records ){
     if ( it != 0 ){
-      ++count;
       if ( !it->deleted ){
+	++count;
 	os << it << endl;
       }
     }
   }
-  cerr << "copy_records.count()= " << count << endl;
-  cout << "results in " << out_name << endl;
+  cerr << "wrote " << count << " records to " << out_name << endl;
+  ofstream osd( out_name + ".deleted" );
+  count = 0;
+  for ( const auto it : copy_records ){
+    if ( it != 0 ){
+      if ( it->deleted ){
+	++count;
+	osd << it << endl;
+      }
+    }
+  }
+  cerr << "wrote " << count << " DELETED records to " << out_name
+       << ".deleted" << endl;
 }
