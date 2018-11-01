@@ -76,9 +76,11 @@ public:
   record():deleted(false){};
   string variant;
   vector<string> v_parts;
+  vector<string> v_dh_parts;
   string v_freq;
   string cc;
   vector<string> cc_parts;
+  vector<string> cc_dh_parts;
   string cc_freq;
   string ld;
   bool deleted;
@@ -98,7 +100,7 @@ int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
-    opts.set_long_options( "lexicon:,artifreq:,follow:,low:" );
+    opts.set_long_options( "lexicon:,artifrq:,follow:,low:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -230,7 +232,9 @@ int main( int argc, char **argv ){
   map<string,int> parts_freq;
   for ( auto& rec : records ){
     rec.v_parts = TiCC::split_at( rec.variant, SEPARATOR );
+    rec.v_dh_parts = TiCC::split_at_first_of( rec.variant, SEPARATOR+"-" );
     rec.cc_parts = TiCC::split_at( rec.cc, SEPARATOR );
+    rec.cc_dh_parts = TiCC::split_at_first_of( rec.cc, SEPARATOR+"-" );
     if ( rec.v_parts.size() == 1 ){
       continue;
     }
@@ -295,11 +299,9 @@ int main( int argc, char **argv ){
       cerr << "\n  Loop for part: " << part.second << "/" << unk_part << endl;
     }
     map<string,int> cc_freqs;
-    auto it = records.begin();
-    while ( it != records.end() ){
-      //      if ( it->v_parts.size() != 1 ){
+    for ( const auto& it : records ){
       bool match = false;
-      for ( const auto& p : it->v_parts ){
+      for ( const auto& p : it.v_dh_parts ){
 	string v_part;
 	if ( do_low1 ){
 	  v_part = TiCC::utf8_lowercase(p);
@@ -312,14 +314,14 @@ int main( int argc, char **argv ){
 	}
 	if ( v_part == unk_part ){
 	  if ( show ){
-	    cerr << "found: " << unk_part << endl;
+	    cerr << "found: " << unk_part << " in: " << it << endl;
 	  }
 	  match = true;
 	  break;
 	}
       }
       if ( match ){
-	for ( const auto& cp : it->cc_parts ){
+	for ( const auto& cp : it.cc_dh_parts ){
 	  string c_part;
 	  if ( do_low2 ){
 	    c_part = TiCC::utf8_lowercase(cp);
@@ -333,8 +335,6 @@ int main( int argc, char **argv ){
 	  }
 	}
       }
-      //      }
-      ++it;
     }
     multimap<int,string,std::greater<int>> desc_cc;
     // sort on highest frequency first.
@@ -406,9 +406,24 @@ int main( int argc, char **argv ){
 	  for ( const auto& p : rec->v_parts ){
 	    local_show |= follow_words.find( p ) != follow_words.end();
 	  }
-	  // if ( local_show ){
-	  //   cerr << "bekijk met " << cand_cor << ":" << rec << endl;
-	  // }
+	  if ( local_show ){
+	    cerr << "bekijk met " << cand_cor << ":" << rec << endl;
+	  }
+	  for ( const auto& vp : rec->v_parts ){
+	    if ( uniq.find(vp) != uniq.end() ){
+	      // a ngram part equals an already resolved unigram
+	      // discard!
+	      rec->deleted = true;
+	      break;
+	    }
+	  }
+	  if ( rec->deleted ){
+	    if ( local_show ){
+	      cerr << "REMOVE uni: " << rec << endl;
+		}
+	    ++it;
+	    continue;
+	  }
 	  bool match = false;
 	  for( const auto& cp : rec->cc_parts ){
 	    string cor_part;
