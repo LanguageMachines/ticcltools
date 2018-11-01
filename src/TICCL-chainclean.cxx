@@ -95,7 +95,7 @@ int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
-    opts.set_long_options( "lexicon:,artifreq:,follow:" );
+    opts.set_long_options( "lexicon:,artifreq:,follow:,low:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -126,6 +126,13 @@ int main( int argc, char **argv ){
     if ( !TiCC::stringTo(value,artifreq) ) {
       cerr << "illegal value for --artifrq (" << value << ")" << endl;
       exit(EXIT_FAILURE);
+    }
+  }
+  size_t low_limit = 5;
+  if ( opts.extract( "low", value ) ){
+    if ( !TiCC::stringTo(value,low_limit) ){
+      cerr << progname << ": illegal value for --low (" << value << ")" << endl;
+      exit( EXIT_FAILURE );
     }
   }
   string lex_name;
@@ -256,6 +263,15 @@ int main( int argc, char **argv ){
 
   list<record*> copy_records;
   for ( auto& rec : records ){
+    if ( rec.v_parts.size() > 1 ){
+      string tmp;
+      for ( const auto& p : rec.v_parts ){
+	tmp += p;
+      }
+      if ( tmp.size() <= low_limit ){
+	rec.deleted = true;
+      }
+    }
     copy_records.push_back( &rec );
   }
   bool show = false;
