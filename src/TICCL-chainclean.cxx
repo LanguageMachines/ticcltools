@@ -208,6 +208,10 @@ int main( int argc, char **argv ){
 	valid_words.insert( vec[0] );
       }
     }
+    else {
+      // the lexicon is sorted on freq. so we can bail out now
+      break;
+    }
   }
   cout << "read " << valid_words.size() << " validated words from "
        << lex_name << endl;
