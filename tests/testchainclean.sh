@@ -19,7 +19,7 @@ testdata=TESTDATA
 
 echo "start TICCL-chainclean"
 
-$bindir/TICCL-chainclean --lexicon $testdata/chain.clean -o /tmp/chained.clean $testdata/morse.chained $1
+$bindir/TICCL-chainclean --lexicon $testdata/chain.clean -o /tmp/chained.clean $testdata/morse.chained $1 $2 $3
 
 if [ $? -ne 0 ]
 then

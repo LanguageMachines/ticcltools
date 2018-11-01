@@ -870,6 +870,7 @@ groupe#1#group#1000928630#1#C
 cOun$y#1#County#1000923253#1#C
 couety#1#County#1000923253#1#C
 coun-#4#County#1000923253#2#C
+coun-_ty#1#County#1000923253#2#C
 coun_ty#2#County#1000923253#1#C
 countiy#1#County#1000923253#1#C
 countv#12#County#1000923253#1#C
@@ -1784,7 +1785,6 @@ AsLake#1#Lake#1000285032#2#C
 Lake,a#1#Lake#1000285032#2#C
 kyLake#1#Lake#1000285032#2#C
 lakes-#1#Lake#1000285032#2#C
-Span_ifh#1#Spanish#1000282396#2#C
 Spaniih#18#Spanish#1000282396#1#C
 Spanijh#1#Spanish#1000282396#1#C
 Spanilh#7#Spanish#1000282396#1#C
@@ -1955,7 +1955,6 @@ jBay#1#Bay#1000239207#1#C
 ofBay#1#Bay#1000239207#2#C
 tby#1#Bay#1000239207#2#C
 ■by#2#Bay#1000239207#2#C
-there_áre#1#therefore#1000238576#2#C
 Longrels#1#Congress#1000238131#2#C
 losSc#1#loss#1000236959#1#C
 Datne#1#date#1000236852#1#C
@@ -2073,7 +2072,6 @@ lvalue#1#value#1000210507#1#C
 valu-#1#value#1000210507#1#C
 xcept#1#except#1000209638#1#C
 lav/s#1#lives#1000209001#2#C
-Individ-_uals#1#individuals#1000208746#2#C
 Cu£#1#cut#1000208682#1#C
 cunat#1#cut#1000208682#2#C
 ticut#2#cut#1000208682#2#C
@@ -2160,7 +2158,6 @@ erally#1#really#1000194267#2#C
 Martin’s#6#Martin#1000194140#2#C
 to-give#1#to_give#1000193931#1#C
 votV#1#vote#1000193732#1#C
-pro_duces#1#produce#1000192946#2#C
 Middlel#1#middle#1000192744#1#C
 midlt#1#middle#1000192744#2#C
 Piince#2#Prince#1000192692#1#C
@@ -2289,7 +2286,6 @@ Johnson,a#1#Johnson#1000173202#2#C
 ham,the#1#had_the#1000172772#2#C
 ritories#1#stories#1000172758#2#C
 10percent#1#percent#1000172660#2#C
-leav_es#1#leaves#1000171867#1#C
 Town,or#1#town_of#1000171829#2#C
 Ohio,a#1#Ohio#1000171560#2#C
 Captain’s#2#Captain#1000170881#2#C
@@ -2563,7 +2559,6 @@ RAÍ#1#era#1000139180#2#C
 ero,a#1#era#1000139180#2#C
 Port,on#3#portion#1000138673#1#C
 incipal#1#principal#1000138601#2#C
-princi_pal#1#principal#1000138601#1#C
 fithing#1#fighting#1000138387#2#C
 Victoria,a#1#Victoria#1000138073#2#C
 Victory,a#1#Victoria#1000138073#2#C
@@ -2689,6 +2684,7 @@ NewJerfey#12#New_Jersey#1000127392#2#C
 NewJericy#1#New_Jersey#1000127392#3#C
 NewJerley#1#New_Jersey#1000127392#2#C
 NewJersey#15#New_Jersey#1000127392#1#C
+New_-Jersey-#1#New_Jersey#1000127392#2#C
 Newjerfey#2#New_Jersey#1000127392#2#C
 ofNew-Jersey#1#New_Jersey#1000127392#3#C
 ÑewJersey#1#New_Jersey#1000127392#2#C
@@ -3168,7 +3164,6 @@ townshipln#1#township#1000086985#2#C
 Anne,a#2#Anne#1000086824#2#C
 nafne#1#Anne#1000086824#2#C
 nanfe#1#Anne#1000086824#2#C
-fepa_rated#1#separated#1000086505#2#C
 sepiarated#1#separated#1000086505#1#C
 baibn#1#brain#1000086488#2#C
 rowness#1#owners#1000086298#2#C
@@ -3403,7 +3398,6 @@ suppsies#1#supplies#1000071113#1#C
 Frank_ljn#1#Franklin#1000071061#2#C
 Franklin,a#5#Franklin#1000071061#2#C
 Prank/in#1#Franklin#1000071061#2#C
-ment_in#1#mention#1000070996#2#C
 de,lie#1#decline#1000070969#2#C
 Pontedi#1#pointed#1000070905#2#C
 thefeveral#1#the_Federal#1000070893#2#C
@@ -3475,7 +3469,6 @@ Lexm#1#Alex#1000066436#2#C
 oundary#1#boundary#1000066283#1#C
 St.in#9#set_in#1000066258#2#C
 crofled#1#crossed#1000066028#2#C
-coun_ties#1#counties#1000065997#1#C
 countics#1#counties#1000065997#1#C
 ■counties#1#counties#1000065997#1#C
 Nelson,a#1#Nelson#1000065851#2#C
@@ -3715,7 +3708,6 @@ fliips#1#lips#1000053073#2#C
 sliips#4#lips#1000053073#2#C
 Vlrgin#1#Virgin#1000053024#1#C
 vir-gin#1#Virgin#1000053024#1#C
-the_eaftern#2#thereafter#1000053012#2#C
 Nilao#1#Milan#1000053005#2#C
 seiiions#1#sessions#1000052988#2#C
 Monday,a#1#Monday#1000052973#2#C
@@ -3741,7 +3733,6 @@ foundaries#1#boundaries#1000051929#1#C
 dis-#1#disc#1000051771#1#C
 LongEgg#1#longest#1000051691#2#C
 C6oo_per#1#Cooper#1000051672#2#C
-manu1_factured#1#manufactured#1000051613#2#C
 manufacture-a#1#manufactured#1000051613#2#C
 unmanufactured#1#manufactured#1000051613#2#C
 Athens,a#1#Athens#1000051582#2#C
@@ -3749,7 +3740,6 @@ Jefferson,a#4#Jefferson#1000051509#2#C
 trass#2#tears#1000051457#2#C
 delboyed#1#deployed#1000051305#2#C
 Caiibbee#1#Caribbean#1000051279#3#C
-Cari_bbee#1#Caribbean#1000051279#3#C
 Caribbe#1#Caribbean#1000051279#2#C
 Caribbec#1#Caribbean#1000051279#2#C
 Caribbee#21#Caribbean#1000051279#2#C
@@ -4057,7 +4047,6 @@ ifles#3#files#1000038864#2#C
 MoNTGbMERT#1#Montgomery#1000038817#2#C
 Mont-_gomery#1#Montgomery#1000038817#2#C
 Montgomery,a#10#Montgomery#1000038817#2#C
-Montgomi_ery#1#Montgomery#1000038817#2#C
 Cafar#1#Far#1000038793#2#C
 boem#1#beam#1000038708#2#C
 -Indies#3#Indies#1000038704#1#C
@@ -4215,7 +4204,6 @@ iloors#1#floors#1000035190#1#C
 redans#1#reads#1000035120#2#C
 Martha,a#1#Martha#1000035035#2#C
 Martha’s#15#Martha#1000035035#2#C
-plant1_ed#1#planted#1000034976#2#C
 habited#1#inhabited#1000034925#2#C
 IJle#1#Isle#1000034891#1#C
 Ijle#3#Isle#1000034891#1#C
@@ -4279,7 +4267,6 @@ Tiot#1#trio#1000033670#2#C
 Trio,a#1#trio#1000033670#2#C
 Trov#1#trio#1000033670#2#C
 OakIsland#1#Oakland#1000033663#2#C
-oad_and#1#Oakland#1000033663#2#C
 Reserv'd#1#reserved#1000033625#1#C
 counter-#1#counter#1000033542#1#C
 VXe#1#Eve#1000033438#2#C
@@ -4295,7 +4282,6 @@ T^EL#1#Tell#1000033352#2#C
 Rhode-#1#Rhode#1000033294#1#C
 Rhonde#3#Rhode#1000033294#1#C
 elahoiate#1#elaborate#1000033283#2#C
-thro_it#2#throat#1000033264#2#C
 lachee#1#Rachel#1000033229#2#C
 theattention#1#the_attention#1000033225#1#C
 thattract#1#attract#1000033150#2#C
@@ -4342,7 +4328,10 @@ Rhode-lfland#1#Rhode_Island#1000032658#3#C
 Rhode-ljland#1#Rhode_Island#1000032658#3#C
 RhodeIfland#5#Rhode_Island#1000032658#2#C
 RhodeIsland#5#Rhode_Island#1000032658#1#C
+Rhode_-I_Land#1#Rhode_Island#1000032658#2#C
+Rhode_-Island#1#Rhode_Island#1000032658#1#C
 Rhodeiiland#1#Rhode_Island#1000032658#2#C
+hod_e-Island#1#Rhode_Island#1000032658#3#C
 khode-lfland#1#Rhode_Island#1000032658#4#C
 ofPennsylvania#1#of_Pennsylvania#1000032564#1#C
 ■steep#1#steep#1000032564#1#C
@@ -4351,6 +4340,8 @@ river,and#1#River_and#1000032552#1#C
 N'ova-Scotia#1#Nova_Scotia#1000032445#2#C
 Ncva-Scotia#1#Nova_Scotia#1000032445#2#C
 Not'a-Scotia#1#Nova_Scotia#1000032445#3#C
+Nova-8_cotia#1#Nova_Scotia#1000032445#3#C
+Nova-S_cotia#2#Nova_Scotia#1000032445#2#C
 Nova-ScOtia#1#Nova_Scotia#1000032445#1#C
 Nova-Scctia#1#Nova_Scotia#1000032445#2#C
 Nova-Scntia#1#Nova_Scotia#1000032445#2#C
@@ -4623,6 +4614,7 @@ inhabitants,‘of#1#inhabitants_of#1000026362#2#C
 inhabitantsof#1#inhabitants_of#1000026362#1#C
 Long-Eland#1#Long_Island#1000026291#3#C
 Long-IJlanJ#1#Long_Island#1000026291#3#C
+Long-I_and#1#Long_Island#1000026291#3#C
 Long-Ifiand#1#Long_Island#1000026291#3#C
 Long-Ifland#4#Long_Island#1000026291#2#C
 Long-Iflnnd#1#Long_Island#1000026291#3#C
@@ -4663,6 +4655,7 @@ VVest-Indies#1#West_Indies#1000025560#3#C
 Wed-Indies#1#West_Indies#1000025560#3#C
 Weft-In_dies#1#West_Indies#1000025560#3#C
 Weft-Indies#39#West_Indies#1000025560#2#C
+Weft_-Indies#1#West_Indies#1000025560#2#C
 Weit-Indies#6#West_Indies#1000025560#2#C
 WeitIndies#2#West_Indies#1000025560#2#C
 Wejl-Indies#2#West_Indies#1000025560#3#C
@@ -4680,6 +4673,7 @@ West-indies#3#West_Indies#1000025560#1#C
 West-lndics#1#West_Indies#1000025560#3#C
 WestIhdies#1#West_Indies#1000025560#2#C
 WestIndies#6#West_Indies#1000025560#1#C
+West_-Indies#1#West_Indies#1000025560#1#C
 Rocky,a#1#rocky#1000025550#2#C
 to-treaty#1#to_treat#1000025480#2#C
 Newbem#3#newer#1000025438#2#C
@@ -4830,7 +4824,6 @@ laid.out#1#laid_out#1000021856#1#C
 laidout#1#laid_out#1000021856#1#C
 laid’out#1#laid_out#1000021856#1#C
 Osapy#1#spy#1000021815#2#C
-high_lahd#1#Highland#1000021791#2#C
 IJ2I#1#Fiji#1000021754#2#C
 ij6#1#Fiji#1000021754#2#C
 ijis#1#Fiji#1000021754#2#C
@@ -4920,10 +4913,6 @@ lelemblance#1#resemblance#1000020381#2#C
 Swan’s#1#Swan#1000020377#2#C
 SwiAn#1#Swan#1000020377#1#C
 Savage,a#1#Savage#1000020355#2#C
-fre'h_water#1#freshwater#1000020310#2#C
-freih_water#2#freshwater#1000020310#2#C
-frelh_water#1#freshwater#1000020310#2#C
-frest_water#1#freshwater#1000020310#2#C
 Exeter,a#2#Exeter#1000020281#2#C
 relid_ed#1#relied#1000020280#2#C
 Cecil,a#1#Cecil#1000020260#2#C
@@ -4933,7 +4922,6 @@ i.rs#1#airs#1000020105#2#C
 Rankin’s#1#rankings#1000020079#1#C
 walhed#1#washed#1000020072#1#C
 fortiiied#1#fortified#1000020069#1#C
-Har_tford#1#Hartford#1000020066#1#C
 Hartford,a#3#Hartford#1000020066#2#C
 Fleque#1#plaque#1000020061#2#C
 Pecaque#1#plaque#1000020061#2#C
@@ -4978,6 +4966,7 @@ pack,a#1#packed#1000019076#2#C
 quoinn#1#Quinn#1000019010#1#C
 Beverly,a#1#Beverly#1000018984#2#C
 retreat-#1#retreated#1000018973#2#C
+retreat-_ed#1#retreated#1000018973#2#C
 RanDOLPH,a#1#Randolph#1000018949#2#C
 Randolph,a#3#Randolph#1000018949#2#C
 ClamTown#1#Clayton#1000018895#2#C
@@ -5244,7 +5233,6 @@ Downs,a#1#Downs#1000015123#2#C
 amountted#1#amounted#1000015056#1#C
 Byrd’s#1#Birds#1000015024#2#C
 Holden,a#1#Holden#1000015006#2#C
-eaft_ward#2#eastward#1000015005#2#C
 east-ward#1#eastward#1000015005#1#C
 eastwardly#5#eastward#1000015005#2#C
 ■eastward#1#eastward#1000015005#1#C
@@ -5499,7 +5487,6 @@ Breme,a#1#Bremen#1000012177#2#C
 Concord,a#4#Concord#1000012174#2#C
 Antiquera#2#antique#1000012165#2#C
 Pantique#1#antique#1000012165#1#C
-8un_Set#1#sunset#1000012165#2#C
 fun-set#1#sunset#1000012165#2#C
 PortPais#1#Portrait#1000012124#2#C
 niently#1#silently#1000012103#2#C
@@ -5518,7 +5505,6 @@ co.on#1#con#1000011990#2#C
 instancesof#1#instance_of#1000011978#1#C
 Bjeton#1#Breton#1000011955#1#C
 feists#1#fits#1000011938#2#C
-town_dnd#1#Townsend#1000011936#2#C
 by,a#1#Byrd#1000011927#2#C
 Louisa,a#2#Louisa#1000011879#2#C
 Cape,is#3#case_is#1000011765#2#C
@@ -5630,7 +5616,6 @@ míe,a#1#Mesa#1000010511#2#C
 Scatari#1#Atari#1000010506#2#C
 town-hall#1#Town_Hall#1000010498#1#C
 Parama#1#Parma#1000010479#1#C
-fui_nace#1#furnace#1000010476#2#C
 periihed#1#perished#1000010472#1#C
 Colchester,a#2#Colchester#1000010469#2#C
 Colchester,j#1#Colchester#1000010469#2#C
@@ -5954,7 +5939,6 @@ Brewer,a#1#Brewer#1000007747#2#C
 Conentes#1#consented#1000007746#2#C
 go.or#1#go_for#1000007742#2#C
 smoaked#1#smoked#1000007733#1#C
-are_ered#1#revered#1000007730#2#C
 Beaufort,a#1#Beaufort#1000007724#2#C
 cieiings#1#ceilings#1000007722#2#C
 wildhere#1#Wilder#1000007721#2#C
@@ -6055,7 +6039,6 @@ n.j#1#J.D#1000007286#2#C
 gudgeons#1#Dungeons#1000007274#2#C
 Floreli#1#floral#1000007260#2#C
 Florell#1#floral#1000007260#2#C
-nav_igable#1#navigable#1000007260#1#C
 unnavigable#2#navigable#1000007260#2#C
 communication’with#1#communication_with#1000007241#1#C
 Hooper’s#3#Hooper#1000007227#2#C
@@ -6077,7 +6060,6 @@ Peaconock#1#Peacock#1000007145#2#C
 Bocea#4#Boca#1000007138#1#C
 exudating#1#educating#1000007121#2#C
 irrg#1#rig#1000007121#2#C
-the_2ist#1#theorist#1000007081#2#C
 Cavones#1#canoes#1000007078#2#C
 interfperied#1#interspersed#1000007070#2#C
 Montague*a#1#Montague#1000007066#2#C
@@ -6154,7 +6136,6 @@ Stockport,a#1#Stockport#1000006637#2#C
 aquY#1#Quay#1000006633#2#C
 ginia#4#Gina#1000006624#1#C
 Hydespark#1#Hyde_Park#1000006621#1#C
-shat_and#1#Shetland#1000006596#2#C
 naviga-#1#navigate#1000006595#2#C
 Firtna#1#Tirana#1000006594#2#C
 -fishery#1#fishery#1000006593#1#C
@@ -6277,7 +6258,6 @@ and-irons#1#and_iron#1000006042#2#C
 Genoese#1#geese#1000006014#2#C
 geeie#1#geese#1000006014#1#C
 adulterar#1#adultery#1000006009#2#C
-fisc_on#1#fission#1000005996#2#C
 Nazareth,a#1#Nazareth#1000005994#2#C
 Kaye’s#2#Kaye#1000005977#2#C
 Cornwallis,a#1#Cornwallis#1000005974#2#C
@@ -6394,11 +6374,9 @@ Hadley,a#1#Hadley#1000005407#2#C
 Bullock,a#1#Bullock#1000005405#2#C
 paridles#1#parodies#1000005405#2#C
 RoundBay#1#round_by#1000005405#2#C
-length_aed#1#lengthened#1000005402#2#C
 horseracing#1#horse_racing#1000005400#1#C
 vv-S#1#vans#1000005396#2#C
 Ledge,a#1#ledge#1000005391#2#C
-iouth_and#1#Southland#1000005389#2#C
 Cape-Cod#2#Cape_Cod#1000005384#1#C
 CapeCod#1#Cape_Cod#1000005384#1#C
 Unaca#1#Una#1000005370#2#C
@@ -6548,7 +6526,6 @@ venemous#1#venomous#1000004689#1#C
 hours-or#1#hour_or#1000004688#2#C
 Serpent’s#1#Serpent#1000004676#2#C
 Squain#1#quaint#1000004672#2#C
-carrind_on#1#Carrington#1000004670#2#C
 a,Cu#1#A.C#1000004669#2#C
 a,vc#1#A.C#1000004669#2#C
 or-Green#1#of_Green#1000004664#2#C
@@ -6570,7 +6547,6 @@ St.tide#1#stride#1000004607#2#C
 Missouri,and#1#Missouri_and#1000004606#1#C
 Fiancois#1#Francois#1000004603#1#C
 Francojs#1#Francois#1000004603#1#C
-southern_6de#1#southern_side#1000004595#2#C
 southernside#1#southern_side#1000004595#1#C
 juris-#1#Juris#1000004594#1#C
 Danville,a#2#Danville#1000004585#2#C
@@ -6602,7 +6578,6 @@ authorising#1#authorizing#1000004486#1#C
 ftate-house#2#State_House#1000004485#2#C
 state-house#14#State_House#1000004485#1#C
 state-house-#1#State_House#1000004485#2#C
-Pel_am,y#1#Pelham#1000004484#3#C
 Pelham,a#2#Pelham#1000004484#2#C
 fuffragant#1#suffragan#1000004478#2#C
 ealthem#1#earthen#1000004472#2#C
@@ -6622,7 +6597,6 @@ siderable#1#sizeable#1000004429#2#C
 Cape,on#1#Cape_of#1000004422#2#C
 MorrisBay#1#Morrissey#1000004416#2#C
 Great-Ban#1#great_man#1000004415#2#C
-it_mult#2#tumult#1000004413#2#C
 furniihing#1#furnishing#1000004411#1#C
 Colanche#1#Comanche#1000004406#1#C
 SwanIsland#1#Swaziland#1000004398#2#C
@@ -6659,7 +6633,6 @@ Ashby,a#1#Ashby#1000004271#2#C
 aS.by#1#Ashby#1000004271#1#C
 andmaintainsa#1#and_maintains#1000004270#2#C
 tínico#1#tonic#1000004268#2#C
-south_crly#1#southerly#1000004266#2#C
 southerl#1#southerly#1000004266#1#C
 southerly-#1#southerly#1000004266#1#C
 ■southerly#1#southerly#1000004266#1#C
@@ -6975,7 +6948,6 @@ Maldonado,a#1#Maldonado#1000003280#2#C
 outicf#1#out_if#1000003279#2#C
 Bvaddock#1#Braddock#1000003268#1#C
 Breaker’s#1#Breakers#1000003264#1#C
-break_ers#1#Breakers#1000003264#1#C
 Cockburne#1#Cockburn#1000003264#1#C
 house,which#1#house_which#1000003254#1#C
 State-street#1#State_Street#1000003252#1#C
@@ -7049,6 +7021,7 @@ New-Brita'fn#1#New_Britain#1000003062#3#C
 New-Britain#15#New_Britain#1000003062#1#C
 NewBritain#3#New_Britain#1000003062#1#C
 NewBritoin#1#New_Britain#1000003062#2#C
+New_-Britain#1#New_Britain#1000003062#1#C
 NexyBritain#1#New_Britain#1000003062#2#C
 Nhw-Britain#1#New_Britain#1000003062#2#C
 sNew-Britain#1#New_Britain#1000003062#2#C
@@ -7105,7 +7078,6 @@ l’Epee#2#levee#1000002938#2#C
 weft-north-weft#2#west-northwest#1000002938#3#C
 weft-north-weil#1#west-northwest#1000002938#4#C
 weft-northwest#1#west-northwest#1000002938#1#C
-wesb_north-west#1#west-northwest#1000002938#3#C
 west-north-west#7#west-northwest#1000002938#1#C
 westnorth-west#1#west-northwest#1000002938#2#C
 the-orange#1#the_orange#1000002935#1#C
@@ -7118,7 +7090,6 @@ re-took#1#retook#1000002922#1#C
 Vedéis#1#Vedas#1000002921#2#C
 Lycoming',a#1#Lycoming#1000002915#3#C
 Lycoming,a#2#Lycoming#1000002915#2#C
-tnem_or#1#tremor#1000002914#2#C
 Rlackwatcr#1#Blackwater#1000002912#2#C
 Potosí,a#2#Potosí#1000002899#2#C
 Fort,or#2#for_or#1000002899#2#C
@@ -7199,7 +7170,6 @@ iheltering#1#sheltering#1000002728#1#C
 Apof#1#APIs#1000002725#2#C
 Astreñid#1#Astrid#1000002725#2#C
 diitin#1#diction#1000002723#2#C
-Pe_hcan#1#Pelican#1000002722#2#C
 Pelican,a#1#Pelican#1000002722#2#C
 Hope,the#1#hope_the#1000002722#1#C
 tilico#1#Ticino#1000002717#2#C
@@ -7262,8 +7232,6 @@ Moon,an#1#Moon_and#1000002581#2#C
 east-south-east#2#east-southeast#1000002581#1#C
 Epping,a#2#Epping#1000002578#2#C
 Sandown,a#1#Sandown#1000002570#2#C
-south_iide#1#Southside#1000002559#2#C
-istand_off#1#standoff#1000002558#2#C
 Newburgh,a#1#Newburgh#1000002556#2#C
 Robeson,a#1#Robeson#1000002555#2#C
 Junius,a#1#Junius#1000002546#2#C
@@ -7300,7 +7268,6 @@ Appamat'óx#1#Appomattox#1000002478#3#C
 Appamatox#3#Appomattox#1000002478#2#C
 Appamattox#4#Appomattox#1000002478#1#C
 Sabuda#1#Buda#1000002469#2#C
-on_ihore#1#onshore#1000002469#2#C
 fea-coaft#3#Sea_coast#1000002467#3#C
 fea-coalt#2#Sea_coast#1000002467#3#C
 sea-coaf#1#Sea_coast#1000002467#3#C
@@ -7395,7 +7362,6 @@ New-Rochelle#1#New_Rochelle#1000002311#1#C
 fenlibly#1#sensibly#1000002311#2#C
 Guanaxoato#1#Guanajuato#1000002310#2#C
 Plainfield,a#4#Plainfield#1000002308#2#C
-west_iide#1#Westside#1000002307#2#C
 Vcijo#1#Viejo#1000002301#2#C
 PrickJv#1#prickly#1000002300#2#C
 -Howell’s#1#Howells#1000002299#2#C
@@ -7444,7 +7410,6 @@ Cuanuca#1#Cuenca#1000002208#2#C
 Solango#1#Solano#1000002207#1#C
 Sal,La#1#alla#1000002202#2#C
 Monocgahela#1#Monongahela#1000002201#1#C
-Monon_gabela#1#Monongahela#1000002201#2#C
 Monongahcla#5#Monongahela#1000002201#1#C
 Monongahek#1#Monongahela#1000002201#2#C
 Monongahel'a#1#Monongahela#1000002201#1#C
@@ -7547,7 +7512,6 @@ wind-mills#1#windmills#1000002019#1#C
 Steuben,a#3#Steuben#1000002016#2#C
 mackarel#1#mackerel#1000002013#1#C
 unfteady#1#unsteady#1000002012#1#C
-Cat_abaw#1#Catawba#1000002010#3#C
 Catabaw#9#Catawba#1000002010#2#C
 Catawa#1#Catawba#1000002010#1#C
 Cr.tabaw#1#Catawba#1000002010#4#C
@@ -7681,7 +7645,6 @@ Surinam,a#2#Surinam#1000001807#2#C
 Surrinam#13#Surinam#1000001807#1#C
 Cattanco#1#Caetano#1000001803#2#C
 UPmos#1#up_most#1000001801#2#C
-east_idc#1#Eastside#1000001800#2#C
 east_iide#2#Eastside#1000001800#2#C
 theextremity#1#the_extremity#1000001800#1#C
 Cufco#1#Cusco#1000001796#1#C
@@ -7749,7 +7712,6 @@ archbishoprick#1#Archbishopric#1000001676#1#C
 archbistiopric#1#Archbishopric#1000001676#2#C
 Santee,a#1#Santee#1000001675#2#C
 harborsof#1#harbor_of#1000001673#1#C
-The_fori#1#Thetford#1000001671#2#C
 Thetford,a#1#Thetford#1000001671#2#C
 the_for-#1#Thetford#1000001671#2#C
 Blandfo:d#1#Blandford#1000001670#1#C
@@ -7765,7 +7727,6 @@ Frontstreet#2#Front_Street#1000001663#1#C
 S.'from#1#so_from#1000001663#2#C
 Carriaco#1#Carrasco#1000001662#2#C
 pendix#1#Bendix#1000001660#1#C
-orre_in#1#Orrin#1000001659#2#C
 ofNlatitvde#1#of_latitude#1000001657#2#C
 Chriftianaux#1#Christiana#1000001651#3#C
 Christiana,a#1#Christiana#1000001651#2#C
@@ -7876,7 +7837,6 @@ Muscomy#1#Muscovy#1000001528#1#C
 cocoanuts#1#coconuts#1000001526#1#C
 Matacombe#2#catacombs#1000001520#2#C
 ánimals,as#1#animals_as#1000001518#2#C
-churchy_an#1#churchman#1000001518#2#C
 Osnabu#1#Sabu#1000001517#2#C
 school-room#1#schoolroom#1000001517#1#C
 equi-distant#1#equidistant#1000001516#1#C
@@ -8047,7 +8007,6 @@ Amicu,a#1#amicus#1000001342#2#C
 Storks,a#1#storks#1000001342#2#C
 alie_viating#1#alleviating#1000001338#2#C
 Mallacre#2#Mallard#1000001336#2#C
-Nepot_ist#1#nepotism#1000001335#2#C
 presuming-#1#presuming#1000001333#1#C
 Metbodiñs#1#Methodius#1000001330#2#C
 Frankfsrd#1#Frankford#1000001329#1#C
@@ -8080,7 +8039,6 @@ re-commenced#1#recommenced#1000001305#1#C
 BndgeTown#1#Bridgetown#1000001304#2#C
 Bridgetown,a#1#Bridgetown#1000001304#2#C
 Pelefon#5#Pelton#1000001303#2#C
-cres_of#1#Crespo#1000001299#2#C
 Anuzelos#1#Angelos#1000001298#2#C
 Amelins#1#Melina#1000001298#2#C
 Marshfield,a#2#Marshfield#1000001293#2#C
@@ -8109,7 +8067,6 @@ Lewiiburg#1#Lewisburg#1000001281#1#C
 Lewisburg,a#3#Lewisburg#1000001281#2#C
 Madrigal,a#1#Madrigal#1000001281#2#C
 Hamburghers#1#hamburgers#1000001273#1#C
-eet_and#1#Wetland#1000001270#2#C
 Seguina#1#Seguin#1000001267#1#C
 Torbay,a#1#Torbay#1000001265#2#C
 MuscleShoals#1#Muscle_Shoals#1000001264#1#C
@@ -8118,7 +8075,6 @@ Georgia,Southern#1#Georgia_Southern#1000001262#1#C
 Amugora#1#Agora#1000001259#2#C
 Rehobo_th#1#Rehoboth#1000001259#1#C
 Rehoboth,a#1#Rehoboth#1000001259#2#C
-fori_is#1#Fortis#1000001258#2#C
 Damaslin#1#Maslin#1000001258#2#C
 deputy-governor#1#Deputy_Governor#1000001252#1#C
 Parayba#2#Paraíba#1000001251#1#C
@@ -8198,7 +8154,6 @@ sa,Ru#1#Aru#1000001153#2#C
 high-road#2#High_Road#1000001151#1#C
 Zoar,a#1#Zora#1000001151#2#C
 Oneatoyo#1#one_too#1000001151#2#C
-poit_of#1#Poitou#1000001150#2#C
 Pornovello#1#Portobello#1000001150#2#C
 quadrupedes#1#quadrupeds#1000001149#1#C
 Martinsburg,a#1#Martinsburg#1000001148#2#C
@@ -8240,6 +8195,7 @@ CorkBay#1#Corky#1000001113#2#C
 Henrico,a#1#Henrico#1000001113#2#C
 fccurdd#1#McCurdy#1000001113#2#C
 New-Gran_ad#1#New_Granada#1000001113#3#C
+New-Gran_ada#1#New_Granada#1000001113#2#C
 New-Granada#8#New_Granada#1000001113#1#C
 New-Granada,a#1#New_Granada#1000001113#3#C
 New-Grenada#2#New_Granada#1000001113#2#C
@@ -8350,7 +8306,6 @@ Johnson’s#3#Johnsons#1000001026#1#C
 Magellanica#1#Magellanic#1000001025#1#C
 Shamokin,a#1#Shamokin#1000001023#2#C
 Cobisey#1#Comiskey#1000001022#2#C
-tands_on#1#Tandon#1000001022#2#C
 Papayan#2#papaya#1000001022#1#C
 Paspaya#1#papaya#1000001022#1#C
 Pcpayan#1#papaya#1000001022#2#C
@@ -8423,7 +8378,6 @@ feacoast#1#seacoast#1000000966#1#C
 lea-coast#4#seacoast#1000000966#2#C
 sea-coaft#1#seacoast#1000000966#2#C
 sea-coást#1#seacoast#1000000966#2#C
-sea_coaft#3#seacoast#1000000966#2#C
 concuflions#1#concussions#1000000965#2#C
 school-houses#3#school-house#1000000964#1#C
 Fairhaven,a#1#Fairhaven#1000000963#2#C
@@ -8471,7 +8425,6 @@ timoered#1#timbered#1000000932#1#C
 Panadou#2#Amadou#1000000931#2#C
 inhabitants-a#1#inhabitants_as#1000000928#2#C
 barley,and#1#barley_and#1000000925#1#C
-town_fes#1#Townes#1000000924#2#C
 Stonington,a#1#Stonington#1000000922#2#C
 Anabaptists#6#Anabaptist#1000000920#1#C
 Curriere#1#Currier#1000000920#1#C
@@ -8500,7 +8453,6 @@ Hatlowell#1#Hallowell#1000000909#1#C
 Cook,in#1#Cook_in#1000000908#1#C
 plantanes#3#plantains#1000000908#2#C
 Long’Lake#1#Long_Lake#1000000906#1#C
-musical_itf#1#musicality#1000000906#2#C
 Petersham,a#1#Petersham#1000000905#2#C
 Loxa,a#1#Roxana#1000000905#2#C
 bare-footed#1#barefooted#1000000905#1#C
@@ -8557,7 +8509,6 @@ Territory.Under#1#territory_under#1000000864#1#C
 Coxe’j#1#Coxe#1000000863#2#C
 south-weft_ward#1#southwestward#1000000863#3#C
 south-westward#7#southwestward#1000000863#1#C
-southwelt_ward#1#southwestward#1000000863#2#C
 Canada.The#1#Canada_the#1000000862#1#C
 Elizabeth-city#1#Elizabeth_City#1000000862#1#C
 Cheapfide#1#Cheapside#1000000861#1#C
@@ -8869,6 +8820,7 @@ polt-town#3#post_town#1000000660#2#C
 post-toWn#1#post_town#1000000660#1#C
 post-tov/n#1#post_town#1000000660#3#C
 post-town#203#post_town#1000000660#1#C
+post_-town#2#post_town#1000000660#1#C
 posttown#13#post_town#1000000660#1#C
 aboundwith#1#abound_with#1000000659#1#C
 Consonase#1#consonance#1000000659#2#C
@@ -9058,9 +9010,7 @@ W.S.W#1#S.W#1000000556#2#C
 Coz_unel#1#Cozumel#1000000554#2#C
 Cuzumei#1#Cozumel#1000000554#2#C
 Flintston,a#1#Flintstone#1000000554#2#C
-poft_town#5#Pottstown#1000000554#2#C
 a,Moco#1#Amoco#1000000553#1#C
-ment_with#1#Menteith#1000000553#2#C
 New-Englanders#5#New_Englander#1000000553#2#C
 NewEnglandcrs#1#New_Englander#1000000553#3#C
 paroquets#1#parquet#1000000553#2#C
@@ -9084,7 +9034,6 @@ Free-stone#2#freestone#1000000544#1#C
 free-stone#12#freestone#1000000544#1#C
 horn-beam#1#hornbeam#1000000544#1#C
 iiicles#1#icicles#1000000544#1#C
-lilk_worms#1#silkworms#1000000543#2#C
 silk-worms#1#silkworms#1000000543#1#C
 Sugaw_and#1#Sugarland#1000000542#2#C
 Teneriffe,a#1#Teneriffe#1000000542#2#C
@@ -9100,7 +9049,6 @@ BellI/le#1#Belville#1000000533#2#C
 SandyRiver#5#Sandy_River#1000000533#1#C
 fheepfhead#1#Sheepshead#1000000533#2#C
 iheeplhead#1#Sheepshead#1000000533#2#C
-sheep’s_head#1#Sheepshead#1000000533#2#C
 the_Mif#1#Themis#1000000533#2#C
 tancous#1#tacos#1000000533#2#C
 Arlacides#1#Alcides#1000000532#2#C
@@ -9160,7 +9108,6 @@ Botetourt,a#1#Botetourt#1000000506#2#C
 rififig#1#riffing#1000000506#2#C
 Bonavifta#1#Bonavista#1000000505#1#C
 Walpackj#1#Wallack#1000000504#2#C
-3co_tons#1#cottons#1000000504#2#C
 coach-house#1#coach_house#1000000502#1#C
 OriasPi#1#Crispi#1000000501#2#C
 PiLAY4#1#Pillay#1000000501#2#C
@@ -9386,7 +9333,6 @@ Rogerfville#1#Rogersville#1000000402#1#C
 Topsham,a#2#Topsham#1000000401#2#C
 an,Tisc#1#antic#1000000401#2#C
 ground-nuts#1#groundnuts#1000000401#1#C
-coaft_on#1#Crafton#1000000400#2#C
 Maurepas,a#1#Maurepas#1000000400#2#C
 Mauripas#1#Maurepas#1000000400#1#C
 Svvatara#1#Swatara#1000000400#2#C
@@ -9408,7 +9354,6 @@ considérame#1#consider_me#1000000396#2#C
 sand-banks#4#sandbanks#1000000396#1#C
 Com_garee#1#Congaree#1000000395#2#C
 Congaree,a#1#Congaree#1000000395#2#C
-rivxr_and#1#Riverland#1000000395#2#C
 Epbrata#2#errata#1000000395#2#C
 more,one#1#more_one#1000000395#1#C
 Nipegon#1#Nipigon#1000000393#1#C
@@ -9560,7 +9505,6 @@ Ponuonv#1#Ponton#1000000337#2#C
 tripétala#1#Tripitaka#1000000337#2#C
 Harrodfburg#1#Harrodsburg#1000000336#1#C
 Harrodstmrg#1#Harrodsburg#1000000336#2#C
-poit_office#1#postoffice#1000000336#2#C
 Irondequat#1#Irondequoit#1000000335#2#C
 fulling-mill#8#fulling_mill#1000000334#1#C
 GreatSonus#1#great_songs#1000000334#2#C
@@ -9652,7 +9596,6 @@ ofThetford#1#of_Thetford#1000000306#1#C
 BackRiver#1#Back_River#1000000305#1#C
 Hollifton#1#Holliston#1000000304#1#C
 Neverlink#1#Neversink#1000000304#1#C
-or_freshes#1#refreshes#1000000304#2#C
 Cruz,or#1#Cruz_on#1000000303#2#C
 Unami,a#1#Unami#1000000303#2#C
 vine,a#1#Vinita#1000000303#2#C
@@ -9836,7 +9779,6 @@ inhabitants,including#5#inhabitants_including#1000000257#1#C
 inhabitants-including#1#inhabitants_including#1000000257#1#C
 Piloto,or#1#pilot_or#1000000257#2#C
 The_reft#2#thereat#1000000256#2#C
-the_eaft#26#thereat#1000000256#2#C
 Colonel,is#1#Colonel_is#1000000254#1#C
 Dock-street#1#Dock_Street#1000000254#1#C
 Pemaquid,a#1#Pemaquid#1000000254#2#C
@@ -9875,7 +9817,6 @@ ElkLake#1#Elk_Lake#1000000248#1#C
 Fig-tree#2#Fig_Tree#1000000248#1#C
 PERvivo#1#Perico#1000000248#2#C
 Turna_or#1#Turnor#1000000248#2#C
-the_1st#4#theist#1000000248#2#C
 East-Greenland#1#East_Greenland#1000000247#1#C
 glass-houses#1#glasshouses#1000000247#1#C
 salt-works#2#saltworks#1000000247#1#C
@@ -9981,7 +9922,6 @@ Bonnebeag#2#Sonneberg#1000000221#2#C
 draw-bridges#2#drawbridges#1000000221#1#C
 Shawanoes#2#Shawanoe#1000000220#1#C
 Sha’wavoe#1#Shawanoe#1000000220#2#C
-Winch_endon#1#Winchendon#1000000220#1#C
 Winchcnddn#1#Winchendon#1000000220#2#C
 Cuiassou#1#curassow#1000000220#2#C
 Curassou#5#curassow#1000000220#1#C
@@ -10035,7 +9975,6 @@ Coblefkill#1#Cobleskill#1000000202#1#C
 Cobleskill,a#1#Cobleskill#1000000202#2#C
 Minas,Basin#1#Minas_Basin#1000000202#1#C
 Orteidas#1#Oneidas#1000000202#2#C
-iky_and#1#Skyland#1000000202#2#C
 Stuartstown#1#Stewartstown#1000000202#2#C
 Amuficeag#1#Amoskeag#1000000201#4#C
 Amufkeag#2#Amoskeag#1000000201#2#C
@@ -10050,7 +9989,6 @@ Ancocus#2#Rancocas#1000000201#2#C
 Dewee’s#1#Dewees#1000000200#1#C
 StonesFort#1#stone_fort#1000000200#1#C
 Chilmark,a#1#Chilmark#1000000199#2#C
-the_bav#2#Theba#1000000199#2#C
 Anticosti,a#1#Anticosti#1000000198#2#C
 Anticólti#1#Anticosti#1000000198#2#C
 Beardjlown#1#Beardstown#1000000198#2#C
@@ -10237,7 +10175,6 @@ Vienna,the#1#Vienna_the#1000000162#1#C
 cod-filhery#1#cod_fishery#1000000162#2#C
 cod-fishery#1#cod_fishery#1000000162#1#C
 OAHOUTU#1#mahout#1000000162#2#C
-eaft_shore#1#Eastshore#1000000161#2#C
 east_Ihore#1#Eastshore#1000000161#2#C
 Greenlanders#4#Greenlands#1000000161#2#C
 Mcmphremagog#1#Memphremagog#1000000161#1#C
@@ -10285,7 +10222,6 @@ Accqmac#1#Accomac#1000000154#1#C
 Keywaw#1#Kenway#1000000154#2#C
 Lichtenau,a#1#Lichtenau#1000000154#2#C
 West-Point#1#Westpoint#1000000154#1#C
-coaft_is#2#coatis#1000000154#2#C
 Salada,or#1#salad_or#1000000154#2#C
 Goelans#2#Gowans#1000000153#2#C
 MinasHill#1#Minshall#1000000153#2#C
@@ -10330,7 +10266,6 @@ Federalsburg,a#1#Federalsburg#1000000146#2#C
 Mechoacan,a#1#Michoacana#1000000146#2#C
 Muflconetcong#1#Musconetcong#1000000146#2#C
 Mulconetcony#1#Musconetcong#1000000146#2#C
-west_cóast#1#Westcoast#1000000146#2#C
 co.Pennfylvania#1#co_Pennsylvania#1000000146#2#C
 coPennsylvania#1#co_Pennsylvania#1000000146#1#C
 CrookedLake#2#Crooked_Lake#1000000145#1#C
@@ -10421,7 +10356,6 @@ Sheepfcott#1#Sheepscot#1000000133#2#C
 Sheepfcut#2#Sheepscot#1000000133#2#C
 Sheepscut#1#Sheepscot#1000000133#1#C
 South-Washington#1#South_Washington#1000000133#1#C
-The_ifle#1#Theile#1000000133#2#C
 Tabooronm#1#taboo_on#1000000133#2#C
 Manchac,a#1#Manchac#1000000132#2#C
 Mantchac#1#Manchac#1000000132#1#C
@@ -10445,7 +10379,6 @@ Kryape#1#kape#1000000130#2#C
 MewIslands#1#new_islands#1000000130#2#C
 Mooriields#1#Moorfield#1000000129#2#C
 RiverIndians#1#River_Indians#1000000129#1#C
-Trepa_stey#1#Trepassey#1000000129#2#C
 Lanfnburg#1#Langenburg#1000000128#2#C
 PleasantPoint#2#Pleasant_Point#1000000128#1#C
 WinnipegRiver#1#Winnipeg_River#1000000128#1#C
@@ -10577,7 +10510,6 @@ Mitnsippi#1#Missisippi#1000000112#3#C
 Miudippi#1#Missisippi#1000000112#4#C
 Miuisippi#1#Missisippi#1000000112#2#C
 uisqueya#1#Quisqueya#1000000112#1#C
-eaft_end#6#Eastend#1000000111#2#C
 AGSBOROUGH#1#Gisborough#1000000111#2#C
 Kenzie’s#1#McKenzies#1000000111#3#C
 M'Kenzie’s#1#McKenzies#1000000111#2#C
@@ -10617,17 +10549,14 @@ Miamiof#1#Miami_of#1000000107#1#C
 NoortPoint#1#Northpoint#1000000107#2#C
 Orleans,the#1#Orleans_the#1000000107#1#C
 SenecaCreek#1#Seneca_Creek#1000000107#1#C
-sea_fds#1#seabeds#1000000107#2#C
 illimanvW#1#Illimani#1000000106#2#C
 La_Planch#1#Laplanche#1000000106#2#C
 Miller,the#1#Miller_the#1000000106#1#C
 Montreal,the#1#Montreal_the#1000000106#1#C
 AbbevilleCounty#1#Abbeville_County#1000000105#1#C
-Aric_a,a#1#Arichat#1000000105#3#C
 Arichat,a#1#Arichat#1000000105#2#C
 Carnero,a#1#Carnero#1000000105#2#C
 Easton,or#1#Eastnor#1000000105#2#C
-eaft_or#1#Eastnor#1000000105#2#C
 Fonnose#1#Foose#1000000105#2#C
 gun-flints#1#Gunflint#1000000105#2#C
 Michipicaton#1#Michipicoten#1000000105#2#C
@@ -10808,7 +10737,6 @@ turtle-shells#1#turtle_shells#1000000085#1#C
 Camanoes#1#Camarones#1000000084#2#C
 Crolswicks#1#Crosswicks#1000000084#1#C
 Crosswicks,a#1#Crosswicks#1000000084#2#C
-eaft_bank#3#Eastbank#1000000084#2#C
 Ileignes#1#Lignes#1000000084#2#C
 tJJav#1#Taja#1000000084#2#C
 Tiquaj#1#Tigua#1000000084#2#C
@@ -11126,7 +11054,6 @@ Coosahatcbie#1#Coosawhatchie#1000000057#2#C
 Eight-mile#1#Eightmile#1000000057#1#C
 Lueayos#1#Guayos#1000000057#2#C
 Meihoppen#1#Meshoppen#1000000057#1#C
-north_coaft#4#Northcoast#1000000057#2#C
 au,Arise#1#as_arise#1000000057#2#C
 MorgueFort#1#morgue_for#1000000057#2#C
 stone-cutters#1#stone_cutters#1000000057#1#C
@@ -11143,7 +11070,6 @@ Thompson,atownship#1#Thompson_Township#1000000056#2#C
 Lacatecolula#1#Zacatecoluca#1000000056#2#C
 clay.-The#1#clay_the#1000000056#2#C
 Easternljland#1#eastern_land#1000000056#2#C
-of_fiih#2#offish#1000000056#2#C
 ByranTown#1#Bryantown#1000000055#2#C
 Byrantown#1#Bryantown#1000000055#2#C
 Bullskin,a#1#Bullskin#1000000055#2#C
@@ -11221,7 +11147,6 @@ overCumberland#1#over_Cumberland#1000000051#1#C
 Sacatlan#1#Acatlan#1000000050#1#C
 Casaría#1#Cassara#1000000050#2#C
 fkbndy#1#Fondy#1000000050#2#C
-gold_duft#2#Golddust#1000000050#2#C
 Granada,or#1#Granada_for#1000000050#2#C
 Jamrrio#1#Jamari#1000000050#2#C
 Yulacina#1#Lacina#1000000050#2#C
@@ -11302,7 +11227,6 @@ Oronoka#1#Oronoko#1000000045#1#C
 Oroonoko#3#Oronoko#1000000045#1#C
 Piankitank#1#Piankatank#1000000045#1#C
 RacePoint#1#Race_Point#1000000045#1#C
-cabinec_work#1#cabinetwork#1000000045#2#C
 papermulberry#1#paper_mulberry#1000000045#1#C
 powder-mill#1#powder_mills#1000000045#2#C
 America,ties#1#America_lies#1000000044#2#C
@@ -11356,7 +11280,6 @@ Sombuca#1#Sambuco#1000000042#2#C
 Stanford,the#1#Stanford_the#1000000042#1#C
 SturgeonCreek#1#Sturgeon_Creek#1000000042#1#C
 W-_long#1#Walong#1000000042#2#C
-ble_pipes#1#blowpipes#1000000042#2#C
 EstherTown#1#either_town#1000000042#2#C
 eloquence-the#1#eloquence_the#1000000042#1#C
 fuw-mills#1#few_mills#1000000042#2#C
@@ -11370,7 +11293,6 @@ Baboruco#1#Baoruco#1000000041#1#C
 BermudaIslands#1#Bermuda_Islands#1000000041#1#C
 Bombay-Hook#2#Bombay_Hook#1000000041#1#C
 BombayHook#1#Bombay_Hook#1000000041#1#C
-coalt_of#3#Coalton#1000000041#2#C
 EnGanno#1#Engano#1000000041#1#C
 herrín,a#1#Heroína#1000000041#2#C
 la_Pazes#2#Lampazos#1000000041#2#C
@@ -11396,7 +11318,6 @@ Purcell’s#1#Purcells#1000000040#1#C
 SebastianRiver#1#Sebastian_River#1000000040#1#C
 Winchester,the#1#Winchester_the#1000000040#1#C
 bathing-house#1#bathing_house#1000000040#1#C
-froft_is#1#frontis#1000000040#2#C
 conAmong#1#icon_among#1000000040#2#C
 Tenerisse#1#tendresse#1000000040#2#C
 Bridgetown,in#2#Bridgetown_in#1000000039#1#C
@@ -11469,7 +11390,6 @@ Ottawas,an#1#Ottawas_and#1000000036#2#C
 Potawock#1#Pocwock#1000000036#2#C
 sugarhouses#1#Sugarhouse#1000000036#1#C
 banqueting-room#1#banqueting_room#1000000036#1#C
-ánd_on#1#Andron#1000000035#2#C
 burr-stones#1#Burr_stones#1000000035#1#C
 Chilca,a#1#Chilca#1000000035#2#C
 Gálots#1#Galets#1000000035#2#C
@@ -11572,7 +11492,6 @@ chieflyrocky#1#Chief_Rocky#1000000030#2#C
 Destdera#1#Dester#1000000030#2#C
 GloucesterHorse#1#Gloucester_House#1000000030#2#C
 GloucesterHouse#1#Gloucester_House#1000000030#1#C
-south_coaft#2#Southcoast#1000000030#2#C
 Tepeafa#1#Tepeaca#1000000030#1#C
 Tizón,a#1#Tizón#1000000030#2#C
 D’Estrees#1#de_trees#1000000030#2#C
@@ -11874,7 +11793,6 @@ Berabzan#1#Baraban#1000000017#2#C
 Bedminster,in#1#Bedminster_in#1000000017#1#C
 BedePoint#1#Bellepoint#1000000017#2#C
 Caymitf#1#Cayemite#1000000017#2#C
-churchy_The#1#Church-the#1000000017#2#C
 Hanover,are#1#Hanover_are#1000000017#1#C
 hately,a#1#Hately#1000000017#2#C
 Le_Leus#1#Leales#1000000017#2#C
@@ -11943,7 +11861,6 @@ Palatine,or#1#Palatine_for#1000000015#2#C
 PassageIslands#1#Passage_Islands#1000000015#1#C
 Pequottink#1#Pequot_in#1000000015#2#C
 Raleigh,the#1#Raleigh_the#1000000015#1#C
-reft_of#3#Retsof#1000000015#2#C
 Rouge,Cape#1#Rouge_came#1000000015#2#C
 Salem,New#1#Salem_News#1000000015#2#C
 Trenton,the#1#Trenton_the#1000000015#1#C
@@ -12665,7 +12582,6 @@ salt-pits#2#salt_pits#1000000004#1#C
 wide-adorned#1#side_adorned#1000000004#2#C
 siten,Go#1#sites_go#1000000004#2#C
 ter'-works#1#term_works#1000000004#2#C
-and_acó#1#Andaca#1000000003#2#C
 Andros,islands#1#Andros_Islands#1000000003#1#C
 atan,Ru#1#Atan_Rud#1000000003#2#C
 balfiim#1#BA_Film#1000000003#2#C
@@ -12926,7 +12842,6 @@ numcontinued#1#NUM_continued#1000000002#1#C
 Nisao,a#1#Nisa_Oba#1000000002#2#C
 Noir,or#1#Noir_or#1000000002#1#C
 Noxan,or#1#Nolan_or#1000000002#2#C
-nprth_branch#1#Northbranch#1000000002#2#C
 OconeeTown#1#Oconee_Town#1000000002#1#C
 Oncehevw#1#Once_Eve#1000000002#2#C
 Pablo,St#2#Pablo_St#1000000002#1#C
@@ -13247,6 +13162,7 @@ New-llampshire#1#New-_Hampshire#1000000001#2#C
 NewHampsliire#1#New-_Hampshire#1000000001#4#C
 NewHampttiire#1#New-_Hampshire#1000000001#5#C
 NewI_Hampshire#1#New-_Hampshire#1000000001#1#C
+New_-Hampshire#3#New-_Hampshire#1000000001#2#C
 idNEW-HAMPSHIRE#1#New-_Hampshire#1000000001#3#C
 ■New-Hampshire#1#New-_Hampshire#1000000001#2#C
 New-Ifabella#1#New_Isabella#1000000001#2#C
@@ -13558,7 +13474,6 @@ Amonoosuck#3#Amonoosuc#1000000000#1#C
 apee,a#1#Apeekwa#1000000000#2#C
 Pazaro,a#1#Azarosa#1000000000#2#C
 bAMFUTA,a#1#Bamputaña#1000000000#2#C
-mbeach_on#1#Beach-On#1000000000#2#C
 Belim,or#1#Belmor#1000000000#2#C
 BigginSwamp#1#Biggin_Swamp#1000000000#1#C
 ibralUr#1#Bragur#1000000000#2#C
