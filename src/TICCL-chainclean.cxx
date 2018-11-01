@@ -70,6 +70,7 @@ const string SEPARATOR = "_";
 
 class record {
 public:
+  record():deleted(false){};
   string variant;
   vector<string> v_parts;
   string v_freq;
@@ -77,20 +78,16 @@ public:
   vector<string> cc_parts;
   string cc_freq;
   string ld;
+  bool deleted;
 };
 
 ostream& operator<<( ostream& os, const record& rec ){
-  os << rec.variant << "#" << rec.v_freq << "#" << rec.cc << "#" << rec.cc_freq << "#" << rec.ld << "#C";
+  os << rec.variant << "#" << rec.v_freq << "#" << rec.cc << "#" << rec.cc_freq << "#" << rec.ld << (rec.deleted?"#D":"#C");
   return os;
 }
 
 ostream& operator<<( ostream& os, const record *rec ){
-  if ( rec ){
-    os << *rec;
-  }
-  else {
-    os << "NULL";
-  }
+  os << *rec;
   return os;
 }
 
@@ -291,7 +288,7 @@ int main( int argc, char **argv ){
 	else {
 	  v_part = p;
 	}
-	if ( show ){
+	if ( verbosity>1 ){
 	  cerr << "ZOEK: " << v_part << endl;
 	}
 	if ( v_part == unk_part ){
@@ -347,7 +344,7 @@ int main( int argc, char **argv ){
       auto it = copy_records.begin();
       while ( it != copy_records.end() ){
 	record* rec = *it;
-	if ( !rec ){
+	if ( rec->deleted ){
 	  ++it;
 	  continue;
 	}
@@ -436,13 +433,13 @@ int main( int argc, char **argv ){
 		    if ( local_show ){
 		      cerr << "REMOVE uni: " << rec << endl;
 		    }
-		    *it = 0;
+		    (*it)->deleted = true;
 		  }
 		  else if ( lvar.find( v ) != string::npos ){
 		    if ( local_show ){
 		      cerr << "REMOVE match: " << rec << endl;
 		    }
-		    *it = 0;
+		    (*it)->deleted = true;
 		  }
 		  else {
 		    if ( local_show ){
@@ -474,7 +471,9 @@ int main( int argc, char **argv ){
   for ( const auto it : copy_records ){
     if ( it != 0 ){
       ++count;
-      os << it << endl;
+      if ( !it->deleted ){
+	os << it << endl;
+      }
     }
   }
   cerr << "copy_records.count()= " << count << endl;
