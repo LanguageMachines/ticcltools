@@ -96,6 +96,19 @@ ostream& operator<<( ostream& os, const record *rec ){
   return os;
 }
 
+vector<string> sort( vector<string>& in, map<int,string>& cc_order){
+  vector<string> uit;
+  for ( const auto& it : cc_order ){
+    for ( const auto& s : in ){
+      if ( s == it.second ){
+	uit.push_back( s );
+	break;
+      }
+    }
+  }
+  return uit;
+}
+
 int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
@@ -303,6 +316,8 @@ int main( int argc, char **argv ){
       cerr << "\n  Loop for part: " << part.second << "/" << unk_part << endl;
     }
     map<string,int> cc_freqs;
+    map<int,string> cc_order;
+    int oc = 0;
     for ( const auto& it : records ){
       bool match = false;
       for ( const auto& p : it.v_dh_parts ){
@@ -333,6 +348,10 @@ int main( int argc, char **argv ){
 	  else {
 	    c_part = cp;
 	  }
+	  if ( cc_freqs.find(c_part) == cc_freqs.end() ){
+	    // first encounter
+	    cc_order[oc++] = c_part;
+	  }
 	  ++cc_freqs[c_part];
 	  if ( show ){
 	    cerr << "for: " << unk_part << " increment " << c_part << endl;
@@ -341,9 +360,11 @@ int main( int argc, char **argv ){
       }
     }
     multimap<int,string,std::greater<int>> desc_cc;
+    set<int> keys;
     // sort on highest frequency first.
     // DOES IT REALLY MATTER???
     for ( const auto& cc : cc_freqs ){
+      keys.insert(cc.second);
       desc_cc.insert( make_pair(cc.second,cc.first) );
     }
     if ( show ){
@@ -352,154 +373,175 @@ int main( int argc, char **argv ){
 	cerr << it.first << "\t" << it.second << endl;
       }
     }
-    for ( const auto& dcc : desc_cc ){
-      string cand_cor;
-      if ( do_low2 ){
-	cand_cor = TiCC::utf8_lowercase( dcc.second );
+    map<int,vector<string>,std::greater<int>> desc_cc_vec_map;
+    for ( const auto& key : keys ){
+      auto const& pr = desc_cc.equal_range( key );
+      vector<string> in;
+      for ( auto it = pr.first; it != pr.second; ++it ){
+	in.push_back( it->second );
       }
-      else {
-	cand_cor = dcc.second;
+      vector<string> uit = sort(in,cc_order);
+      desc_cc_vec_map[key] = uit;
+    }
+    if ( show ){
+      cerr << "found " << cc_order.size() << " CC's for: " << unk_part << endl;
+      for ( const auto& it : desc_cc_vec_map ){
+	cerr << it.first << "\t" << it.second << endl;
       }
+    }
+    for ( const auto& dvm_it : desc_cc_vec_map ){
       if ( show ){
-	cerr << "BEKIJK: " << cand_cor << "[" << dcc.first << "]" << endl;
+	cerr << "With frequency = " << dvm_it.first << endl;
       }
-      map<string,int> uniq;
-      auto it = copy_records.begin();
-      while ( it != copy_records.end() ){
-	record* rec = *it;
-	if ( rec->deleted ){
-	  ++it;
-	  continue;
-	}
-	if ( done_records.find( rec ) != done_records.end() ){
-	  if ( show && rec->variant.find( unk_part) != string::npos ) {
-	    cerr << "skip already done " << rec << endl;
-	  }
-	  ++it;
-	  continue;
-	}
-	if ( rec->v_parts.size() == 1 ){
-	  string vari;
-	  string corr;
-	  if ( do_low2 ){
-	    vari = TiCC::utf8_lowercase( rec->variant );
-	    corr = TiCC::utf8_lowercase( rec->cc );
-	  }
-	  else {
-	    vari = rec->variant;
-	    corr = rec->cc;
-	  }
-	  if ( vari == unk_part
-	       && corr.find(cand_cor) != string::npos ){
-	    // this is (might be) THE desired CC
-	    if ( show ){
-	      cerr << "UNI gram: both " << unk_part << " and " << cand_cor
-		   << " matched in: " << rec << endl;
-	      cerr << "KEEP: " << rec << endl;
-	    }
-	    done[corr] = vari;
-	    done_records.insert(rec);
-	    if ( rec->cc_parts.size() == 1 ){
-	      // so this is a unigram CC
-	      ++uniq[vari];
-	    }
-	  }
+      for ( const auto& dcc : dvm_it.second ){
+	string cand_cor;
+	if ( do_low2 ){
+	  cand_cor = TiCC::utf8_lowercase( dcc );
 	}
 	else {
-	  bool local_show = verbosity > 0;
-	  for ( const auto& p : rec->v_parts ){
-	    local_show |= follow_words.find( p ) != follow_words.end();
-	  }
-	  if ( local_show ){
-	    cerr << "bekijk met " << cand_cor << ":" << rec << endl;
-	  }
-	  for ( const auto& vp : rec->v_parts ){
-	    if ( uniq.find(vp) != uniq.end() ){
-	      // a ngram part equals an already resolved unigram
-	      // discard!
-	      rec->deleted = true;
-	      break;
-	    }
-	  }
+	  cand_cor = dcc;
+	}
+	if ( show ){
+	  cerr << "BEKIJK: " << cand_cor << "[" << dvm_it.first << "]" << endl;
+	}
+	map<string,int> uniq;
+	auto it = copy_records.begin();
+	while ( it != copy_records.end() ){
+	  record* rec = *it;
 	  if ( rec->deleted ){
-	    if ( local_show ){
-	      cerr << "REMOVE uni: " << rec << endl;
-		}
 	    ++it;
 	    continue;
 	  }
-	  bool match = false;
-	  for( const auto& cp : rec->cc_parts ){
-	    string cor_part;
+	  if ( done_records.find( rec ) != done_records.end() ){
+	    if ( show && rec->variant.find( unk_part) != string::npos ) {
+	      cerr << "skip already done " << rec << endl;
+	    }
+	    ++it;
+	    continue;
+	  }
+	  if ( rec->v_parts.size() == 1 ){
+	    string vari;
+	    string corr;
 	    if ( do_low2 ){
-	      cor_part = TiCC::utf8_lowercase( cp );
+	      vari = TiCC::utf8_lowercase( rec->variant );
+	      corr = TiCC::utf8_lowercase( rec->cc );
 	    }
 	    else {
-	      cor_part = cp;
+	      vari = rec->variant;
+	      corr = rec->cc;
 	    }
-	    if ( cand_cor == cor_part ){
-	      // CC match
-	      for ( const auto& p : rec->v_parts ){
-		string p_part;
-		if ( do_low2 ){
-		  p_part = TiCC::utf8_lowercase( p );
-		}
-		else {
-		  p_part = p;
-		}
-		if ( p_part == unk_part ){
-		  // variant match too
-		  match = true;
-		  break;
-		}
+	    if ( vari == unk_part
+		 && corr.find(cand_cor) != string::npos ){
+	      // this is (might be) THE desired CC
+	      if ( show ){
+		cerr << "UNI gram: both " << unk_part << " and " << cand_cor
+		     << " matched in: " << rec << endl;
+		cerr << "KEEP: " << rec << endl;
 	      }
-	      if ( match ){
-		if ( local_show ){
-		  cerr << "both " << cor_part << " and " << unk_part
-		       << " matched in: " << rec << endl;
-		}
-		string lvar;
-		if ( do_low2 ){
-		  lvar = TiCC::utf8_lowercase(rec->variant);
-		}
-		else {
-		  lvar = rec->variant;
-		}
-		if ( done.find( cor_part ) != done.end() ){
-		  string v = done[cor_part];
-		  if ( uniq.find( unk_part ) != uniq.end() ){
-		    if ( local_show ){
-		      cerr << "REMOVE uni: " << rec << endl;
-		    }
-		    (*it)->deleted = true;
+	      done[corr] = vari;
+	      done_records.insert(rec);
+	      if ( rec->cc_parts.size() == 1 ){
+		// so this is a unigram CC
+		++uniq[vari];
+	      }
+	    }
+	  }
+	  else {
+	    bool local_show = verbosity > 0;
+	    for ( const auto& p : rec->v_parts ){
+	      local_show |= follow_words.find( p ) != follow_words.end();
+	    }
+	    if ( local_show ){
+	      cerr << "bekijk met " << cand_cor << ":" << rec << endl;
+	    }
+	    for ( const auto& vp : rec->v_parts ){
+	      if ( uniq.find(vp) != uniq.end() ){
+		// a ngram part equals an already resolved unigram
+		// discard!
+		rec->deleted = true;
+		break;
+	      }
+	    }
+	    if ( rec->deleted ){
+	      if ( local_show ){
+		cerr << "REMOVE uni: " << rec << endl;
+	      }
+	      ++it;
+	      continue;
+	    }
+	    bool match = false;
+	    for( const auto& cp : rec->cc_parts ){
+	      string cor_part;
+	      if ( do_low2 ){
+		cor_part = TiCC::utf8_lowercase( cp );
+	      }
+	      else {
+		cor_part = cp;
+	      }
+	      if ( cand_cor == cor_part ){
+		// CC match
+		for ( const auto& p : rec->v_parts ){
+		  string p_part;
+		  if ( do_low2 ){
+		    p_part = TiCC::utf8_lowercase( p );
 		  }
-		  else if ( lvar.find( v ) != string::npos ){
-		    if ( local_show ){
-		      cerr << "REMOVE match: " << rec << endl;
+		  else {
+		    p_part = p;
+		  }
+		  if ( p_part == unk_part ){
+		    // variant match too
+		    match = true;
+		    break;
+		  }
+		}
+		if ( match ){
+		  if ( local_show ){
+		    cerr << "both " << cor_part << " and " << unk_part
+			 << " matched in: " << rec << endl;
+		  }
+		  string lvar;
+		  if ( do_low2 ){
+		    lvar = TiCC::utf8_lowercase(rec->variant);
+		  }
+		  else {
+		    lvar = rec->variant;
+		  }
+		  if ( done.find( cor_part ) != done.end() ){
+		    string v = done[cor_part];
+		    if ( uniq.find( unk_part ) != uniq.end() ){
+		      if ( local_show ){
+			cerr << "REMOVE uni: " << rec << endl;
+		      }
+		      (*it)->deleted = true;
 		    }
-		    (*it)->deleted = true;
+		    else if ( lvar.find( v ) != string::npos ){
+		      if ( local_show ){
+			cerr << "REMOVE match: " << rec << endl;
+		      }
+		      (*it)->deleted = true;
+		    }
+		    else {
+		      if ( local_show ){
+			cerr << "KEEP 1: " << rec << endl;
+		      }
+		      done[cor_part] = lvar;
+		      done_records.insert(rec);
+		    }
 		  }
 		  else {
 		    if ( local_show ){
-		      cerr << "KEEP 1: " << rec << endl;
+		      cerr << "KEEP 2: " << rec << endl;
 		    }
 		    done[cor_part] = lvar;
 		    done_records.insert(rec);
 		  }
+		  break;
 		}
-		else {
-		  if ( local_show ){
-		    cerr << "KEEP 2: " << rec << endl;
-		  }
-		  done[cor_part] = lvar;
-		  done_records.insert(rec);
-		}
-		break;
 	      }
 	    }
 	  }
+	  ++it;
 	}
-	++it;
       }
     }
   }
