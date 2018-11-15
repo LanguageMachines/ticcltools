@@ -43,7 +43,7 @@
 #include "config.h"
 
 using namespace	std;
-using icu::UnicodeString;
+using namespace icu;
 
 const UnicodeString SEPARATOR = "_";
 

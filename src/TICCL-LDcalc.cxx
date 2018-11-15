@@ -48,7 +48,7 @@
 #include "config.h"
 
 using namespace std;
-using icu::UnicodeString;
+using namespace icu;
 
 typedef signed long int bitType;
 

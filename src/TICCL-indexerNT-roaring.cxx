@@ -49,6 +49,8 @@
 #include "config.h"
 
 using namespace std;
+using namespace icu;
+
 typedef uint64_t bitType;
 
 //#define TRANSPOSE_TEST 1
@@ -302,7 +304,7 @@ int main( int argc, char **argv ){
       bitType bit = TiCC::stringTo<bitType>( parts[0] );
       vector<string> parts2;
       if ( TiCC::split_at( parts[1], parts2, "#" ) > 0 ){
-	icu::UnicodeString firstItem = TiCC::UnicodeFromUTF8( parts2[0] );
+	UnicodeString firstItem = TiCC::UnicodeFromUTF8( parts2[0] );
 	if ( firstItem.length() >= lowValue &&
 	     firstItem.length() <= highValue ){
 	  hashSet.insert( bit );

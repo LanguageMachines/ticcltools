@@ -41,8 +41,9 @@
 #include "config.h"
 
 using namespace	std;
+using namespace icu;
 
-const icu::UnicodeString SEPARATOR = "_";
+const UnicodeString SEPARATOR = "_";
 
 typedef unsigned long int bitType;
 
@@ -73,7 +74,7 @@ bool fillAlpha( istream& is,
     int freq = TiCC::stringTo<int>( v[1] );
     if ( freq > clip || freq == 0 ){
       // freq = 0 is special, for separator
-      icu::UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
+      UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
       bitType hash = TiCC::stringTo<bitType>( v[2] );
       alphabet[v0[0]] = hash;
     }
@@ -83,7 +84,7 @@ bool fillAlpha( istream& is,
   return true;
 }
 
-bitType hash( const icu::UnicodeString& s,
+bitType hash( const UnicodeString& s,
 	      map<UChar,bitType>& alphabet ){
   static bitType HonderdEenHash = 0;
   static bitType HonderdHash = 0;
@@ -91,7 +92,7 @@ bitType hash( const icu::UnicodeString& s,
     HonderdHash = high_five( 100 );
     HonderdEenHash = high_five( 101 );
   }
-  icu::UnicodeString us = s;
+  UnicodeString us = s;
   us.toLower();
   bitType result = 0;
   bool multPunct = false;
@@ -101,7 +102,7 @@ bitType hash( const icu::UnicodeString& s,
     if ( it != alphabet.end() ){
       result += it->second;
       if ( klets ){
-	cerr << "  CHAR, add " << icu::UnicodeString( us[i] ) << " "
+	cerr << "  CHAR, add " << UnicodeString( us[i] ) << " "
 	     << it->second << " ==> " << result << endl;
       }
     }
@@ -114,7 +115,7 @@ bitType hash( const icu::UnicodeString& s,
 	if ( !multPunct ){
 	  result += HonderdHash;
 	  if ( klets ){
-	    cerr << "PUNCT, add " << icu::UnicodeString( us[i] ) << " "
+	    cerr << "PUNCT, add " << UnicodeString( us[i] ) << " "
 		 << HonderdHash	 << " ==> " << result << endl;
 	  }
 	  multPunct = true;
@@ -123,7 +124,7 @@ bitType hash( const icu::UnicodeString& s,
       else {
 	result += HonderdEenHash;
 	if ( klets ){
-	  cerr << "   UNK, add " << icu::UnicodeString( us[i] ) << " "
+	  cerr << "   UNK, add " << UnicodeString( us[i] ) << " "
 	       << HonderdHash << " ==> " << result << endl;
 	}
       }
@@ -133,7 +134,7 @@ bitType hash( const icu::UnicodeString& s,
 }
 
 void create_output( ostream& os,
-		    map<bitType, set<icu::UnicodeString> >& anagrams ){
+		    map<bitType, set<UnicodeString> >& anagrams ){
   for ( const auto& it : anagrams ){
     bitType val = it.first;
     os << val << "~";
@@ -147,9 +148,9 @@ void create_output( ostream& os,
   os << endl;
 }
 
-icu::UnicodeString filter_tilde_hashtag( const icu::UnicodeString& w ){
+UnicodeString filter_tilde_hashtag( const UnicodeString& w ){
   // assume that we cannot break Unicode by replacing # or ~ by _
-  icu::UnicodeString result;
+  UnicodeString result;
   for ( int i=0; i < w.length(); ++i ){
     if ( w[i] == '~' || w[i] == '#' ){
       result += '_';
@@ -206,7 +207,7 @@ int main( int argc, char *argv[] ){
   }
   string alphafile;
   string backfile;
-  icu::UnicodeString separator;
+  UnicodeString separator;
   int clip = 0;
   size_t artifreq = 0;
   if ( opts.extract('h' ) || opts.extract("help") ){
@@ -341,9 +342,9 @@ int main( int argc, char *argv[] ){
     }
   }
   ofstream out_stream( out_file_name );
-  map<icu::UnicodeString,bitType> merged;
-  map<icu::UnicodeString,bitType> freq_list;
-  map<bitType, set<icu::UnicodeString> > anagrams;
+  map<UnicodeString,bitType> merged;
+  map<UnicodeString,bitType> freq_list;
+  map<bitType, set<UnicodeString> > anagrams;
   cout << "start hashing from the corpus frequency file." << endl;
   string line;
   while ( getline( is, line ) ){
@@ -355,8 +356,8 @@ int main( int argc, char *argv[] ){
       cerr << "offending line: " << line << endl;
       exit(EXIT_FAILURE);
     }
-    icu::UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
-    icu::UnicodeString word = filter_tilde_hashtag( v0 );
+    UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
+    UnicodeString word = filter_tilde_hashtag( v0 );
     bitType h = ::hash( word, alphabet );
     if ( list ){
       out_stream << v0 << "\t" << h << endl;
@@ -375,13 +376,13 @@ int main( int argc, char *argv[] ){
     cout << "created a list file: " << out_file_name << endl;
     exit( EXIT_SUCCESS );
   }
-  map<bitType, set<icu::UnicodeString> > foci;
+  map<bitType, set<UnicodeString> > foci;
   if ( artifreq > 0 ){ // so NOT when creating a simple list!
     for ( const auto& it : freq_list ){
-      icu::UnicodeString word = it.first;
+      UnicodeString word = it.first;
       bitType h = ::hash( word, alphabet );
       if ( do_ngrams ){
-	vector<icu::UnicodeString> parts = TiCC::split_at( word, separator );
+	vector<UnicodeString> parts = TiCC::split_at( word, separator );
 	if ( parts.size() > 0 ){
 	  // we have an -n-gram
 	  bool accept = false;
@@ -394,7 +395,7 @@ int main( int argc, char *argv[] ){
 	    if ( u_it != freq_list.end()
 		 && u_it->second < artifreq ){
 	      // so this part IS present in the input, but not in the background
-	      icu::UnicodeString l_part = part;
+	      UnicodeString l_part = part;
 	      l_part.toLower();
 	      const auto l_it = freq_list.find(l_part);
 	      if ( l_it == freq_list.end()
@@ -442,8 +443,8 @@ int main( int argc, char *argv[] ){
 	cerr << "offending line: " << line << endl;
 	exit(EXIT_FAILURE);
       }
-      icu::UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
-      icu::UnicodeString word = filter_tilde_hashtag( v0 );
+      UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
+      UnicodeString word = filter_tilde_hashtag( v0 );
       bitType h = ::hash( word, alphabet );
       anagrams[h].insert( word );
       bitType freq = TiCC::stringTo<bitType>( v[1] );

@@ -41,6 +41,7 @@
 #include "config.h"
 
 using namespace	std;
+using namespace	icu;
 
 void create_wf_list( const map<string, unsigned int>& wc,
 		     const string& filename, unsigned int totalIn,
@@ -99,7 +100,7 @@ void dump_quarantine( const string& filename,
 }
 
 bool isClean( const string& s, const set<UChar>& alp, bool reverse ){
-  icu::UnicodeString us = TiCC::UnicodeFromUTF8( s );
+  UnicodeString us = TiCC::UnicodeFromUTF8( s );
   //  cerr << "check " << us << endl;
   for ( int i=0; i < us.length(); ++i ){
     //    cerr << "check " << us[i] << endl;
@@ -127,7 +128,7 @@ bool fillAlpha( const string& file, set<UChar>& alphabet ){
       continue;
     }
     vector<string> v = TiCC::split( line );
-    icu::UnicodeString us = TiCC::UnicodeFromUTF8( v[0] );
+    UnicodeString us = TiCC::UnicodeFromUTF8( v[0] );
     us.toLower();
     alphabet.insert( us[0] );
     us.toUpper();

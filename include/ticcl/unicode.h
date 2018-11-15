@@ -5,6 +5,8 @@
 #include "unicode/ustream.h"
 #include "unicode/uchar.h"
 
+using namespace icu;
+
 inline std::string toString( int8_t c ){
   switch ( c ){
   case 0:
