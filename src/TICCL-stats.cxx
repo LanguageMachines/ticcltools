@@ -97,13 +97,12 @@ void create_wf_list( const map<string, unsigned int>& wc,
   }
 }
 
-static int error_sink(void *mydata, xmlError *error ){
+static void error_sink(void *mydata, xmlError *error ){
   int *cnt = (int*)mydata;
   if ( *cnt == 0 ){
     cerr << "\nXML-error: " << error->message << endl;
   }
   (*cnt)++;
-  return 1;
 }
 
 bool is_emph( const string& data ){
@@ -291,7 +290,7 @@ int main( int argc, char *argv[] ){
   try {
     opts.init(argc,argv);
   }
-  catch( OptionError& e ){
+  catch( const OptionError& e ){
     cerr << e.what() << endl;
     usage(argv[0]);
     exit( EXIT_FAILURE );
