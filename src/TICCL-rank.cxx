@@ -1067,7 +1067,8 @@ int main( int argc, char **argv ){
 
   map<string,set<streamsize> > fileIds;
   map<bitType,size_t> kwc_counts;
-  cout << "start indexing input and determining KWC counts." << endl;
+  map<bitType,vector<size_t>> cc_freqs;
+  cout << "start indexing input and determining KWC counts AND CC freq per KWC" << endl;
   int failures = 0;
   streamsize pos = input.tellg();
   while ( getline( input, line ) ){
@@ -1088,6 +1089,8 @@ int main( int argc, char **argv ){
       fileIds[variant].insert( pos );
       bitType kwc = TiCC::stringTo<bitType>(parts[6]);
       ++kwc_counts[kwc];
+      size_t ccf = TiCC::stringTo<size_t>(parts[4]);
+      cc_freqs[kwc].push_back(ccf);
       if ( ++count % 10000 == 0 ){
 	cout << ".";
 	cout.flush();
@@ -1099,6 +1102,21 @@ int main( int argc, char **argv ){
     pos = input.tellg();
   }
   cout << endl << "Done indexing" << endl;
+
+  for ( auto& it :  cc_freqs ){
+    sort( it.second.begin(), it.second.end() );
+    //    cerr << "vector: " << it.second << endl;
+    size_t size = it.second.size();
+    size_t median =0;
+    if ( size %2 == 0 ){
+      // even
+      median = ( it.second[size/2 -1] + it.second[size/2] ) / 2;
+    }
+    else {
+      median = it.second[size/2];
+    }
+    cerr << "median " << it.first << " = " << median << endl;
+  }
   map<bitType,size_t> kwc2_counts;
   map<bitType,string> kwc_string;
 
