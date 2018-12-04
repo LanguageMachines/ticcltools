@@ -791,7 +791,7 @@ int main( int argc, char **argv ){
     opts.set_short_options( "vVho:t:" );
     opts.set_long_options( "alph:,debugfile:,skipcols:,charconf:,charconfreq:,"
 			   "artifrq:,subtractartifrqfeature1:,subtractartifrqfeature2:,"
-			   "wordvec:,clip:,numvec:,threads:,verbose,follow:" );
+			   "wordvec:,clip:,numvec:,threads:,verbose,follow:,ALTERNATIVE" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -813,6 +813,7 @@ int main( int argc, char **argv ){
     exit(EXIT_SUCCESS);
   }
   bool verbose = opts.extract( 'v' ) || opts.extract("verbose");
+  bool ALTERNATIVE = opts.extract( "ALTERNATIVE" );
   string alfabetFile;
   string lexstatFile;
   string freqOutFile;
@@ -1340,9 +1341,36 @@ int main( int argc, char **argv ){
     }
     records = filter_ngrams( records, variants_set );
     if ( !records.empty() ){
-      ::rank( records, results, clip, kwc_counts, kwc2_counts,
-	      kwc_medians,
-	      db, skip, skip_factor );
+      if ( ALTERNATIVE ){
+	map<bitType,vector<size_t>> local_cc_freqs;
+	for ( const auto& it : records ){
+	  local_cc_freqs[it.kwc].push_back( it.candidate_freq );
+	}
+	map<bitType,size_t> local_kwc_medians;
+	for ( auto& it : local_cc_freqs ){
+	  sort( it.second.begin(), it.second.end() );
+	  //    cerr << "vector: " << it.second << endl;
+	  size_t size = it.second.size();
+	  size_t median =0;
+	  if ( size %2 == 0 ){
+	    // even
+	    median = ( it.second[size/2 -1] + it.second[size/2] ) / 2;
+	  }
+	  else {
+	    median = it.second[size/2];
+	  }
+	  //    cerr << "median " << it.first << " = " << median << endl;
+	  local_kwc_medians[it.first] = median;
+	}
+	::rank( records, results, clip, kwc_counts, kwc2_counts,
+		local_kwc_medians,
+		db, skip, skip_factor );
+      }
+      else {
+	::rank( records, results, clip, kwc_counts, kwc2_counts,
+		kwc_medians,
+		db, skip, skip_factor );
+      }
     }
   }
 
