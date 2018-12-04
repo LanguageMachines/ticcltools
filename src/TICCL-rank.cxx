@@ -115,8 +115,8 @@ public:
   double pairs1_rank;
   size_t pairs2;
   double pairs2_rank;
-  size_t pairs_combined;
-  double pairs_combined_rank;
+  size_t median;
+  double median_rank;
   int fl;
   double fl_rank;
   int ll;
@@ -152,8 +152,8 @@ record::record( const string& line,
   pairs1_rank(-1),
   pairs2(0),
   pairs2_rank(-1),
-  pairs_combined(0),
-  pairs_combined_rank(-1),
+  median(0),
+  median_rank(-1),
   rank(-10000)
 {
   vector<string> parts = TiCC::split_at( line, "~" );
@@ -307,13 +307,13 @@ string record::extractLong( const vector<bool>& skip ) const {
     the_rank += pairs2_rank;
     result += TiCC::toString(pairs2_rank) + "#";
   }
-  result += TiCC::toString(pairs_combined) + "~";
+  result += TiCC::toString(median) + "~";
   if ( skip[10] ){
     result += "N#";
   }
   else {
-    the_rank += pairs_combined_rank;
-    result += TiCC::toString(pairs_combined_rank) + "#";
+    the_rank += median_rank;
+    result += TiCC::toString(median_rank) + "#";
   }
   result += TiCC::toString(variant_count) + "~";
   if ( skip[11] ){
@@ -391,6 +391,7 @@ void rank( vector<record>& recs,
 	   int clip,
 	   const map<bitType,size_t>& kwc_counts,
 	   const map<bitType,size_t>& kwc2_counts,
+	   const map<bitType,size_t>& kwc_medians,
 	   ostream* db, vector<bool>& skip, int factor ){
   bool follow = follow_words.find(recs.begin()->variant) != follow_words.end();
   if ( follow||verbose ){
@@ -410,7 +411,7 @@ void rank( vector<record>& recs,
   multimap<size_t,size_t, std::greater<size_t>> clsmap; // Common substring lengths descending
   multimap<size_t,size_t,std::greater<size_t>> pairmap1;
   multimap<size_t,size_t,std::greater<size_t>> pairmap2;
-  multimap<size_t,size_t,std::greater<size_t>> pairmap_combined;
+  multimap<size_t,size_t,std::greater<size_t>> median_map;
   multimap<size_t,size_t,std::greater<size_t>> ngram_map;
   map<string,int> lowvarmap;
   size_t count = 0;
@@ -436,10 +437,8 @@ void rank( vector<record>& recs,
     }
     it.pairs2 = var2_cnt;
     pairmap2.insert( make_pair(var2_cnt,count )); // #variants decending
-    size_t var_combined_cnt = var1_cnt + var2_cnt;
-    it.pairs_combined = var_combined_cnt;
-    pairmap_combined.insert( make_pair(var_combined_cnt,count ));
-    // #combined variants descending
+    it.median = kwc_medians.at(it.kwc);
+    median_map.insert( make_pair(it.median,count )); // #medians decending
     ++lowvarmap[it.lower_candidate]; // count frequency of variants
     ++count;
   }
@@ -456,12 +455,11 @@ void rank( vector<record>& recs,
     cout << "4 clsmap = " << clsmap << endl;
     cout << "9 pairmap1 = " << pairmap1 << endl;
     cout << "10 pairmap2 = " << pairmap2 << endl;
-    cout << "11 pairmap_combined = " << pairmap_combined << endl;
+    cout << "11 medianmap = " << median_map << endl;
     //    cout << "12-a lowvarmap = " << lowvarmap << endl;
     cout << "12 lower_variantmap = " << lower_variantmap << endl;
     cout << "14 ngram_map = " << ngram_map << endl;
   }
-
   rank_desc_map( f2lenmap, recs, &record::f2len_rank );
   if ( follow ){
     cout << "step 1: f2len_rank: " << endl;
@@ -548,11 +546,11 @@ void rank( vector<record>& recs,
     }
   }
 
-  rank_desc_map( pairmap_combined, recs, &record::pairs_combined_rank );
+  rank_desc_map( median_map, recs, &record::median_rank );
   if ( follow ){
-    cout << "step 11: pairs_combined_rank: " << endl;
+    cout << "step 11: median_rank: for " << recs.begin()->variant << endl;
     for ( const auto& r : recs ){
-      cout << "\t" << r.candidate << " rank= " << r.pairs_combined_rank << endl;
+      cout << "\t" << r.candidate << " rank= " << r.median_rank << endl;
     }
   }
 
@@ -604,7 +602,7 @@ void rank( vector<record>& recs,
       (skip[7]?0:(*vit).khc_rank) +    // known historical confusion
       (skip[8]?0:(*vit).pairs1_rank) + //
       (skip[9]?0:(*vit).pairs2_rank) + //
-      (skip[10]?0:(*vit).pairs_combined_rank) + //
+      (skip[10]?0:(*vit).median_rank) + //
       (skip[11]?0:(*vit).variant_rank) + // # of decapped versions of the CC
       (skip[12]?0:(*vit).cosine_rank) + // WordVector rank
       (skip[13]?0:(*vit).ngram_rank);
@@ -871,6 +869,7 @@ int main( int argc, char **argv ){
   if ( !opts.extract( 't', value ) ){
     opts.extract( "threads", value );
   }
+  value = "1";
 #ifdef HAVE_OPENMP
   if ( TiCC::lowercase(value) == "max" ){
     numThreads = omp_get_max_threads() - 2;
@@ -1103,6 +1102,7 @@ int main( int argc, char **argv ){
   }
   cout << endl << "Done indexing" << endl;
 
+  map<bitType,size_t> kwc_medians;
   for ( auto& it :  cc_freqs ){
     sort( it.second.begin(), it.second.end() );
     //    cerr << "vector: " << it.second << endl;
@@ -1115,7 +1115,8 @@ int main( int argc, char **argv ){
     else {
       median = it.second[size/2];
     }
-    cerr << "median " << it.first << " = " << median << endl;
+    //    cerr << "median " << it.first << " = " << median << endl;
+    kwc_medians[it.first] = median;
   }
   map<bitType,size_t> kwc2_counts;
   map<bitType,string> kwc_string;
@@ -1339,7 +1340,9 @@ int main( int argc, char **argv ){
     }
     records = filter_ngrams( records, variants_set );
     if ( !records.empty() ){
-      ::rank( records, results, clip, kwc_counts, kwc2_counts, db, skip, skip_factor );
+      ::rank( records, results, clip, kwc_counts, kwc2_counts,
+	      kwc_medians,
+	      db, skip, skip_factor );
     }
   }
 
