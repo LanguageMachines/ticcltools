@@ -26,7 +26,7 @@ datadir=DATA
 
 echo "start TICLL-rank clip=5"
 
-$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.c5.ranked --debugfile $outdir/ngram.debug5.ranked --clip 5 --skipcols=10,11 $refdir/ngram.ldcalc
+$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.c5.ranked --debugfile $outdir/ngram.debug5.ranked --clip 5 --skipcols=10 $refdir/ngram.ldcalc --ALTERNATIVE
 
 if [ $? -ne 0 ]
 then
@@ -58,7 +58,7 @@ fi
 
 echo "start TICLL-rank clip=5 , with --subtractartifrqfeature2 "
 
-$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.c5.af.ranked --debugfile $outdir/ngram.debug5.af.ranked --subtractartifrqfeature2 100000000 --clip 5 --skipcols=10,11 $refdir/ngram.ldcalc
+$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.c5.af.ranked --debugfile $outdir/ngram.debug5.af.ranked --subtractartifrqfeature2 100000000 --clip 5 --skipcols=10 $refdir/ngram.ldcalc
 
 if [ $? -ne 0 ]
 then
@@ -90,7 +90,7 @@ fi
 
 echo "start TICLL-rank clip=5 , with --subtractartifrqfeature1 and --subtractartifrqfeature2"
 
-$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.c5.af1.ranked --debugfile $outdir/ngram.debug5.af1.ranked --subtractartifrqfeature1 100000000 --subtractartifrqfeature2 100000000 --clip 5 --skipcols=10,11 $refdir/ngram.ldcalc
+$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.c5.af1.ranked --debugfile $outdir/ngram.debug5.af1.ranked --subtractartifrqfeature1 100000000 --subtractartifrqfeature2 100000000 --clip 5 --skipcols=10 $refdir/ngram.ldcalc
 
 if [ $? -ne 0 ]
 then
@@ -122,7 +122,7 @@ fi
 
 echo "start TICLL-rank clip=1"
 
-$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.ranked --debugfile $outdir/ngram.debug.ranked --artifrq 0 --clip 1 --skipcols=10,11 $refdir/ngram.ldcalc
+$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.ranked --debugfile $outdir/ngram.debug.ranked --artifrq 0 --clip 1 --skipcols=10 $refdir/ngram.ldcalc
 
 if [ $? -ne 0 ]
 then
