@@ -202,7 +202,12 @@ record::record( const string& line,
     ngram_rank = -6.7;  // bogus value, is set later
 #pragma omp critical (distance)
     {
-      cosine = WV.distance( variant, candidate );
+      try {
+	cosine = WV.distance( variant, candidate );
+      }
+      catch (...){
+	cosine = 1.0;
+      }
     }
     cosine_rank = -7.8; // bogus value, is set later
   }
@@ -986,9 +991,20 @@ int main( int argc, char **argv ){
     }
     cerr << "loaded " << WV.size() << " word vectors" << endl;
     if ( WV_TEST ){
-      double cosine = WV.distance( "dofter", "dochter" );
+      double cosine;
+      try {
+	cosine = WV.distance( "dofter", "dochter" );
+      }
+      catch (...){
+	cosine = 1.0;
+      }
       cerr << "distance 'dofter' - 'dochter' = " << cosine << endl;
-      cosine = WV.distance( "appel", "peer" );
+      try {
+	cosine = WV.distance( "appel", "peer" );
+      }
+      catch (...){
+	cosine = 1.0;
+      }
       cerr << "distance 'appel' - 'peer' = " << cosine << endl;
       exit(EXIT_SUCCESS);
     }
