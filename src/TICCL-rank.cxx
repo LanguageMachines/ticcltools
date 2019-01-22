@@ -88,7 +88,7 @@ void usage( const string& name ){
 
 class record {
 public:
-  record( const string &, size_t, size_t, const vector<word_dist>& );
+  record( const string &, size_t, size_t, const wordvec_tester& );
   string extractResults() const;
   string extractLong( const vector<bool>& skip ) const;
   string variant;
@@ -130,21 +130,10 @@ public:
   double rank;
 };
 
-float lookup( const vector<word_dist>& vec,
-	      const string& word ){
-  for( size_t i=0; i < vec.size(); ++i ){
-    if ( vec[i].w == word ){
-      //	cerr << "JA! " << vec[i].d << endl;
-      return vec[i].d;
-    }
-  }
-  return 0.0;
-}
-
 record::record( const string& line,
 		size_t sub_artifreq,
 		size_t sub_artifreq_f2,
-		const vector<word_dist>& WV ):
+		const wordvec_tester& WV ):
   variant_count(-1),
   f2len_rank(-1),
   ld(-1),
@@ -211,11 +200,11 @@ record::record( const string& line,
       khc_rank = 1;
     ngram_points = TiCC::stringTo<int>(parts[13]);
     ngram_rank = -6.7;  // bogus value, is set later
-    cosine = lookup( WV, candidate );
-    if ( cosine <= 0.001 )
-      cosine_rank = 1;
-    else
-      cosine_rank = 10;
+#pragma omp critical (distance)
+    {
+      cosine = WV.distance( variant, candidate );
+    }
+    cosine_rank = -7.8; // bogus value, is set later
   }
 }
 
@@ -413,6 +402,7 @@ void rank( vector<record>& recs,
   multimap<size_t,size_t,std::greater<size_t>> pairmap2;
   multimap<size_t,size_t,std::greater<size_t>> median_map;
   multimap<size_t,size_t,std::greater<size_t>> ngram_map;
+  multimap<size_t,size_t> cosine_map; // cosine distances ascending
   map<string,int> lowvarmap;
   size_t count = 0;
 
@@ -439,6 +429,7 @@ void rank( vector<record>& recs,
     pairmap2.insert( make_pair(var2_cnt,count )); // #variants decending
     it.median = kwc_medians.at(it.kwc);
     median_map.insert( make_pair(it.median,count )); // #medians decending
+    cosine_map.insert( make_pair(it.cosine,count )); // #cosines ascending
     ++lowvarmap[it.lower_candidate]; // count frequency of variants
     ++count;
   }
@@ -458,6 +449,7 @@ void rank( vector<record>& recs,
     cout << "11 medianmap = " << median_map << endl;
     //    cout << "12-a lowvarmap = " << lowvarmap << endl;
     cout << "12 lower_variantmap = " << lower_variantmap << endl;
+    cout << "13 cosine_map = " << cosine_map << endl;
     cout << "14 ngram_map = " << ngram_map << endl;
   }
   rank_desc_map( f2lenmap, recs, &record::f2len_rank );
@@ -572,7 +564,17 @@ void rank( vector<record>& recs,
       cout << "\t" << r.candidate << " count=" << r.variant_count << " rank= " << r.variant_rank << endl;
     }
   }
-
+  if ( !cosine_map.empty() ){
+    int ranking = 1;
+    size_t last = cosine_map.begin()->first;
+    for ( const auto& sit : cosine_map ){
+      if ( sit.first > last ){
+   	last = sit.first;
+   	++ranking;
+      }
+      recs[sit.second].cosine_rank = ranking;
+    }
+  }
   if ( follow ){
     cout << "step 13: cosine_rank: " << endl;
     for ( const auto& r : recs ){
@@ -791,7 +793,7 @@ int main( int argc, char **argv ){
     opts.set_short_options( "vVho:t:" );
     opts.set_long_options( "alph:,debugfile:,skipcols:,charconf:,charconfreq:,"
 			   "artifrq:,subtractartifrqfeature1:,subtractartifrqfeature2:,"
-			   "wordvec:,clip:,numvec:,threads:,verbose,follow:,ALTERNATIVE" );
+			   "wordvec:,clip:,numvec:,threads:,verbose,follow:,ALTERNATIVE,WVTEST" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -908,16 +910,15 @@ int main( int argc, char **argv ){
   }
 #endif
 
-  //#define TESTWV
-#ifdef TESTWV
-  size_t num_vec = 20;
-  if ( opts.extract( "numvec", value ) ){
-    if ( !TiCC::stringTo(value,num_vec) ) {
-      cerr << "illegal value for --numvec (" << value << ")" << endl;
+  bool WV_TEST = false;
+  if ( opts.extract( "WVTEST" ) ){
+    WV_TEST = true;
+    if ( wordvecFile.empty() ){
+      cerr << "WV_TEST option, but NO Word Vector file specified!" << endl;
       exit( EXIT_FAILURE );
     }
   }
-#endif
+
   if ( !opts.empty() ){
     cerr << "unsupported options : " << opts.toString() << endl;
     usage(progname);
@@ -984,30 +985,14 @@ int main( int argc, char **argv ){
       exit(1);
     }
     cerr << "loaded " << WV.size() << " word vectors" << endl;
-#ifdef TESTWV
-    vector<word_dist> wv_result;
-    if ( !WV.lookup( "dofter", num_vec, wv_result ) ){
-      cerr << "faal!" << endl;
+    if ( WV_TEST ){
+      double cosine = WV.distance( "dofter", "dochter" );
+      cerr << "distance 'dofter' - 'dochter' = " << cosine << endl;
+      cosine = WV.distance( "appel", "peer" );
+      cerr << "distance 'appel' - 'peer' = " << cosine << endl;
+      exit(EXIT_SUCCESS);
     }
-    for( size_t i=0; i < wv_result.size(); ++i ){
-      cerr << wv_result[i].w << "\t\t" << wv_result[i].d << endl;
-    }
-    if ( !WV.lookup( "van", num_vec, wv_result ) ){
-      cerr << "faal!" << endl;
-    }
-    for( size_t i=0; i < wv_result.size(); ++i ){
-      cerr << wv_result[i].w << "\t\t" << wv_result[i].d << endl;
-    }
-    if ( !WV.lookup( "dofter van", num_vec, wv_result ) ){
-      cerr << "faal!" << endl;
-    }
-    for( size_t i=0; i < wv_result.size(); ++i ){
-      cerr << wv_result[i].w << "\t\t" << wv_result[i].d << endl;
-    }
-    exit(EXIT_SUCCESS);
-#endif
   }
-
 
   size_t count=0;
   ofstream os( outFile );
@@ -1270,7 +1255,7 @@ int main( int argc, char **argv ){
       ++it;
       string line;
       getline( in, line );
-      record rec( line, sub_artifreq, sub_artifreq_f1, vec );
+      record rec( line, sub_artifreq, sub_artifreq_f1, WV );
       records.push_back( rec );
       if ( verbose ){
 	int tmp = 0;
@@ -1300,16 +1285,6 @@ int main( int argc, char **argv ){
 #pragma omp parallel for schedule(dynamic,1) shared(verbose,db)
   for( size_t i=0; i < work.size(); ++i ){
     const set<streamsize>& ids = work[i]._st;
-    vector<word_dist> vec;
-    if ( WV.size() > 0 ){
-      WV.lookup( work[i]._s, 20, vec );
-      if ( verbose ){
-#pragma omp critical (log)
-	{
-	  cerr << "looked up: " << work[i]._s << endl;
-	}
-      }
-    }
     ifstream in( inFile );
     vector<record> records;
     set<streamsize>::const_iterator it = ids.begin();
@@ -1318,7 +1293,7 @@ int main( int argc, char **argv ){
       ++it;
       string line;
       getline( in, line );
-      record rec( line, sub_artifreq, sub_artifreq_f1, vec );
+      record rec( line, sub_artifreq, sub_artifreq_f1, WV );
       records.push_back( rec );
       if ( verbose ){
 	int tmp = 0;
