@@ -558,6 +558,10 @@ S_Class classify_n_gram( const vector<UnicodeString>& parts,
 	end_cl = IGNORE;
 	break;
       case UNK:
+	// Multiple UNK words in a sequence
+	// maybe wo should add all those parts to the unk file?
+	// NO: every part of an n-gram is also available as a unigram
+	//     unless someone messes with the freqency lists
 	end_cl = IGNORE;
 	break;
       case PUNCT:
