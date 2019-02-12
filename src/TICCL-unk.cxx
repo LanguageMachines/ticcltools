@@ -962,10 +962,12 @@ int main( int argc, char *argv[] ){
 			  unk_words, dummy_puncts,
 			  punct_acro_words, compound_acro_words,
 			  doAcro, alphabet, artifreq );
-      using TiCC::operator<<;
       UnicodeString punct = dummy_puncts[clean];
       if ( !punct.isEmpty() ){
 	punct_words[hemp] = punct;
+      }
+      else {
+	punct_words[hemp] = clean;
       }
     }
   }
