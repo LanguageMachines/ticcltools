@@ -110,6 +110,17 @@ bool fillAlpha( istream& is, set<UChar>& alphabet ){
   return true;
 }
 
+bool fillHemp( istream& is, set<UnicodeString>& hemps ){
+  string line;
+  while ( getline( is, line ) ){
+    if ( line.size() == 0 || line[0] == '#' ){
+      continue;
+    }
+    hemps.insert( TiCC::UnicodeFromUTF8(line) );
+  }
+  return true;
+}
+
 bool is_ticcl_punct( UChar uc ){
   switch ( uc ){
   case '_':
@@ -786,7 +797,7 @@ int main( int argc, char *argv[] ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
-    opts.set_long_options( "acro,alph:,corpus:,background:,artifrq:,filter:,help,version" );
+    opts.set_long_options( "acro,alph:,corpus:,background:,artifrq:,filter:,help,version,hemp:" );
     opts.parse_args( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -819,6 +830,8 @@ int main( int argc, char *argv[] ){
       cerr << "WARNING!: you used the deprecated --corpus option. Please change to --background" << endl;
     }
   }
+  string hemp_file;
+  opts.extract("hemp", hemp_file);
   opts.extract("alph", alphafile);
   string value;
   if ( opts.extract( "artifrq", value ) ){
@@ -912,6 +925,19 @@ int main( int argc, char *argv[] ){
     }
   }
 
+  set<UnicodeString> hemps;
+  if ( !hemp_file.empty() ){
+    ifstream hs( hemp_file );
+    if ( !hs ){
+      cerr << "unable to read historical emphasis file: " << hemp_file << endl;
+      exit(EXIT_FAILURE);
+    }
+    cout << "reading Historical Emphases: " << hemp_file << endl;
+    if ( !fillHemp( hs, hemps ) ){
+      cerr << "serious problem reading hemps file: " << hemp_file << endl;
+      exit(EXIT_FAILURE);
+    }
+  }
   map<UnicodeString,unsigned int> all_clean_words;
   map<UnicodeString,unsigned int> fore_clean_words;
   map<UnicodeString,unsigned int> decap_clean_words;
@@ -920,6 +946,30 @@ int main( int argc, char *argv[] ){
   map<UnicodeString,unsigned int> compound_acro_words;
   map<UnicodeString,UnicodeString> punct_words;
   map<UnicodeString,unsigned int> back_lexicon;
+  //  hemps.insert("F_1_o_r_e_n_t_ij_n_e_r.");
+  if ( !hemps.empty() ){
+    cout << "start classifying the Historical Emphases with "
+	 << hemps.size() << " entries"<< endl;
+    for ( const auto& hemp : hemps ){
+      vector<UnicodeString> uparts = TiCC::split_at( hemp, SEPARATOR );
+      UnicodeString clean;
+      for ( const auto& u : uparts ){
+	clean += u;
+      }
+      map<UnicodeString,UnicodeString> dummy_puncts;
+      classify_one_entry( clean, 1,
+			  fore_clean_words, decap_clean_words,
+			  unk_words, dummy_puncts,
+			  punct_acro_words, compound_acro_words,
+			  doAcro, alphabet, artifreq );
+      using TiCC::operator<<;
+      UnicodeString punct = dummy_puncts[clean];
+      if ( !punct.isEmpty() ){
+	punct_words[hemp] = punct;
+      }
+    }
+  }
+
   if ( !background_file.empty() ){
     if ( artifreq == 0 ){
       cerr << "a background file is specified (--background option), but artifreq is NOT set "
