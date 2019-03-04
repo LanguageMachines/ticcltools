@@ -249,7 +249,7 @@ bitType hash( const UnicodeString& s,
   us.toLower();
   bitType result = 0;
   bool multPunct = false;
-  bool klets = ( s == "voörnaamfle" );
+  bool klets = false; //( s == "voörnaamfle" );
   for( int i=0; i < us.length(); ++i ){
     map<UChar,bitType>::const_iterator it = alphabet.find( us[i] );
     if ( it != alphabet.end() ){
@@ -297,12 +297,12 @@ void chain_class::output( const string& out_file ){
       if ( cc_vals_present ){
 	string val = w_cc_conf[s+t_it.first];
 	if ( val.empty() ){
-	  cerr << "GEEN waarde voor " << s+t_it.first << endl;
+	  //	  cerr << "GEEN waarde voor " << s+t_it.first << endl;
 	  bitType h_val = abs( ::hash(TiCC::UnicodeFromUTF8(s), alphabet )
 			       - ::hash(TiCC::UnicodeFromUTF8(t_it.first), alphabet) );
-	  cerr << "h_val=" << h_val << endl;
+	  //	  cerr << "h_val=" << h_val << endl;
 	  w_cc_conf[s+t_it.first] = TiCC::toString(h_val);
-	  cerr << "nieuwe waarde voor " << s+t_it.first << "=" << w_cc_conf[s+t_it.first] << endl;
+	  //	  cerr << "nieuwe waarde voor " << s+t_it.first << "=" << w_cc_conf[s+t_it.first] << endl;
 	}
 	oss << "#" + w_cc_conf[s+t_it.first];
       }
