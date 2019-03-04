@@ -99,7 +99,8 @@ private:
 };
 
 bool chain_class::fill( const string& line ){
-  vector<string> parts = TiCC::split_at( line, "#" );
+  vector<string> parts;
+  TiCC::split_at( line, parts, "#", true );
   if ( parts.size() < 6
        || parts.size() > 7 ){
     return false;

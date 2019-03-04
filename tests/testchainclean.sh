@@ -36,3 +36,5 @@ then
     echo "using diff /tmp/chained.clean $refdir/chained.clean"
     exit
 fi
+
+echo OK

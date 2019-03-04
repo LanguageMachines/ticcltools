@@ -240,7 +240,8 @@ int main( int argc, char **argv ){
   cout << "start reading chained results" << endl;
   list<record> records;
   while ( getline( input, line ) ){
-    vector<string> vec = TiCC::split_at( line, "#" );
+    vector<string> vec;
+    TiCC::split_at( line, vec, "#", true );
     bool no_ccv = false;
     if ( vec.size() == 6 ){
       no_ccv = true;
@@ -261,6 +262,9 @@ int main( int argc, char **argv ){
     }
     else {
       rec.ccv = vec[4];
+      if ( rec.ccv.empty() ){
+	cerr << "YES: " << rec.variant << endl;
+      }
       rec.ld = vec[5];
     }
     records.push_back( rec );
