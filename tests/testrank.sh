@@ -26,7 +26,7 @@ datadir=DATA
 
 echo "start TICLL-rank clip=5"
 
-$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.c5.ranked --debugfile $outdir/ngram.debug5.ranked --clip 5 --skipcols=10 $refdir/ngram.ldcalc --ALTERNATIVE
+$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus -o $outdir/ngram.c5.ranked --debugfile $outdir/ngram.debug5.ranked --clip 5 --skipcols=10 $refdir/ngram.ldcalc #--ALTERNATIVE
 
 if [ $? -ne 0 ]
 then
