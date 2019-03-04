@@ -19,7 +19,7 @@ datadir=DATA
 
 echo "start TICLL-chain"
 
-$bindir/TICCL-chain -v $refdir/book.ranked -o $outdir/book.chained
+$bindir/TICCL-chain -v $refdir/book.ranked --alph $datadir/nld.aspell.dict.clip20.lc.chars -o $outdir/book.chained
 
 if [ $? -ne 0 ]
 then
@@ -47,7 +47,7 @@ fi
 
 echo "and now caseless"
 
-$bindir/TICCL-chain --caseless -o $outdir/caseless.ranked.chained $refdir/book.ranked
+$bindir/TICCL-chain --caseless --alph $datadir/nld.aspell.dict.clip20.lc.chars -o $outdir/caseless.ranked.chained $refdir/book.ranked
 
 if [ $? -ne 0 ]
 then
