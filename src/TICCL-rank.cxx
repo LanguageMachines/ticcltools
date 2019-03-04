@@ -102,7 +102,7 @@ public:
   size_t reduced_candidate_freq;
   size_t low_candidate_freq;
   double freq_rank;
-  bitType kwc;
+  bitType char_conf_val;
   size_t f2len;
   size_t f2len_rank;
   int ld;
@@ -184,7 +184,7 @@ record::record( const string& line,
     }
     low_candidate_freq = TiCC::stringTo<size_t>(parts[5]);
     freq_rank = -20;  // bogus value, is set later
-    kwc   = TiCC::stringTo<bitType>(parts[6]);
+    char_conf_val   = TiCC::stringTo<bitType>(parts[6]);
     ld    = TiCC::stringTo<int>(parts[7]);
     ld_rank = -4.5;  // bogus value, is set later
     cls   = TiCC::stringTo<int>(parts[8]);
@@ -226,7 +226,7 @@ string record::extractLong( const vector<bool>& skip ) const {
   result += candidate + "#";
   result += TiCC::toString(candidate_freq) + "#";
   result += TiCC::toString(low_candidate_freq) + "#";
-  result += TiCC::toString(kwc) + "#";
+  result += TiCC::toString(char_conf_val) + "#";
   result += TiCC::toString(f2len) + "~";
   double the_rank = 0;
   if ( skip[0] ){
@@ -389,9 +389,9 @@ void rank_desc_map( const Tmap& desc_map,
 void rank( vector<record>& recs,
 	   map<string,multimap<double,record,std::greater<double>>>& results,
 	   int clip,
-	   const map<bitType,size_t>& kwc_counts,
-	   const map<bitType,size_t>& kwc2_counts,
-	   const map<bitType,size_t>& kwc_medians,
+	   const map<bitType,size_t>& char_conf_val_counts,
+	   const map<bitType,size_t>& char_conf_val2_counts,
+	   const map<bitType,size_t>& char_conf_val_medians,
 	   ostream* db, vector<bool>& skip, int factor ){
   bool follow = follow_words.find(recs.begin()->variant) != follow_words.end();
   if ( follow||verbose ){
@@ -426,18 +426,18 @@ void rank( vector<record>& recs,
     ldmap.insert( make_pair(it.ld,count) ); // lds sorted ASCENDING
     clsmap.insert( make_pair(it.cls,count) ); // cls sorted descending
     ngram_map.insert( make_pair(it.ngram_points,count) ); // ngrampoints sorted descending
-    size_t var1_cnt = kwc_counts.at(it.kwc);
+    size_t var1_cnt = char_conf_val_counts.at(it.char_conf_val);
     it.pairs1 = var1_cnt;
     pairmap1.insert( make_pair(var1_cnt,count )); // #variants descending
     size_t var2_cnt = 0;
     try {
-      var2_cnt += kwc2_counts.at(it.kwc);
+      var2_cnt += char_conf_val2_counts.at(it.char_conf_val);
     }
     catch(...){
     }
     it.pairs2 = var2_cnt;
     pairmap2.insert( make_pair(var2_cnt,count )); // #variants decending
-    it.median = kwc_medians.at(it.kwc);
+    it.median = char_conf_val_medians.at(it.char_conf_val);
     median_map.insert( make_pair(it.median,count )); // #medians decending
     ++lowvarmap[it.lower_candidate]; // count frequency of variants
     ++count;
@@ -1066,9 +1066,9 @@ int main( int argc, char **argv ){
   }
 
   map<string,set<streamsize> > fileIds;
-  map<bitType,size_t> kwc_counts;
+  map<bitType,size_t> char_conf_val_counts;
   map<bitType,vector<size_t>> cc_freqs;
-  cout << "start indexing input and determining KWC counts AND CC freq per KWC" << endl;
+  cout << "start indexing input and determining CHAR_CONF_VAL counts AND CC freq per CHAR_CONF_VAL" << endl;
   int failures = 0;
   streamsize pos = input.tellg();
   while ( getline( input, line ) ){
@@ -1087,10 +1087,10 @@ int main( int argc, char **argv ){
     else {
       string variant = parts[0];
       fileIds[variant].insert( pos );
-      bitType kwc = TiCC::stringTo<bitType>(parts[6]);
-      ++kwc_counts[kwc];
+      bitType char_conf_val = TiCC::stringTo<bitType>(parts[6]);
+      ++char_conf_val_counts[char_conf_val];
       size_t ccf = TiCC::stringTo<size_t>(parts[4]);
-      cc_freqs[kwc].push_back(ccf);
+      cc_freqs[char_conf_val].push_back(ccf);
       if ( ++count % 10000 == 0 ){
 	cout << ".";
 	cout.flush();
@@ -1103,7 +1103,7 @@ int main( int argc, char **argv ){
   }
   cout << endl << "Done indexing" << endl;
 
-  map<bitType,size_t> kwc_medians;
+  map<bitType,size_t> char_conf_val_medians;
   for ( auto& it :  cc_freqs ){
     sort( it.second.begin(), it.second.end() );
     //    cerr << "vector: " << it.second << endl;
@@ -1117,10 +1117,10 @@ int main( int argc, char **argv ){
       median = it.second[size/2];
     }
     //    cerr << "median " << it.first << " = " << median << endl;
-    kwc_medians[it.first] = median;
+    char_conf_val_medians[it.first] = median;
   }
-  map<bitType,size_t> kwc2_counts;
-  map<bitType,string> kwc_string;
+  map<bitType,size_t> char_conf_val2_counts;
+  map<bitType,string> char_conf_val_string;
 
   cout << "reading lexstat file " << lexstatFile
        << " and extracting pairs." << endl;
@@ -1131,12 +1131,12 @@ int main( int argc, char **argv ){
       exit( EXIT_FAILURE );
     }
     bitType key = TiCC::stringTo<bitType>( vec[0] );
-    kwc_string[key] = vec[1];
-    if ( kwc_counts[key] > 0 ){
+    char_conf_val_string[key] = vec[1];
+    if ( char_conf_val_counts[key] > 0 ){
       UnicodeString value = TiCC::UnicodeFromUTF8( vec[1] );
       if ( value.length() == 5 && value[2] == '~' ){
 	if ( verbose ){
-	  cerr << "bekijk tweetal: " << value << " met freq=" << kwc_counts[key]
+	  cerr << "bekijk tweetal: " << value << " met freq=" << char_conf_val_counts[key]
 	       << endl;
 	}
 	// look up diffs for value[0] - value[3], value[0] - value[4],
@@ -1148,13 +1148,13 @@ int main( int argc, char **argv ){
 	if ( b1 != 0 && b2 != 0 && b3 != 0 && b4 != 0 ){
 	  vector<size_t> counts(4);
 	  bitType diff = abs(b1 - b3);
-	  counts[0] = kwc_counts[diff]; // may be 0!
+	  counts[0] = char_conf_val_counts[diff]; // may be 0!
 	  diff = abs(b1 - b4);
-	  counts[1] = kwc_counts[diff];
+	  counts[1] = char_conf_val_counts[diff];
 	  diff = abs(b2 - b3);
-	  counts[2] = kwc_counts[diff];
+	  counts[2] = char_conf_val_counts[diff];
 	  diff = abs(b2 - b4);
-	  counts[3] = kwc_counts[diff];
+	  counts[3] = char_conf_val_counts[diff];
 	  size_t max = 0;
 	  size_t maxPos = 0;
 	  for ( size_t i=0; i < 3; ++i ){
@@ -1174,7 +1174,7 @@ int main( int argc, char **argv ){
 		cerr << "het anders paar: " << UnicodeString(value[1]) << "-"
 		     << UnicodeString(value[4]) << " met freq=" << counts[3] << endl;
 	      }
-	      kwc2_counts[key] = max + counts[3];
+	      char_conf_val2_counts[key] = max + counts[3];
 	    }
 	    else if ( maxPos == 1 ){
 	      if ( verbose ){
@@ -1183,7 +1183,7 @@ int main( int argc, char **argv ){
 		cerr << "het anders paar: " << UnicodeString(value[1]) << "-"
 		     << UnicodeString(value[3]) << " met freq=" << counts[2] << endl;
 	      }
-	      kwc2_counts[key] = max + counts[2];
+	      char_conf_val2_counts[key] = max + counts[2];
 	    }
 	    else if ( maxPos == 2 ){
 	      if ( verbose ){
@@ -1192,7 +1192,7 @@ int main( int argc, char **argv ){
 		cerr << "het anders paar: " << UnicodeString(value[0]) << "-"
 		    << UnicodeString(value[4]) << " met freq=" << counts[1] << endl;
 	      }
-	      kwc2_counts[key] = max + counts[1];
+	      char_conf_val2_counts[key] = max + counts[1];
 	    }
 	    else if ( maxPos == 3 ){
 	      if ( verbose ){
@@ -1201,7 +1201,7 @@ int main( int argc, char **argv ){
 		cerr << "het anders paar: " << UnicodeString(value[0]) << "-"
 		    << UnicodeString(value[3]) << " met freq=" << counts[0] << endl;
 	      }
-	      kwc2_counts[key] = max + counts[0];
+	      char_conf_val2_counts[key] = max + counts[0];
 	    }
 	  }
 	}
@@ -1222,20 +1222,20 @@ int main( int argc, char **argv ){
     if ( os.good() ){
       cout << "dumping character confusions into " << freqOutFile << endl;
       multimap<size_t,bitType, std::greater<int> > sorted;
-      for ( const auto& it: kwc_counts ){
+      for ( const auto& it: char_conf_val_counts ){
 	if ( it.second != 0 ){
 	  // only store non-0 frequencies
 	  sorted.insert( make_pair(it.second,it.first) );
 	}
       }
       for ( const auto& it : sorted ){
-	string tr = kwc_string[it.second];
+	string tr = char_conf_val_string[it.second];
 	if ( tr.empty() ){
 	  if ( it.second == 0 ){
 	    os << it.second << "\ttransposition\t" << it.first << endl;
 	  }
 	  else {
-	    cerr << "no translation for kwc: " << it.second << endl;
+	    cerr << "no translation for char_conf_val: " << it.second << endl;
 	    os << it.second << "\tmissing\t" << it.first << endl;
 	  }
 	}
@@ -1344,9 +1344,9 @@ int main( int argc, char **argv ){
       if ( ALTERNATIVE ){
 	map<bitType,vector<size_t>> local_cc_freqs;
 	for ( const auto& it : records ){
-	  local_cc_freqs[it.kwc].push_back( it.candidate_freq );
+	  local_cc_freqs[it.char_conf_val].push_back( it.candidate_freq );
 	}
-	map<bitType,size_t> local_kwc_medians;
+	map<bitType,size_t> local_char_conf_val_medians;
 	for ( auto& it : local_cc_freqs ){
 	  sort( it.second.begin(), it.second.end() );
 	  //    cerr << "vector: " << it.second << endl;
@@ -1360,15 +1360,15 @@ int main( int argc, char **argv ){
 	    median = it.second[size/2];
 	  }
 	  //    cerr << "median " << it.first << " = " << median << endl;
-	  local_kwc_medians[it.first] = median;
+	  local_char_conf_val_medians[it.first] = median;
 	}
-	::rank( records, results, clip, kwc_counts, kwc2_counts,
-		local_kwc_medians,
+	::rank( records, results, clip, char_conf_val_counts, char_conf_val2_counts,
+		local_char_conf_val_medians,
 		db, skip, skip_factor );
       }
       else {
-	::rank( records, results, clip, kwc_counts, kwc2_counts,
-		kwc_medians,
+	::rank( records, results, clip, char_conf_val_counts, char_conf_val2_counts,
+		char_conf_val_medians,
 		db, skip, skip_factor );
       }
     }
