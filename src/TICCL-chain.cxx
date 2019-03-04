@@ -297,11 +297,11 @@ void chain_class::output( const string& out_file ){
       if ( cc_vals_present ){
 	string val = w_cc_conf[s+t_it.first];
 	if ( val.empty() ){
-	  val = abs( ::hash(TiCC::UnicodeFromUTF8(s), alphabet )
-		     - ::hash(TiCC::UnicodeFromUTF8(t_it.first), alphabet) );
-	  w_cc_conf[s+t_it.first] = val;
+	  bitType h_val = abs( ::hash(TiCC::UnicodeFromUTF8(s), alphabet )
+			       - ::hash(TiCC::UnicodeFromUTF8(t_it.first), alphabet) );
+	  w_cc_conf[s+t_it.first] = toString(h_val);
 	}
-	oss << "#" + val;
+	oss << "#" + w_cc_conf[s+t_it.first];
       }
       oss << "#" << ld( t_it.first, s, caseless ) << "#C";
       out_map.insert( make_pair( var_freq[t_it.first], oss.str() ) );
