@@ -84,7 +84,7 @@ unsigned int ld( const string& in1, const string& in2, bool caseless ){
 class chain_class {
 public:
   chain_class(): chain_class( 0,false ){};
-  chain_class( int v, bool c ): verbosity(v), caseless(c){};
+  chain_class( int v, bool c ): verbosity(v), caseless(c), cc_vals_present(true){};
   bool fill( const string& );
   void debug_info( const string& );
   void output( const string& );
@@ -92,22 +92,37 @@ private:
   map<string,string> heads;
   map<string, set<string>> table;
   map< string, size_t > var_freq;
+  map<string,string> w_cc_conf;
   int verbosity;
   bool caseless;
-
+  bool cc_vals_present;
 };
 
 bool chain_class::fill( const string& line ){
   vector<string> parts = TiCC::split_at( line, "#" );
-  if ( parts.size() != 6 ){
+  if ( parts.size() < 6
+       || parts.size() > 7 ){
     return false;
   }
   else {
+    if ( parts.size() == 6 ){
+      cc_vals_present = false;
+    }
+    else if ( cc_vals_present == false ){
+      cerr << "conflicting data in chained file, didn't expect cc_val entries" << endl;
+      exit(EXIT_FAILURE);
+    }
     string a_word = parts[0]; // a possibly correctable word
     size_t freq1 = TiCC::stringTo<size_t>(parts[1]);
     var_freq[a_word] = freq1;
     string candidate = parts[2]; // a Correction Candidate
     size_t freq2 = TiCC::stringTo<size_t>(parts[3]);
+    string cc_val;
+    if ( cc_vals_present ){
+      cc_val = parts[4];
+      string key = a_word+candidate;
+      w_cc_conf[key] = cc_val;
+    }
     var_freq[candidate] = freq2;
     if ( verbosity > 3 ){
       cerr << "word=" << a_word << " CC=" << candidate << endl;
@@ -189,8 +204,11 @@ void chain_class::output( const string& out_file ){
     for ( const auto& s : t_it.second ){
       stringstream oss;
       oss << s << "#" << var_freq[s] << "#" << t_it.first
-	  << "#" << var_freq[t_it.first]
-	  << "#" << ld( t_it.first, s, caseless ) << "#C";
+	  << "#" << var_freq[t_it.first];
+      if ( cc_vals_present ){
+	oss << "#" + w_cc_conf[s+t_it.first];
+      }
+      oss << "#" << ld( t_it.first, s, caseless ) << "#C";
       out_map.insert( make_pair( var_freq[t_it.first], oss.str() ) );
     }
   }
