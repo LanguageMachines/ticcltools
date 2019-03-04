@@ -169,6 +169,7 @@ int main( int argc, char **argv ){
 
   string out_name;
   opts.extract( 'o', out_name );
+
   if ( !opts.empty() ){
     cerr << "unsupported options : " << opts.toString() << endl;
     usage(progname);
@@ -190,7 +191,9 @@ int main( int argc, char **argv ){
       exit(EXIT_FAILURE);
     }
   }
-
+  else {
+    out_name = in_name + ".cleaned";
+  }
   ifstream input( in_name );
   if ( !input ){
     cerr << "problem opening input file: " << in_name << endl;
@@ -232,8 +235,12 @@ int main( int argc, char **argv ){
   list<record> records;
   while ( getline( input, line ) ){
     vector<string> vec = TiCC::split_at( line, "#" );
-    if ( vec.size() != 6 ){
-      cerr << progname << ": chained file should have 6 items per line: '" << line << "' in " << lex_name << endl;
+    bool no_ccv = false;
+    if ( vec.size() == 6 ){
+      no_ccv = true;
+    }
+    if ( !no_ccv && vec.size() != 7 ){
+      cerr << progname << ": chained file should have 6 or 7 items per line: '" << line << "' in " << lex_name << endl;
       cerr << "\t found " << vec.size() << endl;
       exit( EXIT_FAILURE );
     }
