@@ -422,11 +422,10 @@ void rank( vector<record>& recs,
     // So in freqmap, the (index of) the records with highest freq
     //   are stored in front
     //same for f2len, ld, cls and ngram points
-    freqmap.insert( make_pair(it.reduced_candidate_freq, count ) ); // freqs descending
     f2lenmap.insert( make_pair(it.f2len, count ) ); // f2lengths descending
+    freqmap.insert( make_pair(it.reduced_candidate_freq, count ) ); // freqs descending
     ldmap.insert( make_pair(it.ld,count) ); // lds sorted ASCENDING
     clsmap.insert( make_pair(it.cls,count) ); // cls sorted descending
-    ngram_map.insert( make_pair(it.ngram_points,count) ); // ngrampoints sorted descending
     size_t var1_cnt = char_conf_val_counts.at(it.char_conf_val);
     it.pairs1 = var1_cnt;
     pairmap1.insert( make_pair(var1_cnt,count )); // #variants descending
@@ -440,6 +439,7 @@ void rank( vector<record>& recs,
     pairmap2.insert( make_pair(var2_cnt,count )); // #variants decending
     it.median = char_conf_val_medians.at(it.char_conf_val);
     median_map.insert( make_pair(it.median,count )); // #medians decending
+    ngram_map.insert( make_pair(it.ngram_points,count) ); // ngrampoints sorted descending
     ++lowvarmap[it.lower_candidate]; // count frequency of variants
     ++count;
   }
@@ -454,11 +454,11 @@ void rank( vector<record>& recs,
     cout << "2 freqmap = " << freqmap << endl;
     cout << "3 ldmap = " << ldmap << endl;
     cout << "4 clsmap = " << clsmap << endl;
-    cout << "9 pairmap1 = " << pairmap1 << endl;
-    cout << "10 pairmap2 = " << pairmap2 << endl;
-    cout << "11 medianmap = " << median_map << endl;
+    cout << "8 pairmap1 = " << pairmap1 << endl;
+    cout << "9 pairmap2 = " << pairmap2 << endl;
+    cout << "10 medianmap = " << median_map << endl;
     //    cout << "12-a lowvarmap = " << lowvarmap << endl;
-    cout << "12 lower_variantmap = " << lower_variantmap << endl;
+    cout << "11 lower_variantmap = " << lower_variantmap << endl;
     cout << "14 ngram_map = " << ngram_map << endl;
   }
   rank_desc_map( f2lenmap, recs, &record::f2len_rank );
@@ -568,7 +568,7 @@ void rank( vector<record>& recs,
     }
   }
   if ( follow ){
-    cout << "step 12: lower_variant_rank: " << endl;
+    cout << "step 11: lower_variant_rank: " << endl;
     for ( const auto& r : recs ){
       cout << "\t" << r.candidate << " count=" << r.variant_count << " rank= " << r.variant_rank << endl;
     }
