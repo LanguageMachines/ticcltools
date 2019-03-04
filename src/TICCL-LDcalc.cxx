@@ -82,15 +82,6 @@ void usage( const string& progname ){
   exit( EXIT_FAILURE );
 }
 
-bitType high_five( int val ){
-  bitType result = val;
-  result *= val;
-  result *= val;
-  result *= val;
-  result *= val;
-  return result;
-}
-
 unsigned int ldCompare( const UnicodeString& s1, const UnicodeString& s2 ){
   const size_t len1 = s1.length(), len2 = s2.length();
   vector<unsigned int> col(len2+1), prevCol(len2+1);
