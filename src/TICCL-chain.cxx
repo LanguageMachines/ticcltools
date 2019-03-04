@@ -299,7 +299,7 @@ void chain_class::output( const string& out_file ){
 	if ( val.empty() ){
 	  bitType h_val = abs( ::hash(TiCC::UnicodeFromUTF8(s), alphabet )
 			       - ::hash(TiCC::UnicodeFromUTF8(t_it.first), alphabet) );
-	  w_cc_conf[s+t_it.first] = toString(h_val);
+	  w_cc_conf[s+t_it.first] = TiCC::toString(h_val);
 	}
 	oss << "#" + w_cc_conf[s+t_it.first];
       }
