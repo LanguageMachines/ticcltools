@@ -82,12 +82,18 @@ public:
   vector<string> cc_parts;
   vector<string> cc_dh_parts;
   string cc_freq;
+  string ccv;
   string ld;
   bool deleted;
 };
 
 ostream& operator<<( ostream& os, const record& rec ){
-  os << rec.variant << "#" << rec.v_freq << "#" << rec.cc << "#" << rec.cc_freq << "#" << rec.ld << (rec.deleted?"#D":"#C");
+  os << rec.variant << "#" << rec.v_freq << "#" << rec.cc << "#"
+     << rec.cc_freq << "#";
+  if ( rec.ccv != "none" ){
+    os << rec.ccv << "#";
+  }
+  os << rec.ld << (rec.deleted?"#D":"#C");
   return os;
 }
 
@@ -249,7 +255,14 @@ int main( int argc, char **argv ){
     rec.v_freq = vec[1];
     rec.cc = vec[2];
     rec.cc_freq = vec[3];
-    rec.ld = vec[4];
+    if ( no_ccv ){
+      rec.ccv = "none";
+      rec.ld = vec[4];
+    }
+    else {
+      rec.ccv = vec[4];
+      rec.ld = vec[5];
+    }
     records.push_back( rec );
   }
   cout << "start processing " << records.size() << " chained results" << endl;
