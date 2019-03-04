@@ -198,6 +198,94 @@ void chain_class::debug_info( const string& name ){
   cout << "debug info stored in " << out_file << endl;
 }
 
+bitType high_five( int val ){
+  bitType result = val;
+  result *= val;
+  result *= val;
+  result *= val;
+  result *= val;
+  return result;
+}
+
+map<UChar,bitType> alphabet;
+
+bool fillAlpha( istream& is,
+		map<UChar,bitType>& alphabet,
+		int clip ){
+  cout << "start reading alphabet." << endl;
+  string line;
+  while ( getline( is, line ) ){
+    if ( line.size() == 0 || line[0] == '#' ){
+      continue;
+    }
+    vector<string> v;
+    int n = TiCC::split_at( line, v, "\t" );
+    if ( n != 3 ){
+      cerr << "unsupported format for alphabet file" << endl;
+      exit(EXIT_FAILURE);
+    }
+    int freq = TiCC::stringTo<int>( v[1] );
+    if ( freq > clip || freq == 0 ){
+      // freq = 0 is special, for separator
+      UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
+      bitType hash = TiCC::stringTo<bitType>( v[2] );
+      alphabet[v0[0]] = hash;
+    }
+  }
+  cout << "finished reading alphabet. (" << alphabet.size() << " characters)"
+       << endl;
+  return true;
+}
+
+bitType hash( const UnicodeString& s,
+	      map<UChar,bitType>& alphabet ){
+  static bitType HonderdEenHash = 0;
+  static bitType HonderdHash = 0;
+  if ( HonderdEenHash == 0 ){
+    HonderdHash = high_five( 100 );
+    HonderdEenHash = high_five( 101 );
+  }
+  UnicodeString us = s;
+  us.toLower();
+  bitType result = 0;
+  bool multPunct = false;
+  bool klets = false; // ( s == "Engeĳclíe" );
+  for( int i=0; i < us.length(); ++i ){
+    map<UChar,bitType>::const_iterator it = alphabet.find( us[i] );
+    if ( it != alphabet.end() ){
+      result += it->second;
+      if ( klets ){
+	cerr << "  CHAR, add " << UnicodeString( us[i] ) << " "
+	     << it->second << " ==> " << result << endl;
+      }
+    }
+    else {
+      int8_t charT = u_charType( us[i] );
+      if ( u_isspace( us[i] ) ){
+	continue;
+      }
+      else if ( ticc_ispunct( charT ) ){
+	if ( !multPunct ){
+	  result += HonderdHash;
+	  if ( klets ){
+	    cerr << "PUNCT, add " << UnicodeString( us[i] ) << " "
+		 << HonderdHash	 << " ==> " << result << endl;
+	  }
+	  multPunct = true;
+	}
+      }
+      else {
+	result += HonderdEenHash;
+	if ( klets ){
+	  cerr << "   UNK, add " << UnicodeString( us[i] ) << " "
+	       << HonderdHash << " ==> " << result << endl;
+	}
+      }
+    }
+  }
+  return result;
+}
+
 void chain_class::output( const string& out_file ){
   ofstream os( out_file );
   multimap<size_t, string,std::greater<size_t>> out_map;
@@ -207,7 +295,13 @@ void chain_class::output( const string& out_file ){
       oss << s << "#" << var_freq[s] << "#" << t_it.first
 	  << "#" << var_freq[t_it.first];
       if ( cc_vals_present ){
-	oss << "#" + w_cc_conf[s+t_it.first];
+	string val = w_cc_conf[s+t_it.first];
+	if ( val.empty() ){
+	  val = abs( ::hash(TiCC::UnicodeFromUTF8(s), alphabet )
+		     - ::hash(TiCC::UnicodeFromUTF8(t_it.first), alphabet) );
+	  w_cc_conf[s+t_it.first] = val;
+	}
+	oss << "#" + val;
       }
       oss << "#" << ld( t_it.first, s, caseless ) << "#C";
       out_map.insert( make_pair( var_freq[t_it.first], oss.str() ) );
@@ -221,7 +315,8 @@ void chain_class::output( const string& out_file ){
 void usage( const string& name ){
   cerr << "usage: " << name << endl;
   cerr << "\t--caseless Calculate the Levensthein (or edit) distance ignoring case." << endl;
-  cerr << "\t-o <outputfile> name of the outputfile." << endl;
+  cerr << "\t--alph <alphafile> name of the alphabet file." << endl;
+  cerr << "\t-o <outputfile> name of the output file." << endl;
   cerr << "\t-h or --help this message." << endl;
   cerr << "\t-v be verbose, repeat to be more verbose. " << endl;
   cerr << "\t-V or --version show version. " << endl;
@@ -232,7 +327,7 @@ int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
-    opts.set_long_options( "caseless" );
+    opts.set_long_options( "caseless,alph:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -258,6 +353,12 @@ int main( int argc, char **argv ){
     ++verbosity;
   }
   bool caseless = opts.extract( "caseless" );
+  string alphabet_name;
+  opts.extract( "alph", alphabet_name );
+  if ( alphabet_name.empty() ){
+    cerr << "missing --alphabet option" << endl;
+    exit(EXIT_FAILURE);
+  }
   string out_file;
   opts.extract( 'o', out_file );
 
