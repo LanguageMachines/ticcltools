@@ -356,7 +356,7 @@ int main( int argc, char **argv ){
   string alphabet_name;
   opts.extract( "alph", alphabet_name );
   if ( alphabet_name.empty() ){
-    cerr << "missing --alphabet option" << endl;
+    cerr << "missing --alph option" << endl;
     exit(EXIT_FAILURE);
   }
   string out_file;
