@@ -349,6 +349,7 @@ string record::extractResults() const {
   result += TiCC::toString(variant_freq) + "#";
   result += candidate + "#";
   result += TiCC::toString(candidate_freq) + "#";
+  result += TiCC::toString(char_conf_val) + "#";
   result += TiCC::toString(ld) + "#";
   result += TiCC::toString(rank);
   return result;
