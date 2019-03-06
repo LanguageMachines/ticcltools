@@ -351,7 +351,7 @@ int main( int argc, char *argv[] ){
     // we build a frequency list
     vector<string> v;
     int n = TiCC::split_at( line, v, "\t" );
-    if ( n != 2 ){
+    if ( !(n == 1 || n == 2) ){
       cerr << "frequency file in wrong format!" << endl;
       cerr << "offending line: " << line << endl;
       exit(EXIT_FAILURE);
@@ -364,7 +364,10 @@ int main( int argc, char *argv[] ){
     }
     else {
       anagrams[h].insert( word );
-      bitType freq = TiCC::stringTo<bitType>( v[1] );
+      bitType freq = 1;
+      if ( n == 2 ){
+	freq = TiCC::stringTo<bitType>( v[1] );
+      }
       freq_list[word] = freq;
       if ( doMerge && artifreq > 0  ){
 	merged[v0] = freq;
@@ -438,7 +441,7 @@ int main( int argc, char *argv[] ){
     while ( getline( bs, line ) ){
       vector<string> v;
       int n = TiCC::split_at( line, v, "\t" );
-      if ( n != 2 ){
+      if ( !( n == 1 || n == 2 ) ){
 	cerr << "background file in wrong format!" << endl;
 	cerr << "offending line: " << line << endl;
 	exit(EXIT_FAILURE);
@@ -447,7 +450,10 @@ int main( int argc, char *argv[] ){
       UnicodeString word = filter_tilde_hashtag( v0 );
       bitType h = ::hash( word, alphabet );
       anagrams[h].insert( word );
-      bitType freq = TiCC::stringTo<bitType>( v[1] );
+      bitType freq = 1;
+      if ( n == 2 ){
+	freq = TiCC::stringTo<bitType>( v[1] );
+      }
       merged[v0] += freq;
     }
     string merge_file_name = file_name + ".merged";
