@@ -1,5 +1,5 @@
 sudo: required
-dist: trusty
+dist: bionic
 group: edge
 
 # whitelist
@@ -37,48 +37,49 @@ matrix:
         - SCAN=echo
 
 before_install:
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-        sudo apt-get update;
-        sudo apt-get install pkg-config autoconf-archive autotools-dev ccache cppcheck libicu-dev libxml2-dev libbz2-dev zlib1g-dev libboost-dev libboost-regex-dev libtar-dev;
-      fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-        brew update;
-        brew install pkg-config;
-        brew install autoconf-archive;
-        brew outdated || brew upgrade icu4c;
-        brew outdated || brew upgrade libxml2;
-        brew outdated || brew install bzip2;
-        brew outdated || brew install zlib;
-        brew install libtar;
-        brew install cppcheck;
-        brew install ccache;
-        brew outdated boost || brew upgrade boost;
-        brew install llvm;
-        export PATH="/usr/local/opt/llvm/bin:$PATH";
-        export LDFLAGS="-L/usr/local/opt/llvm/lib";
-        export CXXFLAGS="-I/usr/local/opt/llvm/include";
-      fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      sudo apt-get update;
+      sudo apt-get install pkg-config autoconf-archive autotools-dev ccache;
+      sudo apt-get install cppcheck libicu-dev libxml2-dev libbz2-dev;
+      sudo apt-get install zlib1g-dev libtar-dev;
+    fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew update;
+      brew install pkg-config;
+      brew install autoconf-archive;
+      brew outdated || brew upgrade icu4c;
+      brew outdated || brew upgrade libxml2;
+      brew outdated || brew install bzip2;
+      brew outdated || brew install zlib;
+      brew install libtar;
+      brew install cppcheck;
+      brew install ccache;
+      brew install llvm;
+      export PATH="/usr/local/opt/llvm/bin:$PATH";
+      export LDFLAGS="-L/usr/local/opt/llvm/lib";
+      export CXXFLAGS="-I/usr/local/opt/llvm/include";
+    fi
 
-    - export PATH="/usr/lib/ccache/bin/:$PATH"
+  - export PATH="/usr/lib/ccache/bin/:$PATH"
 
-    - git clone https://github.com/LanguageMachines/ticcutils
-    - cd ticcutils
-    - bash bootstrap.sh
-    - ./configure $OPENMPFLAG
-    - make
-    - sudo make install
-    - cd ..
+  - git clone https://github.com/LanguageMachines/ticcutils
+  - cd ticcutils
+  - bash bootstrap.sh
+  - ./configure $OPENMPFLAG
+  - make
+  - sudo make install
+  - cd ..
 
 install:
-    - bash bootstrap.sh
-    - ./configure $OPENMPFLAG
-    - cppcheck --enable=all --quiet --error-exitcode=0 .
-    - $SCAN --status-bugs make
-    - make
-    - sudo make install
+  - bash bootstrap.sh
+  - ./configure $OPENMPFLAG
+  - cppcheck --enable=all --quiet --error-exitcode=0 .
+  - $SCAN --status-bugs make
+  - make
+  - sudo make install
 
 script:
-    - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib make check
+  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib make check
 
 after_failure:
-    - cat src/test-suite.log
+  - cat src/test-suite.log
