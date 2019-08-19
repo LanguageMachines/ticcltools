@@ -174,7 +174,7 @@ diff $outdir/TESTDP035.tsv.clean.ldcalc.ranked $refdir/book.ranked 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"
-    echo "using: diff $outdir/TESTDP035.tsv.clean.ldcalc.ranked $refdir/ranked"
+    echo "using: diff $outdir/TESTDP035.tsv.clean.ldcalc.ranked $refdir/book.ranked"
     exit
 else
     echo OK!
