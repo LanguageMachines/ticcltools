@@ -107,7 +107,7 @@ then
 fi
 
 echo "checking ANAHASH results...."
-sort $outdir/TESTDP035.tsv.clean.corpusfoci > /tmp/foci
+LC_ALL=C sort $outdir/TESTDP035.tsv.clean.corpusfoci > /tmp/foci
 diff /tmp/foci $refdir/foci > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
@@ -147,7 +147,7 @@ then
 fi
 
 echo "checking LDCALC results...."
-sort $outdir/TESTDP035.tsv.clean.ldcalc  > /tmp/ldcalc
+LC_ALL=C sort $outdir/TESTDP035.tsv.clean.ldcalc  > /tmp/ldcalc
 
 diff /tmp/ldcalc $refdir/ldcalc > /dev/null 2>&1
 

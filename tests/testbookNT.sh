@@ -107,7 +107,7 @@ then
 fi
 
 echo "checking ANAHASH results...."
-sort $outdir/TESTDP035.tsv.clean.corpusfoci > /tmp/foci
+LC_ALL=C sort $outdir/TESTDP035.tsv.clean.corpusfoci > /tmp/foci
 diff /tmp/foci $refdir/foci > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
@@ -147,7 +147,7 @@ then
 fi
 
 echo "checking LDCALC results...."
-sort -s $outdir/TESTDP035.tsv.clean.NT.ldcalc  > /tmp/ldcalc.NT
+LC_ALL=C sort -s $outdir/TESTDP035.tsv.clean.NT.ldcalc  > /tmp/ldcalc.NT
 
 diff /tmp/ldcalc.NT $refdir/ldcalc.NT > /dev/null 2>&1
 
@@ -178,7 +178,7 @@ then
     exit
 fi
 
-sort  $outdir/TESTDP035.tsv.clean.NT.ldcalc.debug.ranked > $outdir/TESTDP035.tsv.clean.NT.ldcalc.debug.ranked.sorted
+LC_ALL=C sort  $outdir/TESTDP035.tsv.clean.NT.ldcalc.debug.ranked > $outdir/TESTDP035.tsv.clean.NT.ldcalc.debug.ranked.sorted
 diff $outdir/TESTDP035.tsv.clean.NT.ldcalc.debug.ranked.sorted $refdir/book.NT.debug.ranked.sorted > /dev/null 2>&1
 if [ $? -ne 0 ]
 then

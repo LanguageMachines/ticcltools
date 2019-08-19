@@ -36,7 +36,7 @@ then
 fi
 echo "checking LDcalc results...."
 
-sort $outdir/my.ldcalc  > /tmp/ldcalc
+LC_ALL=C sort $outdir/my.ldcalc  > /tmp/ldcalc
 
 diff /tmp/ldcalc $refdir/ldcalc > /dev/null 2>&1
 

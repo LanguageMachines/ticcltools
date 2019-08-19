@@ -44,7 +44,7 @@ then
     exit
 fi
 
-sort $outdir/ngram.debug5.ranked > $outdir/ngram.debug5.rank.sorted
+LC_ALL=C sort $outdir/ngram.debug5.ranked > $outdir/ngram.debug5.rank.sorted
 diff $outdir/ngram.debug5.rank.sorted $refdir/ngram.debug5.rank.sorted > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
@@ -76,7 +76,7 @@ then
     exit
 fi
 
-sort $outdir/ngram.debug5.af.ranked > $outdir/ngram.debug5.af.rank.sorted
+LC_ALL=C sort $outdir/ngram.debug5.af.ranked > $outdir/ngram.debug5.af.rank.sorted
 diff $outdir/ngram.debug5.af.rank.sorted $refdir/ngram.debug5.af.rank.sorted > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
@@ -108,7 +108,7 @@ then
     exit
 fi
 
-sort $outdir/ngram.debug5.af1.ranked > $outdir/ngram.debug5.af1.rank.sorted
+LC_ALL=C sort $outdir/ngram.debug5.af1.ranked > $outdir/ngram.debug5.af1.rank.sorted
 diff $outdir/ngram.debug5.af1.rank.sorted $refdir/ngram.debug5.af1.rank.sorted > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
@@ -140,7 +140,7 @@ then
     exit
 fi
 
-sort $outdir/ngram.debug.ranked > $outdir/ngram.debug.ranked.sorted
+LC_ALL=C sort $outdir/ngram.debug.ranked > $outdir/ngram.debug.ranked.sorted
 diff $outdir/ngram.debug.ranked.sorted $refdir/ngram.debug.rank.sorted > /dev/null 2>&1
 if [ $? -ne 0 ]
 then

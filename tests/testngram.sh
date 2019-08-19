@@ -28,7 +28,7 @@ then
 fi
 echo "checking LDcalc results...."
 
-sort $outdir/ngram.ldcalc  > /tmp/ldcalc
+LC_ALL=C sort $outdir/ngram.ldcalc  > /tmp/ldcalc
 
 diff /tmp/ldcalc $refdir/ngram.ldcalc > /dev/null 2>&1
 
@@ -39,7 +39,7 @@ then
     exit
 fi
 
-sort $outdir/ngram.ldcalc.ambi  > /tmp/ldcalc.ambi
+LC_ALL=C sort $outdir/ngram.ldcalc.ambi  > /tmp/ldcalc.ambi
 diff /tmp/ldcalc.ambi $refdir/ngram.ldcalc.ambi > /dev/null 2>&1
 
 if [ $? -ne 0 ]
@@ -49,7 +49,7 @@ then
     exit
 fi
 
-sort $outdir/ngram.short.ldcalc  > /tmp/ldcalc.short
+LC_ALL=C sort $outdir/ngram.short.ldcalc  > /tmp/ldcalc.short
 diff /tmp/ldcalc.short $refdir/ngram.ldcalc.short > /dev/null 2>&1
 
 if [ $? -ne 0 ]

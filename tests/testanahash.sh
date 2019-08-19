@@ -56,7 +56,7 @@ then
 fi
 
 echo "checking ANAHASH results...."
-sort $testdir/clean.corpusfoci > /tmp/foci
+LC_ALL=C sort $testdir/clean.corpusfoci > /tmp/foci
 diff /tmp/foci $refdir/foci > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
