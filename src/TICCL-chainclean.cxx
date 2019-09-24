@@ -322,7 +322,6 @@ int main( int argc, char **argv ){
     }
     copy_records.push_back( &rec );
   }
-  bool show = false;
   bool do_low2 = true;
   set<record*> done_records;
   map<string,string> done;
@@ -334,7 +333,7 @@ int main( int argc, char **argv ){
     else {
       unk_part = part.second;
     }
-    show = (verbosity>0 )
+    bool show = (verbosity>0)
       || follow_words.find( unk_part ) != follow_words.end();
     if ( show ){
       cerr << "\n  Loop for part: " << part.second << "/" << unk_part << endl;
