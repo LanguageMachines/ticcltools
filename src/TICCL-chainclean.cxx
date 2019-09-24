@@ -49,7 +49,7 @@
 #include "ticcl/word2vec.h"
 
 using namespace std;
-typedef signed long int bitType;
+typedef uint64_t bitType;
 using TiCC::operator<<;
 
 set<string> follow_words;

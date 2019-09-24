@@ -39,7 +39,7 @@
 
 #include "config.h"
 
-typedef signed long int bitType;
+typedef uint64_t bitType;
 
 bool verbose = false;
 
@@ -209,9 +209,13 @@ void generate_confusion( const string& name,
     while ( it2 != hashes.end() ){
       if ( it2 != it1 ){
 	// 1-1 substitutions
-	bitType div = it2->second - it1->second;
-	if ( div < 0 )
-	  div = -div;
+	bitType div;
+	if ( it2->second > it1->second ){
+	  div = it2->second - it1->second;
+	}
+	else {
+	  div = it1->second - it2->second;
+	}
 	UnicodeString s2 = it1->first + "~" + it2->first;
 	conditionally_insert( confusions, div, s2, full );
       }
@@ -223,25 +227,35 @@ void generate_confusion( const string& name,
 	// 2-0 substitutions
 	UnicodeString s20 = it1->first + it2->first + "~";
 	bitType div = it2->second + it1->second;
-	if ( div < 0 )
-	  div = -div;
 	conditionally_insert( confusions, div, s20, full );
 	map<UnicodeString,bitType>::const_iterator it3 = hashes.begin();
 	while ( it3 != hashes.end() ){
 	  if ( it3 != it2 && it3 != it1 ){
 	    // 2-1 substitutions
 	    UnicodeString s = it1->first + it2->first + "~" + it3->first;
-	    bitType div =  it1->second + it2->second - it3->second;
-	    if ( div < 0 )
-	      div = -div;
+	    bitType div;
+	    bitType d1 = it1->second + it2->second;
+	    bitType d2 = it3->second;
+	    if ( d1 > d2 ){
+	      div = d1 - d2;
+	    }
+	    else {
+	      div = d2 - d1;
+	    }
 	    conditionally_insert( confusions, div, s, full );
 	  }
 	  if ( it2 != it1 && it3 != it1 ){
 	    // 1-2 substitutions
 	    UnicodeString s = it1->first + "~" + it2->first + it3->first;
-	    bitType div =  it1->second - it2->second - it3->second;
-	    if ( div < 0 )
-	      div = -div;
+	    bitType div;
+	    bitType d1 = it1->second;
+	    bitType d2 = it2->second + it3->second;
+	    if ( d1 > d2 ){
+	      div = d1 - d2;
+	    }
+	    else {
+	      div = d2 - d1;
+	    }
 	    conditionally_insert( confusions, div, s, full );
 	  }
 	  map<UnicodeString,bitType>::const_iterator it4 = hashes.begin();
@@ -250,36 +264,50 @@ void generate_confusion( const string& name,
 	      // 2-2 substitutions
 	      UnicodeString s = it1->first + it2->first + "~"
 		+ it3->first + it4->first;
-	      bitType div = it1->second + it2->second
-		- it3->second - it4->second;
-	      if ( div < 0 )
-		div = -div;
+	      bitType div;
+	      bitType d1 = it1->second + it2->second;
+	      bitType d2 = it3->second + it4->second;
+	      if ( d1 > d2 ){
+		div = d1 - d2;
+	      }
+	      else {
+		div = d2 - d1;
+	      }
 	      conditionally_insert( confusions, div, s, full );
 	    }
 	    if ( depth > 2 ){
 	      // 3-0 substitutions
 	      UnicodeString s30 = it1->first + it2->first + it3->first + "~";
 	      bitType div = it1->second + it2->second + it3->second;
-	      if ( div < 0 )
-		div = -div;
 	      conditionally_insert( confusions, div, s30, full );
 	      if ( it4 != it1 && it4 != it2 && it4 != it3 ){
 		// 3-1 substitutions
 		UnicodeString s = it1->first + it2->first + it3->first + "~"
 		  + it4->first;
-		bitType div = it4->second - it3->second
-		  - it2->second - it1->second;
-		if ( div < 0 )
-		  div = -div;
+		bitType div;
+		bitType d1 = it4->second;
+		bitType d2 = it3->second + it2->second + it1->second;
+		if ( d1 > d2 ){
+		  div = d1 - d2;
+		}
+		else {
+		  div = d2 - d1;
+		}
 		conditionally_insert( confusions, div, s, full );
 	      }
 	      if ( it2 != it1 && it3 != it1 && it4 != it1 ){
 		// 1-3 substitutions
 		UnicodeString s = it1->first + "~"
 		  + it2->first + it3->first + it4->first;
-		bitType div = it1->second - it2->second - it3->second - it4->second;
-		if ( div < 0 )
-		  div = -div;
+		bitType div;
+		bitType d1 = it1->second;
+		bitType d2 = it2->second + it3->second + it4->second;
+		if ( d1 > d2 ){
+		  div = d1 - d2;
+		}
+		else {
+		  div = d2 - d1;
+		}
 		conditionally_insert( confusions, div, s, full );
 	      }
 	      map<UnicodeString,bitType>::const_iterator it5 = hashes.begin();
@@ -289,10 +317,15 @@ void generate_confusion( const string& name,
 		  // 3-2 substitutions
 		  UnicodeString s = it1->first + it2->first + it3->first + "~"
 		    + it4->first + it5->first;
-		  bitType div = it5->second + it4->second - it3->second
-		    - it2->second - it1->second;
-		  if ( div < 0 )
-		    div = -div;
+		  bitType div;
+		  bitType d1 = it5->second + it4->second;
+		  bitType d2 = it3->second + it2->second + it1->second;
+		  if ( d1 > d2 ){
+		    div = d1 - d2;
+		  }
+		  else {
+		    div = d2 - d1;
+		  }
 		  conditionally_insert( confusions, div, s, full );
 		}
 		if ( it3 != it1 && it3 != it2 &&
@@ -301,10 +334,15 @@ void generate_confusion( const string& name,
 		  // 2-3 substitutions
 		  UnicodeString s = it1->first + it2->first + "~" + it3->first
 		    +it4->first + it5->first;
-		  bitType div = it5->second + it4->second + it3->second
-		    - it2->second - it1->second;
-		  if ( div < 0 )
-		    div = -div;
+		  bitType div;
+		  bitType d1 = it5->second + it4->second + it3->second;
+		  bitType d2 = it2->second + it1->second;
+		  if ( d1 > d2 ){
+		    div = d1 - d2;
+		  }
+		  else {
+		    div = d2 - d1;
+		  }
 		  conditionally_insert( confusions, div, s, full );
 		}
 		map<UnicodeString,bitType>::const_iterator it6 = hashes.begin();
@@ -315,10 +353,15 @@ void generate_confusion( const string& name,
 		    // 3-3 substitutions
 		    UnicodeString s = it1->first + it2->first + it3->first + "~"
 		      +it4->first + it5->first + it6->first;
-		    bitType div = it6->second + it5->second + it4->second
-		      - it3->second - it2->second - it1->second;
-		    if ( div < 0 )
-		      div = -div;
+		    bitType d1 = it6->second + it5->second + it4->second;
+		    bitType d2 = it3->second + it2->second + it1->second;
+		    bitType div;
+		    if ( d1 > d2 ){
+		      div = d1 - d2;
+		    }
+		    else {
+		      div = d2 - d1;
+		    }
 		    conditionally_insert( confusions, div, s, full );
 		  }
 		  ++it6;

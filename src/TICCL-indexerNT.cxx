@@ -50,7 +50,7 @@
 using namespace std;
 using namespace icu;
 
-typedef signed long int bitType;
+typedef uint64_t bitType;
 
 //#define TRANSPOSE_TEST 1
 
@@ -213,17 +213,17 @@ int main( int argc, char **argv ){
     exit( EXIT_FAILURE );
   }
   opts.extract( 'o', outFile );
-  int numThreads=1;
+  int num_threads = 1;
   string value = "1";
   if ( !opts.extract( 't', value ) ){
     opts.extract( "threads", value );
   }
 #ifdef HAVE_OPENMP
   if ( TiCC::lowercase(value) == "max" ){
-    numThreads = omp_get_max_threads() - 2;
+    num_threads = omp_get_max_threads() - 2;
   }
   else {
-    if ( !TiCC::stringTo(value,numThreads) ) {
+    if ( !TiCC::stringTo(value,num_threads) ) {
       cerr << "illegal value for -t (" << value << ")" << endl;
       exit( EXIT_FAILURE );
     }
@@ -346,7 +346,7 @@ int main( int argc, char **argv ){
        << " character confusion anagram values" << endl;
 
   vector<experiment> experiments;
-  size_t expsize = init( experiments, focSet, numThreads );
+  size_t expsize = init( experiments, focSet, num_threads );
 
   cout << "created " << expsize << " separate experiments" << endl;
 

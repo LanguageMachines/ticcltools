@@ -50,7 +50,7 @@
 using namespace std;
 using namespace icu;
 
-typedef signed long int bitType;
+typedef uint64_t bitType;
 
 string progname;
 int verbose = 0;

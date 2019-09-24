@@ -49,7 +49,7 @@
 using namespace std;
 using namespace icu;
 
-typedef signed long int bitType;
+typedef uint64_t bitType;
 
 void usage( const string& name ){
   cerr << name << endl;

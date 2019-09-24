@@ -45,7 +45,7 @@ using namespace icu;
 
 const UnicodeString SEPARATOR = "_";
 
-typedef unsigned long int bitType;
+typedef uint64_t bitType;
 
 bitType high_five( int val ){
   bitType result = val;

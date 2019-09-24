@@ -36,7 +36,6 @@
 #include <fstream>
 #include <cassert>
 #include <cstring>
-#include <cmath>
 #include "config.h"
 #ifdef HAVE_OPENMP
 #include "omp.h"
@@ -51,7 +50,7 @@
 using namespace std;
 using namespace icu;
 
-typedef signed long int bitType;
+typedef uint64_t bitType;
 using TiCC::operator<<;
 
 unsigned int ldCompare( const UnicodeString& s1, const UnicodeString& s2 ){
@@ -298,8 +297,15 @@ void chain_class::output( const string& out_file ){
 	string val = w_cc_conf[s+t_it.first];
 	if ( val.empty() ){
 	  //	  cerr << "GEEN waarde voor " << s+t_it.first << endl;
-	  bitType h_val = abs( ::hash(TiCC::UnicodeFromUTF8(s), alphabet )
-			       - ::hash(TiCC::UnicodeFromUTF8(t_it.first), alphabet) );
+	  bitType h1 = ::hash(TiCC::UnicodeFromUTF8(s), alphabet );
+	  bitType h2 = ::hash(TiCC::UnicodeFromUTF8(t_it.first), alphabet );
+	  bitType h_val;
+	  if ( h1 > h2 ){
+	    h_val = h1 - h2;
+	  }
+	  else {
+	    h_val = h2 - h1;
+	  }
 	  //	  cerr << "h_val=" << h_val << endl;
 	  w_cc_conf[s+t_it.first] = TiCC::toString(h_val);
 	  //	  cerr << "nieuwe waarde voor " << s+t_it.first << "=" << w_cc_conf[s+t_it.first] << endl;

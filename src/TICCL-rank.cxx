@@ -37,7 +37,6 @@
 #include <fstream>
 #include <cassert>
 #include <cstring>
-#include <cmath>
 #include "config.h"
 #ifdef HAVE_OPENMP
 #include "omp.h"
@@ -53,7 +52,7 @@ using namespace std;
 using namespace icu;
 using TiCC::operator<<;
 
-typedef signed long int bitType;
+typedef uint64_t bitType;
 
 const int RANK_COUNT=14;
 const string SEPARATOR = "_";
@@ -1148,13 +1147,34 @@ int main( int argc, char **argv ){
 	bitType b4 = alfabet[value[4]];
 	if ( b1 != 0 && b2 != 0 && b3 != 0 && b4 != 0 ){
 	  vector<size_t> counts(4);
-	  bitType diff = abs(b1 - b3);
+	  bitType diff;
+	  if ( b1 > b3 ){
+	    diff = b1 - b3;
+	  }
+	  else {
+	    diff = b3 - b1;
+	  }
 	  counts[0] = char_conf_val_counts[diff]; // may be 0!
-	  diff = abs(b1 - b4);
+	  if ( b1 > b4 ){
+	    diff = b1 - b4;
+	  }
+	  else {
+	    diff = b4 - b1;
+	  }
 	  counts[1] = char_conf_val_counts[diff];
-	  diff = abs(b2 - b3);
+	  if ( b2 > b3 ){
+	    diff = b2 - b3;
+	  }
+	  else {
+	    diff = b3 - b2;
+	  }
 	  counts[2] = char_conf_val_counts[diff];
-	  diff = abs(b2 - b4);
+	  if ( b2 > b4 ){
+	    diff = b2 - b4;
+	  }
+	  else {
+	    diff = b4 - b2;
+	  }
 	  counts[3] = char_conf_val_counts[diff];
 	  size_t max = 0;
 	  size_t maxPos = 0;
