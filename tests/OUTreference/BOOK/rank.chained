@@ -241,6 +241,7 @@ Deene-#1#Deenen#100000008#23556522625#1#C
 Kanaa#1#Kanaan#100000008#12166529024#1#C
 Octaviaaus#1#Octavianus#100000008#1858988283#1#C
 ftammen#2#Stammen#100000008#12766817294#1#C
+berocmdften#1#beroemden#100000008#54825771876#3#C
 beroemdften#2#beroemden#100000008#41535312619#2#C
 dapperfle#1#dappere#100000008#45003638394#2#C
 Konsf#1#konst#100000008#14770801067#2#C
@@ -628,6 +629,7 @@ Laukens#1#Laurens#100000001#6491330199#1#C
 Lkonardo#1#Leonardo#100000001#7661405081#1#C
 Longikus#1#Longinus#100000001#7087616800#1#C
 MARTIHBT#1#MARTINET#100000001#22981844400#2#C
+Fmnfchen#1#MENSCHEN#100000001#29327133394#8#C
 Menfchen#33#MENSCHEN#100000001#12766817294#7#C
 menfchen#1#MENSCHEN#100000001#12766817294#8#C
 magsllah#1#Magellan#100000001#14504547350#3#C
@@ -656,6 +658,7 @@ Paleftina#1#Palestina#100000001#12766817294#1#C
 ProteEtor#1#Protector#100000001#13290459257#1#C
 Remonfiranten#1#REMONSTRANTEN#100000001#14077842286#12#C
 Remonftranten#1#REMONSTRANTEN#100000001#12766817294#12#C
+Nemeifche#1#ROMEINSCHE#100000001#4508357588#10#C
 Remeinfche#1#ROMEINSCHE#100000001#8254458037#9#C
 Romeinfche#8#ROMEINSCHE#100000001#12766817294#9#C
 Romeinjche#1#ROMEINSCHE#100000001#11640842083#9#C
@@ -683,6 +686,7 @@ fnood#2#Snood#100000001#12766817294#1#C
 socinüs#1#Socinus#100000001#27258307881#2#C
 ofSoLON#1#Solon#100000001#44258156843#5#C
 fpelen#1#Spelen#100000001#12766817294#1#C
+Ihatkundig#1#Staatkundig#100000001#5223154296#3#C
 fiaatkundig#1#Staatkundig#100000001#14077842286#2#C
 ftaatkundig#1#Staatkundig#100000001#12766817294#1#C
 ftaatkundige#1#Staatkundige#100000001#12766817294#1#C
@@ -900,9 +904,12 @@ Chattain#1#Chattlain#100000000#16850581551#1#C
 ciian#1#Cilia#100000000#4684052527#3#C
 Joniers#1#Conijers#100000000#24883200000#2#C
 ConJiantinopole#1#Constantinopole#100000000#12951867075#2#C
+Conflantinopele#1#Constantinopole#100000000#11722783812#3#C
 Conflantinopole#2#Constantinopole#100000000#16235143069#2#C
 Conflan■tinopole#1#Constantinopole#100000000#26745243570#3#C
 Conftantinopole#5#Constantinopole#100000000#12766817294#1#C
+Conjlantinofole#1#Constantinopole#100000000#23148652826#3#C
+Conjlantinopele#1#Constantinopole#100000000#10596808601#3#C
 Conjlantinopole#2#Constantinopole#100000000#15109167858#2#C
 Conjlitutie#1#Constitutie#100000000#15109167858#2#C
 CROOTE#1#Coote#100000000#12762815625#5#C
@@ -1023,6 +1030,8 @@ Genueezen#2#Genuezen#100000000#11592740743#1#C
 Genueezev#1#Genuezen#100000000#25363636320#2#C
 gefchenkt#1#Geschenk#100000000#26149073070#3#C
 Gefcbiedenis#1#Geschiedenis#100000000#13752776325#2#C
+Gefchiedciiis#1#Geschiedenis#100000000#43277309063#4#C
+Gefchiedefiis#1#Geschiedenis#100000000#43446625881#3#C
 Gefchiedenis#12#Geschiedenis#100000000#12766817294#1#C
 gefchiedenis#1#Geschiedenis#100000000#12766817294#2#C
 gal'in#1#Glain#100000000#40074642432#3#C
@@ -1126,6 +1135,7 @@ Kamfchatka#1#Kamschatka#100000000#12766817294#1#C
 Kapitein-#1#Kapitein#100000000#35723051649#1#C
 Karthagers#4#Karthagena#100000000#1957008843#2#C
 karthagers#1#Karthagena#100000000#1957008843#3#C
+Karihageren#1#Katharen#100000000#44090933153#4#C
 Kathageren#2#Katharen#100000000#30017092536#2#C
 kules#1#Keuls#100000000#0#3#C
 KeurP#1#Keupe#100000000#1170074882#2#C
@@ -1391,6 +1401,7 @@ fchoonfien#1#Schoonen#100000000#55613154905#3#C
 fchoonheid#1#Schoonheid#100000000#12766817294#1#C
 fchoot#3#Schoot#100000000#12766817294#1#C
 fchouw#1#Schouw#100000000#12766817294#1#C
+fcforander#1#Schrander#100000000#34147396569#3#C
 fchrander#3#Schrander#100000000#12766817294#1#C
 Schryverd#1#Schryver#100000000#17623416832#1#C
 fchuld#6#Schuld#100000000#12766817294#1#C
@@ -1502,6 +1513,7 @@ Vlaamfche#1#Vlaamsche#100000000#12766817294#1#C
 Voctiaanln#1#Voetiaanen#100000000#18548300065#2#C
 Voetiacmen#1#Voetiaanen#100000000#20615634026#2#C
 Vorlten#1#Volten#100000000#12762815625#1#C
+voomaamfte#1#Voornaamste#100000000#9761953002#4#C
 voornaamfie#1#Voornaamste#100000000#14077842286#3#C
 voornaamfle#2#Voornaamste#100000000#16235143069#3#C
 voornaamftc#1#Voornaamste#100000000#26057276551#3#C
@@ -1683,6 +1695,7 @@ befchouwt#3#beschouwt#100000000#12766817294#1#C
 befchreeven#2#beschreeven#100000000#12766817294#1#C
 befchryft#2#beschryft#100000000#12766817294#1#C
 befchtyving#1#beschryving#100000000#13386257445#2#C
+befcbuldied#1#beschuldigd#100000000#6921165275#3#C
 befchuldigd#1#beschuldigd#100000000#12766817294#1#C
 bofchuldigingen#1#beschuldigingen#100000000#17279176551#2#C
 beflaagen#2#beslaagen#100000000#12766817294#1#C
@@ -1769,6 +1782,7 @@ Denkelyk#1#denklyk#100000000#11592740743#2#C
 denkelyk#3#denklyk#100000000#11592740743#1#C
 dergelyken#1#dergelyke#100000000#12166529024#1#C
 Derzelver#1#derselver#100000000#15131338576#2#C
+derzefv'er#1#derselver#100000000#66508456300#3#C
 derzelver#25#derselver#100000000#15131338576#1#C
 dewylze#1#derwyze#100000000#4087765926#2#C
 deugdryke#1#deugdlyker#100000000#16850581551#2#C
@@ -1899,6 +1913,7 @@ Gefchiedenisfen#3#geschiedenissen#100000000#25533634588#3#C
 gefchiedkundige#1#geschiedkundige#100000000#12766817294#1#C
 gefchiedt#1#geschiedt#100000000#12766817294#1#C
 gefchikfte#1#geschifte#100000000#32020963118#2#C
+gefch.'kt#1#geschikt#100000000#48148178958#3#C
 gefchikt#2#geschikt#100000000#12766817294#1#C
 gefchikt-#1#geschikt#100000000#48489868943#2#C
 gefcbil#1#geschil#100000000#13752776325#2#C
@@ -1999,6 +2014,7 @@ heerfcbappy#2#heerschappy#100000000#13752776325#2#C
 heerfchappy#5#heerschappy#100000000#12766817294#1#C
 heerfchende#8#heerschende#100000000#12766817294#1#C
 heerfchenden#1#heerschende#100000000#24933346318#2#C
+beerschzugt#1#heerschzucht#100000000#28350466744#3#C
 heerschzugt#4#heerschzucht#100000000#29336425775#2#C
 heerschzugtig#2#heerschzuchtig#100000000#29336425775#2#C
 heerschzugtige#3#heerschzuchtige#100000000#29336425775#2#C
@@ -2274,6 +2290,7 @@ opgeftookt#1#opgestookt#100000000#12766817294#1#C
 ophelfing#1#opheffing#100000000#11302475292#1#C
 opklaarr#1#opklaar#100000000#12762815625#1#C
 oprigtte#1#opligtte#100000000#4087765926#1#C
+opmerkdyk#1#opmerkelijk#100000000#20782298486#4#C
 opmerkelyk#2#opmerkelijk#100000000#9962393024#2#C
 opmerke'yk#1#opmerkelik#100000000#40288749489#2#C
 opperheerfcbappy#1#opperheerschappy#100000000#13752776325#2#C
@@ -2406,6 +2423,7 @@ Schytisch#1#schitsch#100000000#31757969376#3#C
 fchonk#4#schonk#100000000#12766817294#1#C
 fchoonblinkend#1#schoonklinkend#100000000#17376208069#2#C
 fchoons#1#schoons#100000000#12766817294#1#C
+fchoonfle#1#schoonte#100000000#44388199912#3#C
 fchoonfte#2#schoonte#100000000#40919874137#2#C
 Schotjehen#1#schotelen#100000000#33054077649#3#C
 Schouwfpel#1#schouwspel#100000000#12766817294#2#C
@@ -2804,35 +2822,17 @@ zwaarfte#2#zwaarste#100000000#12766817294#1#C
 zwaarften#1#zwaarsten#100000000#12766817294#1#C
 zweeken#1#zweken#100000000#11592740743#1#C
 zwigt'ten#1#zwighten#100000000#30579320640#2#C
-Fmnfchen#1#Menfchen#33#16560316100#2#C
-derzefv'er#1#derzelver#25#51377117724#2#C
-voomaamfte#1#voornaamfte#13#3004864292#2#C
-Gefchiedefiis#1#Gefchiedenis#12#30679808587#2#C
 Pluniciers#1#Pheniciers#5#3383679816#2#C
-beerschzugt#1#heerschzugt#4#985959031#1#C
-fcforander#1#fchrander#3#21380579275#2#C
-Conflantinopele#1#Conflantinopole#2#4512359257#1#C
-Conjlantinofole#1#Conjlantinopole#2#8039484968#1#C
-Conjlantinopele#1#Conjlantinopole#2#4512359257#1#C
 Historiefcbryver#1#Historiefchryver#2#985959031#1#C
 Historiefchryvers#1#Historiefchryver#2#15386239549#1#C
-Karihageren#1#Kathageren#2#14073840617#2#C
 PHILISTHYNEN#1#PMlisthynen#2#15646377979#11#C
-berocmdften#1#beroemdften#2#13290459257#1#C
-fchoonfle#1#fchoonfte#2#3468325775#1#C
-gefch.'kt#1#gefchikt#2#35381361664#2#C
-opmerkdyk#1#opmerkelyk#2#10819905462#2#C
 arthasas-#1#ARTJiASAS-#1#18842784832#9#C
 AMALEKITEIf#1#Amalekiten#1#30679808587#10#C
 CHRISTEN.KEIZERS#1#Christen-Keizers#1#25723051649#14#C
 Christen-Keizer#1#Christen-Keizers#1#15386239549#1#C
-Gefchiedciiis#1#Gefchiedefiis#1#169316818#2#C
 Hebreemvfche#1#Hebreeutvfche#1#12461191995#2#C
 INDOSTANERS#1#Indojtaners#1#11640842083#10#C
 Abysfyniers#1#Jbysfyniers#1#13001564325#1#C
-1MIDIANITEN#1#Midianieten#1#1082640242#11#C
+1MIDIANITEN#1#Midianitcn#1#2780358756#10#C
 Midianieten#1#Midianitcn#1#1697718514#2#C
-Nemeifche#1#Remeinfche#1#12762815625#2#C
 Utrecht/eken#1#Utrecht/dien#1#1469811033#2#C
-befcbuldied#1#befchuldigd#1#5845652019#2#C
-Ihatkundig#1#fiaatkundig#1#19300996582#3#C

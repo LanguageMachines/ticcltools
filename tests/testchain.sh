@@ -19,7 +19,7 @@ datadir=DATA
 
 echo "start TICLL-chain"
 
-$bindir/TICCL-chain -v $refdir/book.ranked --alph $datadir/nld.aspell.dict.clip20.lc.chars -o $outdir/book.chained
+$bindir/TICCL-chain -v $refdir/book.1.ranked --alph $datadir/nld.aspell.dict.clip20.lc.chars -o $outdir/book.chained
 
 if [ $? -ne 0 ]
 then
@@ -32,7 +32,7 @@ echo "checking chain results...."
 diff $outdir/book.chained.debug $refdir/rank.chained.debug >& /dev/null
 if [ $? -ne 0 ]
 then
-    echo "differences in TICLL-rank results"
+    echo "differences in TICLL-chain results"
     echo "using diff $outdir/book.chained.debug $refdir/rank.chained.debug"
     exit
 fi
@@ -40,7 +40,7 @@ fi
 diff $outdir/book.chained $refdir/rank.chained >& /dev/null
 if [ $? -ne 0 ]
 then
-    echo "differences in TICLL-rank results"
+    echo "differences in TICLL-chain results"
     echo "using diff $outdir/book.chained $refdir/rank.chained"
     exit
 fi
@@ -60,7 +60,7 @@ echo "checking caseless chain results...."
 diff $outdir/caseless.ranked.chained $refdir/caseless.rank.chained >& /dev/null
 if [ $? -ne 0 ]
 then
-    echo "differences in TICLL-rank results"
+    echo "differences in TICLL-chain results"
     echo "using diff $outdir/caseless.ranked.chained $refdir/caseless.rank.chained"
     exit
 else
