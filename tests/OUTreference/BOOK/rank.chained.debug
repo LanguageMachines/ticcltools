@@ -5342,8 +5342,10 @@ head[■vervolgens]=vervolgens
 100000002 Christiaan {Christiaam}
 100000000 Cilia {ciian}
 100000007 Clemens {Clemehs}
+2 Conflantinopole {}
 100000002 Confucius {CONFÜCIUS,Confuciüs}
 100000000 Conijers {Joniers}
+2 Conjlantinopole {}
 100000000 Constantinopole {ConJiantinopole,Conflantinopele,Conflantinopole,Conflan■tinopole,Conftantinopole,Conjlantinofole,Conjlantinopele,Conjlantinopole}
 100000005 Constantinus {ConstantikUs}
 100000000 Constitutie {Conjlitutie}
@@ -5471,6 +5473,8 @@ head[■vervolgens]=vervolgens
 100000000 Geertruidenberg {Gcertruidenberg}
 100000003 Geestelyke {Geestelyki}
 100000000 Geevel {Genevel}
+1 Gefchiedefiis {}
+12 Gefchiedenis {}
 100000020 Geleerden {CELEERDEN}
 100000026 Geleerdheid {Geleerdheid-}
 100000003 Gemeenebest {Gemeenebcst,Gemeenebe.'t}
@@ -5616,6 +5620,7 @@ head[■vervolgens]=vervolgens
 100000000 Kapitein {Kapitein-}
 100000000 Karthagena {Karthagers,karthagers}
 100000001 Kasteel {Kafteel}
+2 Kathageren {}
 100000000 Katharen {Karihageren,Kathageren}
 100000001 Keizerlyke {Keizerfyke}
 100000021 Keizers {Ke'zers,KeTzers}
@@ -5718,6 +5723,7 @@ head[■vervolgens]=vervolgens
 100000002 Mauro {Maauro}
 100000000 Meenders {Meders}
 100000000 Meiden {mdien}
+33 Menfchen {}
 100000000 Mengel {mengfel}
 100000004 Menschdom {Menscbdom,Mensthdoms}
 100000001 Menschlyk {menschlyke}
@@ -5727,6 +5733,7 @@ head[■vervolgens]=vervolgens
 100000000 Messias {Mcsfias}
 100000000 Mexicaansen {Mcxicaanen}
 100000000 Middelandsche {Middelandfche}
+1 Midianieten {}
 1 Midianitcn {1MIDIANITEN,Midianieten}
 100000000 Miete {miïte}
 100000000 Milanezen {Milaaneezen}
@@ -5864,6 +5871,7 @@ head[■vervolgens]=vervolgens
 100000002 Rehabeam {Reuabeam}
 100000000 Reizigers {R-eizigers}
 100000000 Reken {Reken-}
+1 Remeinfche {}
 100000001 Requesens {Sequesens}
 100000000 Rhynsburg {Rhynsbwg,Rhynsiurg}
 100000000 Rieker {fierker}
@@ -6231,6 +6239,7 @@ head[■vervolgens]=vervolgens
 100000000 beeldt {behïeldt}
 100000000 beeldtenis {beeldtenfs}
 100000000 beeldtenissen {Beeldtenisfen}
+1 befchuldigd {}
 100000007 beflooten {Befloot,befiooten,befloot,bellooten}
 100000000 beginselen {beginfelen}
 100000000 begraafplaatsen {Begraafplaatzen}
@@ -6265,6 +6274,7 @@ head[■vervolgens]=vervolgens
 100000052 beroemd {befoemd}
 100000016 beroemde {beroemdlle}
 100000008 beroemden {berocmdften,beroemdften}
+2 beroemdften {}
 100000000 beroemdste {beroemdfte}
 100000000 berooving {bêrooving}
 100000005 berugt {berugte}
@@ -6396,6 +6406,7 @@ head[■vervolgens]=vervolgens
 100000002 dermaate {dermaace}
 100000000 derselver {Derzelver,derzefv'er,derzelver}
 100000000 derwyze {dewylze}
+25 derzelver {}
 100000019 deszelfs {deszelfi}
 100000000 deugdlyker {deugdryke}
 100000001 deugdzaam {deugdzaame,deugdzaamen}
@@ -6465,9 +6476,12 @@ head[■vervolgens]=vervolgens
 100000001 evenwigt {evenwigts}
 100000000 faitte {faatfte}
 100000000 fatael {Fat.el}
+2 fchoonfte {}
+3 fchrander {}
 100000000 felheid {fnelheid}
 100000000 ferien {eerfien}
 100000000 fermte {fmertte}
+1 fiaatkundig {}
 100000000 fiegen {fieegen}
 100000000 fineren {finerten}
 100000000 flecht {flecbt}
@@ -6495,6 +6509,7 @@ head[■vervolgens]=vervolgens
 100000000 geduld {gedulddl}
 100000006 geest {geesc}
 100000014 geeven {Ieevsn,gc^eeven}
+2 gefchikt {}
 100000000 gehak {gehak-}
 100000009 geheeten {geheeter}
 100000000 geheuvelde {lheuvelde}
@@ -6641,6 +6656,7 @@ head[■vervolgens]=vervolgens
 100000000 heerschzucht {beerschzugt,heerschzugt}
 100000000 heerschzuchtig {heerschzugtig}
 100000000 heerschzuchtige {heerschzugtige}
+4 heerschzugt {}
 100000000 hefwerktuigen {Hey-Werktuigen}
 100000000 heilzamer {heilzaamer}
 100000000 herbaerde {herbenrde}
@@ -6960,6 +6976,7 @@ head[■vervolgens]=vervolgens
 100000000 opligtte {oprigtte}
 100000000 opmerkelijk {opmerkdyk,opmerkelyk}
 100000000 opmerkelik {opmerke'yk}
+2 opmerkelyk {}
 100000000 opperheerschappy {opperheerfcbappy,opperheerfchappy}
 100000000 opperhout {OpperhoutT}
 100000000 opregter {oprigter}
@@ -7418,6 +7435,7 @@ head[■vervolgens]=vervolgens
 100000022 voorheen {voor□een,vootheen}
 100000007 voornaame {voomaame,voornaamde}
 100000002 voornaamen {voornaamflen}
+13 voornaamfte {}
 100000001 voornaamlyk {Voornaamelyk,voornaamclyk,voornaamelyk}
 100000000 voornaamsten {voornaamften,voornaamlten}
 100000000 voorns {voons}

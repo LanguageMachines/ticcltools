@@ -149,75 +149,83 @@ bool chain_class::fill( const string& line ){
       exit(EXIT_FAILURE);
     }
     string a_word = parts[0]; // a possibly correctable word
-    size_t freq1 = TiCC::stringTo<size_t>(parts[1]);
-    var_freq[a_word] = freq1;
-    string candidate = parts[2]; // a Correction Candidate
-    size_t freq2 = TiCC::stringTo<size_t>(parts[3]);
-    string cc_val;
-    if ( cc_vals_present ){
-      cc_val = parts[4];
-      string key = a_word+candidate;
-      w_cc_conf[key] = cc_val;
-    }
-    var_freq[candidate] = freq2;
-    if ( verbosity > 3 ){
-      cerr << endl << "word=" << a_word << " CC=" << candidate << endl;
-    }
-    string head = heads[a_word];
-    if ( head.empty() ){
-      // this word does not have a 'head' yet
-      if ( verbosity > 3 ){
-	cerr << "word: " << a_word << " NOT in heads " << endl;
-      }
-      string head2 = heads[candidate];
-      if ( head2.empty() ){
-	// the correction candidate also has no head
-	// we add it as a new head for a_word, with a table
-	heads[a_word] = candidate;
-	table[candidate].insert( a_word );
-	if ( verbosity > 3 ){
-	  cerr << "candidate : " << candidate << " not in heads too." << endl;
-	  cerr << "add " << candidate << " to heads[" << a_word << "]" << endl;
-	  cerr << "add " << a_word << " to table of " << candidate
-	       << " ==> " << table[candidate] << endl;
-	}
-      }
-      else {
-	// the candidate knows its head already
-	// add the word to the table of that head, and also register
-	// the head as an (intermediate) head of a_word
-	heads[a_word] = head2;
-	table[head2].insert( a_word );
-	if ( verbosity > 3 ){
-	  cerr << "BUT: Candidate " << candidate << " has head: "
-	       << head2 << endl;
-	  cerr << "add " << a_word << " to table[" << head2 << "]"
-	       << " ==> " << table[head2] << endl;
-	  cerr << "AND add " << head2 << " as a head of " << a_word << endl;
-	}
-      }
+    if ( processed.find(a_word) != processed.end() ){
+      // we have already seen this word. probably ranked with a clip >1
+      // just ignore!
+      return true;
     }
     else {
-      // the word has a head
-      if ( verbosity > 3 ){
-	cerr << "word: " << a_word << " IN heads " << head << endl;
+      // so a new word with Correction Candidate
+      size_t freq1 = TiCC::stringTo<size_t>(parts[1]);
+      var_freq[a_word] = freq1;
+      string candidate = parts[2]; // a Correction Candidate
+      size_t freq2 = TiCC::stringTo<size_t>(parts[3]);
+      string cc_val;
+      if ( cc_vals_present ){
+	cc_val = parts[4];
+	string key = a_word+candidate;
+	w_cc_conf[key] = cc_val;
       }
-      auto const tit = table.find( head );
-      if ( tit != table.end() ){
-	// there MUST be some candidates registered for the head
+      var_freq[candidate] = freq2;
+      if ( verbosity > 3 ){
+	cerr << endl << "word=" << a_word << " CC=" << candidate << endl;
+      }
+      string head = heads[a_word];
+      if ( head.empty() ){
+	// this word does not have a 'head' yet
 	if ( verbosity > 3 ){
-	  cerr << "lookup " << a_word << " in " << tit->second << endl;
+	  cerr << "word: " << a_word << " NOT in heads " << endl;
 	}
-	if ( tit->second.find( a_word ) == tit->second.end() ){
-	  string msg = "Error: " + a_word
-	    + " has a heads entry, but no table entry!";
-	  throw logic_error( msg );
+	string head2 = heads[candidate];
+	if ( head2.empty() ){
+	  // the correction candidate also has no head
+	  // we add it as a new head for a_word, with a table
+	  heads[a_word] = candidate;
+	  table[candidate].insert( a_word );
+	  if ( verbosity > 3 ){
+	    cerr << "candidate : " << candidate << " not in heads too." << endl;
+	    cerr << "add " << candidate << " to heads[" << a_word << "]" << endl;
+	    cerr << "add " << a_word << " to table of " << candidate
+		 << " ==> " << table[candidate] << endl;
+	  }
+	}
+	else {
+	  // the candidate knows its head already
+	  // add the word to the table of that head, and also register
+	  // the head as an (intermediate) head of a_word
+	  heads[a_word] = head2;
+	  table[head2].insert( a_word );
+	  if ( verbosity > 3 ){
+	    cerr << "BUT: Candidate " << candidate << " has head: "
+		 << head2 << endl;
+	    cerr << "add " << a_word << " to table[" << head2 << "]"
+		 << " ==> " << table[head2] << endl;
+	    cerr << "AND add " << head2 << " as a head of " << a_word << endl;
+	  }
 	}
       }
       else {
-	string msg = "Error: " + a_word
-	  + " has no head entry!";
-	throw logic_error( msg );
+	// the word has a head
+	if ( verbosity > 3 ){
+	  cerr << "word: " << a_word << " IN heads " << head << endl;
+	}
+	auto const tit = table.find( head );
+	if ( tit != table.end() ){
+	  // there MUST be some candidates registered for the head
+	  if ( verbosity > 3 ){
+	    cerr << "lookup " << a_word << " in " << tit->second << endl;
+	  }
+	  if ( tit->second.find( a_word ) == tit->second.end() ){
+	    string msg = "Error: " + a_word
+	      + " has a heads entry, but no table entry!";
+	    throw logic_error( msg );
+	  }
+	}
+	else {
+	  string msg = "Error: " + a_word
+	    + " has no head entry!";
+	  throw logic_error( msg );
+	}
       }
     }
     if ( verbosity > 4 ){

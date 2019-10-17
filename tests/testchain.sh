@@ -19,7 +19,7 @@ datadir=DATA
 
 echo "start TICLL-chain"
 
-$bindir/TICCL-chain -v $refdir/book.1.ranked --alph $datadir/nld.aspell.dict.clip20.lc.chars -o $outdir/book.chained
+$bindir/TICCL-chain -v $refdir/book.ranked --alph $datadir/nld.aspell.dict.clip20.lc.chars -o $outdir/book.chained
 
 if [ $? -ne 0 ]
 then
