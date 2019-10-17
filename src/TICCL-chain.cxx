@@ -152,9 +152,11 @@ bool chain_class::fill( const string& line ){
     if ( processed.find(a_word) != processed.end() ){
       // we have already seen this word. probably ranked with a clip >1
       // just ignore!
+      //      cerr << "ignore extra entry for: " << a_word << endl;
       return true;
     }
     else {
+      processed.insert(a_word);
       // so a new word with Correction Candidate
       size_t freq1 = TiCC::stringTo<size_t>(parts[1]);
       var_freq[a_word] = freq1;
