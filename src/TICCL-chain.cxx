@@ -85,17 +85,53 @@ public:
   chain_class(): chain_class( 0,false ){};
   chain_class( int v, bool c ): verbosity(v), caseless(c), cc_vals_present(true){};
   bool fill( const string& );
-  void debug_info( const string& );
+  void debug_info( ostream& );
   void output( const string& );
-private:
+  string top_head( const string& );
+  void final_merge();
+ private:
   map<string,string> heads;
   map<string, set<string>> table;
   map< string, size_t > var_freq;
   map<string,string> w_cc_conf;
+  set<string> processed;
   int verbosity;
   bool caseless;
   bool cc_vals_present;
 };
+
+string chain_class::top_head( const string& candidate ){
+  string result = heads[candidate];
+  if ( !result.empty() ){
+    string next = top_head( result );
+    if ( !next.empty() ){
+      result = next;
+    }
+  }
+  return result;
+}
+
+void chain_class::final_merge(){
+  for ( auto& it : table ){
+    if ( !it.second.empty() ){
+      // for all entries that seem to be a 'head'
+      string head = top_head( it.first );
+      assert( head != it.first );
+      if ( !head.empty() ){
+	// so it has a higher head
+	if ( verbosity > 3 ){
+	  cerr << "merge: " << it.first << it.second << " into "
+	       << head << table[head] << endl;
+	}
+	for ( const auto& s : it.second ){
+	  table[head].insert( s );
+	  heads[s] = head;
+	}
+	it.second.clear();
+      }
+    }
+  }
+}
 
 bool chain_class::fill( const string& line ){
   vector<string> parts;
@@ -125,7 +161,7 @@ bool chain_class::fill( const string& line ){
     }
     var_freq[candidate] = freq2;
     if ( verbosity > 3 ){
-      cerr << "word=" << a_word << " CC=" << candidate << endl;
+      cerr << endl << "word=" << a_word << " CC=" << candidate << endl;
     }
     string head = heads[a_word];
     if ( head.empty() ){
@@ -141,7 +177,7 @@ bool chain_class::fill( const string& line ){
 	table[candidate].insert( a_word );
 	if ( verbosity > 3 ){
 	  cerr << "candidate : " << candidate << " not in heads too." << endl;
-	  cerr << "add (" << a_word << "," << candidate << ") to heads " << endl;
+	  cerr << "add " << candidate << " to heads[" << a_word << "]" << endl;
 	  cerr << "add " << a_word << " to table of " << candidate
 	       << " ==> " << table[candidate] << endl;
 	}
@@ -150,14 +186,15 @@ bool chain_class::fill( const string& line ){
 	// the candidate knows its head already
 	// add the word to the table of that head, and also register
 	// the head as an (intermediate) head of a_word
+	heads[a_word] = head2;
+	table[head2].insert( a_word );
 	if ( verbosity > 3 ){
 	  cerr << "BUT: Candidate " << candidate << " has head: "
 	       << head2 << endl;
-	  cerr << "add " << a_word << " to table[" << head2 << "]" << endl;
+	  cerr << "add " << a_word << " to table[" << head2 << "]"
+	       << " ==> " << table[head2] << endl;
 	  cerr << "AND add " << head2 << " as a head of " << a_word << endl;
 	}
-	heads[a_word] = head2;
-	table[head2].insert( a_word );
       }
     }
     else {
@@ -183,18 +220,22 @@ bool chain_class::fill( const string& line ){
 	throw logic_error( msg );
       }
     }
+    if ( verbosity > 4 ){
+      cerr << endl;
+      debug_info( cerr );
+    };
     return true;
   }
 }
 
-void chain_class::debug_info( const string& name ){
-  string out_file = name + ".debug";
-  ofstream db( out_file );
+void chain_class::debug_info( ostream& db ){
+  for ( const auto& it : heads ){
+    db << "head[" << it.first << "]=" << it.second << endl;
+  }
   for ( const auto& it : table ){
     db << var_freq[it.first] << " " << it.first
        << " " << it.second << endl;
   }
-  cout << "debug info stored in " << out_file << endl;
 }
 
 bitType high_five( int val ){
@@ -419,8 +460,12 @@ int main( int argc, char **argv ){
       cerr << "invalid line: '" << line << "'" << endl;
     }
   }
+  chains.final_merge();
   if ( verbosity > 0 ){
-    chains.debug_info( out_file );
+    string db_file = out_file + ".debug";
+    ofstream db( db_file );
+    chains.debug_info( db );
+    cout << endl << "debug info stored in " << out_file << endl;
   }
   chains.output( out_file );
   cout << "results in " << out_file << endl;
