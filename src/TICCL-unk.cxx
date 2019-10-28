@@ -137,12 +137,12 @@ bool is_ticcl_punct( UChar uc ){
     if ( ticc_ispunct( uc ) ){
       return true;
     }
+    else if ( ticc_isother( uc ) ){
+      return true;
+    }
     else {
       UnicodeString us(uc);
-      if ( us == "°" ){
-	return true;
-      }
-      else if ( us == "\u00a0" ){
+      if ( us == "\u00a0" ){
 	return true;
       }
     }
