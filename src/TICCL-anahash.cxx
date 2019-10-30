@@ -46,7 +46,6 @@ using namespace icu;
 bool fillAlpha( istream& is,
 		map<UChar,bitType>& alphabet,
 		int clip ){
-  cout << "start reading alphabet." << endl;
   string line;
   while ( getline( is, line ) ){
     if ( line.size() == 0 || line[0] == '#' ){
@@ -288,6 +287,7 @@ int main( int argc, char *argv[] ){
   }
 
   map<UChar,bitType> alphabet;
+  cout << "reading alphabet file: " << alphafile << endl;
   if ( !fillAlpha( as, alphabet, clip ) ){
     cerr << "serious problems reading alphabet file: " << alphafile << endl;
     exit(EXIT_FAILURE);
@@ -332,7 +332,7 @@ int main( int argc, char *argv[] ){
   map<UnicodeString,bitType> merged;
   map<UnicodeString,bitType> freq_list;
   map<bitType, set<UnicodeString> > anagrams;
-  cout << "start hashing from the corpus frequency file." << endl;
+  cout << "start hashing from the corpus frequency file: " << file_name << endl;
   string line;
   while ( getline( is, line ) ){
     // we build a frequency list
