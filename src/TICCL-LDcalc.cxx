@@ -44,13 +44,11 @@
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/PrettyPrint.h"
 #include "ticcutils/Unicode.h"
-#include "ticcl/unicode.h"
+#include "ticcl/ticcl_common.h"
 #include "config.h"
 
 using namespace std;
 using namespace icu;
-
-typedef uint64_t bitType;
 
 string progname;
 int verbose = 0;

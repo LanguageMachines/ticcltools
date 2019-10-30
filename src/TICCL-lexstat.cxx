@@ -36,24 +36,14 @@
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/FileUtils.h"
 #include "ticcutils/Unicode.h"
+#include "ticcl/ticcl_common.h"
 
 #include "config.h"
-
-typedef uint64_t bitType;
 
 bool verbose = false;
 
 using namespace	std;
 using namespace icu;
-
-bitType high_five( int val ){
-  bitType result = val;
-  result *= val;
-  result *= val;
-  result *= val;
-  result *= val;
-  return result;
-}
 
 void create_output( string& name, const map<UChar,size_t>& chars,
 		    string& orig, map<UnicodeString,bitType>& hashes,

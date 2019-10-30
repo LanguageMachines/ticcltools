@@ -45,13 +45,12 @@
 #include "ticcutils/StringOps.h"
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/Unicode.h"
+#include "ticcl/ticcl_common.h"
 #include "roaring/roaring64map.hh"
 #include "config.h"
 
 using namespace std;
 using namespace icu;
-
-typedef uint64_t bitType;
 
 //#define TRANSPOSE_TEST 1
 

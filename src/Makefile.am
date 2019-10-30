@@ -19,7 +19,7 @@ LDADD = libticcl.la
 lib_LTLIBRARIES = libticcl.la
 libticcl_la_LDFLAGS= -version-info 1:0:0
 
-libticcl_la_SOURCES = word2vec.cxx
+libticcl_la_SOURCES = word2vec.cxx ticcl_common.cxx
 
 TICCL_indexer_SOURCES = TICCL-indexer.cxx
 TICCL_indexerNT_SOURCES = TICCL-indexerNT.cxx

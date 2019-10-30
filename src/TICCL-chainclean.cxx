@@ -45,11 +45,10 @@
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/PrettyPrint.h"
 #include "ticcutils/Unicode.h"
-#include "ticcl/unicode.h"
+#include "ticcl/ticcl_common.h"
 #include "ticcl/word2vec.h"
 
 using namespace std;
-typedef uint64_t bitType;
 using TiCC::operator<<;
 
 set<string> follow_words;

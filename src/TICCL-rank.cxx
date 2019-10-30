@@ -45,14 +45,12 @@
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/PrettyPrint.h"
 #include "ticcutils/Unicode.h"
-#include "ticcl/unicode.h"
+#include "ticcl/ticcl_common.h"
 #include "ticcl/word2vec.h"
 
 using namespace std;
 using namespace icu;
 using TiCC::operator<<;
-
-typedef uint64_t bitType;
 
 const int RANK_COUNT=14;
 const string SEPARATOR = "_";

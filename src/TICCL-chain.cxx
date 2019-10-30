@@ -44,13 +44,12 @@
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/PrettyPrint.h"
 #include "ticcutils/Unicode.h"
-#include "ticcl/unicode.h"
+#include "ticcl/ticcl_common.h"
 #include "ticcl/word2vec.h"
 
 using namespace std;
 using namespace icu;
 
-typedef uint64_t bitType;
 using TiCC::operator<<;
 
 unsigned int ldCompare( const UnicodeString& s1, const UnicodeString& s2 ){
@@ -246,15 +245,6 @@ void chain_class::debug_info( ostream& db ){
     db << var_freq[it.first] << " " << it.first
        << " " << it.second << endl;
   }
-}
-
-bitType high_five( int val ){
-  bitType result = val;
-  result *= val;
-  result *= val;
-  result *= val;
-  result *= val;
-  return result;
 }
 
 map<UChar,bitType> alphabet;

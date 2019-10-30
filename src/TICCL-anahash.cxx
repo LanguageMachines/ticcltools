@@ -36,7 +36,7 @@
 #include "ticcutils/FileUtils.h"
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/Unicode.h"
-#include "ticcl/unicode.h"
+#include "ticcl/ticcl_common.h"
 
 #include "config.h"
 
@@ -44,17 +44,6 @@ using namespace	std;
 using namespace icu;
 
 const UnicodeString SEPARATOR = "_";
-
-typedef uint64_t bitType;
-
-bitType high_five( int val ){
-  bitType result = val;
-  result *= val;
-  result *= val;
-  result *= val;
-  result *= val;
-  return result;
-}
 
 bool fillAlpha( istream& is,
 		map<UChar,bitType>& alphabet,

@@ -41,6 +41,7 @@
 #include "ticcutils/StringOps.h"
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/Unicode.h"
+#include "ticcl/ticcl_common.h"
 
 #include "config.h"
 #ifdef HAVE_OPENMP
@@ -49,8 +50,6 @@
 
 using namespace std;
 using namespace icu;
-
-typedef uint64_t bitType;
 
 void usage( const string& name ){
   cerr << name << endl;

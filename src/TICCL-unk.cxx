@@ -38,7 +38,7 @@
 #include "ticcutils/PrettyPrint.h"
 #include "ticcutils/FileUtils.h"
 #include "ticcutils/Unicode.h"
-#include "ticcl/unicode.h"
+#include "ticcl/ticcl_common.h"
 
 #include "config.h"
 

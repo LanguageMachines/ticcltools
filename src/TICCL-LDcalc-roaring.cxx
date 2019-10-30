@@ -43,13 +43,12 @@
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/PrettyPrint.h"
 #include "ticcutils/Unicode.h"
-#include "ticcl/unicode.h"
+#include "ticcl/ticcl_common.h"
 #include "roaring/roaring64map.hh"
 #include "config.h"
 
 using namespace std;
 using namespace icu;
-typedef uint64_t bitType;
 
 string progname;
 int verbose = 0;
@@ -73,15 +72,6 @@ void usage( const string& progname ){
   cerr << "\t-v be verbose, repeat to be more verbose " << endl;
   cerr << "\t-V or --version show version " << endl;
   exit( EXIT_FAILURE );
-}
-
-bitType high_five( int val ){
-  bitType result = val;
-  result *= val;
-  result *= val;
-  result *= val;
-  result *= val;
-  return result;
 }
 
 unsigned int ldCompare( const UnicodeString& s1, const UnicodeString& s2 ){
