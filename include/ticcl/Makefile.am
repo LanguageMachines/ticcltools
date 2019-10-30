@@ -1,1 +1,1 @@
-pkginclude_HEADERS = ticcl_common.h unicode.h word2vec.h
+pkginclude_HEADERS = ticcl_common.h word2vec.h
