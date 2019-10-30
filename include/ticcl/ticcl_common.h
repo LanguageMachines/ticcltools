@@ -13,8 +13,8 @@ const UChar U_SEPARATOR = '_';
 
 
 bitType high_five( int );
-unsigned int ldCompare( const UnicodeString&,
-			const UnicodeString& );
+unsigned int ldCompare( const icu::UnicodeString&,
+			const icu::UnicodeString& );
 
 inline std::string toString( int8_t c ){
   switch ( c ){
