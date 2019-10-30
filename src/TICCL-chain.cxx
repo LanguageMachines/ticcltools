@@ -54,7 +54,7 @@ using TiCC::operator<<;
 
 const bitType HonderdHash = high_five( 100 );
 const bitType HonderdEenHash = high_five( 101 );
-const string high_105 = TiCC::toString(high_five(105));
+const string high_101 = TiCC::toString(HonderdEenHash);
 
 unsigned int ld( const UnicodeString& in1,
 		 const UnicodeString& in2,
@@ -68,11 +68,13 @@ unsigned int ld( const UnicodeString& in1,
   return ldCompare( s1, s2 );
 }
 
+map<UChar,bitType> alphabet;
+
 class chain_class {
 public:
   chain_class(): chain_class( 0,false ){};
   chain_class( int v, bool c ): verbosity(v), caseless(c), cc_vals_present(true){};
-  bool fill( const string& );
+  bool fill( const string&, bool );
   void debug_info( ostream& );
   void output( const string& );
   UnicodeString top_head( const UnicodeString& );
@@ -121,7 +123,22 @@ void chain_class::final_merge(){
   }
 }
 
-bool chain_class::fill( const string& line ){
+UChar diff_char( const UnicodeString& in1, const UnicodeString& in2 ){
+  UnicodeString s1 = in1;
+  UnicodeString s2 = in2;
+  s1.toLower();
+  s2.toLower();
+  UChar result = alphabet.begin()->first;
+  for ( int i=0; i < s2.length(); ++i ){
+    if ( s1.indexOf(s2[i] ) == -1 ){
+      result = s2[i];
+      break;
+    }
+  }
+  return result;
+}
+
+bool chain_class::fill( const string& line, bool nounk ){
   vector<string> parts;
   TiCC::split_at( line, parts, "#", true );
   if ( parts.size() < 6
@@ -152,13 +169,19 @@ bool chain_class::fill( const string& line ){
       size_t freq2 = TiCC::stringTo<size_t>(parts[3]);
       if ( cc_vals_present ){
 	string cc_val = parts[4];
-	// if ( cc_val == high_105 ){
-	//   // one UNKNOWN character difference
-	//   if ( candidate.length() > a_word.length() ){
-	//     // this will not do. ignore!
-	//     return true;
-	//   }
-	// }
+	if ( nounk && cc_val == high_101 ){
+	  //	  cerr << "diff?? " << a_word << " " << candidate << endl;
+	  // one character difference
+	  if ( candidate.length() > a_word.length() ){
+	    UChar diff = diff_char( a_word, candidate );
+	    //	    cerr << "diff=" << diff << endl;
+	    if ( alphabet.find( diff ) == alphabet.end() ){
+	      // this will not do. ignore!
+	      cerr << "skip " << a_word << " --> " << candidate << endl;
+	      return true;
+	    }
+	  }
+	}
 	UnicodeString key = a_word+candidate;
 	w_cc_conf[key] = cc_val;
       }
@@ -243,12 +266,9 @@ void chain_class::debug_info( ostream& db ){
   }
 }
 
-map<UChar,bitType> alphabet;
-
 bool fillAlpha( istream& is,
 		map<UChar,bitType>& alphabet,
 		int clip ){
-  cout << "start reading alphabet." << endl;
   string line;
   while ( getline( is, line ) ){
     if ( line.size() == 0 || line[0] == '#' ){
@@ -367,7 +387,7 @@ int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
-    opts.set_long_options( "caseless,alph:" );
+    opts.set_long_options( "caseless,alph:,nounk" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -393,6 +413,7 @@ int main( int argc, char **argv ){
     ++verbosity;
   }
   bool caseless = opts.extract( "caseless" );
+  bool nounk = opts.extract( "nounk" );
   string alphabet_name;
   opts.extract( "alph", alphabet_name );
   if ( alphabet_name.empty() ){
@@ -401,6 +422,7 @@ int main( int argc, char **argv ){
   }
   else {
     ifstream is( alphabet_name );
+    cout << "start reading alphabet: " << alphabet_name << endl;
     fillAlpha( is, alphabet, 0 );
   }
   string out_file;
@@ -446,7 +468,7 @@ int main( int argc, char **argv ){
   chain_class chains( verbosity, caseless );
   string line;
   while( getline( input, line ) ){
-    if ( !chains.fill( line ) ){
+    if ( !chains.fill( line, nounk ) ){
       cerr << "invalid line: '" << line << "'" << endl;
     }
   }
