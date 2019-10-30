@@ -52,26 +52,15 @@ using namespace icu;
 
 using TiCC::operator<<;
 
-unsigned int ldCompare( const UnicodeString& s1, const UnicodeString& s2 ){
-  const size_t len1 = s1.length(), len2 = s2.length();
-  vector<unsigned int> col(len2+1), prevCol(len2+1);
-  for ( unsigned int i = 0; i < prevCol.size(); ++i ){
-    prevCol[i] = i;
-  }
-  for ( unsigned int i = 0; i < len1; ++i ) {
-    col[0] = i+1;
-    for ( unsigned int j = 0; j < len2; ++j )
-      col[j+1] = min( min( 1 + col[j], 1 + prevCol[1 + j]),
-		      prevCol[j] + (s1[i]==s2[j] ? 0 : 1) );
-    col.swap(prevCol);
-  }
-  unsigned int result = prevCol[len2];
-  return result;
-}
+const bitType HonderdHash = high_five( 100 );
+const bitType HonderdEenHash = high_five( 101 );
+const string high_105 = TiCC::toString(high_five(105));
 
-unsigned int ld( const string& in1, const string& in2, bool caseless ){
-  UnicodeString s1 = TiCC::UnicodeFromUTF8(in1);
-  UnicodeString s2 = TiCC::UnicodeFromUTF8(in2);
+unsigned int ld( const UnicodeString& in1,
+		 const UnicodeString& in2,
+		 bool caseless ){
+  UnicodeString s1 = in1;
+  UnicodeString s2 = in2;
   if ( caseless ){
     s1.toLower();
     s2.toLower();
@@ -86,24 +75,24 @@ public:
   bool fill( const string& );
   void debug_info( ostream& );
   void output( const string& );
-  string top_head( const string& );
+  UnicodeString top_head( const UnicodeString& );
   void final_merge();
  private:
-  map<string,string> heads;
-  map<string, set<string>> table;
-  map< string, size_t > var_freq;
-  map<string,string> w_cc_conf;
-  set<string> processed;
+  map<UnicodeString,UnicodeString> heads;
+  map<UnicodeString, set<UnicodeString>> table;
+  map<UnicodeString, size_t > var_freq;
+  map<UnicodeString, string> w_cc_conf;
+  set<UnicodeString> processed;
   int verbosity;
   bool caseless;
   bool cc_vals_present;
 };
 
-string chain_class::top_head( const string& candidate ){
-  string result = heads[candidate];
-  if ( !result.empty() ){
-    string next = top_head( result );
-    if ( !next.empty() ){
+UnicodeString chain_class::top_head( const UnicodeString& candidate ){
+  UnicodeString result = heads[candidate];
+  if ( !result.isEmpty() ){
+    UnicodeString next = top_head( result );
+    if ( !next.isEmpty() ){
       result = next;
     }
   }
@@ -114,9 +103,9 @@ void chain_class::final_merge(){
   for ( auto& it : table ){
     if ( !it.second.empty() ){
       // for all entries that seem to be a 'head'
-      string head = top_head( it.first );
+      UnicodeString head = top_head( it.first );
       assert( head != it.first );
-      if ( !head.empty() ){
+      if ( !head.isEmpty() ){
 	// so it has a higher head
 	if ( verbosity > 3 ){
 	  cerr << "merge: " << it.first << it.second << " into "
@@ -147,7 +136,7 @@ bool chain_class::fill( const string& line ){
       cerr << "conflicting data in chained file, didn't expect cc_val entries" << endl;
       exit(EXIT_FAILURE);
     }
-    string a_word = parts[0]; // a possibly correctable word
+    UnicodeString a_word = TiCC::UnicodeFromUTF8(parts[0]); // a possibly correctable word
     if ( processed.find(a_word) != processed.end() ){
       // we have already seen this word. probably ranked with a clip >1
       // just ignore!
@@ -158,27 +147,34 @@ bool chain_class::fill( const string& line ){
       processed.insert(a_word);
       // so a new word with Correction Candidate
       size_t freq1 = TiCC::stringTo<size_t>(parts[1]);
-      var_freq[a_word] = freq1;
-      string candidate = parts[2]; // a Correction Candidate
+      UnicodeString candidate = TiCC::UnicodeFromUTF8( parts[2] );
+      // a Correction Candidate
       size_t freq2 = TiCC::stringTo<size_t>(parts[3]);
-      string cc_val;
       if ( cc_vals_present ){
-	cc_val = parts[4];
-	string key = a_word+candidate;
+	string cc_val = parts[4];
+	// if ( cc_val == high_105 ){
+	//   // one UNKNOWN character difference
+	//   if ( candidate.length() > a_word.length() ){
+	//     // this will not do. ignore!
+	//     return true;
+	//   }
+	// }
+	UnicodeString key = a_word+candidate;
 	w_cc_conf[key] = cc_val;
       }
+      var_freq[a_word] = freq1;
       var_freq[candidate] = freq2;
       if ( verbosity > 3 ){
 	cerr << endl << "word=" << a_word << " CC=" << candidate << endl;
       }
-      string head = heads[a_word];
-      if ( head.empty() ){
+      UnicodeString head = heads[a_word];
+      if ( head.isEmpty() ){
 	// this word does not have a 'head' yet
 	if ( verbosity > 3 ){
 	  cerr << "word: " << a_word << " NOT in heads " << endl;
 	}
-	string head2 = heads[candidate];
-	if ( head2.empty() ){
+	UnicodeString head2 = heads[candidate];
+	if ( head2.isEmpty() ){
 	  // the correction candidate also has no head
 	  // we add it as a new head for a_word, with a table
 	  heads[a_word] = candidate;
@@ -217,13 +213,13 @@ bool chain_class::fill( const string& line ){
 	    cerr << "lookup " << a_word << " in " << tit->second << endl;
 	  }
 	  if ( tit->second.find( a_word ) == tit->second.end() ){
-	    string msg = "Error: " + a_word
+	    string msg = "Error: " + TiCC::UnicodeToUTF8(a_word)
 	      + " has a heads entry, but no table entry!";
 	    throw logic_error( msg );
 	  }
 	}
 	else {
-	  string msg = "Error: " + a_word
+	  string msg = "Error: " +  TiCC::UnicodeToUTF8(a_word)
 	    + " has no head entry!";
 	  throw logic_error( msg );
 	}
@@ -279,12 +275,6 @@ bool fillAlpha( istream& is,
 
 bitType hash( const UnicodeString& s,
 	      map<UChar,bitType>& alphabet ){
-  static bitType HonderdEenHash = 0;
-  static bitType HonderdHash = 0;
-  if ( HonderdEenHash == 0 ){
-    HonderdHash = high_five( 100 );
-    HonderdEenHash = high_five( 101 );
-  }
   UnicodeString us = s;
   us.toLower();
   bitType result = 0;
@@ -338,8 +328,8 @@ void chain_class::output( const string& out_file ){
 	string val = w_cc_conf[s+t_it.first];
 	if ( val.empty() ){
 	  //	  cerr << "GEEN waarde voor " << s+t_it.first << endl;
-	  bitType h1 = ::hash(TiCC::UnicodeFromUTF8(s), alphabet );
-	  bitType h2 = ::hash(TiCC::UnicodeFromUTF8(t_it.first), alphabet );
+	  bitType h1 = ::hash(s, alphabet );
+	  bitType h2 = ::hash(t_it.first, alphabet );
 	  bitType h_val;
 	  if ( h1 > h2 ){
 	    h_val = h1 - h2;
