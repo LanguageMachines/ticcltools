@@ -8,7 +8,7 @@
 typedef uint64_t bitType;
 
 const std::string S_SEPARATOR = "_";
-const UnicodeString US_SEPARATOR = "_";
+const icu::UnicodeString US_SEPARATOR = "_";
 const UChar U_SEPARATOR = '_';
 
 
