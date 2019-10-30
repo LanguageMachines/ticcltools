@@ -100,7 +100,7 @@ void create_output( string& name, const map<UChar,size_t>& chars,
     ++start;
     ++rit;
   }
-  cerr << "created outputfile " << name
+  cout << "created outputfile " << name
        << " with " << out_cnt << " hased lowercase characters, and " << spec_cnt
        << " special hashes for (*,$" << (separator.isEmpty()?"":","+separator)
        << ")" << endl;
@@ -143,7 +143,7 @@ void create_dia_file( const string& filename,
     }
     ++it;
   }
-  cerr << "created a diacritic confusion file: " << filename << endl;
+  cout << "created a diacritic confusion file: " << filename << endl;
 }
 
 void meld_botsing( const multimap<bitType,UnicodeString>& mm, bitType h ){
@@ -188,10 +188,10 @@ void generate_confusion( const string& name,
     exit(EXIT_FAILURE);
   }
   multimap<bitType,UnicodeString> confusions;
-  cerr << "start : " << hashes.size() << " iterations " << endl;
+  cout << "start : " << hashes.size() << " iterations " << endl;
   map<UnicodeString,bitType>::const_iterator it1 = hashes.begin();
   while ( it1 != hashes.end() ){
-    cerr << "iteration " << it1->first << endl;
+    cout << it1->first << " ";
     // deletions/inserts of 1
     UnicodeString s1 = it1->first + "~";
     conditionally_insert( confusions, it1->second, s1, full );
@@ -398,7 +398,7 @@ void generate_confusion( const string& name,
       ++cit;
     }
   }
-  cout << "generated confusion file " << name << endl;
+  cout << endl << "generated confusion file " << name << endl;
 }
 
 void usage( const string& name ){
