@@ -12,7 +12,9 @@ const icu::UnicodeString US_SEPARATOR = "_";
 const UChar U_SEPARATOR = '_';
 
 
-bitType high_five( int val );
+bitType high_five( int );
+unsigned int ldCompare( const UnicodeString&,
+			const UnicodeString& );
 
 inline std::string toString( int8_t c ){
   switch ( c ){
