@@ -93,20 +93,22 @@ A.N.W.B		1 # C met A.N.W.B. in clean en A.N.W.B in acro
 de_ANWB		1 # C met ANWB in acro
 de_A50		1 # C met A50 NIET in acro, want niet clean
 een_CDA-minister	1 C met CDA in acro
-een…			1
+een…			1 P met een in clean
 een»	1
 …»	1
-mm…"…	1
-|……	1
+mm…"…	1	# P met mm in cean
+|……	1	# U
 …	1
 …„	1
 …»	1
-■wyvtry	1
-Aanbiddens■waardigheid	1
-Afitwef■pen		1
-♦asffas			1
-♦jcnoudcne		1
-0rdo™™tie		1
-aatlf?™b		1
-August,?™		1
-€euro			1
+■wyvtry	1 # P, met wyvtry in clean
+Aanbiddens■waardigheid	1 # C
+Afitwef■pen		1 # C
+♦asffas			1 # P met asffas in clean
+♦jcnoudcne		1 # P met jcnoudcne in clean
+0rdo™™tie		1 # C
+aatlf?™b		1 # C
+August,?™		1 # P, met Augus in clean
+€euro			1 # P, met euro in clean
+D£	2	# nergens (te kort na depunct)
+i©	1	# nergens (te kort na depunct)
