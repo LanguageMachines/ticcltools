@@ -9,8 +9,6 @@ typedef uint64_t bitType;
 
 const std::string S_SEPARATOR = "_";
 const icu::UnicodeString US_SEPARATOR = "_";
-const UChar U_SEPARATOR = '_';
-
 
 bitType high_five( int );
 unsigned int ldCompare( const icu::UnicodeString&,

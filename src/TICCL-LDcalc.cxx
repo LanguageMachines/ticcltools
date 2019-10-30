@@ -201,8 +201,8 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
   ngram_point = 0;
   UnicodeString us1 = TiCC::UnicodeFromUTF8(str1);
   UnicodeString us2 = TiCC::UnicodeFromUTF8(str2);
-  vector<UnicodeString> parts1 = TiCC::split_at( us1, U_SEPARATOR );
-  vector<UnicodeString> parts2 = TiCC::split_at( us2, U_SEPARATOR );
+  vector<UnicodeString> parts1 = TiCC::split_at( us1, US_SEPARATOR );
+  vector<UnicodeString> parts2 = TiCC::split_at( us2, US_SEPARATOR );
   if ( parts1.size() == 1 && parts2.size() == 1 ){
     if ( follow ){
 #pragma omp critical (debugout)
