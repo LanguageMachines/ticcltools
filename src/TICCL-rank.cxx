@@ -53,7 +53,7 @@ using namespace icu;
 using TiCC::operator<<;
 
 const int RANK_COUNT=14;
-const string SEPARATOR = "_";
+
 set<string> follow_words;
 
 bool verbose = false;
@@ -743,7 +743,7 @@ vector<record> filter_ngrams( const vector<record>& records,
       }
     }
     if ( it->ngram_points == 0 ){
-      vector<string> parts = TiCC::split_at(it->variant,SEPARATOR);
+      vector<string> parts = TiCC::split_at(it->variant,S_SEPARATOR);
       if ( verbose ){
 #pragma omp critical (log)
 	{

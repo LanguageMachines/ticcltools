@@ -68,8 +68,6 @@ void usage( const string& name ){
   exit( EXIT_FAILURE );
 }
 
-const string SEPARATOR = "_";
-
 class record {
 public:
   record():deleted(false){};
@@ -271,10 +269,10 @@ int main( int argc, char **argv ){
   cout << "start processing " << records.size() << " chained results" << endl;
   map<string,int> parts_freq;
   for ( auto& rec : records ){
-    rec.v_parts = TiCC::split_at( rec.variant, SEPARATOR );
-    rec.v_dh_parts = TiCC::split_at_first_of( rec.variant, SEPARATOR+"-" );
-    rec.cc_parts = TiCC::split_at( rec.cc, SEPARATOR );
-    rec.cc_dh_parts = TiCC::split_at_first_of( rec.cc, SEPARATOR+"-" );
+    rec.v_parts = TiCC::split_at( rec.variant, S_SEPARATOR );
+    rec.v_dh_parts = TiCC::split_at_first_of( rec.variant, S_SEPARATOR+"-" );
+    rec.cc_parts = TiCC::split_at( rec.cc, S_SEPARATOR );
+    rec.cc_dh_parts = TiCC::split_at_first_of( rec.cc, S_SEPARATOR+"-" );
     if ( rec.v_parts.size() == 1 ){
       continue;
     }

@@ -43,8 +43,6 @@
 using namespace	std;
 using namespace icu;
 
-const UnicodeString SEPARATOR = "_";
-
 bool fillAlpha( istream& is,
 		map<UChar,bitType>& alphabet,
 		int clip ){
@@ -212,7 +210,7 @@ int main( int argc, char *argv[] ){
   opts.extract( "background", backfile );
   opts.extract( "separator", separator );
   if ( separator.isEmpty() ){
-    separator = SEPARATOR;
+    separator = US_SEPARATOR;
   }
   bool list = opts.extract( "list" );
   string value;
