@@ -69,6 +69,8 @@ void usage( const string& name ){
   cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
   cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
   cerr << "\t\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
+  cerr << "\t--confstats=<statsfile>\tcreate a list of confusion statistics"
+       << endl;
   cerr << "\t-V show version " << endl;
   cerr << "\t-h this message " << endl;
 }
@@ -171,7 +173,8 @@ int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:t:" );
-    opts.set_long_options( "charconf:,hash:,low:,high:,foci:,help,version,threads:" );
+    opts.set_long_options( "charconf:,hash:,low:,high:,foci:,help,"
+			   "version,threads:,confstats:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -197,6 +200,7 @@ int main( int argc, char **argv ){
   string confFile;
   string outFile;
   string fociFile;
+  string confstats_file;
   int lowValue = 5;
   int highValue = 35;
   if ( !opts.extract( "hash", anahashFile ) ){
@@ -211,6 +215,7 @@ int main( int argc, char **argv ){
     cerr << "missing --foci option" << endl;
     exit( EXIT_FAILURE );
   }
+  opts.extract( "confstats", confstats_file );
   opts.extract( 'o', outFile );
   int num_threads = 1;
   string value = "1";
@@ -273,6 +278,14 @@ int main( int argc, char **argv ){
   outFile += ".T";
 #endif
 
+  ofstream *csf = 0;
+  if ( !confstats_file.empty() ){
+    csf = new ofstream( confstats_file );
+    if ( !csf ){
+      cerr << "problem opening outputfile: " << confstats_file << endl;
+      exit(1);
+    }
+  }
   ofstream of( outFile );
   if ( !of ){
     cerr << "problem opening output file: " << outFile << endl;
@@ -360,9 +373,11 @@ int main( int argc, char **argv ){
   for ( size_t i=0; i < expsize; ++i ){
     handle_exp( experiments[i], count, hashSet, confSet, result );
   }
-
   for ( auto const& rit : result ){
     of << rit.first << "#";
+    if ( csf ){
+      *csf << rit.first << "#" << rit.second.size() << endl;
+    }
     set<bitType>::const_iterator it = rit.second.begin();
     while ( it != rit.second.end() ){
       of << *it;
@@ -373,5 +388,8 @@ int main( int argc, char **argv ){
     }
     of << endl;
   }
-
+  cout << "\nwrote indexes into: " << outFile << endl;
+  if ( csf ){
+    cout << "wrote confusion statistics into: " << confstats_file << endl;
+  }
 }

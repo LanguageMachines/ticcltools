@@ -68,6 +68,8 @@ void usage( const string& name ){
   cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
   cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
   cerr << "\t\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
+  cerr << "\t--confstats=<statsfile>\tcreate a list of confusion statistics"
+       << endl;
   cerr << "\t-V or --version show version " << endl;
   cerr << "\t-v verbosity " << endl;
   cerr << "\t-h or --help this message " << endl;
@@ -81,8 +83,10 @@ struct experiment {
 
 void handle_confs( const experiment& exp,
 		   size_t& count,
-		   const set<bitType>& anaSet, const set<bitType>& focSet,
-		   ostream &of ){
+		   const set<bitType>& anaSet,
+		   const set<bitType>& focSet,
+		   ostream &of,
+		   ostream *csf ){
   map<bitType,set<bitType>> result;
   bitType vorige = 0;
   bitType totalShift = 0;
@@ -141,6 +145,9 @@ void handle_confs( const experiment& exp,
   {
     for ( auto const& rit : result ){
       of << rit.first << "#";
+      if ( csf ){
+	*csf << rit.first << "#" << rit.second.size() << endl;
+      }
       set<bitType>::const_iterator it = rit.second.begin();
       while ( it != rit.second.end() ){
 	of << *it;
@@ -186,7 +193,8 @@ int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:t:" );
-    opts.set_long_options( "charconf:,hash:,low:,high:,help,version,foci:,threads:" );
+    opts.set_long_options( "charconf:,hash:,low:,high:,help,version,"
+			   "foci:,threads:,confstats:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -212,10 +220,12 @@ int main( int argc, char **argv ){
   string confFile;
   string fociFile;
   string outFile;
+  string confstats_file;
   int lowValue = 5;
   int highValue = 35;
   opts.extract( "hash", anahashFile );
   opts.extract( "charconf", confFile );
+  opts.extract( "confstats", confstats_file );
   opts.extract( "foci", fociFile );
   opts.extract( 'o', outFile );
   string value;
@@ -302,6 +312,14 @@ int main( int argc, char **argv ){
     cerr << "problem opening outputfile: " << outFile << endl;
     exit(1);
   }
+  ofstream *csf = 0;
+  if ( !confstats_file.empty() ){
+    csf = new ofstream( confstats_file );
+    if ( !csf ){
+      cerr << "problem opening outputfile: " << confstats_file << endl;
+      exit(1);
+    }
+  }
   cout << "reading corpus word anagram hash values" << endl;
   size_t skipped = 0;
   set<bitType> anaSet;
@@ -364,8 +382,12 @@ int main( int argc, char **argv ){
 
   cout << "processing all character confusion values" << endl;
   count = 0;
-#pragma omp parallel for shared( experiments )
+#pragma omp parallel for shared( experiments, of, csf )
   for ( size_t i=0; i < expsize; ++i ){
-    handle_confs( experiments[i], count, anaSet, focSet, of );
+    handle_confs( experiments[i], count, anaSet, focSet, of, csf );
+  }
+  cout << "\nwrote indexes into: " << outFile << endl;
+  if ( csf ){
+    cout << "wrote confusion statistics into: " << confstats_file << endl;
   }
 }
