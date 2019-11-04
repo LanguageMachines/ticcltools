@@ -117,7 +117,7 @@ fi
 
 echo "start TICCL-indexer"
 
-$bindir/TICCL-indexer -t max --hash $outdir/TESTDP035.clean.anahash --charconf $outdir/aspell.clip20.ld2.charconfus --foci $outdir/TESTDP035.clean.corpusfoci
+$bindir/TICCL-indexer -t max --hash $outdir/TESTDP035.clean.anahash --charconf $outdir/aspell.clip20.ld2.charconfus --foci $outdir/TESTDP035.clean.corpusfoci --confstats $outdir/TESTDP035.clean.confstats
 
 if [ $? -ne 0 ]
 then
@@ -126,12 +126,13 @@ then
 fi
 
 echo "checking INDEXER results...."
-diff $outdir/TESTDP035.clean.index $refdir/index > /dev/null 2>&1
+LC_ALL=C sort $outdir/TESTDP035.clean.index > /tmp/sorted.index
+diff /tmp/sorted.index $refdir/index > /dev/null 2>&1
 
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-indexer results"
-    echo "using diff $outdir/TESTDP035.clean.index $refdir/index"
+    echo "using diff /tmp/sorted.index $refdir/index"
     exit
 fi
 
