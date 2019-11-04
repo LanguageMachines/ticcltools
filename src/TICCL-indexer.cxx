@@ -82,7 +82,8 @@ struct experiment {
 void handle_confs( const experiment& exp,
 		   size_t& count,
 		   const set<bitType>& anaSet, const set<bitType>& focSet,
-		   map<bitType,set<bitType>>& result ){
+		   ostream &of ){
+  map<bitType,set<bitType>> result;
   bitType vorige = 0;
   bitType totalShift = 0;
   auto sit = exp.start;
@@ -121,10 +122,7 @@ void handle_confs( const experiment& exp,
 	  // not if both values out of focus
 	}
 	if ( foc ){
-#pragma omp critical(update)
-	  {
-	    result[confusie].insert(v1);
-	  }
+	  result[confusie].insert(v1);
 	}
 	++it1;
 	++it2;
@@ -138,6 +136,21 @@ void handle_confs( const experiment& exp,
     }
     vorige = confusie;
     ++sit;
+  }
+#pragma omp critical(update)
+  {
+    for ( auto const& rit : result ){
+      of << rit.first << "#";
+      set<bitType>::const_iterator it = rit.second.begin();
+      while ( it != rit.second.end() ){
+	of << *it;
+	++it;
+	if ( it != rit.second.end() ){
+	  of << ",";
+	}
+      }
+      of << endl;
+    }
   }
 }
 
@@ -350,24 +363,9 @@ int main( int argc, char **argv ){
 
 
   cout << "processing all character confusion values" << endl;
-  map<bitType,set<bitType> > result;
   count = 0;
 #pragma omp parallel for shared( experiments )
   for ( size_t i=0; i < expsize; ++i ){
-    handle_confs( experiments[i], count, anaSet, focSet, result );
+    handle_confs( experiments[i], count, anaSet, focSet, of );
   }
-
-  for ( auto const& rit : result ){
-    of << rit.first << "#";
-    set<bitType>::const_iterator it = rit.second.begin();
-    while ( it != rit.second.end() ){
-      of << *it;
-      ++it;
-      if ( it != rit.second.end() ){
-	of << ",";
-      }
-    }
-    of << endl;
-  }
-
 }
