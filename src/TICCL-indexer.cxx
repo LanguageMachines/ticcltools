@@ -158,6 +158,10 @@ void handle_confs( const experiment& exp,
       }
       of << endl;
     }
+    of.flush();
+    if ( csf ){
+      csf->flush();
+    }
   }
 }
 

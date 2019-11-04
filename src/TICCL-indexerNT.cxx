@@ -387,6 +387,10 @@ int main( int argc, char **argv ){
       }
     }
     of << endl;
+    of.flush();
+    if ( csf ){
+      csf->flush();
+    }
   }
   cout << "\nwrote indexes into: " << outFile << endl;
   if ( csf ){
