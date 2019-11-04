@@ -393,5 +393,7 @@ int main( int argc, char **argv ){
   cout << "\nwrote indexes into: " << outFile << endl;
   if ( csf ){
     cout << "wrote confusion statistics into: " << confstats_file << endl;
+    csf->close();
+    delete csf;
   }
 }
