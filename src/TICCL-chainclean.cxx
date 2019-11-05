@@ -322,7 +322,15 @@ int main( int argc, char **argv ){
   bool do_low2 = true;
   set<record*> done_records;
   map<string,string> done;
+  size_t counter = 0;
   for ( const auto& part : desc_parts_freq ) {
+    if ( ++counter % 10 == 0 ){
+      cout << ".";
+      cout.flush();
+      if ( counter % 500 == 0 ){
+	cout << endl << counter << endl;
+      }
+    }
     string unk_part;
     if ( do_low2 ){
       unk_part = TiCC::utf8_lowercase(part.second);
@@ -575,7 +583,7 @@ int main( int argc, char **argv ){
       }
     }
   }
-  cerr << "wrote " << count << " records to " << out_name << endl;
+  cerr << endl << "wrote " << count << " records to " << out_name << endl;
   ofstream osd( out_name + ".deleted" );
   count = 0;
   for ( const auto it : copy_records ){
