@@ -87,11 +87,11 @@ void handle_confs( const experiment& exp,
 		   const set<bitType>& focSet,
 		   ostream &of,
 		   ostream *csf ){
-  map<bitType,set<bitType>> result;
   bitType vorige = 0;
   bitType totalShift = 0;
   auto sit = exp.start;
   while ( sit != exp.finish ){
+    set<bitType> result;
 #pragma omp critical(count)
     {
       if ( ++count % 100 == 0 ){
@@ -126,7 +126,7 @@ void handle_confs( const experiment& exp,
 	  // not if both values out of focus
 	}
 	if ( foc ){
-	  result[confusie].insert(v1);
+	  result.insert(v1);
 	}
 	++it1;
 	++it2;
@@ -140,26 +140,26 @@ void handle_confs( const experiment& exp,
     }
     vorige = confusie;
     ++sit;
-  }
+    if ( !result.empty() ){
 #pragma omp critical(update)
-  {
-    for ( auto const& rit : result ){
-      of << rit.first << "#";
-      if ( csf ){
-	*csf << rit.first << "#" << rit.second.size() << endl;
-      }
-      set<bitType>::const_iterator it = rit.second.begin();
-      while ( it != rit.second.end() ){
-	of << *it;
-	++it;
-	if ( it != rit.second.end() ){
-	  of << ",";
+      {
+	of << confusie << "#";
+	if ( csf ){
+	  *csf << confusie << "#" << result.size() << endl;
 	}
-      }
-      of << endl;
-      of.flush();
-      if ( csf ){
-	csf->flush();
+	set<bitType>::const_iterator it = result.begin();
+	while ( it != result.end() ){
+	  of << *it;
+	  ++it;
+	  if ( it != result.end() ){
+	    of << ",";
+	  }
+	}
+	of << endl;
+	of.flush();
+	if ( csf ){
+	  csf->flush();
+	}
       }
     }
   }
