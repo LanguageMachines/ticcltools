@@ -141,25 +141,22 @@ void handle_confs( const experiment& exp,
     vorige = confusie;
     ++sit;
     if ( !result.empty() ){
+      stringstream ss;
+      ss << confusie << "#";
+      set<bitType>::const_iterator it = result.begin();
+      while ( it != result.end() ){
+	ss << *it;
+	++it;
+	if ( it != result.end() ){
+	  ss << ",";
+	}
+      }
 #pragma omp critical(update)
       {
-	of << confusie << "#";
 	if ( csf ){
 	  *csf << confusie << "#" << result.size() << endl;
 	}
-	set<bitType>::const_iterator it = result.begin();
-	while ( it != result.end() ){
-	  of << *it;
-	  ++it;
-	  if ( it != result.end() ){
-	    of << ",";
-	  }
-	}
-	of << endl;
-	of.flush();
-	if ( csf ){
-	  csf->flush();
-	}
+	of << ss.str() << endl;
       }
     }
   }
@@ -373,7 +370,7 @@ int main( int argc, char **argv ){
       exit(1);
     }
   }
-  cout << "read " << confSet.size()
+  cout << endl << "read " << confSet.size()
        << " character confusion anagram values" << endl;
 
   vector<experiment> experiments;
