@@ -406,7 +406,7 @@ void usage( const string& name ){
   cerr << "\t" << name << " will create a lowercased character frequency" << endl
        << "\t\tlist from a dictionary file," << endl
        << "\t\tand a character confusion file, based on that list." << endl;
-  cerr << "\t-h\t this message " << endl;
+  cerr << "\t-h or --help\t this message " << endl;
   cerr << "\t-o 'name'\t create outputfile(s) with prefix 'name'" << endl;
   cerr << "\t--diac produces an extra diacritics confusion file (extension .diac)" << endl;
   cerr << "\t--clip 'clip' truncates the character file at frequency 'clip'" << endl;
@@ -415,6 +415,7 @@ void usage( const string& name ){
   cerr << "\t--separator=<sep> Add the 'sep' symbol to the alphabet." << endl;
   cerr << "\t--all\tfull output. Show ALL variants in the confusions file." << endl;
   cerr << "\t\tNormally only the first is shown." << endl;
+  cerr << "\t-v or --verbose\t give more details during run." << endl;
   cerr << "\t-V\tshow version " << endl;
 }
 
@@ -422,7 +423,7 @@ int main( int argc, char *argv[] ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
-    opts.set_long_options( "LD:,clip:,diac,all,separator:" );
+    opts.set_long_options( "LD:,clip:,diac,all,separator:,help,verbose" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -431,11 +432,11 @@ int main( int argc, char *argv[] ){
     exit( EXIT_FAILURE );
   }
   string progname = opts.prog_name();
-  if ( opts.extract('h' ) ){
+  if ( opts.extract('h' ) || opts.extract("help") ){
     usage( progname );
     exit(EXIT_SUCCESS);
   }
-  verbose = opts.extract('v');
+  verbose = opts.extract('v') || opts.extract("verbose");
   if ( opts.extract('V' ) ){
     cerr << PACKAGE_STRING << endl;
     exit(EXIT_SUCCESS);
