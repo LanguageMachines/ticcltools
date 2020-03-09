@@ -141,20 +141,20 @@ bool fillAlpha( const string& file, set<UChar>& alphabet ){
 
 void usage(){
   cerr << "Usage: [options] file/dir" << endl;
-  cerr << "\t-a\t alphabet file" << endl;
-  cerr << "\t-x\t unwanted alphabet file" << endl;
-  cerr << "\t-h\t this message" << endl;
-  cerr << "\t-t\t assume a POS tagged input" << endl;
-  cerr << "\t-V\t show version " << endl;
-  cerr << "\t FoLiA-lexclean will clean 1, 2 or 4 columned (lexicon) files" << endl;
+  cerr << "\t TICCL-lexclean will clean 1, 2 or 4 columned (lexicon) files" << endl;
   cerr << "\t The output will be a 1, 2 or 4 columned tab separated file, extension: .cleaned " << endl;
   cerr << "\t\t (4 columns when -p is specified)" << endl;
   cerr << "\t 'dirty' words are written to a .dirty file." << endl;
+  cerr << "\t-a\t alphabet file. With characters to accept" << endl;
+  cerr << "\t-x\t unwanted alphabet file. With characters to reject" << endl;
   cerr << "\t-p\t output percentages too. " << endl;
+  cerr << "\t-t\t assume a POS tagged input" << endl;
+  cerr << "\t-h or --help\t this message" << endl;
+  cerr << "\t-V or --version\t show version " << endl;
 }
 
 int main( int argc, char *argv[] ){
-  TiCC::CL_Options opts( "hVpa:x:t", "" );
+  TiCC::CL_Options opts( "hVpa:x:t", "help,version" );
   try {
     opts.init(argc,argv);
   }
@@ -166,20 +166,19 @@ int main( int argc, char *argv[] ){
 
   bool dopercentage = false;
   bool postagged = false;
-  bool mood;
   string value;
   string alpha;
   string no_alpha;
   bool reverse = false;
-  if ( opts.extract('V', value, mood ) ){
+  if ( opts.extract('V', value ) || opts.extract("version",value) ){
     cerr << PACKAGE_STRING << endl;
     exit(EXIT_SUCCESS);
   }
-  if ( opts.extract('h', value, mood ) ){
+  if ( opts.extract('h', value ) || opts.extract("help", value ) ){
     usage();
     exit(EXIT_SUCCESS);
   }
-  if ( opts.extract('a', value, mood ) ){
+  if ( opts.extract('a', value ) ){
     alpha = value;
   }
   if ( opts.extract('x', value ) ){
@@ -190,10 +189,10 @@ int main( int argc, char *argv[] ){
     cerr << "may not combine -a and -x" << endl;
     exit( EXIT_FAILURE );
   }
-  if ( opts.extract('p', value, mood ) ){
+  if ( opts.extract('p', value ) ){
     dopercentage = true;
   }
-  if ( opts.extract('t', value, mood ) ){
+  if ( opts.extract('t', value ) ){
     postagged = true;
   }
   if ( !opts.empty() ){
@@ -218,11 +217,9 @@ int main( int argc, char *argv[] ){
   size_t toDo = fileNames.size();
   if ( toDo == 0 ){
     cerr << "no matching files found" << endl;
+    usage();
     exit(EXIT_SUCCESS);
   }
-  //  isClean( "aap", alphabet, reverse );
-  //  isClean( "nuttig", alphabet, reverse );
-  //  return 1;
   map<string,unsigned int> wc;
   map<string,unsigned int> qw;
   for ( const auto& docName : fileNames ){
