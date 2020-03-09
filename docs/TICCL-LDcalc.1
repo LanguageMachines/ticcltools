@@ -78,7 +78,21 @@ calculate results upto an edit distance of 'distance'
 .B --artifrq
 artifreq
 .RS
-decrease all frequencies with value 'artifreq'
+decrease all frequencies with value 'artifreq'. (Default=0)
+.RE
+
+.B --low
+low
+.RS
+let the program exclude entries from the anagram file that are shorter than 'low' characters.
+The default is 5.
+.RE
+
+.B --high
+high
+.RS
+let the program exclude entries from the anagram file that are longer than 'high' characters.
+The default is 35.
 .RE
 
 .B -t
@@ -92,11 +106,17 @@ run on 'threads' parallel.
 be (very) verbose.
 .RE
 
-.B -V
+.B -V or
+.B --version
 .RS
 show version
 .RE
 
+.B -h or
+.B --help
+.RS
+usage information
+.RE
 
 .SH BUGS
 possibly
