@@ -1,0 +1,64 @@
+.TH TICCL\-chain 1 "2029 mar 09"
+
+.SH NAME
+TICCL\-chain \- a Correction Candidates chaining tool.
+.SH SYNOPSIS
+
+TICCL\-chain [options] RANKED\-FILE
+
+.SH DESCRIPTION
+
+.B TICCL\-chain
+Merge the result of a ranked file, created with
+.B TICCL\-rank
+into a chained file with Correction Candidates at a distance beyond
+the original Levenshtein distance.
+
+.SH OPTIONS
+.B \-\-caseless
+.RS
+Calculate the Levensthein (or edit) distances ignoring all case.
+.RE
+
+.B \-\-alph
+alphabet
+.RS
+name of the alphabet file. This file must be in the format provided by
+.B TICCL\-lexstat.
+.RE
+
+.B \-\-nounk
+.RS
+Skip Correction Candidates that are are equal except for an UNK character.
+.RE
+
+.B \-o
+file
+.RS
+name for the output file. Default is to take the name of the input file and
+add
+.B .chained
+at the back
+.RE
+
+.B \-V
+or
+.B \-\-version
+.RS
+Show VERSION
+.RE
+
+.B \-V
+or
+.B \-\-version
+.RS
+usage info
+.RE
+
+.SH BUGS
+possibly
+
+.SH AUTHORS
+Ko van der Sloot lamasoftware@science.ru.nl
+
+Martin Reynaert reynaert@uvt.nl
