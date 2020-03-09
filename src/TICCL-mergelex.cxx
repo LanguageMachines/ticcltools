@@ -108,24 +108,24 @@ size_t read_words( const string& doc_name, map<string,unsigned int>& wc ){
 
 void usage( const string& name ){
   cerr << "Usage: " << name << " [options] file/dir" << endl;
-  cerr << "\t TICCL-mergelex will create a merged lexicon from range of" << endl;
-  cerr << "\t lexicon files in TICCL-lexstat or FoLiA-stats format." << endl;
-  cerr << "The output will be a 2 or 4 columned tab separated file, extension: *tsv " << endl;
-  cerr << "\t (4 columns when -p is specified)" << endl;
+  cerr << "\t TICCL-mergelex will create a merged lexicon from a range of" << endl;
+  cerr << "\t\t lexicon files in TICCL-lexstat or FoLiA-stats format." << endl;
+  cerr << "\t\t The output will be a 2 or 4 columned tab separated file, extension: .tsv " << endl;
+  cerr << "\t\t (4 columns when -p is specified)" << endl;
   cerr << "\t-p\t output percentages too. " << endl;
-  cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
-  cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
-  cerr << "\t\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
-  cerr << "\t-h\t this message" << endl;
-  cerr << "\t-v\t very verbose output." << endl;
-  cerr << "\t-V\t show version " << endl;
-  cerr << "\t-e\t expr: specify the expression all input files should match with." << endl;
+  cerr << "\t-e expr:\t specify the expression all input files should match with." << endl;
   cerr << "\t-o\t name of the output file(s) prefix." << endl;
   cerr << "\t-R\t search the dirs recursively (when appropriate)." << endl;
+  cerr << "\t-t <threads> or --threads <threads> Number of threads to run on." << endl;
+  cerr << "\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
+  cerr << "\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
+  cerr << "\t-v\t very verbose output." << endl;
+  cerr << "\t-h or --help\t this message" << endl;
+  cerr << "\t-V or --version\t show version " << endl;
 }
 
 int main( int argc, char *argv[] ){
-  CL_Options opts( "hVve:t:o:Rp", "threads:" );
+  CL_Options opts( "hVve:t:o:Rp", "threads:,help,version" );
   try {
     opts.init(argc,argv);
   }
