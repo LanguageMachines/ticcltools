@@ -744,6 +744,15 @@ void classify_one_entry( const UnicodeString& orig_word, unsigned int freq,
   }
 }
 
+void format( const UnicodeString& line ){
+  cerr << "\t\t\t";
+  for ( int i=0; i < line.length(); ++i ){
+    cerr << UnicodeString(line[i]);
+    if ( line[i] == ';' ){
+      cerr << endl << "\t\t\t";
+    }
+  }
+}
 
 UnicodeString default_filter = "æ >ae;"
   "Æ } [:Uppercase Letter:]* > AE;"
@@ -785,11 +794,12 @@ void usage( const string& name ){
   cerr << "\t--acro\t also create an acronyms file. (experimental)" << endl;
   cerr << "\t--filter='file'\t use rules from 'file' to transliterate  (experimental)" << endl;
   cerr << "\t\t see http://userguide.icu-project.org/transforms/general/rules for information about rules." << endl;
-  cerr << "\t\t default the following filter is used: " << endl
-       << default_filter << endl;
-  cerr << "\t-h\t this message " << endl;
+  cerr << "\t\t default the following filter is used: " << endl;
+  format(default_filter);
+  cerr << endl;
   cerr << "\t-v\t be verbose " << endl;
-  cerr << "\t-V\t show version " << endl;
+  cerr << "\t-h or --help\t this message " << endl;
+  cerr << "\t-V or --version\t show version " << endl;
 }
 
 int main( int argc, char *argv[] ){
