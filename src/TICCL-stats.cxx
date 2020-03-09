@@ -273,7 +273,7 @@ void usage( const string& name ){
   cerr << "\t--separator='sep' 	connect all n-grams with 'sep' (default is an underscore)" << endl;
   cerr << "\t--underscore\t Same as --separator='_'" << endl;
   cerr << "\t--hemp=<file>. Create a historical emphasis file. " << endl;
-  cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
+  cerr << "\t-t <threads> or --threads <threads> Number of threads to run on." << endl;
   cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
   cerr << "\t\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
   cerr << "\t-n\t newlines delimit the input." << endl;
