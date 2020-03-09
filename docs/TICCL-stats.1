@@ -1,0 +1,147 @@
+.TH TICCL-stats 1 "2020 mar 09"
+
+.SH NAME
+TICCL-stats - gather n-gram statistics from textfiles
+
+.SH SYNOPSIS
+TICCL-stats [options] FILE
+
+TICCL-stats [options] DIR
+
+.SH DESCRIPTION
+
+When a DIR is provided,
+.B TICCL-stats
+will process all files in DIR and store its results in the current
+directory in files called DIR.wordfreqlist.tsv,
+
+When a FILE is provided,
+.B TICCL-stats
+will process that file and store its results in the directory where FILE is
+found.
+
+The output format will be 2 or 4 <tab> separated columns (depending on the
+.B -p
+option)
+
+First column:
+the 'word' tag at hand.
+
+Second column:
+the Frequency of the 'word'
+
+when -p is provided:
+
+Third column:
+the accumulated frequency for all entries up to and including this one.
+
+Fourth column:
+the relative presence of the entry: what percentage of the corpus does the
+entry belong to?
+
+.SH OPTIONS
+.B --clip
+number
+.RS
+clipping factor. When an item's frequency is lower than 'number', it will not be stored.
+.RE
+
+.B -p
+.RS
+Also output accumulated counts and percentages
+.RE
+
+.B -n
+.RS
+read the input line by line.
+.RE
+
+.B -o
+outprefix
+.RS
+use outprefix for all output files.
+.RE
+
+.B --lower
+.RS
+Lowercase all words.
+.RE
+
+.B --separator
+sep
+.RS
+Define a separator value to connect ngrams. Default is an underscore.
+.RE
+
+.B --underscore
+.RS
+Backward compatibility. Preferably use --separator=_
+.RE
+
+.B --ngram
+count
+.RS
+Construct all n-grams of length 'count'
+.RE
+
+.B --hemp
+file
+.RS
+Create a historical emphasis file. This based on words consisting of singe space
+separated letters.
+.RE
+
+.B -t
+or
+.B --threads
+num_threads
+.RS
+use 'num_threads' threads to run on. You may us --threads="max" to use as many
+threads as possible. This will allocate 2 processors less than given by the
+$OMP_NUM_THREADS environment variable. Leaving some processor power for other
+purposes.
+.RE
+
+.B -e
+expr
+.RS
+when searching for files,
+.B
+TICCL-stats
+will only considers files that match with the expression 'expr' which may contain wildcards. The 'expr' is only matched against the file part. Not against paths.
+.RE
+
+.B -R
+.RS
+when a DIR is provided,
+.B TICCL-stats
+will recurse through this DIR and its subdirs to find files.
+.RE
+
+.B -X
+.RS
+all input is assumed to be XML, and ALL TEXT nodes are used for extract from
+.RE
+
+.B -V
+or
+.B --version
+.RS
+Show VERSION
+.RE
+
+.B -h
+or
+.B --help
+.RS
+Show usage() information
+.RE
+
+
+.SH BUGS
+possible
+
+.SH AUTHORS
+Ko van der Sloot lamasoftware@science.ru.nl
+
+Martin Reynaert: reynaert@uvt.nl
