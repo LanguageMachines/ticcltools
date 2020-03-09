@@ -1,4 +1,4 @@
-.TH TICCL-rank 1 "2016 jul 05"
+.TH TICCL-rank 1 "2020 mar 09"
 
 .SH NAME
 TICCL-rank - a variant ranker
@@ -19,7 +19,9 @@ most 'clip' variants, sorted in descending order of confidence.
 
 .B FILE
 .RS
-is an inputfile in TICCL-LDcalc format
+is an inputfile in
+.B TICCL-LDcalc
+format
 .RE
 
 .B --alph
@@ -37,18 +39,18 @@ a lexstat file confusion as produced by
 .B TICCL-lexstat
 .RE
 
-.B --charconffreq
-confreq
-.RS
-optionally output a frequency list of all confusions found in
-.B infile
-.RE
-
 .B -o
 outfile
 .RS
 store the results in
 .B outfile
+.RE
+
+.B --charconfreq
+filename
+.RS
+optionally output a frequency list of all confusions found in
+.B infile
 .RE
 
 .B --debug
@@ -64,13 +66,33 @@ clip
 output at most 'clip' variants per word.
 .RE
 
+.B --subtractartifrqfeature1
+artif
+.RS
+Decrease the frequencies for feature 1 with value 'artif'. The same value
+should have been used by
+.B
+TICCL-LDcalc
+.RE
+
+.B --subtractartifrqfeature2
+artif
+.RS
+Decrease the frequencies for feature 2 with value 'artif'. The same value
+should have been used by
+.B
+TICCL-LDcalc
+.RE
+
 .B --artifreq
 artifreq
 .RS
 Decrease the frequencies with value 'artifreq'. The same value should have been
 used by
 .B
-TICCL-LDcalc
+TICCL-LDcalc.
+OBSOLETE: use
+.B --subtractartifrqfeature2 instead
 .RE
 
 .B --wordvec
@@ -92,18 +114,29 @@ the columns 3 and 6 are not used
 .RE
 
 .B -t
-threads
+or
+.B --threads
+num_threads
 .RS
-run on 'threads' parallel.
+use 'num_threads' threads to run on. You may us --threads="max" to use as many
+threads as possible. This will allocate 2 processors less than given by the
+$OMP_NUM_THREADS environment variable. Leaving some processor power for other
+purposes.
+.RE
+
+.B -h or
+.B --help
+.RS
+show usage()
 .RE
 
 .B -v
-verbose
 .RS
 show debug information
 .RE
 
-.B -V
+.B -V or
+.B --version
 .RS
 Show VERSION
 .RE

@@ -1,0 +1,83 @@
+.TH TICCL-mergelex 1 "2020 mar 09"
+
+.SH NAME
+TICCL-mergelex - a tool to merge several lexicons
+
+.SH SYNOPSIS
+
+TICCL-mergelex [options] FILES/DIR
+
+.SH DESCRIPTION
+.B TICC-mergelex
+will create a merged lexicon from a range of lexicon files in
+.B TICCL-lexstat
+or
+.B FoLiA-stats
+format.
+The output will be a 2 or 4 columned tab separated file, extension: *tsv
+(4 columns when -p is specified)
+
+.SH OPTIONS
+.B -p
+.RS
+output percentages too.
+.RE
+
+.B -e
+expr
+.RS
+specifies the expression all input files should match with.
+.RE
+
+.B -R
+.RS
+Recursively search the given directory
+.RE
+
+.B -o
+output_file
+.RS
+Write results to this file.
+.RE
+
+.B -t
+or
+.B --threads
+num_threads
+.RS
+use 'num_threads' threads to run on. You may us --threads="max" to use as many
+threads as possible. This will allocate 2 processors less than given by the
+$OMP_NUM_THREADS environment variable. Leaving some processor power for other
+purposes.
+.RE
+
+.B -v
+.RS
+be more verbose
+.RE
+
+.B -V
+or
+.B --version
+.RS
+Show version
+.RE
+
+.B -h
+or
+.B --help
+.RS
+usage info
+.RE
+
+.SH BUGS
+possibly
+
+.SH AUTHORS
+Ko van der Sloot lamasoftware@science.ru.nl
+
+Martin Reynaert reynaert@uvt.nl
+
+.SH SEE ALSO
+.BR TICCL-lexstat (1)
+.BR FoLiA-stats (1)
