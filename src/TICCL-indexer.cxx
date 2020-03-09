@@ -65,9 +65,9 @@ void usage( const string& name ){
   cerr << "\t\t'high' characters. (default=35)" << endl;
   cerr << "\t--foci=<focifile>\tname of the file produced by the --artifrq parameter of TICCL-anahash." << endl;
   cerr << "\t\tThis file is used to limit the searchspace" << endl;
-  cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
+  cerr << "\t-t <threads> or --threads <threads>\n\t\t\t Number of threads to run on." << endl;
   cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
-  cerr << "\t\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
+  cerr << "\t\t\t reasonable value. ($OMP_NUM_TREADS - 2)" << endl;
   cerr << "\t--confstats=<statsfile>\tcreate a list of confusion statistics"
        << endl;
   cerr << "\t-V or --version show version " << endl;
