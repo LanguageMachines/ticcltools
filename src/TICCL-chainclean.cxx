@@ -55,7 +55,7 @@ set<string> follow_words;
 
 void usage( const string& name ){
   cerr << "usage: " << name << "[options] chainfile " << endl;
-  cerr << "\t\t The chainfiles is an outputfile from TICCL-chain." << endl;
+  cerr << "\t\t The chainfile is an outputfile from TICCL-chain." << endl;
   cerr << "\t--lexicon A validated lexicon." << endl;
   cerr << "\t--artifrq The artifreq. Default 100000000 ." << endl;
   cerr << "\t--low=<low>\t delete records with ngrams shorter than 'low' "
