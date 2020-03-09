@@ -59,14 +59,14 @@ set<string> follow_words;
 bool verbose = false;
 
 void usage( const string& name ){
-  cerr << "usage: " << name << " --alph <alphabetfile> --charconf <lexstat file>[--wordvec <wordvectorfile>] [-o <outputfile>] [-t threads] [--clip <clip>] [--debugfile <debugfile>] [--artifrq art] [--skipcols <skip>] infile" << endl;
+  cerr << "usage: " << name << " --alph <alphabetfile> --charconf <lexstat file> [--wordvec <wordvectorfile>] [-o <outputfile>] [-t threads] [--clip <clip>] [--debugfile <debugfile>] [--artifrq art] [--skipcols <skip>] infile" << endl;
   cerr << "\t'infile'\t is a file in TICCL-LDcalc format" << endl;
   cerr << "\t--alph 'alpha'\t an alphabet file in TICCL-lexstat format." << endl;
   cerr << "\t--charconf 'charconfus'\t a character confusion file in TICCL-lexstat format." << endl;
   cerr << "\t--charconfreq 'name'\t Extract a character confusion frequency file" << endl;
   cerr << "\t--wordvec<wordvecfile> read in a google word2vec file." << endl;
   cerr << "\t-o 'outfile'\t name of the output file." << endl;
-  cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
+  cerr << "\t-t <threads> or --threads <threads> Number of threads to run on." << endl;
   cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
   cerr << "\t\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
   cerr << "\t--clip 'clip'\t limit the number of variants per word to 'clip'." << endl;
@@ -788,8 +788,10 @@ int main( int argc, char **argv ){
   try {
     opts.set_short_options( "vVho:t:" );
     opts.set_long_options( "alph:,debugfile:,skipcols:,charconf:,charconfreq:,"
-			   "artifrq:,subtractartifrqfeature1:,subtractartifrqfeature2:,"
-			   "wordvec:,clip:,numvec:,threads:,verbose,follow:,ALTERNATIVE" );
+			   "artifrq:,"
+			   "subtractartifrqfeature1:,subtractartifrqfeature2:,"
+			   "wordvec:,clip:,numvec:,threads:,verbose,follow:,"
+			   "help,version,ALTERNATIVE" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -802,11 +804,11 @@ int main( int argc, char **argv ){
     usage( progname );
     exit(EXIT_FAILURE);
   }
-  if ( opts.extract('h' ) ){
+  if ( opts.extract('h') || opts.extract("help") ){
     usage( progname );
     exit(EXIT_SUCCESS);
   }
-  if ( opts.extract('V' ) ){
+  if ( opts.extract('V') || opts.extract("version") ){
     cerr << PACKAGE_STRING << endl;
     exit(EXIT_SUCCESS);
   }
