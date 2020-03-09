@@ -59,20 +59,22 @@ void usage( const string& name ){
   cerr << "\t--hash=<anahash>\tname of the anagram hashfile. (produced by TICCL-anahash)" << endl;
   cerr << "\t--charconf=<charconf>\tname of the character confusion file. (produced by TICCL-lexstat)" << endl;
   cerr << "\t--foci=<focifile>\tname of the file produced by the --artifrq parameter of TICCL-anahash" << endl;
-  cerr << "\t-o <outputfile>\tname for the outputfile. " << endl;
-  cerr << "\t--low=<low>\t skip entries from the anagram file shorter than "
-       << endl;
-  cerr << "\t\t'low' characters. (default = 5)" << endl;
-  cerr << "\t--high=<high>\t skip entries from the anagram file longer than "
-       << endl;
-  cerr << "\t\t'high' characters. (default=35)" << endl;
-  cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
-  cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
-  cerr << "\t\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
+  cerr << "\t\t\t This file is used to limit the searchspace" << endl;
+  cerr << "\t-o <outputfile>\t\tname for the outputfile. " << endl;
   cerr << "\t--confstats=<statsfile>\tcreate a list of confusion statistics"
        << endl;
-  cerr << "\t-V show version " << endl;
-  cerr << "\t-h this message " << endl;
+  cerr << "\t--low=<low>\t skip entries from the anagram file shorter than "
+       << endl;
+  cerr << "\t\t\t'low' characters. (default = 5)" << endl;
+  cerr << "\t--high=<high>\t skip entries from the anagram file longer than "
+       << endl;
+  cerr << "\t\t\t'high' characters. (default=35)" << endl;
+  cerr << "\t-t <threads> or --threads <threads>\n\t\t\t Number of threads to run on." << endl;
+  cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
+  cerr << "\t\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
+  cerr << "\t-v\t\t run verbose " << endl;
+  cerr << "\t-V or --version\t show version " << endl;
+  cerr << "\t-h\t\t this message " << endl;
 }
 
 struct experiment {
