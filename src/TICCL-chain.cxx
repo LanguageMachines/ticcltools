@@ -376,6 +376,7 @@ void usage( const string& name ){
   cerr << "usage: " << name << endl;
   cerr << "\t--caseless Calculate the Levensthein (or edit) distance ignoring case." << endl;
   cerr << "\t--alph <alphafile> name of the alphabet file." << endl;
+  cerr << "\t--nounk Skip Correction Candidates that are are equal except for one extra UNK character." << endl;
   cerr << "\t-o <outputfile> name of the output file." << endl;
   cerr << "\t-h or --help this message." << endl;
   cerr << "\t-v be verbose, repeat to be more verbose. " << endl;
