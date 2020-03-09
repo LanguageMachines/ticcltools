@@ -269,24 +269,25 @@ void usage( const string& name ){
   cerr << "\t\t\t(entries with frequency <= this factor will be ignored). " << endl;
   cerr << "\t-p\t output percentages too. " << endl;
   cerr << "\t--lower\t Lowercase all words" << endl;
-  cerr << "\t--ngram\t create an ngram list (default 1-gram)" << endl;
-  cerr << "\t--underscore\t separate the ngram entries with a '_' (default space)" << endl;
+  cerr << "\t--ngram size\t create an ngram for 'size' ngrams (default 1-gram)" << endl;
+  cerr << "\t--separator='sep' 	connect all n-grams with 'sep' (default is an underscore)" << endl;
+  cerr << "\t--underscore\t Same as --separator='_'" << endl;
   cerr << "\t--hemp=<file>. Create a historical emphasis file. " << endl;
   cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
   cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
   cerr << "\t\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
-  cerr << "\t-h\t this message." << endl;
   cerr << "\t-n\t newlines delimit the input." << endl;
   cerr << "\t-v\t very verbose output." << endl;
-  cerr << "\t-V\t show version " << endl;
-  cerr << "\t-e\t expr: specify the expression all input files should match with." << endl;
+  cerr << "\t-e expr\t specify the expression all input files should match with." << endl;
   cerr << "\t-o\t name of the output file(s) prefix." << endl;
   cerr << "\t-X\t the inputfiles are assumed to be XML. (all TEXT nodes are used)" << endl;
   cerr << "\t-R\t search the dirs recursively (when appropriate)." << endl;
+  cerr << "\t-V or --version\t show version " << endl;
+  cerr << "\t-h or --help \t this message." << endl;
 }
 
 int main( int argc, char *argv[] ){
-  CL_Options opts( "hnVvpe:t:o:RX", "clip:,lower,ngram:,underscore,hemp:,threads:" );
+  CL_Options opts( "hnVvpe:t:o:RX", "clip:,lower,ngram:,underscore,separator:,hemp:,threads:" );
   try {
     opts.init(argc,argv);
   }
@@ -303,11 +304,11 @@ int main( int argc, char *argv[] ){
   int clip = 0;
   string expression;
   string outputPrefix;
-  if ( opts.extract('V' ) ){
+  if ( opts.extract('V' ) || opts.extract("version") ){
     cerr << PACKAGE_STRING << endl;
     exit(EXIT_SUCCESS);
   }
-  if ( opts.extract('h' ) ){
+  if ( opts.extract('h' ) || opts.extract("help") ){
     usage(progname);
     exit(EXIT_SUCCESS);
   }
@@ -320,7 +321,15 @@ int main( int argc, char *argv[] ){
   bool dopercentage = opts.extract('p');
   bool lowercase = opts.extract("lower");
   bool recursiveDirs = opts.extract( 'R' );
-  bool do_under = opts.extract( "underscore" );
+  string sep = "_";
+  opts.extract( "separator", sep );
+  if ( opts.extract( "underscore" ) ){
+    if ( sep != "_" ){
+      cerr << "--separator and --underscore conflict!" << endl;
+      exit(EXIT_FAILURE);
+    }
+    sep = "_";
+  }
   string hempName;
   opts.extract("hemp", hempName );
   if ( !opts.extract( 'o', outputPrefix ) ){
@@ -404,10 +413,6 @@ int main( int argc, char *argv[] ){
   }
   map<string,unsigned int> wc;
   unsigned int wordTotal =0;
-  string sep = " ";
-  if ( do_under ){
-    sep = "_";
-  }
 
   set<string> hemp;
 #pragma omp parallel for shared(fileNames,wordTotal,wc,hemp)
