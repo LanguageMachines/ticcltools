@@ -55,28 +55,28 @@ int verbose = 0;
 
 void usage( const string& progname ){
   cerr << "usage: " << progname << endl;
-  cerr << "\t--index <confuslist> as produced by TICCL-indexer or TICCL-indexerNT." << endl;
-  cerr << "\t--hash <anahash>, as produced by TICCl-anahash," << endl;
-  cerr << "\t--clean <cleanfile> as produced by TICCL-unk" << endl;
-  cerr << "\t--diac <diacritics file> a list of 'diacritical' confusions." << endl;
-  cerr << "\t--hist <historicalfile> a list of 'historical' confusions." << endl;
-  cerr << "\t--alph <alphabet> an alphabet file (as produced by TICCL-lexstat)" << endl;
-  cerr << "\t--nohld ignore --LD for 'historical' confusions." << endl;
-  cerr << "\t-o <outputfile>" << endl;
-  cerr << "\t-t <threads>\n\t--threads <threads> Number of threads to run on." << endl;
+  cerr << "\t--index <confuslist>\t inputfile produced by TICCL-indexer or TICCL-indexerNT." << endl;
+  cerr << "\t--hash <anahash>\t a file produced by TICCl-anahash," << endl;
+  cerr << "\t--clean <cleanfile>\t a file produced by TICCL-unk" << endl;
+  cerr << "\t--diac <diacriticsfile>\t a list of 'diacritical' confusions." << endl;
+  cerr << "\t--hist <historicalfile>\t a list of 'historical' confusions." << endl;
+  cerr << "\t--alph <alphabet>\t alphabet file (as produced by TICCL-lexstat)" << endl;
+  cerr << "\t--nohld\t\t ignore --LD for 'historical' confusions." << endl;
+  cerr << "\t-o <outputfile>\t the name of an outputfile." << endl;
+  cerr << "\t-t <threads> or --threads <threads> Number of threads to run on." << endl;
   cerr << "\t\t\t If 'threads' has the value \"max\", the number of threads is set to a" << endl;
   cerr << "\t\t\t reasonable value. (OMP_NUM_TREADS - 2)" << endl;
-  cerr << "\t--LD <distance> The Levensthein (or edit) distance to use" << endl;
-  cerr << "\t--artifrq <artifreq> " << endl;
+  cerr << "\t--LD <distance>\t The Levensthein (or edit) distance to use" << endl;
+  cerr << "\t--artifrq <artifreq>\t (default=0)" << endl;
   cerr << "\t--low=<low>\t skip entries from the anagram file shorter than "
        << endl;
-  cerr << "\t\t'low' characters. (default = 5)" << endl;
+  cerr << "\t\t\t'low' characters. (default=5)" << endl;
   cerr << "\t--high=<high>\t skip entries from the anagram file longer than "
        << endl;
-  cerr << "\t\t'high' characters. (default=35)" << endl;
-  cerr << "\t-h or --help this message " << endl;
-  cerr << "\t-v be verbose, repeat to be more verbose " << endl;
-  cerr << "\t-V or --version show version " << endl;
+  cerr << "\t\t\t'high' characters. (default=35)" << endl;
+  cerr << "\t-v\t\t be verbose, repeat to be more verbose " << endl;
+  cerr << "\t-h or --help\t this message " << endl;
+  cerr << "\t-V or --version\t show version " << endl;
   exit( EXIT_FAILURE );
 }
 
