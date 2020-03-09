@@ -1,0 +1,68 @@
+.TH TICCL\-chainclean 1 "2029 mar 09"
+
+.SH NAME
+TICCL\-chainclean \- Cleanup a chained file
+.SH SYNOPSIS
+
+TICCL\-chainclean [options] CHAINED\-FILE
+
+.SH DESCRIPTION
+
+.B TICCL\-chainclean
+Cleanup a chained file, created with
+.B TICCL\-chain
+
+.SH OPTIONS
+.B \-\-lexicon
+file
+.RS
+a validated lexicon.
+.RE
+
+.B \-\-artifrq
+value
+.RS
+Use an artifrq value. (Default=100000000).
+.RE
+
+
+.B \-\-low
+.RS
+Delete all records with a lenght shorter than 'low' characters. (default=5)
+.RE
+
+.B \-o
+file
+.RS
+name for the output file. Default is to take the name of the input file and
+add
+.B .cleaned
+at the back
+.RE
+
+.B \-V
+or
+.B \-\-version
+.RS
+Show VERSION
+.RE
+
+.B \-h
+or
+.B \-\-help
+.RS
+give usage information.
+.RE
+
+.B \-v
+.RS
+be verbose. repeat \-v to increment the verbosity level.
+.RE
+
+.SH BUGS
+possibly
+
+.SH AUTHORS
+Ko van der Sloot lamasoftware@science.ru.nl
+
+Martin Reynaert reynaert@uvt.nl
