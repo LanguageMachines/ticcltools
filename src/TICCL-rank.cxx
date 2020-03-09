@@ -139,7 +139,7 @@ float lookup( const vector<word_dist>& vec,
 }
 
 record::record( const string& line,
-		size_t sub_artifreq,
+		size_t sub_artifreq_f1,
 		size_t sub_artifreq_f2,
 		const vector<word_dist>& WV ):
   variant_count(-1),
@@ -167,8 +167,8 @@ record::record( const string& line,
     string f2_string = parts[4];
     candidate_freq = TiCC::stringTo<size_t>( f2_string );
     reduced_candidate_freq = candidate_freq;
-    if ( sub_artifreq > 0 && reduced_candidate_freq >= sub_artifreq ){
-      reduced_candidate_freq -= sub_artifreq;
+    if ( sub_artifreq_f1 > 0 && reduced_candidate_freq >= sub_artifreq_f1 ){
+      reduced_candidate_freq -= sub_artifreq_f1;
     }
     if ( sub_artifreq_f2 > 0 && candidate_freq >= sub_artifreq_f2 ){
       size_t rf2 = candidate_freq - sub_artifreq_f2;
@@ -822,8 +822,8 @@ int main( int argc, char **argv ){
   string debugFile;
   int clip = 0;
   string skipC;
-  size_t sub_artifreq = 0;
   size_t sub_artifreq_f1 = 0;
+  size_t sub_artifreq_f2 = 0;
   if ( !opts.extract("charconf",lexstatFile) ){
     cerr << "missing --charconf option" << endl;
     exit(EXIT_FAILURE);
@@ -845,15 +845,15 @@ int main( int argc, char **argv ){
     }
   }
   if ( opts.extract( "subtractartifrqfeature2", value ) ){
-    if ( !TiCC::stringTo(value,sub_artifreq) ) {
+    if ( !TiCC::stringTo(value,sub_artifreq_f2) ) {
       cerr << "illegal value for --subtractartifrqfeature2 (" << value << ")" << endl;
       exit( EXIT_FAILURE );
     }
   }
-  if ( sub_artifreq == 0 ){
+  if ( sub_artifreq_f2 == 0 ){
     if ( opts.extract( "artifrq", value ) ){
       cerr << "WARNING: Obsolete option 'artifrq'. Use 'subtractartifrqfeature2' instead." << endl;
-      if ( !TiCC::stringTo(value,sub_artifreq) ) {
+      if ( !TiCC::stringTo(value,sub_artifreq_f2) ) {
 	cerr << "illegal value for --artifrq (" << value << ")" << endl;
 	exit( EXIT_FAILURE );
       }
@@ -1291,7 +1291,7 @@ int main( int argc, char **argv ){
       ++it;
       string line;
       getline( in, line );
-      record rec( line, sub_artifreq, sub_artifreq_f1, vec );
+      record rec( line, sub_artifreq_f1, sub_artifreq_f2, vec );
       records.push_back( rec );
       if ( verbose ){
 	int tmp = 0;
@@ -1339,7 +1339,7 @@ int main( int argc, char **argv ){
       ++it;
       string line;
       getline( in, line );
-      record rec( line, sub_artifreq, sub_artifreq_f1, vec );
+      record rec( line, sub_artifreq_f1, sub_artifreq_f2, vec );
       records.push_back( rec );
       if ( verbose ){
 	int tmp = 0;
