@@ -21,7 +21,7 @@ file. They share the same bag-of-characters, are thus anagrams. Hence the name:
 anagram hashing.
 
 The inputfile is assumed to be 'clean' (see
-.B FoLiA-stats
+.B FoLiA-unk
 )
 
 .SH OPTIONS
@@ -36,7 +36,7 @@ name of the alphabet file. This file must be in the format provided by
 clip
 .RS
 cut off the alphabet at frequency 'clip' (This might already have been done on
-creation in TICCL-lexstat, but a (larger) clip can be chosen here.)
+creation in TICCL-lexstat, but a (larger) clip can be chosen here.) (optional)
 
 Alphabet entries with frequency 0 are special and NEVER clipped. (e.g the SEPARATOR mark)
 .RE
@@ -50,7 +50,7 @@ frequencies. When they are missing, 'artifrq' is used. (so the
 .B --artifrq
 option is obligatory when
 .B --background
-is used.)
+is used.) (Note: Only to be used for special, experimental purposes! Use this option in TICCL-unk to merge in a background lexicon and/or frequency list.)
 .RE
 
 .B --separator
@@ -75,17 +75,21 @@ get frequency 'artifreq + observed corpus frequency'.
 
 If this parameter is > 0,
 .B TICCL-anahash
-will also create  a separate list of anagram values that DO NOT have the
+will also create a separate list of anagram values that DO NOT have the
 lexical frequency 'artifreq'.
 
-This option is only relevant if you want to run
-.B TICC-indexerNT
-later on.
+If present, only the word types in the list will further be evaluated. If absent, all word forms in the anahash list will be evaluated by either
+.B
+TICCL-indexerNT
+or 
+.B
+TICCL-indexer
+in the next step.
+
 .B
 TICCL-indexerNT
 is recommended for smaller corpora, e.g. book size. It is faster than
-.B
-TICCL-indexer
+.B TICCL-indexer
 on smaller corpora, but much more memory demanding.
 
 So
@@ -96,16 +100,16 @@ is indicated for use with larger corpora.
 
 .B --ngrams
 .RS
-When the frequency file contains n-grams, (not necessary of equal arity)
+When the frequency file contains n-grams, (not necessarily of equal arity)
 we split them into 1-grams and do a frequency lookup per part for the artifreq
-value.
+value. When all component parts of an n-gram have a a frequency equal or above the artifrq, the n-gram will not be evaluated.
 
 .RE
 
 .B --list
 .RS
 convert the inputfile into a file that is an exact copy of its words with
-the anagram hashes added. Preserves the order of the input, and may contain
+the anagram hash values added. Preserves the order of the input, and may contain
 doubles.
 
 .RE
