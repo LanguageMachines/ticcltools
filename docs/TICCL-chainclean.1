@@ -1,7 +1,7 @@
 .TH TICCL\-chainclean 1 "2029 mar 09"
 
 .SH NAME
-TICCL\-chainclean \- Cleanup a chained file
+TICCL\-chainclean \- Clean up a chained file
 .SH SYNOPSIS
 
 TICCL\-chainclean [options] CHAINED\-FILE
@@ -9,8 +9,9 @@ TICCL\-chainclean [options] CHAINED\-FILE
 .SH DESCRIPTION
 
 .B TICCL\-chainclean
-Cleanup a chained file, created with
+Clean up a chained file, created with
 .B TICCL\-chain
+Advised to be used in the case corrections were performed on n-grams (bi- and trigrams). (Experimental)
 
 .SH OPTIONS
 .B \-\-lexicon
@@ -28,7 +29,7 @@ Use an artifrq value. (Default=100000000).
 
 .B \-\-low
 .RS
-Delete all records with a lenght shorter than 'low' characters. (default=5)
+Delete all records with a length shorter than 'low' characters. (default=5)
 .RE
 
 .B \-o
