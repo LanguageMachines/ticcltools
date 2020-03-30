@@ -1,7 +1,7 @@
 .TH TICCL-LDcalc 1 "2016 jul 05"
 
 .SH NAME
-TICCL-LDcalc - calculate stuff
+TICCL-LDcalc - retrieve matching word pairs and perform preliminary filtering
 
 .SH SYNOPSIS
 
@@ -9,7 +9,7 @@ TICCL-LDcalc [options]
 
 .SH DESCRIPTION
 .B TICCL-LDcalc
-read a confusion list file and creates an inputfile for TICCL-rank
+reads in a confusion list file and creates an inputfile for TICCL-rank
 
 .SH OPTIONS
 
@@ -25,14 +25,14 @@ or
 .B --hash
 anahash
 .RS
-name of the anagram hasegs file produced by
+name of the anagram hash file produced by
 .B TICCL-anahash
 .RE
 
 .B --alph
 alphabet
 .RS
-name of the an alphabet file generated with
+name of the alphabet file generated with
 .B TICCL-lexstat
 .RE
 
@@ -46,21 +46,21 @@ name of the 'clean' file as produced by
 .B --hist
 hist
 .RS
-name of the 'historical confusions' file
+name of the 'historical confusions' file (optional)
 .RE
 
 .B --nohld
 .RS
 ignore
 .B --LD
-for 'historical' confusionns
+for 'historical' confusions
 
 .RE
 
 .B --diac
 diacritics
 .RS
-a list of 'diacritical' confusions
+a list of confusions due to diacritics (optional)
 .RE
 
 .B -o
@@ -72,7 +72,7 @@ store the results is 'outfile'
 .B --LD
 distance
 .RS
-calculate results upto an edit distance of 'distance'
+calculate results up to an edit distance of 'distance'
 .RE
 
 .B --artifrq
@@ -98,7 +98,7 @@ The default is 35.
 .B -t
 threads
 .RS
-run on 'threads' parallel.
+run on the specified number of 'threads' in parallel.
 .RE
 
 .B -v
