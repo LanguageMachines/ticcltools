@@ -1,7 +1,7 @@
 .TH TICCL-mergelex 1 "2020 mar 09"
 
 .SH NAME
-TICCL-mergelex - a tool to merge several lexicons
+TICCL-mergelex - a tool to merge several lexicons. Note this tool does not form part of the TICCL pipeline proper!
 
 .SH SYNOPSIS
 
@@ -10,7 +10,7 @@ TICCL-mergelex [options] FILES/DIR
 .SH DESCRIPTION
 .B TICC-mergelex
 will create a merged lexicon from a range of lexicon files in
-.B TICCL-lexstat
+.B TICCL-stats
 or
 .B FoLiA-stats
 format.
@@ -47,7 +47,7 @@ num_threads
 .RS
 use 'num_threads' threads to run on. You may us --threads="max" to use as many
 threads as possible. This will allocate 2 processors less than given by the
-$OMP_NUM_THREADS environment variable. Leaving some processor power for other
+$OMP_NUM_THREADS environment variable, leaving some processor power for other
 purposes.
 .RE
 
