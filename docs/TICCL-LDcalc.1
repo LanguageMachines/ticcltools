@@ -9,14 +9,15 @@ TICCL-LDcalc [options]
 
 .SH DESCRIPTION
 .B TICCL-LDcalc
-reads in a confusion list file and creates an inputfile for TICCL-rank
+reads in a word variants index file produced by TICCL-indexer(NT), retrieves the actual word pairs applying
+preliminary filtering and creates an inputfile for TICCL-rank
 
 .SH OPTIONS
 
 .B --index
 conflist
 .RS
-name of the confusion list file produced by
+name of the word variant index file produced by
 .B TICCL-indexer
 or
 .B TICCL-indexerNT
