@@ -25,13 +25,13 @@ The actual TICCL post-correction programs in this collection are:
     FoLiA-stats, is far more developed and recommended.
 - TICCL-unk
   - a cleanup tool for word frequency lists. Creates a 'clean' file with desirable words, an 'unk' file with 
-    uncorrectable words and a 'punct' file with words that would be clean after removing puncuation before and after.
+    uncorrectable words and a 'punct' file with words that would be clean after removing punctuation before and after.
 - TICCL-anahash
   - a tool to create anagram hash values from a word frequency file. All anagrams formable given a particular bag 
-     of characters and observed in the frequency file are assigned a distinguishing anagram vaue, based on the 
-     individual character values assigned by tool TICCL-lextstat to each character in the alphabet.
+     of characters and observed in the frequency file are assigned a distinguishing anagram value, based on the 
+     individual character values assigned by tool TICCL-lexstat to each character in the alphabet.
 - TICCL-indexer and TICCL-indexerNT
-  - a  tool  to create an exhaustive index to all lexical
+  - a  tool to create an exhaustive numerical index to all lexical
     variants present in a corpus within the distances defined by the character 
     confusion values, given a particular Levenshtein or edit distance.
 - TICCL-LDcalc
@@ -39,10 +39,12 @@ The actual TICCL post-correction programs in this collection are:
     TICCL-lexstat and TICCL-unk. Retrieves and pre-filters the symbolic pairs of word variants linked to their 
     Correction Candidates.
 - TICCL-rank
-  - ranks a word variant list on the basis of a wide range of criteria and the actual set of features to be used in the    
-    correction candidate ranking.
+  - ranks a word variant list on the basis of a wide range of criteria and the actual set of ranking features 
+    specified to be used in the Correction Candidate ranking.
 - TICCL-chain
-  - Chaining: "my friends' friends are my friends": the highest frequency Correction Candidate in the TICCL-rank output 
+  - Tool designed to gather variants that lie outside the edit distance to the perceived best Correction Candidate, 
+    given the Levenshtein distance set earlier in the work flow. This distance is usually two characters.
+  - Chaining = "my friends' friends are my friends" : the highest frequency Correction Candidate in the TICCL-rank output 
     list with best-first ranked variants within the set Levenshtein Distance (LD) that act as CCs for further variants 
     beyond this LD (and so on for even greater LDs) is directly linked to these larger LD variants.
 - TICCL-chainclean
