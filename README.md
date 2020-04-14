@@ -17,22 +17,39 @@ We have prepared TICCL for work in many languages, mainly on the basis of availa
 [All languages] (http://ticclops.uvt.nl/TICCL.languagefiles.ALLavailable.20160421.tar.gz)
 
 [Dutch] (http://ticclops.uvt.nl/TICCL.languagefiles.nld.20160421.tar.gz)
+
 [English] (http://ticclops.uvt.nl/TICCL.languagefiles.eng.20160421.tar.gz)
+
 [Finnish] (http://ticclops.uvt.nl/TICCL.languagefiles.fin.20160421.tar.gz)
+
 [French] (http://ticclops.uvt.nl/TICCL.languagefiles.fra.20160421.tar.gz)
+
 [Friesian] (http://ticclops.uvt.nl/TICCL.languagefiles.fry.20160421.tar.gz)
+
 [German] (http://ticclops.uvt.nl/TICCL.languagefiles.deu.20160421.tar.gz)
+
 [German Fraktur] (http://ticclops.uvt.nl/TICCL.languagefiles.deu-frak.20160421.tar.gz)
+
 [Greek (antique)] (http://ticclops.uvt.nl/TICCL.languagefiles.grc.20160421.tar.gz)
+
 [Greek (modern)] (http://ticclops.uvt.nl/TICCL.languagefiles.ell.20160421.tar.gz)
+
 [Icelandic] (http://ticclops.uvt.nl/TICCL.languagefiles.isl.20160421.tar.gz)
+
 [Italian] (http://ticclops.uvt.nl/TICCL.languagefiles.ita.20160421.tar.gz)
+
 [Latin] (http://ticclops.uvt.nl/TICCL.languagefiles.lat.20160421.tar.gz)
+
 [Polish] (http://ticclops.uvt.nl/TICCL.languagefiles.pol.20160421.tar.gz)
+
 [Portuguese] (http://ticclops.uvt.nl/TICCL.languagefiles.por.20160421.tar.gz)
+
 [Romanian] (http://ticclops.uvt.nl/TICCL.languagefiles.ron.20160421.tar.gz)
+
 [Russian] (http://ticclops.uvt.nl/TICCL.languagefiles.rus.20160421.tar.gz)
+
 [Spanish] (http://ticclops.uvt.nl/TICCL.languagefiles.spa.20160421.tar.gz)
+
 [Swedish] (http://ticclops.uvt.nl/TICCL.languagefiles.swe.20160421.tar.gz)
 
 Unpack in your main TICCL directory. A subdirectory data/int/ will be
