@@ -14,8 +14,7 @@ Note: A fairly wide range of language specific alphabet and character confusion 
 
 We have prepared TICCL for work in many languages, mainly on the basis of available open source lexicons due to Aspell. The language specific files are available here:
 
-[All languages]
-(http://ticclops.uvt.nl/TICCL.languagefiles.ALLavailable.20160421.tar.gz)
+[All languages] (http://ticclops.uvt.nl/TICCL.languagefiles.ALLavailable.20160421.tar.gz)
 [Dutch] (http://ticclops.uvt.nl/TICCL.languagefiles.nld.20160421.tar.gz)
 [English] (http://ticclops.uvt.nl/TICCL.languagefiles.eng.20160421.tar.gz)
 [Finnish] (http://ticclops.uvt.nl/TICCL.languagefiles.fin.20160421.tar.gz)
