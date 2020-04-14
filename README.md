@@ -47,7 +47,7 @@ The actual TICCL post-correction programs in this collection are:
     beyond this LD (and so on for even greater LDs) is directly linked to these larger LD variants.
 - TICCL-chainclean
   - After correction of n-gram frequency lists (with n > 1) word strings may have been assigned different Correction 
-    Candidates on the unigram, bi or trigram correction levels, leading to inconsistencies. This experimental tool tries
+    Candidates on the unigram, bi- or trigram correction levels, leading to inconsistencies. This experimental tool tries
     to solve the inconsistencies.
   
   Post-TICCLtools: actual text editing:
