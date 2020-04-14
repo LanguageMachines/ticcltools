@@ -1,7 +1,7 @@
 TICCLTOOLS
 ==================
 
-TICCLtools is a collection of programs to process datafiles towards fully-automatic lexical corpus post-correction. Together they constitute the bulk of TICCL: Text Induced Corpus-Cleanup. This software is usually invoked by the pipeline system PICCL: https://github.com/LanguageMachines/PICCL ,
+TICCLtools is a collection of programs to process text data files towards fully-automatic lexical corpus post-correction. Together they constitute the bulk of TICCL: Text Induced Corpus-Cleanup. This software is usually invoked by the pipeline system PICCL: https://github.com/LanguageMachines/PICCL ,
 consult there for installation and usage instructions unless you really want to invoke the individual tools manually.
 
 The workflows in PICCL, the Philosophical Integrator of Computational and Corpus Libraries are schematically visualised here, TICCL being the one to the right: 
@@ -9,6 +9,8 @@ The workflows in PICCL, the Philosophical Integrator of Computational and Corpus
 ![PICCL Architecture](https://raw.githubusercontent.com/LanguageMachines/PICCL/master/architecture.png)
 
 Preparation for a specific language and its alphabet:
+
+(Note: A fairly wide range of language specific alphabet and character confusion files are available online, precluding the need for performing this preparatory step yourself.)
 
 - TICCL-lexstat
   - Creates a character frequency ranked 'alphabet' file of the unicode characters that are present in a lexicon for 
