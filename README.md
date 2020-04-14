@@ -10,7 +10,7 @@ The workflows in PICCL, the Philosophical Integrator of Computational and Corpus
 
 Preparation for a specific language and its alphabet:
 
-(Note: A fairly wide range of language specific alphabet and character confusion files are available online, precluding the need for performing this preparatory step yourself.)
+Note: A fairly wide range of language specific alphabet and character confusion files are available online, precluding the need for performing this preparatory step yourself.
 
 We have prepared TICCL for work in many languages, mainly on the basis of available open source lexicons due to Aspell. The language specific files are available here:
 
