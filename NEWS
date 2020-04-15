@@ -30,7 +30,7 @@ triggered some code adaptations. (values < 0 are not possible)
   - added a --follow option for debugging purposes
   - added --subtractartifrqfeature1 and --subtractartifrqfeature2 options
   - replaced pairs_combined ranking by median ranking
-  - added an n-garm filter
+  - added an n-gram filter
 
 * TICCL-chain:
   - added --nounk option
