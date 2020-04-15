@@ -1,3 +1,49 @@
+ticcltools 0.7 2020-04-15
+[Martin Reynaert]
+* updated man pages
+* updated README.md
+
+[Ko vander Sloot]
+Numerous bug fixes and additions. Added a .so for common functions
+
+The bitType is changed to uint64_t (for the biggest int possible) which
+triggered some code adaptations. (values < 0 are not possible)
+
+* TICCL-unk:
+  - some changes in UNK detection
+  - added a --hemp option
+  - create a .fore.clean file when a background corpus is merged in
+
+* TICCL-stats:
+  - added a -n option to use a newline as delimiter
+
+* TICCL-indexer(NT):
+  - better and faster implementation
+  - added --confstats option
+
+* TICCL-LDcalc:
+  - added a --follow option for debugging purposes
+  - fix for https://github.com/LanguageMachines/ticcltools/issues/30
+  - added --low and --high parameters
+
+* TICCL-rank:
+  - added a --follow option for debugging purposes
+  - added --subtractartifrqfeature1 and --subtractartifrqfeature2 options
+  - replaced pairs_combined ranking by median ranking
+  - added an n-garm filter
+
+* TICCL-chain:
+  - added --nounk option
+  - fix for https://github.com/LanguageMachines/ticcltools/issues/38
+  - fix for https://github.com/LanguageMachines/ticcltools/issues/37
+  - use the alphabet file too with --alph
+
+* TICCL-chainclean: new module to clean chain ranked files
+
+* TICCL-anahash:
+  - accept lexicons without frequencies too. (also simple word lists)
+  - added a -o option
+
 ticcltools 0.6 2018-06-05
 [Ko vander Sloot]
 Intermediate release, with a lot of new code to handle N-grams
