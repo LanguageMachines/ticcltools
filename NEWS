@@ -3,7 +3,7 @@ ticcltools 0.7 2020-04-15
 * updated man pages
 * updated README.md
 
-[Ko vander Sloot]
+[Ko van der Sloot]
 Numerous bug fixes and additions. Added a .so for common functions
 
 The bitType is changed to uint64_t (for the biggest int possible) which
