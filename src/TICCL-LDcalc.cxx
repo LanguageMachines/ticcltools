@@ -86,6 +86,8 @@ class ld_record {
 public:
   ld_record( const string&,
 	     const string&,
+	     bitType key1,
+	     bitType key2,
 	     const map<string,size_t>&,
 	     const map<UnicodeString,size_t>&,
 	     bool, bool, bool,
@@ -122,6 +124,8 @@ public:
   int ld;
   int cls;
   bitType KWC;
+  bitType _key1;
+  bitType _key2;
   bool canon;
   bool FLoverlap;
   bool LLoverlap;
@@ -135,6 +139,7 @@ public:
 
 
 ld_record::ld_record( const string& s1, const string& s2,
+		      bitType key1, bitType key2,
 		      const map<string,size_t>& f_map,
 		      const map<UnicodeString,size_t>& low_f_map,
 		      bool is_KHC, bool no_KHCld, bool is_diachrone,
@@ -144,6 +149,8 @@ ld_record::ld_record( const string& s1, const string& s2,
   ld(-1),
   cls(0),
   KWC(0),
+  _key1(key1),
+  _key2(key2),
   canon(false),
   FLoverlap(false),
   LLoverlap(false),
@@ -522,7 +529,12 @@ bool ld_record::test_frequency( size_t threshold ){
 
 void ld_record::sort_high_second(){
   // order the record with the highest (most probable) freqency as CC
-  if ( low_freq1 > low_freq2 ){
+  if ( low_freq1 == low_freq2 ){
+    if ( _key1 > _key2 ){
+      flip();
+    }
+  }
+  else if ( low_freq1 > low_freq2 ){
     if ( follow ){
 #pragma omp critical (debugout)
       {
@@ -583,10 +595,10 @@ bool transpose_pair( ld_record& record,
     }
   }
   record.sort_high_second();
-  if ( !record.test_frequency( freqThreshold ) ){
+  if ( !record.acceptable( freqThreshold, alfabet ) ){
     return false;
   }
-  if ( !record.acceptable( freqThreshold, alfabet ) ){
+  if ( !record.test_frequency( freqThreshold ) ){
     return false;
   }
   if ( record.analyze_ngrams( low_freqMap, freqThreshold, low_limit,
@@ -610,6 +622,7 @@ bool transpose_pair( ld_record& record,
 }
 
 void handleTranspositions( const set<string>& s,
+			   bitType key,
 			   const map<string,size_t>& freqMap,
 			   const map<UnicodeString,size_t>& low_freqMap,
 			   const set<UChar>& alfabet,
@@ -637,6 +650,7 @@ void handleTranspositions( const set<string>& s,
 	following = true;
       }
       ld_record record( str1, str2,
+			key, key,
 			freqMap, low_freqMap,
 			isKHC, noKHCld, isDIAC, following );
       if ( transpose_pair( record, low_freqMap,
@@ -687,6 +701,7 @@ bool compare_pair( ld_record& record,
 
 void compareSets( int ldValue,
 		  bitType KWC,
+		  bitType key1,
 		  const set<string>& s1, const set<string>& s2,
 		  const map<string,size_t>& freqMap,
 		  const map<UnicodeString,size_t>& low_freqMap,
@@ -729,6 +744,7 @@ void compareSets( int ldValue,
 	}
       }
       ld_record record( str1, str2,
+			key1, KWC + key1,
 			freqMap, low_freqMap,
 			isKHC, noKHCld, isDIAC, following );
       if ( compare_pair( record, low_freqMap, ldValue, KWC,
@@ -753,7 +769,9 @@ void add_short( ostream& os,
 		int max_ld, size_t threshold ){
   for ( const auto& entry : dis_count ){
     vector<UnicodeString> parts = TiCC::split_at( entry.first, "~" );
-    ld_record rec( TiCC::UnicodeToUTF8(parts[0]), TiCC::UnicodeToUTF8(parts[1]),
+    ld_record rec( TiCC::UnicodeToUTF8(parts[0]),
+		   TiCC::UnicodeToUTF8(parts[1]),
+		   0, 0,
 		   freqMap, low_freqMap,
 		   false, false, false, false );
     if ( !rec.ld_check( max_ld ) ){
@@ -1188,6 +1206,7 @@ int main( int argc, char **argv ){
 	    }
 	    if ( do_trans ){
 	      handleTranspositions( sit1->second,
+				    key,
 				    freqMap, low_freqMap, alfabet,
 				    dis_map, dis_count, ngram_count,
 				    artifreq, low_limit, isKHC, noKHCld, isDIAC,
@@ -1208,7 +1227,7 @@ int main( int argc, char **argv ){
 #pragma omp critical (debugout)
 	    cout << "bekijk key2 " << mainKey + key << endl;
 	  }
-	  compareSets( LDvalue, mainKey,
+	  compareSets( LDvalue, mainKey, key,
 		       sit1->second, sit2->second,
 		       freqMap, low_freqMap, alfabet,
 		       dis_map, dis_count, ngram_count,
