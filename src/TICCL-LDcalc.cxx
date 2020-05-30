@@ -657,7 +657,8 @@ void handleTranspositions( const set<string>& s,
 
 bool compare_pair( ld_record& record,
 		   const map<UnicodeString,size_t>& low_freqMap,
-		   int ldValue, size_t KWC,
+		   int ldValue,
+		   bitType KWC,
 		   map<UnicodeString,set<UnicodeString>>& dis_map,
 		   map<UnicodeString, size_t>& dis_count,
 		   map<UnicodeString, size_t>& ngram_count,
@@ -1161,10 +1162,6 @@ int main( int argc, char **argv ){
 	for ( size_t i=0; i < parts.size(); ++i ){
 	  string keyS = parts[i];
 	  bitType key = TiCC::stringTo<bitType>(keyS);
-	  if ( verbose > 1 ){
-#pragma omp critical (debugout)
-	    cout << "bekijk key1 " << key << endl;
-	  }
 	  map<bitType,set<string> >::const_iterator sit1 = hashMap.find(key);
 	  if ( sit1 == hashMap.end() ){
 	    if ( verbose > 1 ){
@@ -1173,6 +1170,10 @@ int main( int argc, char **argv ){
 		   << "' in the input that isn't present in the hashes." << endl;
 	    }
 	    continue;
+	  }
+	  if ( verbose > 1 ){
+#pragma omp critical (debugout)
+	    cout << "bekijk key1 " << key << endl;
 	  }
 	  if ( sit1->second.size() > 0
 	       && LDvalue >= 2 ){
@@ -1193,10 +1194,6 @@ int main( int argc, char **argv ){
 				    record_store );
 	    }
 	  }
-	  if ( verbose > 1 ){
-#pragma omp critical (debugout)
-	    cout << "bekijk key2 " << mainKey + key << endl;
-	  }
 	  map<bitType, set<string> >::const_iterator sit2 = hashMap.find(mainKey+key);
 	  if ( sit2 == hashMap.end() ){
 	    if ( verbose > 4 ){
@@ -1206,6 +1203,10 @@ int main( int argc, char **argv ){
 		   << "' isn't present in the hashes." << endl;
 	    }
 	    continue;
+	  }
+	  if ( verbose > 1 ){
+#pragma omp critical (debugout)
+	    cout << "bekijk key2 " << mainKey + key << endl;
 	  }
 	  compareSets( LDvalue, mainKey,
 		       sit1->second, sit2->second,
