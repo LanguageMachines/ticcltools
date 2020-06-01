@@ -81,6 +81,7 @@ void usage( const string& progname ){
 }
 
 set<string> follow_words;
+map<UChar,bitType> alphabet;
 
 class ld_record {
 public:
@@ -93,10 +94,11 @@ public:
 	     bool, bool, bool,
 	     bool );
   void flip(){
-    str1.swap(str2);
+    //    str1.swap(str2);
     //    ls1.swap(ls2); UnicodeString.swap() is introduced in ICU56.
     //                   Way to new for some systems :{
-    UnicodeString tmp = ls1; ls1 = ls2; ls2 = tmp; // stupid...
+    UnicodeString tmp = str1; str1 = str2; str2 = tmp; // stupid...
+    tmp = ls1; ls1 = ls2; ls2 = tmp; // stupid...
     swap( freq1, freq2 );
     swap( low_freq1, low_freq2 );
   }
@@ -113,11 +115,11 @@ public:
   bool acceptable( size_t, const map<UChar,bitType>& );
   UnicodeString get_key() const;
   string toString() const;
-  string str1;
+  UnicodeString str1;
   UnicodeString ls1;
   size_t freq1;
   size_t low_freq1;
-  string str2;
+  UnicodeString str2;
   UnicodeString ls2;
   size_t freq2;
   size_t low_freq2;
@@ -144,8 +146,6 @@ ld_record::ld_record( const string& s1, const string& s2,
 		      const map<UnicodeString,size_t>& low_f_map,
 		      bool is_KHC, bool no_KHCld, bool is_diachrone,
 		      bool following ):
-  str1(s1),
-  str2(s2),
   ld(-1),
   cls(0),
   KWC(0),
@@ -159,7 +159,7 @@ ld_record::ld_record( const string& s1, const string& s2,
   noKHCld(no_KHCld),
   is_diac(is_diachrone)
 {
-  ls1 = TiCC::UnicodeFromUTF8(s1);
+  str1 = TiCC::UnicodeFromUTF8(s1);
   auto const it1 = f_map.find( s1 );
   if ( it1 != f_map.end() ){
     freq1 = it1->second;
@@ -167,6 +167,7 @@ ld_record::ld_record( const string& s1, const string& s2,
   else {
     freq1 = 0;
   }
+  ls1 = str1;
   ls1.toLower();
   auto const lit1 = low_f_map.find( ls1 );
   if ( lit1 != low_f_map.end() ){
@@ -175,7 +176,6 @@ ld_record::ld_record( const string& s1, const string& s2,
   else {
     low_freq1 = 0;
   }
-  ls2 = TiCC::UnicodeFromUTF8(s2);
   auto const it2 = f_map.find( s2 );
   if ( it2 != f_map.end() ){
     freq2 = it2->second;
@@ -183,6 +183,8 @@ ld_record::ld_record( const string& s1, const string& s2,
   else {
     freq2 = 0;
   }
+  str2 = TiCC::UnicodeFromUTF8(s2);
+  ls2 = str2;
   ls2.toLower();
   auto const lit2 = low_f_map.find( ls2 );
   if ( lit2 != low_f_map.end() ){
@@ -195,8 +197,7 @@ ld_record::ld_record( const string& s1, const string& s2,
 }
 
 UnicodeString ld_record::get_key() const {
-  return TiCC::UnicodeFromUTF8( str1 ) + "~"
-    + TiCC::UnicodeFromUTF8( str2 );
+  return str1 + "~" + str2;
 }
 
 bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
@@ -206,10 +207,8 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 				map<UnicodeString, size_t>& dis_count,
 				map<UnicodeString, size_t>& ngram_count ){
   ngram_point = 0;
-  UnicodeString us1 = TiCC::UnicodeFromUTF8(str1);
-  UnicodeString us2 = TiCC::UnicodeFromUTF8(str2);
-  vector<UnicodeString> parts1 = TiCC::split_at( us1, US_SEPARATOR );
-  vector<UnicodeString> parts2 = TiCC::split_at( us2, US_SEPARATOR );
+  vector<UnicodeString> parts1 = TiCC::split_at( str1, US_SEPARATOR );
+  vector<UnicodeString> parts2 = TiCC::split_at( str2, US_SEPARATOR );
   if ( parts1.size() == 1 && parts2.size() == 1 ){
     if ( follow ){
 #pragma omp critical (debugout)
@@ -243,7 +242,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 	if ( follow ){
 #pragma omp critical (debugout)
 	  {
-	    cerr << "ngram candidates: " << us1 << " AND " << us2
+	    cerr << "ngram candidates: " << str1 << " AND " << str2
 		 << " are too different. Discard" << endl;
 	  }
 	}
@@ -257,7 +256,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
     if ( follow ){
 #pragma omp critical (debugout)
       {
-	cerr << "analyze ngram candidates: " << us1 << " AND " << us2
+	cerr << "analyze ngram candidates: " << str1 << " AND " << str2
 	     << endl;
       }
     }
@@ -304,7 +303,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
       if ( follow ){
 #pragma omp critical (debugout)
 	{
-	  cerr << "ngram candidates: " << us1 << " AND " << us2
+	  cerr << "ngram candidates: " << str1 << " AND " << str2
 	       << " are too different. Discard" << endl;
 	}
       }
@@ -351,7 +350,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 #pragma omp critical (debugout)
     {
       cerr << "ngram candidate: '" << diff_part1 << "~" << diff_part2
-	   << "' in n-grams pair: " << us1 << " # " << us2 << endl;
+	   << "' in n-grams pair: " << str1 << " # " << str2 << endl;
     }
   }
   UnicodeString lp = diff_part1;
@@ -378,7 +377,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
     // count this short words pair AND store the original n-gram pair
 #pragma omp critical (update)
     {
-      dis_map[disamb_pair].insert( us1 + "~" + us2 );
+      dis_map[disamb_pair].insert( str1 + "~" + str2 );
       ++dis_count[disamb_pair];
     }
     if ( follow ){
@@ -531,6 +530,7 @@ bool ld_record::test_frequency( size_t threshold ){
 void ld_record::sort_high_second(){
   // order the record with the highest (most probable) freqency as CC
   if ( low_freq1 == low_freq2 ){
+    //    if ( ::hash(str1,alphabet) > ::hash(str2,alphabet) ){
     if ( _key1 > _key2 ){
       flip();
     }
@@ -939,7 +939,6 @@ int main( int argc, char **argv ){
     exit(EXIT_FAILURE);
   }
 
-  map<UChar,bitType> alphabet;
   if ( !alfabetFile.empty() ){
     ifstream lexicon( alfabetFile );
     if ( !lexicon ){
