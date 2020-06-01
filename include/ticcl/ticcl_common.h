@@ -26,6 +26,7 @@
 #ifndef TICCL_COMMON_H
 #define TICCL_COMMON_H
 
+#include <map>
 #include "unicode/unistr.h"
 #include "unicode/ustream.h"
 #include "unicode/uchar.h"
@@ -34,10 +35,20 @@ typedef uint64_t bitType;
 
 const std::string S_SEPARATOR = "_";
 const icu::UnicodeString US_SEPARATOR = "_";
+extern const bitType HonderdHash;
+extern const bitType HonderdEenHash;
 
 bitType high_five( int );
+bitType hash( const icu::UnicodeString& ,
+	      std::map<UChar,bitType>&,
+	      bool =false );
+
 unsigned int ldCompare( const icu::UnicodeString&,
 			const icu::UnicodeString& );
+
+bool fillAlphabet( std::istream&,
+		   std::map<UChar,bitType>&,
+		   int =0 );
 
 inline std::string toString( int8_t c ){
   switch ( c ){

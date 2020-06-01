@@ -22,20 +22,21 @@
       https://github.com/LanguageMachines/ticcltools/issues
   or send mail to:
       lamasoftware (at ) science.ru.nl
-
 */
+
+#include "ticcutils/StringOps.h"
+#include "ticcutils/Unicode.h"
 #include "ticcl/ticcl_common.h"
 
 #include <cstdlib>
 #include <string>
 #include <vector>
-//#include <set>
-//#include <map>
-//#include <iostream>
-//#include <fstream>
 
 using namespace icu;
 using namespace std;
+
+const bitType HonderdHash = high_five( 100 );
+const bitType HonderdEenHash = high_five( 101 );
 
 bitType high_five( int val ){
   bitType result = val;
@@ -43,6 +44,49 @@ bitType high_five( int val ){
   result *= val;
   result *= val;
   result *= val;
+  return result;
+}
+
+bitType hash( const UnicodeString& s,
+	      map<UChar,bitType>& alphabet,
+	      bool debug ){
+  UnicodeString us = s;
+  us.toLower();
+  bitType result = 0;
+  bool multPunct = false;
+  for( int i=0; i < us.length(); ++i ){
+    map<UChar,bitType>::const_iterator it = alphabet.find( us[i] );
+    if ( it != alphabet.end() ){
+      result += it->second;
+      if ( debug ){
+	cerr << "  CHAR, add " << UnicodeString( us[i] ) << " "
+	     << it->second << " ==> " << result << endl;
+      }
+    }
+    else {
+      int8_t charT = u_charType( us[i] );
+      if ( u_isspace( us[i] ) ){
+	continue;
+      }
+      else if ( ticc_ispunct( charT ) ){
+	if ( !multPunct ){
+	  result += HonderdHash;
+	  if ( debug ){
+	    cerr << "PUNCT, add " << UnicodeString( us[i] ) << " "
+		 << HonderdHash	 << " ==> " << result << endl;
+	  }
+	  multPunct = true;
+	}
+      }
+      else {
+	result += HonderdEenHash;
+	if ( debug ){
+	  cerr << "   UNK, add " << UnicodeString( us[i] ) << " "
+	       << HonderdHash << " ==> " << result << endl;
+	}
+      }
+    }
+  }
   return result;
 }
 
@@ -61,4 +105,28 @@ unsigned int ldCompare( const UnicodeString& s1, const UnicodeString& s2 ){
   }
   unsigned int result = prevCol[len2];
   return result;
+}
+
+bool fillAlphabet( istream& is,
+		   map<UChar,bitType>& alphabet,
+		   int clip ){
+  string line;
+  while ( getline( is, line ) ){
+    if ( line.size() == 0 || line[0] == '#' ){
+      continue;
+    }
+    vector<string> v;
+    int n = TiCC::split_at( line, v, "\t" );
+    if ( n != 3 ){
+      throw runtime_error( "unsupported format for alphabet file" );
+    }
+    int freq = TiCC::stringTo<int>( v[1] );
+    if ( freq > clip || freq == 0 ){
+      // freq = 0 is special, for separator
+      UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
+      bitType hash = TiCC::stringTo<bitType>( v[2] );
+      alphabet[v0[0]] = hash;
+    }
+  }
+  return true;
 }

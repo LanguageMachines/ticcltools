@@ -110,7 +110,7 @@ public:
   void fill_fields( size_t );
   void sort_high_second();
   bool test_frequency( size_t );
-  bool acceptable( size_t, const set<UChar>& );
+  bool acceptable( size_t, const map<UChar,bitType>& );
   UnicodeString get_key() const;
   string toString() const;
   string str1;
@@ -482,7 +482,8 @@ bool ld_record::ld_check( int ldvalue ) {
   return false;
 }
 
-bool ld_record::acceptable( size_t threshold, const set<UChar>& alfabet ) {
+bool ld_record::acceptable( size_t threshold,
+			    const map<UChar,bitType>& alphabet ) {
   if ( low_freq1 >= threshold && !is_diac ){
     // reject correction of lexical words, except for diachrone translations
     if ( follow ){
@@ -494,10 +495,10 @@ bool ld_record::acceptable( size_t threshold, const set<UChar>& alfabet ) {
     }
     return false;
   }
-  if ( !alfabet.empty() ){
+  if ( !alphabet.empty() ){
     // reject non lexically clean Corection Candidates
     for ( int i=0; i < ls2.length(); ++i ){
-      if ( alfabet.find( ls2[i] ) == alfabet.end() ){
+      if ( alphabet.find( ls2[i] ) == alphabet.end() ){
 	if ( follow ){
 #pragma omp critical (debugout)
 	  {
@@ -585,7 +586,7 @@ bool transpose_pair( ld_record& record,
 		     map<UnicodeString, size_t>& ngram_count,
 		     size_t freqThreshold,
 		     size_t low_limit,
-		     const set<UChar>& alfabet,
+		     const map<UChar,bitType>& alphabet,
 		     bool following ){
   if ( following ){
 #pragma omp critical (debugout)
@@ -595,7 +596,7 @@ bool transpose_pair( ld_record& record,
     }
   }
   record.sort_high_second();
-  if ( !record.acceptable( freqThreshold, alfabet ) ){
+  if ( !record.acceptable( freqThreshold, alphabet ) ){
     return false;
   }
   if ( !record.test_frequency( freqThreshold ) ){
@@ -625,7 +626,7 @@ void handleTranspositions( const set<string>& s,
 			   bitType key,
 			   const map<string,size_t>& freqMap,
 			   const map<UnicodeString,size_t>& low_freqMap,
-			   const set<UChar>& alfabet,
+			   const map<UChar,bitType>& alphabet,
 			   map<UnicodeString,set<UnicodeString>>& dis_map,
 			   map<UnicodeString, size_t>& dis_count,
 			   map<UnicodeString, size_t>& ngram_count,
@@ -655,7 +656,7 @@ void handleTranspositions( const set<string>& s,
 			isKHC, noKHCld, isDIAC, following );
       if ( transpose_pair( record, low_freqMap,
 			   dis_map, dis_count, ngram_count,
-			   freqThreshold, low_limit, alfabet, following ) ){
+			   freqThreshold, low_limit, alphabet, following ) ){
 	UnicodeString key = record.get_key();
 #pragma omp critical (output)
 	{
@@ -678,13 +679,13 @@ bool compare_pair( ld_record& record,
 		   map<UnicodeString, size_t>& ngram_count,
 		   size_t freqThreshold,
 		   size_t low_limit,
-		   const set<UChar>& alfabet,
+		   const map<UChar,bitType>& alphabet,
 		   bool following ){
   if ( !record.ld_check( ldValue ) ){
     return false;
   }
   record.sort_high_second();
-  if ( !record.acceptable( freqThreshold, alfabet) ){
+  if ( !record.acceptable( freqThreshold, alphabet) ){
     return false;
   }
   if ( record.analyze_ngrams( low_freqMap, freqThreshold, low_limit,
@@ -705,7 +706,7 @@ void compareSets( int ldValue,
 		  const set<string>& s1, const set<string>& s2,
 		  const map<string,size_t>& freqMap,
 		  const map<UnicodeString,size_t>& low_freqMap,
-		  const set<UChar>& alfabet,
+		  const map<UChar,bitType>& alphabet,
 		  map<UnicodeString,set<UnicodeString>>& dis_map,
 		  map<UnicodeString, size_t>& dis_count,
 		  map<UnicodeString, size_t>& ngram_count,
@@ -749,7 +750,7 @@ void compareSets( int ldValue,
 			isKHC, noKHCld, isDIAC, following );
       if ( compare_pair( record, low_freqMap, ldValue, KWC,
 			 dis_map, dis_count, ngram_count,
-			 freqThreshold, low_limit, alfabet, following ) ){
+			 freqThreshold, low_limit, alphabet, following ) ){
 	UnicodeString key = record.get_key();
 #pragma omp critical (output)
 	{
@@ -938,7 +939,7 @@ int main( int argc, char **argv ){
     exit(EXIT_FAILURE);
   }
 
-  set<UChar> alfabet;
+  map<UChar,bitType> alphabet;
   if ( !alfabetFile.empty() ){
     ifstream lexicon( alfabetFile );
     if ( !lexicon ){
@@ -946,19 +947,8 @@ int main( int argc, char **argv ){
       exit(EXIT_FAILURE);
     }
     cout << progname << ": reading alphabet: " << alfabetFile << endl;
-    string line;
-    while ( getline( lexicon, line ) ){
-      if ( line.size() == 0 || line[0] == '#' )
-	continue;
-      vector<string> vec;
-      if ( TiCC::split( line, vec ) != 3 ){
-	cerr << progname << ": invalid line '" << line << "' in " << alfabetFile << endl;
-	exit( EXIT_FAILURE );
-      }
-      UnicodeString key = TiCC::UnicodeFromUTF8(vec[0]);
-      alfabet.insert(key[0]);
-    }
-    cout << progname << ": read " << alfabet.size() << " letters with frequencies" << endl;
+    fillAlphabet( lexicon, alphabet );
+    cout << progname << ": read " << alphabet.size() << " letters with frequencies" << endl;
   }
   ifstream ff( frequencyFile  );
   if ( !ff ){
@@ -1207,7 +1197,7 @@ int main( int argc, char **argv ){
 	    if ( do_trans ){
 	      handleTranspositions( sit1->second,
 				    key,
-				    freqMap, low_freqMap, alfabet,
+				    freqMap, low_freqMap, alphabet,
 				    dis_map, dis_count, ngram_count,
 				    artifreq, low_limit, isKHC, noKHCld, isDIAC,
 				    record_store );
@@ -1229,7 +1219,7 @@ int main( int argc, char **argv ){
 	  }
 	  compareSets( LDvalue, mainKey, key,
 		       sit1->second, sit2->second,
-		       freqMap, low_freqMap, alfabet,
+		       freqMap, low_freqMap, alphabet,
 		       dis_map, dis_count, ngram_count,
 		       artifreq, low_limit, isKHC, noKHCld, isDIAC,
 		       record_store );

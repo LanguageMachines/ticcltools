@@ -43,82 +43,6 @@
 using namespace	std;
 using namespace icu;
 
-bool fillAlpha( istream& is,
-		map<UChar,bitType>& alphabet,
-		int clip ){
-  string line;
-  while ( getline( is, line ) ){
-    if ( line.size() == 0 || line[0] == '#' ){
-      continue;
-    }
-    vector<string> v;
-    int n = TiCC::split_at( line, v, "\t" );
-    if ( n != 3 ){
-      cerr << "unsupported format for alphabet file" << endl;
-      exit(EXIT_FAILURE);
-    }
-    int freq = TiCC::stringTo<int>( v[1] );
-    if ( freq > clip || freq == 0 ){
-      // freq = 0 is special, for separator
-      UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
-      bitType hash = TiCC::stringTo<bitType>( v[2] );
-      alphabet[v0[0]] = hash;
-    }
-  }
-  cout << "finished reading alphabet. (" << alphabet.size() << " characters)"
-       << endl;
-  return true;
-}
-
-bitType hash( const UnicodeString& s,
-	      map<UChar,bitType>& alphabet ){
-  static bitType HonderdEenHash = 0;
-  static bitType HonderdHash = 0;
-  if ( HonderdEenHash == 0 ){
-    HonderdHash = high_five( 100 );
-    HonderdEenHash = high_five( 101 );
-  }
-  UnicodeString us = s;
-  us.toLower();
-  bitType result = 0;
-  bool multPunct = false;
-  bool klets = false; // ( s == "Engeĳclíe" );
-  for( int i=0; i < us.length(); ++i ){
-    map<UChar,bitType>::const_iterator it = alphabet.find( us[i] );
-    if ( it != alphabet.end() ){
-      result += it->second;
-      if ( klets ){
-	cerr << "  CHAR, add " << UnicodeString( us[i] ) << " "
-	     << it->second << " ==> " << result << endl;
-      }
-    }
-    else {
-      int8_t charT = u_charType( us[i] );
-      if ( u_isspace( us[i] ) ){
-	continue;
-      }
-      else if ( ticc_ispunct( charT ) ){
-	if ( !multPunct ){
-	  result += HonderdHash;
-	  if ( klets ){
-	    cerr << "PUNCT, add " << UnicodeString( us[i] ) << " "
-		 << HonderdHash	 << " ==> " << result << endl;
-	  }
-	  multPunct = true;
-	}
-      }
-      else {
-	result += HonderdEenHash;
-	if ( klets ){
-	  cerr << "   UNK, add " << UnicodeString( us[i] ) << " "
-	       << HonderdHash << " ==> " << result << endl;
-	}
-      }
-    }
-  }
-  return result;
-}
-
 void create_output( ostream& os,
 		    map<bitType, set<UnicodeString> >& anagrams ){
   for ( const auto& it : anagrams ){
@@ -288,10 +212,12 @@ int main( int argc, char *argv[] ){
 
   map<UChar,bitType> alphabet;
   cout << "reading alphabet file: " << alphafile << endl;
-  if ( !fillAlpha( as, alphabet, clip ) ){
+  if ( !fillAlphabet( as, alphabet, clip ) ){
     cerr << "serious problems reading alphabet file: " << alphafile << endl;
     exit(EXIT_FAILURE);
   }
+  cout << "finished reading alphabet. (" << alphabet.size() << " characters)"
+       << endl;
   bool doMerge = false;
   string foci_file_name = file_name;
   if ( list ){

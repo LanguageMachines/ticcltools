@@ -52,8 +52,6 @@ using namespace icu;
 
 using TiCC::operator<<;
 
-const bitType HonderdHash = high_five( 100 );
-const bitType HonderdEenHash = high_five( 101 );
 const string high_101 = TiCC::toString(HonderdEenHash);
 
 unsigned int ld( const UnicodeString& in1,
@@ -266,76 +264,6 @@ void chain_class::debug_info( ostream& db ){
   }
 }
 
-bool fillAlpha( istream& is,
-		map<UChar,bitType>& alphabet,
-		int clip ){
-  string line;
-  while ( getline( is, line ) ){
-    if ( line.size() == 0 || line[0] == '#' ){
-      continue;
-    }
-    vector<string> v;
-    int n = TiCC::split_at( line, v, "\t" );
-    if ( n != 3 ){
-      cerr << "unsupported format for alphabet file" << endl;
-      exit(EXIT_FAILURE);
-    }
-    int freq = TiCC::stringTo<int>( v[1] );
-    if ( freq > clip || freq == 0 ){
-      // freq = 0 is special, for separator
-      UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
-      bitType hash = TiCC::stringTo<bitType>( v[2] );
-      alphabet[v0[0]] = hash;
-    }
-  }
-  cout << "finished reading alphabet. (" << alphabet.size() << " characters)"
-       << endl;
-  return true;
-}
-
-bitType hash( const UnicodeString& s,
-	      map<UChar,bitType>& alphabet ){
-  UnicodeString us = s;
-  us.toLower();
-  bitType result = 0;
-  bool multPunct = false;
-  bool klets = false; //( s == "voörnaamfle" );
-  for( int i=0; i < us.length(); ++i ){
-    map<UChar,bitType>::const_iterator it = alphabet.find( us[i] );
-    if ( it != alphabet.end() ){
-      result += it->second;
-      if ( klets ){
-	cerr << "  CHAR, add " << UnicodeString( us[i] ) << " "
-	     << it->second << " ==> " << result << endl;
-      }
-    }
-    else {
-      int8_t charT = u_charType( us[i] );
-      if ( u_isspace( us[i] ) ){
-	continue;
-      }
-      else if ( ticc_ispunct( charT ) ){
-	if ( !multPunct ){
-	  result += HonderdHash;
-	  if ( klets ){
-	    cerr << "PUNCT, add " << UnicodeString( us[i] ) << " "
-		 << HonderdHash	 << " ==> " << result << endl;
-	  }
-	  multPunct = true;
-	}
-      }
-      else {
-	result += HonderdEenHash;
-	if ( klets ){
-	  cerr << "   UNK, add " << UnicodeString( us[i] ) << " "
-	       << HonderdHash << " ==> " << result << endl;
-	}
-      }
-    }
-  }
-  return result;
-}
-
 void chain_class::output( const string& out_file ){
   ofstream os( out_file );
   multimap<size_t, string,std::greater<size_t>> out_map;
@@ -424,7 +352,9 @@ int main( int argc, char **argv ){
   else {
     ifstream is( alphabet_name );
     cout << "start reading alphabet: " << alphabet_name << endl;
-    fillAlpha( is, alphabet, 0 );
+    fillAlphabet( is, alphabet, 0 );
+    cout << "finished reading alphabet. (" << alphabet.size() << " characters)"
+	 << endl;
   }
   string out_file;
   opts.extract( 'o', out_file );
