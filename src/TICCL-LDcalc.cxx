@@ -531,7 +531,7 @@ void ld_record::sort_high_second(){
   // order the record with the highest (most probable) freqency as CC
   if ( low_freq1 == low_freq2 ){
     //    if ( ::hash(str1,alphabet) > ::hash(str2,alphabet) ){
-    if ( _key1 > _key2 ){
+    if ( _key1 < _key2 ){
       flip();
     }
   }
