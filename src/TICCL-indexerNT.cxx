@@ -51,8 +51,6 @@
 using namespace std;
 using namespace icu;
 
-//#define TRANSPOSE_TEST 1
-
 void usage( const string& name ){
   cerr << name << endl;
   cerr << "options: " << endl;
@@ -138,11 +136,7 @@ void handle_exp( const experiment& exp,
 	if ( sit != confSet.end() ){
 #pragma omp critical
 	  {
-#ifdef TRANSPOSE_TEST
-	    result[*it2].insert(diff);
-#else
 	    result[diff].insert(*it2);
-#endif
 	  }
 	}
 	++it2;
@@ -157,11 +151,7 @@ void handle_exp( const experiment& exp,
 	if ( sit != confSet.end() ){
 #pragma omp critical
 	  {
-#ifdef TRANSPOSE_TEST
-	    result[*it1].insert(diff);
-#else
 	    result[diff].insert(*it1);
-#endif
 	  }
 	}
 	++it3;
@@ -276,9 +266,6 @@ int main( int argc, char **argv ){
   else if ( !TiCC::match_back( outFile, ".indexNT" ) ){
     outFile += ".indexNT";
   }
-#ifdef TRANSPOSE_TEST
-  outFile += ".T";
-#endif
 
   ofstream *csf = 0;
   if ( !confstats_file.empty() ){
