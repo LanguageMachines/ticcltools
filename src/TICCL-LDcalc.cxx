@@ -94,11 +94,8 @@ public:
 	     bool, bool, bool,
 	     bool );
   void flip(){
-    //    str1.swap(str2);
-    //    ls1.swap(ls2); UnicodeString.swap() is introduced in ICU56.
-    //                   Way to new for some systems :{
-    UnicodeString tmp = str1; str1 = str2; str2 = tmp; // stupid...
-    tmp = ls1; ls1 = ls2; ls2 = tmp; // stupid...
+    str1.swap(str2);
+    ls1.swap(ls2);
     swap( freq1, freq2 );
     swap( low_freq1, low_freq2 );
   }
