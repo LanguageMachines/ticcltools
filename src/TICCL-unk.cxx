@@ -1020,7 +1020,7 @@ int main( int argc, char *argv[] ){
       UnicodeString word = TiCC::UnicodeFromUTF8(v[0]);
       back_lexicon[word] = freq;
     }
-    cout << "read a blackground lexicon with " << back_lexicon.size()
+    cout << "read a background lexicon with " << back_lexicon.size()
 	 << " entries." << endl;
 
     for ( const auto& it : back_lexicon ){
