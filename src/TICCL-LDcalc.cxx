@@ -1109,6 +1109,11 @@ int main( int argc, char **argv ){
   while ( getline( indexf, line ) ){
     ++file_lines;
   }
+  if ( file_lines == 0 ){
+    cerr << "the indexfile: '" << indexFile
+	 << "' is empty! No further processing possible." << endl;
+    exit( EXIT_FAILURE );
+  }
   cout << progname << ": " << file_lines << " character confusion values to be read.\n\t\tWe indicate progress by printing a dot for every 1000 confusion values processed" << endl;
   indexf.clear();
   indexf.seekg( 0 );
@@ -1129,7 +1134,7 @@ int main( int argc, char **argv ){
     vector<string> parts;
     if ( TiCC::split_at( line, parts, "#" ) != 2 ){
       cerr << progname << ": ERROR in line " << line_nr
-	   << " of indexfile: unable to split in 2 parts at #"
+	   << " of the indexfile: unable to split in 2 parts at #"
 	   << endl << "line was" << endl << line << endl;
       ++err_cnt;
     }
