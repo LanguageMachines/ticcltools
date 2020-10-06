@@ -1299,17 +1299,20 @@ int main( int argc, char **argv ){
 	tmp = ++count;
 	//
 	// omp single isn't allowed here. trick!
-	int numt = 0;
 #ifdef HAVE_OPENMP
-	numt = omp_get_thread_num();
+	int numt = omp_get_thread_num();
+	if ( numt == 0 ){
 #endif
-	if ( numt == 0 && tmp % 10000 == 0 ){
-	  cout << ".";
-	  cout.flush();
-	  if ( tmp % 500000 == 0 ){
-	    cout << endl << tmp << endl;
+	  if ( tmp % 10000 == 0 ){
+	    cout << ".";
+	    cout.flush();
+	    if ( tmp % 500000 == 0 ){
+	      cout << endl << tmp << endl;
+	    }
 	  }
+#ifdef HAVE_OPENMP
 	}
+#endif
       }
     }
     collect_ngrams( records, variants_set );
@@ -1347,17 +1350,20 @@ int main( int argc, char **argv ){
 	tmp = ++count;
 	//
 	// omp single isn't allowed here. trick!
-	int numt = 0;
 #ifdef HAVE_OPENMP
-	numt = omp_get_thread_num();
+	int numt = omp_get_thread_num();
+	if ( numt == 0 ){
 #endif
-	if ( numt == 0 && tmp % 10000 == 0 ){
-	  cout << ".";
-	  cout.flush();
-	  if ( tmp % 500000 == 0 ){
-	    cout << endl << tmp << endl;
+	  if ( tmp % 10000 == 0 ){
+	    cout << ".";
+	    cout.flush();
+	    if ( tmp % 500000 == 0 ){
+	      cout << endl << tmp << endl;
+	    }
 	  }
+#ifdef HAVE_OPENMP
 	}
+#endif
       }
     }
     records = filter_ngrams( records, variants_set );
