@@ -104,6 +104,14 @@ public:
 		       map<UnicodeString,set<UnicodeString>>&,
 		       map<UnicodeString, size_t>&,
 		       map<UnicodeString, size_t>& );
+  bool handle_the_pair( const UnicodeString&,
+			const UnicodeString&,
+			const map<UnicodeString, size_t>&,
+			size_t,
+			size_t,
+			map<UnicodeString,set<UnicodeString>>&,
+			map<UnicodeString, size_t>&,
+			map<UnicodeString, size_t>& );
   bool ld_is( int );
   bool ld_check( int );
   void fill_fields( size_t );
@@ -195,6 +203,84 @@ ld_record::ld_record( const string& s1, const string& s2,
 
 UnicodeString ld_record::get_key() const {
   return str1 + "~" + str2;
+}
+
+bool ld_record::handle_the_pair( const UnicodeString& diff_part1,
+				 const UnicodeString& diff_part2,
+				 const map<UnicodeString, size_t>& low_freqMap,
+				 size_t freqThreshold,
+				 size_t low_limit,
+				 map<UnicodeString,set<UnicodeString>>& dis_map,
+				 map<UnicodeString, size_t>& dis_count,
+				 map<UnicodeString, size_t>& ngram_count ){
+  //
+  // Ok, so we have a pair
+  //
+  if ( follow ){
+#pragma omp critical (debugout)
+    {
+      cerr << "ngram candidate: '" << diff_part1 << "~" << diff_part2
+	   << "' in n-grams pair: " << str1 << " # " << str2 << endl;
+    }
+  }
+  if ( diff_part1.isEmpty() ) {
+    // can this happen?
+    // anyway: nothing to do
+    return false; // nothing special
+  }
+
+  UnicodeString lp = diff_part1;
+  lp.toLower();
+  auto const& entry1 = low_freqMap.find( lp );
+  lp = diff_part2;
+  lp.toLower();
+  if ( entry1 != low_freqMap.end()
+       && entry1->second >= freqThreshold ){
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "ngram part1: " << diff_part1 << " is high frequent: "
+	     << "skipping" << endl;
+      }
+    }
+    return true; // no use to keep this
+  }
+  // so this IS a potential good correction
+  ngram_point = 1;
+  UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
+  if ( (size_t)diff_part1.length() < low_limit ){
+    // a 'short' word
+    // count this short words pair AND store the original n-gram pair
+#pragma omp critical (update)
+    {
+      dis_map[disamb_pair].insert( str1 + "~" + str2 );
+      ++dis_count[disamb_pair];
+    }
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "stored: short " << disamb_pair << " and forget about "
+	     << str1 << "~" << str2 << endl;
+      }
+    }
+  }
+  else {
+    // count the pair
+#pragma omp critical (update)
+    {
+      ++ngram_count[disamb_pair];
+      // keep pair for later
+    }
+    // signal to discard this ngram (in favor of the unigram within)
+    if ( follow ){
+#pragma omp critical (debugout)
+      {
+	cerr << "stored: " << disamb_pair << " and forget about "
+	     << str1 << "~" << str2 << endl;
+      }
+    }
+  }
+  return true; // forget the original parents
 }
 
 bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
@@ -335,73 +421,12 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
       }
     }
   }
-  if ( diff_part1.isEmpty() ) {
-    // can this happen?
-    // anyway: nothing to do
-    return false; // nothing special
-  }
-  //
-  // Ok, so we have a pair
-  //
-  if ( follow ){
-#pragma omp critical (debugout)
-    {
-      cerr << "ngram candidate: '" << diff_part1 << "~" << diff_part2
-	   << "' in n-grams pair: " << str1 << " # " << str2 << endl;
-    }
-  }
-  UnicodeString lp = diff_part1;
-  lp.toLower();
-  auto const& entry1 = low_freqMap.find( lp );
-  lp = diff_part2;
-  lp.toLower();
-  if ( entry1 != low_freqMap.end()
-       && entry1->second >= freqThreshold ){
-    if ( follow ){
-#pragma omp critical (debugout)
-      {
-	cerr << "ngram part1: " << diff_part1 << " is high frequent: "
-	     << "skipping" << endl;
-      }
-    }
-    return true; // no use to keep this
-  }
-  // so this IS a potential good correction
-  ngram_point = 1;
-  UnicodeString disamb_pair = diff_part1 + "~" + diff_part2;
-  if ( (size_t)diff_part1.length() < low_limit ){
-    // a 'short' word
-    // count this short words pair AND store the original n-gram pair
-#pragma omp critical (update)
-    {
-      dis_map[disamb_pair].insert( str1 + "~" + str2 );
-      ++dis_count[disamb_pair];
-    }
-    if ( follow ){
-#pragma omp critical (debugout)
-      {
-	cerr << "stored: short " << disamb_pair << " and forget about "
-	     << str1 << "~" << str2 << endl;
-      }
-    }
-  }
-  else {
-    // count the pair
-#pragma omp critical (update)
-    {
-      ++ngram_count[disamb_pair];
-      // keep pair for later
-    }
-    // signal to discard this ngram (in favor of the unigram within)
-    if ( follow ){
-#pragma omp critical (debugout)
-      {
-	cerr << "stored: " << disamb_pair << " and forget about "
-	     << str1 << "~" << str2 << endl;
-      }
-    }
-  }
-  return true; // forget the original parents
+  return handle_the_pair( diff_part1, diff_part2, low_freqMap,
+			  freqThreshold,
+			  low_limit,
+			  dis_map,
+			  dis_count,
+			  ngram_count );
 }
 
 bool ld_record::ld_is( int wanted ) {
