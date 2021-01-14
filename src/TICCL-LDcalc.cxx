@@ -270,6 +270,7 @@ bool ld_record::handle_the_pair( const UnicodeString& diff_part1,
     {
       ++ngram_count[disamb_pair];
       // keep pair for later
+      //      ngram_count.erase(str1 + "~" + str2);
     }
     // signal to discard this ngram (in favor of the unigram within)
     if ( follow ){
@@ -279,6 +280,7 @@ bool ld_record::handle_the_pair( const UnicodeString& diff_part1,
 	     << str1 << "~" << str2 << endl;
       }
     }
+    //    return false;
   }
   return true; // forget the original parents
 }
@@ -332,6 +334,12 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 	return true; // discard
       }
     }
+    return handle_the_pair( diff_part1, diff_part2, low_freqMap,
+			    freqThreshold,
+			    low_limit,
+			    dis_map,
+			    dis_count,
+			    ngram_count );
   }
   else {
     bool uncommon = true;
@@ -420,13 +428,13 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 	cerr << "FOUND 1-2-3 " << diff_part1 << " " << diff_part2 << endl;
       }
     }
+    return handle_the_pair( diff_part1, diff_part2, low_freqMap,
+			    freqThreshold,
+			    low_limit,
+			    dis_map,
+			    dis_count,
+			    ngram_count );
   }
-  return handle_the_pair( diff_part1, diff_part2, low_freqMap,
-			  freqThreshold,
-			  low_limit,
-			  dis_map,
-			  dis_count,
-			  ngram_count );
 }
 
 bool ld_record::ld_is( int wanted ) {
@@ -682,7 +690,18 @@ void handleTranspositions( const set<string>& s,
 	UnicodeString key = record.get_key();
 #pragma omp critical (output)
 	{
+	  if ( true||following ){
+	    if ( record_store.find(key) == record_store.end() ){
+	      cerr << "1 insert: " << record.toString() << endl;
+	    }
+	    else {
+	      cerr << "1 emplace: " << record_store.find(key)->second.toString() << endl;
+	    }
+	  }
 	  record_store.emplace(key,record);
+	  if ( following ){
+	    cerr << "1 emplaced result      : " << record.toString() << endl;
+	  }
 	}
       }
       ++it2;
@@ -716,9 +735,6 @@ bool compare_pair( ld_record& record,
   }
   record.fill_fields( freqThreshold );
   record.KWC = KWC;
-  if ( following ){
-    cerr << "SET result: " << record.toString() << endl;
-  }
   return true;
 }
 
@@ -776,6 +792,16 @@ void compareSets( int ldValue,
 	UnicodeString key = record.get_key();
 #pragma omp critical (output)
 	{
+	  if ( true||following ){
+	    if ( record_store.find(key) == record_store.end() ){
+	      cerr << "2 insert: " << record.toString() << endl;
+	    }
+	    else {
+	      cerr << "2 emplace: "
+		   << record_store.find(key)->second.toString() << endl
+		   << " By      : " << record.toString() << endl;
+	    }
+	  }
 	  record_store.emplace(key,record);
 	}
       }
