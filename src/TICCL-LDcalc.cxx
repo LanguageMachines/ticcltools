@@ -226,7 +226,7 @@ bool ld_record::handle_the_pair( const UnicodeString& diff_part1,
   if ( diff_part1.isEmpty() ) {
     // can this happen?
     // anyway: nothing to do
-    return false; // nothing special
+    return true; // nothing special
   }
 
   UnicodeString lp = diff_part1;
@@ -243,7 +243,7 @@ bool ld_record::handle_the_pair( const UnicodeString& diff_part1,
 	     << "skipping" << endl;
       }
     }
-    return true; // no use to keep this
+    return false; // no use to keep this
   }
   // so this IS a potential good correction
   ngram_point = 1;
@@ -282,7 +282,7 @@ bool ld_record::handle_the_pair( const UnicodeString& diff_part1,
     }
     //    return false;
   }
-  return true; // forget the original parents
+  return false; // forget the original parents
 }
 
 bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
@@ -302,7 +302,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 	     << " are UNIGRAMS: nothing to do" << endl;
       }
     }
-    return false; // nothing special for unigrams
+    return true; // nothing special for unigrams
   }
   UnicodeString diff_part1;
   UnicodeString diff_part2;
@@ -331,7 +331,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 		 << " are too different. Discard" << endl;
 	  }
 	}
-	return true; // discard
+	return false; // discard
       }
     }
     return handle_the_pair( diff_part1, diff_part2, low_freqMap,
@@ -398,7 +398,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 	       << " are too different. Discard" << endl;
 	}
       }
-      return false;
+      return true;
     }
     if ( parts1.empty() || parts2.empty() ){
       if ( follow ){
@@ -408,7 +408,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 	       << endl;
 	}
       }
-      return true; // discard
+      return false; // discard
     }
     for ( const auto& w1 : parts1 ){
       if ( !diff_part1.isEmpty() ){
@@ -429,11 +429,11 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
       }
     }
     return handle_the_pair( diff_part1, diff_part2, low_freqMap,
-			    freqThreshold,
-			    low_limit,
-			    dis_map,
-			    dis_count,
-			    ngram_count );
+			     freqThreshold,
+			     low_limit,
+			     dis_map,
+			     dis_count,
+			     ngram_count );
   }
 }
 
@@ -632,7 +632,7 @@ bool transpose_pair( ld_record& record,
   if ( !record.test_frequency( freqThreshold ) ){
     return false;
   }
-  if ( record.analyze_ngrams( low_freqMap, freqThreshold, low_limit,
+  if ( !record.analyze_ngrams( low_freqMap, freqThreshold, low_limit,
 			      dis_map, dis_count, ngram_count ) ){
     return false;
   }
@@ -729,7 +729,7 @@ bool compare_pair( ld_record& record,
   if ( !record.acceptable( freqThreshold, alphabet) ){
     return false;
   }
-  if ( record.analyze_ngrams( low_freqMap, freqThreshold, low_limit,
+  if ( !record.analyze_ngrams( low_freqMap, freqThreshold, low_limit,
 			      dis_map, dis_count, ngram_count ) ){
     return false;
   }
