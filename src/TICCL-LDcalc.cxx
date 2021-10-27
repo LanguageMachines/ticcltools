@@ -49,7 +49,6 @@
 
 using namespace std;
 using namespace icu;
-using TiCC::operator<<;
 
 string progname;
 int verbose = 0;
@@ -344,6 +343,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
   }
   else {
     bool uncommon = true;
+    using TiCC::operator<<;
     if ( follow ){
 #pragma omp critical (debugout)
       {
@@ -633,7 +633,7 @@ bool transpose_pair( ld_record& record,
     return false;
   }
   if ( !record.analyze_ngrams( low_freqMap, freqThreshold, low_limit,
-			       dis_map, dis_count, ngram_count ) ){
+			      dis_map, dis_count, ngram_count ) ){
     return false;
   }
   if ( !record.ld_is( 2 ) ){
@@ -730,7 +730,7 @@ bool compare_pair( ld_record& record,
     return false;
   }
   if ( !record.analyze_ngrams( low_freqMap, freqThreshold, low_limit,
-			       dis_map, dis_count, ngram_count ) ){
+			      dis_map, dis_count, ngram_count ) ){
     return false;
   }
   record.fill_fields( freqThreshold );
@@ -754,6 +754,7 @@ void compareSets( int ldValue,
 		  bool noKHCld,
 		  bool isDIAC,
 		  map<UnicodeString,ld_record>& record_store ){
+  // using TiCC::operator<<;
   // cerr << "set 1 " << s1 << endl;
   // cerr << "set 2 " << s2 << endl;
   auto it1 = s1.begin();
