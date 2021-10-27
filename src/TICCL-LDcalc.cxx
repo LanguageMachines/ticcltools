@@ -690,7 +690,7 @@ void handleTranspositions( const set<string>& s,
 	UnicodeString key = record.get_key();
 #pragma omp critical (output)
 	{
-	  if ( following ){
+	  if ( true||following ){
 	    if ( record_store.find(key) == record_store.end() ){
 	      cerr << "1 insert: " << record.toString() << endl;
 	    }
@@ -791,7 +791,7 @@ void compareSets( int ldValue,
 	UnicodeString key = record.get_key();
 #pragma omp critical (output)
 	{
-	  if ( following ){
+	  if ( true||following ){
 	    if ( record_store.find(key) == record_store.end() ){
 	      cerr << "2 insert: " << record.toString() << endl;
 	    }
@@ -1008,8 +1008,8 @@ int main( int argc, char **argv ){
   size_t ign = 0;
   size_t skipped = 0;
   while ( getline( ff, line ) ){
-    vector<string> v1 = TiCC::split( line );
-    if ( v1.size() != 2 ){
+    vector<string> v1;
+    if ( TiCC::split( line, v1 ) != 2 ){
       ++ign;
       continue;
     }
@@ -1059,8 +1059,9 @@ int main( int argc, char **argv ){
     }
     string line;
     while ( getline( ff, line ) ){
-      vector<string> v = TiCC::split_at( line, "#" );
-      if (  v.size() < 2 || v.size() > 3 ){
+      vector<string> v;
+      if ( TiCC::split_at( line, v, "#" ) < 2
+	   || TiCC::split_at( line, v, "#" ) > 3 ){
 	continue;
       }
       bitType val = TiCC::stringTo<bitType>(v[0]);
@@ -1085,8 +1086,9 @@ int main( int argc, char **argv ){
     }
     string line;
     while ( getline( ff, line ) ){
-      vector<string> v = TiCC::split_at( line, "#" );
-      if (  v.size() < 2 || v.size() > 3 ){
+      vector<string> v;
+      if ( TiCC::split_at( line, v, "#" ) < 2
+	   || TiCC::split_at( line, v, "#" ) > 3 ){
 	continue;
       }
       bitType val = TiCC::stringTo<bitType>(v[0]);
@@ -1115,13 +1117,12 @@ int main( int argc, char **argv ){
   }
   map<bitType,set<string> > hashMap;
   while ( getline( anaf, line ) ){
-    vector<string> v1 = TiCC::split_at( line, "~" );
-    if ( v1.size() != 2 ){
+    vector<string> v1;
+    if ( TiCC::split_at( line, v1, "~" ) != 2 )
       continue;
-    }
     else {
-      vector<string> v2 = TiCC::split_at( v1[1], "#" );
-      if ( v2.size() < 1 ){
+      vector<string> v2;
+      if ( TiCC::split_at( v1[1], v2, "#" ) < 1 ){
 	cerr << progname << ": strange line: " << line << endl
 	     << " in anagram hashes file" << endl;
 	exit(EXIT_FAILURE);
@@ -1180,8 +1181,8 @@ int main( int argc, char **argv ){
     if ( line.empty() ){
       continue;
     }
-    vector<string> parts = TiCC::split_at( line, "#" );
-    if ( parts.size() != 2 ){
+    vector<string> parts;
+    if ( TiCC::split_at( line, parts, "#" ) != 2 ){
       cerr << progname << ": ERROR in line " << line_nr
 	   << " of the indexfile: unable to split in 2 parts at #"
 	   << endl << "line was" << endl << line << endl;
@@ -1200,8 +1201,7 @@ int main( int argc, char **argv ){
       if ( verbose > 1 ){
 	cerr << "extract parts from " << rest << endl;
       }
-      parts = TiCC::split_at( rest, "," );
-      if ( parts.empty() ){
+      if ( TiCC::split_at( rest, parts, "," ) < 1 ){
 	cerr << progname << ": ERROR in line " << line_nr
 	     << " of indexfile: unable to split in parts separated by ','"
 	     << endl << "line was" << endl << line << endl;
