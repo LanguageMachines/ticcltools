@@ -690,7 +690,7 @@ void handleTranspositions( const set<string>& s,
 	UnicodeString key = record.get_key();
 #pragma omp critical (output)
 	{
-	  if ( true||following ){
+	  if ( following ){
 	    if ( record_store.find(key) == record_store.end() ){
 	      cerr << "1 insert: " << record.toString() << endl;
 	    }
@@ -792,7 +792,7 @@ void compareSets( int ldValue,
 	UnicodeString key = record.get_key();
 #pragma omp critical (output)
 	{
-	  if ( true||following ){
+	  if ( following ){
 	    if ( record_store.find(key) == record_store.end() ){
 	      cerr << "2 insert: " << record.toString() << endl;
 	    }
