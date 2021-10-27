@@ -429,11 +429,11 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
       }
     }
     return handle_the_pair( diff_part1, diff_part2, low_freqMap,
-			    freqThreshold,
-			    low_limit,
-			    dis_map,
-			    dis_count,
-			    ngram_count );
+			     freqThreshold,
+			     low_limit,
+			     dis_map,
+			     dis_count,
+			     ngram_count );
   }
 }
 
