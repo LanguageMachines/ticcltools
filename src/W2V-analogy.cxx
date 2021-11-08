@@ -92,8 +92,8 @@ int main( int argc, char *argv[] ){
     int err_cnt = 10;
     string line;
     while ( getline( is, line ) ){
-      vector<string> words;
-      int cnt = TiCC::split_at_first_of( line, words, "\t#" );
+      vector<string> words = TiCC::split_at_first_of( line, "\t#" );
+      size_t cnt = words.size();
       if ( cnt == 1 && words[0] == "EXIT" ){
 	break;
       }

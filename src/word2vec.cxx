@@ -88,16 +88,15 @@ bool wordvec_tester::lookup( const string& sentence, size_t num_vec,
 			     vector<word_dist>& result ) const {
   result.clear();
   //  cerr << "looking up: '" << sentence << "'" << endl;
-  vector<string> words;
-  size_t num_words = TiCC::split( sentence, words );
-  if ( num_words < 1 ){
+  vector<string> words = TiCC::split( sentence );
+  if ( words.empty() ){
     cerr << "empty searchterm" << endl;
     return false;
   }
 
   // create an aggregated vector of all the words
   vector<float> vec( _dim, 0 );
-  for ( size_t b = 0; b < num_words; ++b ) {
+  for ( size_t b = 0; b < words.size(); ++b ) {
     auto const it = vocab.find( words[b] );
     if ( it == vocab.end() ){
       //      cerr << "couldn't find " << words[a] << endl;
@@ -124,9 +123,11 @@ bool wordvec_tester::lookup( const string& sentence, size_t num_vec,
   result.resize( num_vec, {"", 0.0 } );
   for ( const auto& it: vocab ) {
     bool hit = false;
-    for ( size_t b = 0; b < num_words; ++b ){
-      if ( words[b] == it.first )
+    for ( const auto& w_it : words ){
+      if ( w_it == it.first ){
 	hit = true;
+	break;
+      }
     }
     if ( hit ) continue;
     float dist = 0;
@@ -222,15 +223,13 @@ bool wordvec_tester::analogy( const vector<string>& words,
 
 double wordvec_tester::distance( const string& s1, const string& s2 ) const {
   //  cerr << "looking up: '" << word << "'" << endl;
-  vector<string> words1;
-  vector<string> words2;
-  size_t num_words1 = TiCC::split( s1, words1 );
-  if ( num_words1 < 1 ){
+  vector<string> words1 = TiCC::split( s1 );
+  if ( words1.empty() ){
     cerr << "empty searchterm" << endl;
     return false;
   }
-  size_t num_words2 = TiCC::split( s2, words2 );
-  if ( num_words2 < 1 ){
+  vector<string> words2 = TiCC::split( s2 );
+  if ( words2.empty() ){
     cerr << "empty searchterm" << endl;
     return false;
   }

@@ -126,8 +126,7 @@ size_t tel( const xmlNode *node, bool lowercase,
     if ( pnt->type == XML_TEXT_NODE ){
       string line  = (char*)( pnt->content );
       //      cerr << "text: " << line << endl;
-      vector<string> v;
-      TiCC::split( line, v );
+      vector<string> v = TiCC::split( line );
       for ( const auto& word : v ){
 	string wrd = word;
 	if ( lowercase ){
@@ -215,8 +214,7 @@ size_t word_inventory( const string& docName,
       buffer.clear();
       buf_cnt = 0;
     }
-    vector<string> v;
-    TiCC::split( line, v );
+    vector<string> v = TiCC::split( line );
     for ( const auto& word : v ){
       string wrd = word;
       if ( lowercase ){

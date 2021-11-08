@@ -46,10 +46,10 @@ bool fill( const string& freqsFile, map<string,size_t>& freqs ){
   while ( getline( is, line ) ){
     if ( line.empty() )
       continue;
-    vector<string> parts;
-    size_t num = split(line, parts);
-    if ( num != 2 )
+    vector<string> parts = split( line );
+    if ( parts.size() != 2 ){
       continue;
+    }
     size_t freq;
     if ( !stringTo( parts[1], freq ) ){
       cerr << "error in line: '" << line << "' second part isn't an integer?"
@@ -132,12 +132,13 @@ int main( int argc, char *argv[] ){
     string line;
     int err_cnt = 5;
     while ( getline( is, line ) ){
-      vector<string> parts;
-      if ( TiCC::split_at_first_of( line, parts, "\t#" ) != 2 ){
+      vector<string> parts = TiCC::split_at_first_of( line, "\t#" );
+      if ( parts.size() != 2 ){
 	cerr << "invalid line (expected 2 tab or # seperated words/sentences)."
 	     << endl;
-	if ( --err_cnt > 0 )
+	if ( --err_cnt > 0 ){
 	  continue;
+	}
 	else {
 	  cerr << "skiping file " << name << " (too many errors)" << endl;
 	  break;

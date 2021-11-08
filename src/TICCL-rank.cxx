@@ -1021,8 +1021,8 @@ int main( int argc, char **argv ){
   int skip_factor = RANK_COUNT;
   skip.resize(RANK_COUNT,false);
   if ( !skipC.empty() ){
-    vector<string> vec;
-    if ( TiCC::split_at( skipC, vec, "," ) == 0 ){
+    vector<string> vec = TiCC::split_at( skipC,  "," );
+    if ( vec.empty() ){
       cerr << "unable te retrieve column numbers from " << skipC << endl;
       exit(EXIT_FAILURE);
     }
@@ -1055,8 +1055,8 @@ int main( int argc, char **argv ){
   while ( getline( lexicon, line ) ){
     if ( line.size() == 0 || line[0] == '#' )
       continue;
-    vector<string> vec;
-    if ( TiCC::split( line, vec ) != 3 ){
+    vector<string> vec = TiCC::split( line );
+    if ( vec.size() != 3 ){
       cerr << "invalid line '" << line << "' in " << alfabetFile << endl;
       exit( EXIT_FAILURE );
     }
@@ -1075,8 +1075,8 @@ int main( int argc, char **argv ){
     if ( verbose ){
       cerr << "bekijk " << line << endl;
     }
-    vector<string> parts;
-    if ( TiCC::split_at( line, parts, "~" ) != RANK_COUNT ){
+    vector<string> parts = TiCC::split_at( line, "~" );
+    if ( parts.size() != RANK_COUNT ){
       cerr << "invalid line: " << line << endl;
       cerr << "expected " << RANK_COUNT << " ~ separated values." << endl;
       if ( ++failures > 50 ){
@@ -1125,8 +1125,8 @@ int main( int argc, char **argv ){
   cout << "reading lexstat file " << lexstatFile
        << " and extracting pairs." << endl;
   while ( getline( lexstats, line ) ){
-    vector<string> vec;
-    if ( TiCC::split_at( line, vec, "#" ) < 2 ){
+    vector<string> vec = TiCC::split_at( line, "#" );
+    if ( vec.size() < 2 ){
       cerr << "invalid line '" << line << "' in " << lexstatFile << endl;
       exit( EXIT_FAILURE );
     }

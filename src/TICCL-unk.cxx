@@ -80,9 +80,8 @@ bool fillAlpha( istream& is, set<UChar>& alphabet ){
     if ( line.size() == 0 || line[0] == '#' ){
       continue;
     }
-    vector<string> v;
-    int n = TiCC::split( line, v );
-    if ( n != 3 ){
+    vector<string> v = TiCC::split( line );
+    if ( v.size() != 3 ){
       cerr << "unsupported format for alphabet file" << endl;
       exit(EXIT_FAILURE);
     }
@@ -994,19 +993,18 @@ int main( int argc, char *argv[] ){
     }
     string line;
     while ( getline( extra, line ) ){
-      vector<string> v;
-      int n = TiCC::split_at( line, v, "\t" );
-      if ( n == 0 ){
+      vector<string> v = TiCC::split_at( line, "\t" );
+      if ( v.empty() ){
 	// empty line, just ignore
 	continue;
       }
-      if ( n > 2 ){
+      if ( v.size() > 2 ){
 	cerr << "background file in strange format!" << endl;
 	cerr << "offending line: " << line << endl;
 	exit(EXIT_FAILURE);
       }
       unsigned int freq;
-      if ( n == 2 ){
+      if ( v.size() == 2 ){
 	if ( !TiCC::stringTo(v[1],freq) ){
 	  cerr << "value of " << v[1] << " is too big to fit in an unsigned int"
 	       << endl;
@@ -1040,13 +1038,12 @@ int main( int argc, char *argv[] ){
     if ( line.empty() ){
       continue;
     }
-    vector<string> v;
-    int n = TiCC::split_at( line, v, "\t" );
-    if ( n == 0 ){
+    vector<string> v = TiCC::split_at( line, "\t" );
+    if ( v.empty() ){
       // empty line. just ignore
       continue;
     }
-    if ( n < 2 ){
+    if ( v.size() < 2 ){
       cerr << "error in line #" << line_cnt
 	   << " content='" << line << "'" << endl;
       if ( ++err_cnt > 10 ){

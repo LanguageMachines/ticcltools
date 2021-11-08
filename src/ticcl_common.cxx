@@ -115,9 +115,8 @@ bool fillAlphabet( istream& is,
     if ( line.size() == 0 || line[0] == '#' ){
       continue;
     }
-    vector<string> v;
-    int n = TiCC::split_at( line, v, "\t" );
-    if ( n != 3 ){
+    vector<string> v = TiCC::split_at( line, "\t" );
+    if ( v.size() != 3 ){
       throw runtime_error( "unsupported format for alphabet file" );
     }
     int freq = TiCC::stringTo<int>( v[1] );

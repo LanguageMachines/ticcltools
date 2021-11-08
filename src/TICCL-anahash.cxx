@@ -262,9 +262,8 @@ int main( int argc, char *argv[] ){
   string line;
   while ( getline( is, line ) ){
     // we build a frequency list
-    vector<string> v;
-    int n = TiCC::split_at( line, v, "\t" );
-    if ( !(n == 1 || n == 2) ){
+    vector<string> v = TiCC::split_at( line, "\t" );
+    if ( !( v.size() == 1 || v.size() == 2 ) ){
       cerr << "frequency file in wrong format!" << endl;
       cerr << "offending line: " << line << endl;
       exit(EXIT_FAILURE);
@@ -278,7 +277,7 @@ int main( int argc, char *argv[] ){
     else {
       anagrams[h].insert( word );
       bitType freq = 1;
-      if ( n == 2 ){
+      if ( v.size() == 2 ){
 	freq = TiCC::stringTo<bitType>( v[1] );
       }
       freq_list[word] = freq;
@@ -352,9 +351,8 @@ int main( int argc, char *argv[] ){
     cerr << "merge background corpus: " << backfile << endl;
     ifstream bs( backfile );
     while ( getline( bs, line ) ){
-      vector<string> v;
-      int n = TiCC::split_at( line, v, "\t" );
-      if ( !( n == 1 || n == 2 ) ){
+      vector<string> v = TiCC::split_at( line, "\t" );
+      if ( ! ( v.size() == 1 || v.size() == 2 ) ){
 	cerr << "background file in wrong format!" << endl;
 	cerr << "offending line: " << line << endl;
 	exit(EXIT_FAILURE);
@@ -364,7 +362,7 @@ int main( int argc, char *argv[] ){
       bitType h = ::hash( word, alphabet );
       anagrams[h].insert( word );
       bitType freq = 1;
-      if ( n == 2 ){
+      if ( v.size() == 2 ){
 	freq = TiCC::stringTo<bitType>( v[1] );
       }
       merged[v0] += freq;
