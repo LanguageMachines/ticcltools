@@ -238,7 +238,7 @@ int main( int argc, char **argv ){
   list<record> records;
   while ( getline( input, line ) ){
     vector<string> vec;
-    TiCC::split_at( line, vec, "#", true );
+    TiCC::split_exact_at( line, vec, "#" );
     bool no_ccv = false;
     if ( vec.size() == 6 ){
       no_ccv = true;

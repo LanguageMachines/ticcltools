@@ -138,7 +138,7 @@ UChar diff_char( const UnicodeString& in1, const UnicodeString& in2 ){
 
 bool chain_class::fill( const string& line, bool nounk ){
   vector<string> parts;
-  TiCC::split_at( line, parts, "#", true );
+  TiCC::split_exact_at( line, parts, "#" );
   if ( parts.size() < 6
        || parts.size() > 7 ){
     return false;
