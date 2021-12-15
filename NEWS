@@ -1,3 +1,10 @@
+ticcltools 0.8 2021-12-15
+[Ko van der Sloot]
+* using more recent functions from ticcutis
+* use more code from ticcl_common
+* attempt to solve https://github.com/LanguageMachines/ticcltools/issues/42
+* some small code refactoring
+
 ticcltools 0.7 2020-04-15
 [Martin Reynaert]
 * updated man pages
