@@ -10,7 +10,7 @@
     "@type": "SoftwareSourceCode",
     "identifier": "ticcltools",
     "name": "TICCLTools",
-    "version": "0.6",
+    "version": "0.9",
     "description": "TicclTools is a collection of programs to process datafiles, together they constitute the bulk of TICCL: Text Induced Corpus-Cleanup. This software consists of individual modules that are invoked by the pipeline system PICCL.",
     "license": "https://spdx.org/licenses/GPL-3.0",
 	"url": "https://github.com/LanguageMachines/ticcltools",
