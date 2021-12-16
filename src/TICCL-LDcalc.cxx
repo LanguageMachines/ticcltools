@@ -352,6 +352,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
       }
     }
 
+#ifdef OLD_STRIP_STUFF
     while( !parts1.empty() && !parts2.empty() ){
       UnicodeString left = parts1.back();
       left.toLower();
@@ -382,6 +383,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 	break;
       }
     }
+#endif
     if ( follow ){
 #pragma omp critical (debugout)
       {
