@@ -82,7 +82,7 @@
 	"issueTracker": "https://github.com/LanguageMachines/ticcltools/issues",
 	"contIntegration": "https://travis-ci.org/LanguageMachines/ticcltools",
 	"releaseNotes": "https://github.com/LanguageMachines/ticcltools/releases",
-	"developmentStatus": "active",
+	"developmentStatus": "unsupported",
 	"keywords":  [ "nlp", "natural language processing", "ocr", "normalization" ],
     "referencePublication": [
 		{
