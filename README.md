@@ -1,7 +1,6 @@
 [![Project Status: Unsupported – The project has reached a stable, usable state but the author(s) have ceased all work on it. A new maintainer may be desired.](https://www.repostatus.org/badges/latest/unsupported.svg)](https://www.repostatus.org/#unsupported)
 
-TICCLTOOLS
-==================
+# TICCLTOOLS
 
 TICCLtools is a collection of programs to process text data files towards fully-automatic lexical corpus post-correction. Together they constitute the bulk of TICCL: Text Induced Corpus-Cleanup. This software is usually invoked by the pipeline system PICCL: https://github.com/LanguageMachines/PICCL ,
 consult there for installation and usage instructions unless you really want to invoke the individual tools manually.
@@ -89,3 +88,30 @@ The actual TICCL post-correction programs in this collection are:
     by TICCLtools for texts or corpora in FoLiA XML. Please see the FoLiA-utils
     (https://github.com/LanguageMachines/foliautils) collection for the tool:
     FoLiA-correct.
+
+## Container
+
+## Container Usage
+
+A pre-made container image can be obtained from Docker Hub as follows:
+
+``docker pull proycon/ticcltools``
+
+You can build a docker container as follows, make sure you are in the root of this repository:
+
+``docker build -t proycon/ticcltools .``
+
+This builds the latest stable release, if you want to use the latest development version
+from the git repository instead, do:
+
+``docker build -t proycon/ticcltools --build-arg VERSION=development .``
+
+Run the container interactively as follows:
+
+``docker run -t -i proycon/ticcltools``
+
+Or invoke the tool you want:
+
+``docker run proycon/ticcltools TICCL-rank``
+
+Add the ``-v /path/to/your/data:/data`` parameter (before `-t`) if you want to mount your data volume into the container at `/data`.
