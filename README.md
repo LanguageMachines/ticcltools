@@ -89,8 +89,6 @@ The actual TICCL post-correction programs in this collection are:
     (https://github.com/LanguageMachines/foliautils) collection for the tool:
     FoLiA-correct.
 
-## Container
-
 ## Container Usage
 
 A pre-made container image can be obtained from Docker Hub as follows:

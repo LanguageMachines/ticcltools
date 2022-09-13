@@ -22,17 +22,17 @@ fi
 PWD="$(pwd)"
 BUILDDIR="$(mktemp -dt "build-deps.XXXXXX")"
 cd "$BUILDDIR"
-BUILD_SOURCES="LanguageMachines/ticcutils LanguageMachines/libfolia LanguageMachines/uctodata LanguageMachines/ucto LanguageMachines/foliautils"
-for SUFFIX in $BUILD_SOURCES; do \
-    NAME="$(basename "$SUFFIX")"
-    git clone "https://github.com/$SUFFIX"
-    cd "$NAME"
-    REF=$(git tag -l | grep -E "^v?[0-9]+(\.[0-9])*" | sort -t. -k 1.2,1n -k 2,2n -k 3,3n -k 4,4n | tail -n 1)
-    if [ "$VERSION" = "stable" ] && [ -n "$REF" ]; then
-        git -c advice.detachedHead=false checkout "$REF"
-    fi
-    sh ./bootstrap.sh && ./configure --prefix "$PREFIX" && make && make install
-    cd ..
-done
+SUFFIX="LanguageMachines/ticcutils"
+NAME="$(basename "$SUFFIX")"
+git clone "https://github.com/$SUFFIX"
+cd "$NAME"
+REF=$(git tag -l | grep -E "^v?[0-9]+(\.[0-9])*" | sort -t. -k 1.2,1n -k 2,2n -k 3,3n -k 4,4n | tail -n 1)
+if [ "$VERSION" = "stable" ] && [ -n "$REF" ]; then
+    git -c advice.detachedHead=false checkout "$REF"
+fi
+sh ./bootstrap.sh && ./configure --prefix "$PREFIX" && make && make install
+R=$?
+cd ..
 cd "$PWD"
 [ -n "$BUILDDIR" ] && rm -Rf "$BUILDDIR"
+exit $R
