@@ -115,7 +115,9 @@ $ export PREFIX="$HOME/.local/"
 $ ./build-deps.sh && ./bootstrap.sh && ./configure --prefix "$PREFIX" && make && make install
 ```
 
-On Linux, ensure the value of ``$PREFIX/lib`` is added to your `$LD_LIBRARY_PATH` and ``$PREFIX/bin`` directory to your ``$PATH``.
+Adjust your environment accordingly so the binary and libraries in ``$PREFIX``
+can be found: On Linux, ensure the value of ``$PREFIX/lib`` is added to your
+`$LD_LIBRARY_PATH` and ``$PREFIX/bin`` directory to your ``$PATH``.
 
 ## Container Usage
 
