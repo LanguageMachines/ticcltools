@@ -89,6 +89,34 @@ The actual TICCL post-correction programs in this collection are:
     (https://github.com/LanguageMachines/foliautils) collection for the tool:
     FoLiA-correct.
 
+## Manual Installation
+
+We provide containers for simple installation, see the next section. If you want to build and install manually on a Linux/BSD system instead, follow these instructions:
+
+First ensure the following dependencies are installed on your system:
+
+* Git
+* A sane build environment with a C++ compiler (gcc or clang), make, libtool, pkg-config, autoconf, automake and autoconf-archive
+* libbz2, libtar, libicu, libxml2 (including -dev versions for the headers, note that the naming of the packages may vary based on your distribution)
+    * On debian/ubuntu, the following should suffice to install the necessary global dependencies: ``sudo apt install make gcc g++ autoconf automake autoconf-archive libtool autotools-dev libicu-dev libxml2-dev libbz2-dev zlib1g-dev libtar-dev``
+
+First ``git clone`` this repository, enter its directory and build as follows:
+
+```console
+$ sudo ./build-deps.sh && ./bootstrap.sh && ./configure && make && sudo make install
+```
+
+If you have no root permissions, set environment variable ``PREFIX`` to the
+target directory where you want to install (ensure it exists), the one in the following example is
+a sane default:
+
+```console
+$ export PREFIX="$HOME/.local/"
+$ ./build-deps.sh && ./bootstrap.sh && ./configure --prefix "$PREFIX" && make && make install
+```
+
+On Linux, ensure the value of ``$PREFIX/lib`` is added to your `$LD_LIBRARY_PATH` and ``$PREFIX/bin`` directory to your ``$PATH``.
+
 ## Container Usage
 
 A pre-made container image can be obtained from Docker Hub as follows:
