@@ -587,23 +587,22 @@ void rank( vector<record>& recs,
   }
 
   double sum = 0.0;
-  vector<record>::iterator vit = recs.begin();
-  while ( vit != recs.end() ){
+  for( auto& vit : recs ){
     double rank =
-      (skip[0]?0:(*vit).f2len_rank) +  // number of characters in the frequency
-      (skip[1]?0:(*vit).freq_rank) +   // frequency of the CC
-      (skip[2]?0:(*vit).ld_rank) +     // levenshtein distance
-      (skip[3]?0:(*vit).cls_rank) +    // common longest substring
-      (skip[4]?0:(*vit).canon_rank) +  // is it a validated word form
-      (skip[5]?0:(*vit).fl_rank) +     // first character equality
-      (skip[6]?0:(*vit).ll_rank) +     // last 2 characters equality
-      (skip[7]?0:(*vit).khc_rank) +    // known historical confusion
-      (skip[8]?0:(*vit).pairs1_rank) + //
-      (skip[9]?0:(*vit).pairs2_rank) + //
-      (skip[10]?0:(*vit).median_rank) + //
-      (skip[11]?0:(*vit).variant_rank) + // # of decapped versions of the CC
-      (skip[12]?0:(*vit).cosine_rank) + // WordVector rank
-      (skip[13]?0:(*vit).ngram_rank);
+      (skip[0]?0:vit.f2len_rank) +  // number of characters in the frequency
+      (skip[1]?0:vit.freq_rank) +   // frequency of the CC
+      (skip[2]?0:vit.ld_rank) +     // levenshtein distance
+      (skip[3]?0:vit.cls_rank) +    // common longest substring
+      (skip[4]?0:vit.canon_rank) +  // is it a validated word form
+      (skip[5]?0:vit.fl_rank) +     // first character equality
+      (skip[6]?0:vit.ll_rank) +     // last 2 characters equality
+      (skip[7]?0:vit.khc_rank) +    // known historical confusion
+      (skip[8]?0:vit.pairs1_rank) + //
+      (skip[9]?0:vit.pairs2_rank) + //
+      (skip[10]?0:vit.median_rank) + //
+      (skip[11]?0:vit.variant_rank) + // # of decapped versions of the CC
+      (skip[12]?0:vit.cosine_rank) + // WordVector rank
+      (skip[13]?0:vit.ngram_rank);
     if ( follow ){
       cerr << "Rank=" << rank << endl;
     }
@@ -615,8 +614,7 @@ void rank( vector<record>& recs,
     if ( follow ){
       cerr << "Sum =" << sum << endl;
     }
-    (*vit).rank = rank;
-    ++vit;
+    vit.rank = rank;
   }
 
   if ( recs.size() == 1 ){
@@ -670,11 +668,9 @@ void rank( vector<record>& recs,
   }
 
   if ( db ){
-    vector<record>::iterator vit = recs.begin();
     multimap<double,string,greater<double>> outv;
-    while ( vit != recs.end() ){
-      outv.insert( make_pair( (*vit).rank, vit->extractLong(skip) ) );
-      ++vit;
+    for ( const auto& vit : recs ){
+      outv.insert( make_pair( vit.rank, vit.extractLong(skip) ) );
     }
 #pragma omp critical (debugoutput)
     for ( const auto& oit : outv ){
@@ -1284,11 +1280,11 @@ int main( int argc, char **argv ){
     const set<streamsize>& ids = work[i]._st;
     ifstream in( inFile );
     vector<record> records;
-    set<streamsize>::const_iterator it = ids.begin();
-    while ( it != ids.end() ){
+    auto id_iterator = ids.begin();
+    while ( id_iterator != ids.end() ){
       vector<word_dist> vec;
-      in.seekg( *it );
-      ++it;
+      in.seekg( *id_iterator );
+      ++id_iterator;
       string line;
       getline( in, line );
       record rec( line, sub_artifreq_f1, sub_artifreq_f2, vec );
@@ -1336,10 +1332,10 @@ int main( int argc, char **argv ){
     }
     ifstream in( inFile );
     vector<record> records;
-    set<streamsize>::const_iterator it = ids.begin();
-    while ( it != ids.end() ){
-      in.seekg( *it );
-      ++it;
+    auto id_iterator = ids.begin();
+    while ( id_iterator != ids.end() ){
+      in.seekg( *id_iterator );
+      ++id_iterator;
       string line;
       getline( in, line );
       record rec( line, sub_artifreq_f1, sub_artifreq_f2, vec );
@@ -1370,8 +1366,8 @@ int main( int argc, char **argv ){
     if ( !records.empty() ){
       if ( ALTERNATIVE ){
 	map<bitType,vector<size_t>> local_cc_freqs;
-	for ( const auto& it : records ){
-	  local_cc_freqs[it.char_conf_val].push_back( it.candidate_freq );
+	for ( const auto& r_it : records ){
+	  local_cc_freqs[r_it.char_conf_val].push_back( r_it.candidate_freq );
 	}
 	map<bitType,size_t> local_char_conf_val_medians;
 	for ( auto& it : local_cc_freqs ){
@@ -1407,7 +1403,7 @@ int main( int argc, char **argv ){
     // map<string,multimap<double,record,std::greater<double>>> results;
     // but we know that every multimap has only 1 entry for clip = 1
     multimap< size_t, multimap<double, string, std::greater<double>>, std::greater<size_t> > o_vec;
-    for ( auto& it : results ){
+    for ( const auto& it : results ){
       const record *rec = &it.second.begin()->second;
       auto oit = o_vec.find( rec->candidate_freq );
       if ( oit != o_vec.end() ){

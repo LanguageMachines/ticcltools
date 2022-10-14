@@ -1118,7 +1118,7 @@ int main( int argc, char *argv[] ){
     for ( const auto& it : fore_clean_words ){
       wf[it.second].insert( it.first );
     }
-    map<unsigned int, set<UnicodeString> >::const_reverse_iterator wit = wf.rbegin();
+    auto wit = wf.rbegin();
     while ( wit != wf.rend() ){
       for ( const auto& sit : wit->second ){
 	acs << sit << "\t" << wit->first << endl;
