@@ -1161,7 +1161,7 @@ int main( int argc, char *argv[] ){
     }
     cout << "created " << acro_file_name << endl;
   }
-  for ( const auto pit : punct_words ){
+  for ( const auto& pit : punct_words ){
     ps << pit.first << "\t" << pit.second << endl;
   }
   cout << "created " << punct_file_name << endl;

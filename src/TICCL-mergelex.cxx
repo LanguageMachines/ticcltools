@@ -61,7 +61,7 @@ void create_wf_list( const map<string, unsigned int>& wc,
   }
   unsigned int sum=0;
   unsigned int types=0;
-  map<unsigned int, set<string> >::const_reverse_iterator wit = wf.rbegin();
+  auto wit = wf.rbegin();
   while ( wit != wf.rend() ){
     for( const auto& sit : wit->second ){
       sum += wit->first;
@@ -219,8 +219,8 @@ int main( int argc, char *argv[] ){
 
   string::size_type pos = out_prefix.find( "." );
   if ( pos != string::npos && pos == out_prefix.length()-1 ){
-    // outputname ends with a .
-    out_prefix = out_prefix.substr(0,pos);
+    // outputname ends with a '.', remove it
+    out_prefix.resize(pos);
   }
   pos = out_prefix.find( "/" );
   if ( pos != string::npos && pos == out_prefix.length()-1 ){

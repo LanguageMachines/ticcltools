@@ -259,7 +259,7 @@ int main( int argc, char **argv ){
     outFile = anahashFile;
     string::size_type pos = outFile.rfind(".");
     if ( pos != string::npos ){
-      outFile = outFile.substr(0,pos);
+      outFile.resize(pos);
     }
     outFile += ".indexNT";
   }

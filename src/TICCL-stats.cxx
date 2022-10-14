@@ -59,7 +59,7 @@ void create_wf_list( const map<string, unsigned int>& wc,
     exit(EXIT_FAILURE);
   }
   map<unsigned int, set<string> > wf;
-  for( const auto& cit : wc ){
+  for ( const auto& cit : wc ){
     if ( cit.second <= clip ){
       total -= cit.second;
     }
@@ -69,7 +69,7 @@ void create_wf_list( const map<string, unsigned int>& wc,
   }
   unsigned int sum=0;
   unsigned int types=0;
-  map<unsigned int, set<string> >::const_reverse_iterator wit = wf.rbegin();
+  auto wit = wf.rbegin();
   while ( wit != wf.rend() ){
     for( const auto& sit : wit->second ){
       sum += wit->first;
@@ -397,8 +397,8 @@ int main( int argc, char *argv[] ){
 
   string::size_type pos = outputPrefix.find( "." );
   if ( pos != string::npos && pos == outputPrefix.length()-1 ){
-    // outputname ends with a .
-    outputPrefix = outputPrefix.substr(0,pos);
+    // outputname ends with a '.', remove it
+    outputPrefix.resize(pos);
   }
   pos = outputPrefix.find( "/" );
   if ( pos != string::npos && pos == outputPrefix.length()-1 ){

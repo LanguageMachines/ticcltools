@@ -54,18 +54,16 @@ void create_output( string& name, const map<UChar,size_t>& chars,
     exit(EXIT_FAILURE);
   }
   multimap<size_t,UChar> reverse;
-  map<UChar,size_t>::const_iterator it = chars.begin();
   bitType count = 0;
   bitType out_count = 0;
-  while ( it != chars.end() ){
-    if ( clip >= 0 && it->second < (size_t)clip ){
-      out_count += it->second;
+  for ( const auto& it : chars ){
+    if ( clip >= 0 && it.second < (size_t)clip ){
+      out_count += it.second;
     }
     else {
-      count += it->second;
-      reverse.insert( make_pair(it->second,it->first) );
+      count += it.second;
+      reverse.insert( make_pair(it.second,it.first) );
     }
-    ++it;
   }
   os << "## Alphabetsize: " << reverse.size() + (separator.isEmpty()?0:1)
      << endl;
@@ -89,8 +87,8 @@ void create_output( string& name, const map<UChar,size_t>& chars,
     os << separator << "\t0\t\t" << hash << endl;
     start = 103;
   }
-  multimap<size_t,UChar>::const_reverse_iterator rit = reverse.rbegin();
   int out_cnt = 0;
+  auto rit = reverse.rbegin();
   while ( rit != reverse.rend() ){
     hash = high_five( start );
     UnicodeString us( rit->second );
@@ -110,18 +108,16 @@ void create_dia_file( const string& filename,
 		      const map<UChar,size_t>& chars,
 		      const map<UnicodeString,bitType>& hashes ){
   ofstream os( filename );
-  map<UChar,size_t>::const_iterator it = chars.begin();
-  while ( it != chars.end() ){
+  for ( const auto& it : chars ){
     UnicodeString us;
-    us += it->first;
+    us += it.first;
     UnicodeString ss = TiCC::filter_diacritics( us );
     if ( ss != us ){
-      map<UnicodeString,bitType>::const_iterator hit = hashes.find( us );
+      auto hit = hashes.find( us );
       if ( hit == hashes.end() ){
 	if ( verbose ){
 	  cerr << "problem: " << us << " not in the hashes?" << endl;
 	}
-	++it;
 	continue;
       }
       bitType h1 = hit->second;
@@ -130,26 +126,25 @@ void create_dia_file( const string& filename,
 	if ( verbose ){
 	  cerr << "problem: " << ss << " not in the hashes?" << endl;
 	}
-	++it;
 	continue;
       }
       bitType h2 = hit->second;
       bitType h;
-      if ( h1 > h2 )
+      if ( h1 > h2 ){
 	h = h1 - h2;
-      else
+      }
+      else {
 	h = h2 - h1;
+      }
       os << h << "#" << us << "~" << ss << endl;
     }
-    ++it;
   }
   cout << "created a diacritic confusion file: " << filename << endl;
 }
 
 void meld_botsing( const multimap<bitType,UnicodeString>& mm, bitType h ){
-  multimap<bitType,UnicodeString>::const_iterator it;
   map<set<UChar>,UnicodeString > ref;
-  for ( it = mm.lower_bound(h); it != mm.upper_bound(h); ++it ){
+  for ( auto it = mm.lower_bound(h); it != mm.upper_bound(h); ++it ){
     set<UChar> st;
     UnicodeString s = it->second;
     for( int i=0; i < s.length(); ++i ){
@@ -158,10 +153,8 @@ void meld_botsing( const multimap<bitType,UnicodeString>& mm, bitType h ){
     ref.insert( make_pair(st,s) );
   }
   cerr << "collision at hash " << h << ": ";
-  map<set<UChar>,UnicodeString >::const_iterator sit=ref.begin();
-  while ( sit != ref.end() ){
-    cerr << sit->second << ";";
-    ++sit;
+  for ( const auto& sit : ref ){
+    cerr << sit.second << ";";
   }
   cerr << endl;
 }
@@ -189,14 +182,14 @@ void generate_confusion( const string& name,
   }
   multimap<bitType,UnicodeString> confusions;
   cout << "start : " << hashes.size() << " iterations " << endl;
-  map<UnicodeString,bitType>::const_iterator it1 = hashes.begin();
-  while ( it1 != hashes.end() ){
+  auto it1 = hashes.cbegin();
+  while ( it1 != hashes.cend() ){
     cout << it1->first << " ";
     // deletions/inserts of 1
     UnicodeString s1 = it1->first + "~";
     conditionally_insert( confusions, it1->second, s1, full );
-    map<UnicodeString,bitType>::const_iterator it2 = hashes.begin();
-    while ( it2 != hashes.end() ){
+    auto it2 = hashes.cbegin();
+    while ( it2 != hashes.cend() ){
       if ( it2 != it1 ){
 	// 1-1 substitutions
 	bitType div;
@@ -218,8 +211,8 @@ void generate_confusion( const string& name,
 	UnicodeString s20 = it1->first + it2->first + "~";
 	bitType div = it2->second + it1->second;
 	conditionally_insert( confusions, div, s20, full );
-	map<UnicodeString,bitType>::const_iterator it3 = hashes.begin();
-	while ( it3 != hashes.end() ){
+	auto it3 = hashes.cbegin();
+	while ( it3 != hashes.cend() ){
 	  if ( it3 != it2 && it3 != it1 ){
 	    // 2-1 substitutions
 	    UnicodeString s = it1->first + it2->first + "~" + it3->first;
@@ -248,8 +241,8 @@ void generate_confusion( const string& name,
 	    }
 	    conditionally_insert( confusions, div, s, full );
 	  }
-	  map<UnicodeString,bitType>::const_iterator it4 = hashes.begin();
-	  while ( it4 != hashes.end() ){
+	  auto it4 = hashes.cbegin();
+	  while ( it4 != hashes.cend() ){
 	    if ( it3 != it1 && it3 != it2 && it4 != it1 && it4 != it2 ){
 	      // 2-2 substitutions
 	      UnicodeString s = it1->first + it2->first + "~"
@@ -300,8 +293,8 @@ void generate_confusion( const string& name,
 		}
 		conditionally_insert( confusions, div, s, full );
 	      }
-	      map<UnicodeString,bitType>::const_iterator it5 = hashes.begin();
-	      while ( it5 != hashes.end() ){
+	      auto it5 = hashes.cbegin();
+	      while ( it5 != hashes.cend() ){
 		if ( it4 != it1 && it4 != it2 && it4 != it3 &&
 		     it5 != it1 && it5 != it2 && it5 != it3 ){
 		  // 3-2 substitutions
@@ -335,8 +328,8 @@ void generate_confusion( const string& name,
 		  }
 		  conditionally_insert( confusions, div, s, full );
 		}
-		map<UnicodeString,bitType>::const_iterator it6 = hashes.begin();
-		while ( it6 != hashes.end() ){
+		auto it6 = hashes.cbegin();
+		while ( it6 != hashes.cend() ){
 		  if ( it6 != it1 && it6 != it2 && it6 != it3 &&
 		       it5 != it1 && it5 != it2 && it5 != it3 &&
 		       it4 != it1 && it4 != it2 && it4 != it3 ){
@@ -368,7 +361,7 @@ void generate_confusion( const string& name,
     }
     ++it1;
   }
-  multimap<bitType,UnicodeString>::const_iterator cit = confusions.begin();
+  auto cit = confusions.begin();
   if ( full ){
     bitType start=0;
     set<UnicodeString> unique;
