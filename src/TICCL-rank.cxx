@@ -1280,11 +1280,11 @@ int main( int argc, char **argv ){
     const set<streamsize>& ids = work[i]._st;
     ifstream in( inFile );
     vector<record> records;
-    auto id_iterator = ids.begin();
-    while ( id_iterator != ids.end() ){
+    auto id_iter = ids.begin();
+    while ( id_iter != ids.end() ){
       vector<word_dist> vec;
-      in.seekg( *id_iterator );
-      ++id_iterator;
+      in.seekg( *id_iter );
+      ++id_iter;
       string line;
       getline( in, line );
       record rec( line, sub_artifreq_f1, sub_artifreq_f2, vec );
@@ -1332,10 +1332,10 @@ int main( int argc, char **argv ){
     }
     ifstream in( inFile );
     vector<record> records;
-    auto id_iterator = ids.begin();
-    while ( id_iterator != ids.end() ){
-      in.seekg( *id_iterator );
-      ++id_iterator;
+    auto id_iter = ids.begin();
+    while ( id_iter != ids.end() ){
+      in.seekg( *id_iter );
+      ++id_iter;
       string line;
       getline( in, line );
       record rec( line, sub_artifreq_f1, sub_artifreq_f2, vec );

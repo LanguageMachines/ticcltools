@@ -92,12 +92,13 @@ size_t init( vector<experiment>& exps,
     exps.push_back( e );
     return 1;
   }
-  set<bitType>::const_iterator s = hashes.begin();
+  auto s = hashes.begin();
   for ( size_t i=0; i < threads; ++i ){
     experiment e;
     e.start = s;
-    for ( size_t j=0; j < partsize; ++j )
+    for ( size_t j=0; j < partsize; ++j ){
       ++s;
+    }
     e.finish = s;
     exps.push_back( e );
   }
@@ -125,15 +126,15 @@ void handle_exp( const experiment& exp,
 	}
       }
     }
-    set<bitType>::const_iterator it3 = hashSet.find( *it1 );
+    auto it3 = hashSet.find( *it1 );
     if ( it3 != hashSet.end() ){
       set<bitType>::const_reverse_iterator it2( it3 );
       while ( it2 != hashSet.rend() ){
 	bitType diff = *it1 - *it2;
-	if ( diff > max )
+	if ( diff > max ){
 	  break;
-	set<bitType>::const_iterator sit = confSet.find( diff );
-	if ( sit != confSet.end() ){
+	}
+	if ( confSet.find( diff ) != confSet.end() ){
 #pragma omp critical
 	  {
 	    result[diff].insert(*it2);
@@ -147,8 +148,7 @@ void handle_exp( const experiment& exp,
 	bitType diff = *it3 - *it1;
 	if ( diff > max )
 	  break;
-	set<bitType>::const_iterator sit = confSet.find( diff );
-	if ( sit != confSet.end() ){
+	if ( confSet.find( diff ) != confSet.end() ){
 #pragma omp critical
 	  {
 	    result[diff].insert(*it1);
@@ -367,7 +367,7 @@ int main( int argc, char **argv ){
     if ( csf ){
       *csf << rit.first << "#" << rit.second.size() << endl;
     }
-    set<bitType>::const_iterator it = rit.second.begin();
+    auto it = rit.second.begin();
     while ( it != rit.second.end() ){
       of << *it;
       ++it;

@@ -1224,7 +1224,7 @@ int main( int argc, char **argv ){
 	for ( size_t i=0; i < parts.size(); ++i ){
 	  string keyS = parts[i];
 	  bitType key = TiCC::stringTo<bitType>(keyS);
-	  map<bitType,set<string> >::const_iterator sit1 = hashMap.find(key);
+	  auto sit1 = hashMap.find(key);
 	  if ( sit1 == hashMap.end() ){
 	    if ( verbose > 1 ){
 #pragma omp critical (debugout)
@@ -1242,8 +1242,7 @@ int main( int argc, char **argv ){
 	    bool do_trans = false;
 #pragma omp critical (debugout)
 	    {
-	      set<bitType>::const_iterator it = handledTrans.find( key );
-	      if ( it == handledTrans.end() ){
+	      if ( handledTrans.find( key ) == handledTrans.end() ){
 		handledTrans.insert( key );
 		do_trans = true;
 	      }
@@ -1257,7 +1256,7 @@ int main( int argc, char **argv ){
 				    record_store );
 	    }
 	  }
-	  map<bitType, set<string> >::const_iterator sit2 = hashMap.find(mainKey+key);
+	  auto sit2 = hashMap.find(mainKey+key);
 	  if ( sit2 == hashMap.end() ){
 	    if ( verbose > 4 ){
 #pragma omp critical (debugout)

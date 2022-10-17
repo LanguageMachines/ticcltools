@@ -143,13 +143,11 @@ void handle_confs( const experiment& exp,
     if ( !result.empty() ){
       stringstream ss;
       ss << confusie << "#";
-      set<bitType>::const_iterator it = result.begin();
-      while ( it != result.end() ){
-	ss << *it;
-	++it;
-	if ( it != result.end() ){
+      for ( const auto& it : result ){
+	if ( it != *result.begin() ){
 	  ss << ",";
 	}
+	ss << it;
       }
 #pragma omp critical(update)
       {
@@ -174,17 +172,17 @@ size_t init( vector<experiment>& exps,
     exps.push_back( e );
     return 1;
   }
-  set<bitType>::const_iterator s = hashes.begin();
+  auto hash = hashes.begin();
   for ( size_t i=0; i < threads; ++i ){
     experiment e;
-    e.start = s;
-    for ( size_t j=0; j < partsize && s != hashes.end(); ++j ){
-      ++s;
+    e.start = hash;
+    for ( size_t j=0; j < partsize && hash != hashes.end(); ++j ){
+      ++hash;
     }
-    e.finish = s;
+    e.finish = hash;
     exps.push_back( e );
   }
-  if ( s != hashes.end() ){
+  if ( hash != hashes.end() ){
     exps[exps.size()-1].finish = hashes.end();
   }
   return threads;

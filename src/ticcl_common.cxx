@@ -55,7 +55,7 @@ bitType hash( const UnicodeString& s,
   bitType result = 0;
   bool multPunct = false;
   for( int i=0; i < us.length(); ++i ){
-    map<UChar,bitType>::const_iterator it = alphabet.find( us[i] );
+    auto it = alphabet.find( us[i] );
     if ( it != alphabet.end() ){
       result += it->second;
       if ( debug ){

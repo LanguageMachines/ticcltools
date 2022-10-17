@@ -57,7 +57,7 @@ void create_wf_list( const map<string, unsigned int>& wc,
     wf[cit.second].insert( cit.first );
   }
   unsigned int sum=0;
-  map<unsigned int, set<string> >::const_reverse_iterator wit = wf.rbegin();
+  auto wit = wf.rbegin();
   while ( wit != wf.rend() ){
     if ( wit->first == 0 ){
       for ( const auto& s : wit->second ){
