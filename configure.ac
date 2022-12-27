@@ -1,12 +1,12 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.61)
+AC_PREREQ([2.96])
 AC_INIT([ticcltools],[0.9],[lamasoftware@science.ru.nl]) #adapt version number in codemeta.json as well
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([.])
 AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 
 if test x"${CXXFLAGS+set}" = xset; then
   # the user set CXXFLAGS; don't override it.
@@ -36,7 +36,6 @@ if test "x$ac_cv_prog_cxx_openmp" != "x"; then
 fi
 
 # use libtool
-AC_PROG_LIBTOOL
 LT_INIT
 
 #checks for libraries.
