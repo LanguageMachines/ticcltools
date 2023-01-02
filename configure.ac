@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.96])
+AC_PREREQ([2.69])
 AC_INIT([ticcltools],[0.9],[lamasoftware@science.ru.nl]) #adapt version number in codemeta.json as well
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([.])
