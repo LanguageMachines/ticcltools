@@ -44,6 +44,7 @@
 #include "ticcutils/StringOps.h"
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/PrettyPrint.h"
+#include "ticcutils/FileUtils.h"
 #include "ticcutils/Unicode.h"
 #include "ticcl/ticcl_common.h"
 #include "ticcl/word2vec.h"
@@ -83,9 +84,9 @@ void usage( const string& name ){
   exit( EXIT_FAILURE );
 }
 
-class record {
+class rank_record {
 public:
-  record( const string &, size_t, size_t, const vector<word_dist>& );
+  rank_record( const string &, size_t, size_t, const vector<word_dist>& );
   string extractResults() const;
   string extractLong( const vector<bool>& skip ) const;
   string variant;
@@ -138,7 +139,7 @@ float lookup( const vector<word_dist>& vec,
   return 0.0;
 }
 
-record::record( const string& line,
+rank_record::rank_record( const string& line,
 		size_t sub_artifreq_f1,
 		size_t sub_artifreq_f2,
 		const vector<word_dist>& WV ):
@@ -154,7 +155,7 @@ record::record( const string& line,
   rank(-10000)
 {
   vector<string> parts = TiCC::split_at( line, "~" );
-  // file a record with the RANK_COUNT parts of one line from a LDcalc output file
+  // file a rank_record with the RANK_COUNT parts of one line from a LDcalc output file
   if ( parts.size() == RANK_COUNT ){
     variant = parts[0];
     variant_freq = TiCC::stringTo<size_t>(parts[1]);
@@ -216,7 +217,7 @@ record::record( const string& line,
   }
 }
 
-string record::extractLong( const vector<bool>& skip ) const {
+string rank_record::extractLong( const vector<bool>& skip ) const {
   string result = variant + "#";
   result += TiCC::toString(variant_freq) + "#";
   result += TiCC::toString(low_variant_freq) + "#";
@@ -341,7 +342,7 @@ string record::extractLong( const vector<bool>& skip ) const {
   return result;
 }
 
-string record::extractResults() const {
+string rank_record::extractResults() const {
   string result = variant + "#";
   result += TiCC::toString(variant_freq) + "#";
   result += candidate + "#";
@@ -360,12 +361,12 @@ void set_val( TObject& object, TMember member, TValue value )
 
 template< class Tmap, typename TMember >
 void rank_desc_map( const Tmap& desc_map,
-		    vector<record>& recs,
+		    vector<rank_record>& recs,
 		    TMember member ){
   // the map is a (multi-)map, sorted descending on the first value
   // whichs is an integer value.
-  // the second value of the map is an index in the vector of records.
-  // so the map contains records, sorted descending on specific values
+  // the second value of the map is an index in the vector of rank_records.
+  // so the map contains rank_records, sorted descending on specific values
   // e.g:
   //  clsmap holds the CommonSubstringLengths of all vectors, longest first
   if ( desc_map.empty() ){
@@ -379,18 +380,18 @@ void rank_desc_map( const Tmap& desc_map,
       last = rit.first;
       ++ranking;
     }
-    // set the currect ranking for the record at hand
+    // set the currect ranking for the rank_record at hand
     set_val( recs[rit.second], member, ranking );
   }
 }
 
-void rank( vector<record>& recs,
-	   map<string,multimap<double,record,std::greater<double>>>& results,
+void rank( vector<rank_record>& recs,
+	   map<string,multimap<double,rank_record,std::greater<double>>>& results,
 	   int clip,
 	   const map<bitType,size_t>& char_conf_val_counts,
 	   const map<bitType,size_t>& char_conf_val2_counts,
 	   const map<bitType,size_t>& char_conf_val_medians,
-	   ostream* db, vector<bool>& skip, int factor ){
+	   ostream* db, const vector<bool>& skip, int factor ){
   bool follow = follow_words.find(recs.begin()->variant) != follow_words.end();
   if ( follow||verbose ){
 #pragma omp critical (log)
@@ -415,8 +416,8 @@ void rank( vector<record>& recs,
   size_t count = 0;
 
   for ( auto& it : recs ){
-    // for every record, we store information in descending multimaps
-    // So in freqmap, the (index of) the records with highest freq
+    // for every rank_record, we store information in descending multimaps
+    // So in freqmap, the (index of) the rank_records with highest freq
     //   are stored in front
     //same for f2len, ld, cls and ngram points
     f2lenmap.insert( make_pair(it.f2len, count ) ); // f2lengths descending
@@ -458,7 +459,7 @@ void rank( vector<record>& recs,
     cout << "11 lower_variantmap = " << lower_variantmap << endl;
     cout << "14 ngram_map = " << ngram_map << endl;
   }
-  rank_desc_map( f2lenmap, recs, &record::f2len_rank );
+  rank_desc_map( f2lenmap, recs, &rank_record::f2len_rank );
   if ( follow ){
     cout << "step 1: f2len_rank: " << endl;
     for ( const auto& r : recs ){
@@ -466,7 +467,7 @@ void rank( vector<record>& recs,
     }
   }
 
-  rank_desc_map( freqmap, recs, &record::freq_rank );
+  rank_desc_map( freqmap, recs, &rank_record::freq_rank );
   if ( follow ){
     cout << "step 2: freq_rank: " << endl;
     for ( const auto& r : recs ){
@@ -492,7 +493,7 @@ void rank( vector<record>& recs,
     }
   }
 
-  rank_desc_map( clsmap, recs, &record::cls_rank );
+  rank_desc_map( clsmap, recs, &rank_record::cls_rank );
   if ( follow ){
     cout << "step 4: cls_rank: " << endl;
     for ( const auto& r : recs ){
@@ -528,7 +529,7 @@ void rank( vector<record>& recs,
     }
   }
 
-  rank_desc_map( pairmap1, recs, &record::pairs1_rank );
+  rank_desc_map( pairmap1, recs, &rank_record::pairs1_rank );
   if ( follow ){
     cout << "step 9: pairs1_rank: " << endl;
     for ( const auto& r : recs ){
@@ -536,7 +537,7 @@ void rank( vector<record>& recs,
     }
   }
 
-  rank_desc_map( pairmap2, recs, &record::pairs2_rank );
+  rank_desc_map( pairmap2, recs, &rank_record::pairs2_rank );
   if ( follow ){
     cout << "step 10: pairs2_rank: " << endl;
     for ( const auto& r : recs ){
@@ -544,7 +545,7 @@ void rank( vector<record>& recs,
     }
   }
 
-  rank_desc_map( median_map, recs, &record::median_rank );
+  rank_desc_map( median_map, recs, &rank_record::median_rank );
   if ( follow ){
     cout << "step 11: median_rank: for " << recs.begin()->variant << endl;
     for ( const auto& r : recs ){
@@ -578,7 +579,7 @@ void rank( vector<record>& recs,
     }
   }
 
-  rank_desc_map( ngram_map, recs, &record::ngram_rank );
+  rank_desc_map( ngram_map, recs, &rank_record::ngram_rank );
   if ( follow ){
     cout << "step 14: ngram_rank: " << endl;
     for ( const auto& r : recs ){
@@ -632,8 +633,8 @@ void rank( vector<record>& recs,
     }
   }
 
-  // sort records on alphabeticaly on variant and descending on rank
-  map<string,multimap<double,record*,std::greater<double>>> output;
+  // sort rank_records on alphabeticaly on variant and descending on rank
+  map<string,multimap<double,rank_record*,std::greater<double>>> output;
   for ( auto& it : recs ){
     string variant = it.variant;
     auto p = output.find(variant);
@@ -643,17 +644,17 @@ void rank( vector<record>& recs,
     }
     else {
       // new variant.
-      multimap<double,record*,std::greater<double>> tmp;
+      multimap<double,rank_record*,std::greater<double>> tmp;
       tmp.insert( make_pair( it.rank, &it ) );
       output.insert( make_pair(variant,tmp) );
     }
   }
 
-  // now extract the first 'clip' records for every variant, (best ranked)
+  // now extract the first 'clip' rank_records for every variant, (best ranked)
   for ( const auto& it : output ){
     const auto& mm = it.second;
     int cnt = 0;
-    multimap<double,record,std::greater<double>> tmp;
+    multimap<double,rank_record,std::greater<double>> tmp;
     for ( const auto& mit : mm ){
       tmp.insert( make_pair( mit.first, *mit.second ) );
       if ( ++cnt >= clip ){
@@ -679,15 +680,15 @@ void rank( vector<record>& recs,
   }
 }
 
-void collect_ngrams( const vector<record>& records, set<string>& variants_set ){
-  vector<record> sorted = records;
-  //  cerr << "\nCollecting NEW variant " << records[0].variant << endl;
-  // for ( auto const& it : records ){
+void collect_ngrams( const vector<rank_record>& rank_records, set<string>& variants_set ){
+  vector<rank_record> sorted = rank_records;
+  //  cerr << "\nCollecting NEW variant " << rank_records[0].variant << endl;
+  // for ( auto const& it : rank_records ){
   //   cerr << it.variant << "~" << it.candidate << "::" << it.ngram_points << endl;
   // }
   // cerr << endl;
   sort( sorted.begin(), sorted.end(),
-	[]( const record& lhs, const record& rhs ){
+	[]( const rank_record& lhs, const rank_record& rhs ){
 	  return lhs.ngram_points > rhs.ngram_points;} );
   // cerr << "OUT: " << endl;
   // for ( auto const& it : sorted ){
@@ -721,16 +722,16 @@ void collect_ngrams( const vector<record>& records, set<string>& variants_set ){
   }
 }
 
-vector<record> filter_ngrams( const vector<record>& records,
+vector<rank_record> filter_ngrams( const vector<rank_record>& rank_records,
 			      const set<string>& variants_set ){
-  //  cerr << "\nexamining NEW variant " << records[0].variant << endl;
-  // for ( auto const& it : records ){
+  //  cerr << "\nexamining NEW variant " << rank_records[0].variant << endl;
+  // for ( auto const& it : rank_records ){
   //   cerr << it.variant << "~" << it.candidate << "::" << it.ngram_points << endl;
   // }
   // cerr << endl;
-  vector<record> result;
-  auto it = records.begin();
-  while ( it != records.end() ){
+  vector<rank_record> result;
+  auto it = rank_records.begin();
+  while ( it != rank_records.end() ){
     if ( verbose ){
 #pragma omp critical (log)
       {
@@ -778,6 +779,26 @@ struct wid {
   string _s;
   set<streamsize> _st;
 };
+
+map<UChar,bitType> read_alphabet( const string& name ){
+  ifstream lex( name );
+  map<UChar,bitType> result;
+  string line;
+  while ( getline( lex, line ) ){
+    if ( line.size() == 0 || line[0] == '#' ){
+      continue;
+    }
+    vector<string> vec = TiCC::split( line );
+    if ( vec.size() != 3 ){
+      cerr << "invalid line '" << line << "' in " << name << endl;
+      exit( EXIT_FAILURE );
+    }
+    UnicodeString key = TiCC::UnicodeFromUTF8(vec[0]);
+    bitType value = TiCC::stringTo<bitType>( vec[2] );
+    result[key[0]] = value;
+  }
+  return result;
+}
 
 int main( int argc, char **argv ){
   TiCC::CL_Options opts;
@@ -833,64 +854,65 @@ int main( int argc, char **argv ){
   opts.extract( 'o', outFile );
   opts.extract( "debugfile", debugFile );
   opts.extract( "skipcols", skipC );
-  string value;
-  if ( opts.extract( "clip", value ) ){
-    if ( !TiCC::stringTo(value,clip) ) {
-      cerr << "illegal value for --clip (" << value << ")" << endl;
+  string arg_val;
+  if ( opts.extract( "clip", arg_val ) ){
+    if ( !TiCC::stringTo(arg_val,clip) ) {
+      cerr << "illegal value for --clip (" << arg_val << ")" << endl;
       exit( EXIT_FAILURE );
     }
   }
-  if ( opts.extract( "subtractartifrqfeature2", value ) ){
-    if ( !TiCC::stringTo(value,sub_artifreq_f2) ) {
-      cerr << "illegal value for --subtractartifrqfeature2 (" << value << ")" << endl;
+  if ( opts.extract( "subtractartifrqfeature2", arg_val ) ){
+    if ( !TiCC::stringTo(arg_val,sub_artifreq_f2) ) {
+      cerr << "illegal value for --subtractartifrqfeature2 (" << arg_val
+	   << ")" << endl;
       exit( EXIT_FAILURE );
     }
   }
   if ( sub_artifreq_f2 == 0 ){
-    if ( opts.extract( "artifrq", value ) ){
+    if ( opts.extract( "artifrq", arg_val ) ){
       cerr << "WARNING: Obsolete option 'artifrq'. Use 'subtractartifrqfeature2' instead." << endl;
-      if ( !TiCC::stringTo(value,sub_artifreq_f2) ) {
-	cerr << "illegal value for --artifrq (" << value << ")" << endl;
+      if ( !TiCC::stringTo( arg_val, sub_artifreq_f2) ) {
+	cerr << "illegal value for --artifrq (" << arg_val << ")" << endl;
 	exit( EXIT_FAILURE );
       }
     }
   }
-  if ( opts.extract( "subtractartifrqfeature1", value ) ){
-    if ( !TiCC::stringTo(value,sub_artifreq_f1) ) {
-      cerr << "illegal value for --subtractartifrqfeature1 (" << value << ")" << endl;
+  if ( opts.extract( "subtractartifrqfeature1", arg_val ) ){
+    if ( !TiCC::stringTo(arg_val,sub_artifreq_f1) ) {
+      cerr << "illegal value for --subtractartifrqfeature1 (" << arg_val
+	   << ")" << endl;
       exit( EXIT_FAILURE );
     }
   }
   int numThreads=1;
-  value = "1";
-  if ( !opts.extract( 't', value ) ){
-    opts.extract( "threads", value );
+  arg_val = "1";
+  if ( !opts.extract( 't', arg_val ) ){
+    opts.extract( "threads", arg_val );
   }
-  value = "1";
 #ifdef HAVE_OPENMP
-  if ( TiCC::lowercase(value) == "max" ){
+  if ( TiCC::lowercase(arg_val) == "max" ){
     numThreads = omp_get_max_threads() - 2;
     omp_set_num_threads( numThreads );
     cout << "running on " << numThreads << " threads." << endl;
   }
   else {
-    if ( !TiCC::stringTo(value,numThreads) ) {
-      cerr << "illegal value for -t (" << value << ")" << endl;
+    if ( !TiCC::stringTo(arg_val,numThreads) ) {
+      cerr << "illegal value for -t (" << arg_val << ")" << endl;
       exit( EXIT_FAILURE );
     }
     omp_set_num_threads( numThreads );
     cout << "running on " << numThreads << " threads." << endl;
   }
 #else
-  if ( value != "1" ){
+  if ( arg_val != "1" ){
     cerr << "unable to set number of threads!.\nNo OpenMP support available!"
 	 <<endl;
     exit(EXIT_FAILURE);
   }
 #endif
 
-  while ( opts.extract( "follow", value ) ){
-    vector<string> parts = TiCC::split_at( value, "," );
+  while ( opts.extract( "follow", arg_val ) ){
+    vector<string> parts = TiCC::split_at( arg_val, "," );
     for ( const auto& p : parts ){
       follow_words.insert( p );
     }
@@ -907,9 +929,9 @@ int main( int argc, char **argv ){
   //#define TESTWV
 #ifdef TESTWV
   size_t num_vec = 20;
-  if ( opts.extract( "numvec", value ) ){
+  if ( opts.extract( "numvec", arg_val ) ){
     if ( !TiCC::stringTo(value,num_vec) ) {
-      cerr << "illegal value for --numvec (" << value << ")" << endl;
+      cerr << "illegal value for --numvec (" << arg_val << ")" << endl;
       exit( EXIT_FAILURE );
     }
   }
@@ -953,20 +975,17 @@ int main( int argc, char **argv ){
     exit(EXIT_FAILURE);
   }
 
-  ifstream input( inFile );
-  if ( !input ){
+  if ( !TiCC::isFile( inFile ) ){
     cerr << "problem opening confusie file: " << inFile << endl;
     exit(1);
   }
 
-  ifstream lexicon( alfabetFile );
-  if ( !lexicon ){
+  if ( !TiCC::isFile( alfabetFile ) ){
     cerr << "problem opening alfabet file: " << alfabetFile << endl;
     exit(1);
   }
 
-  ifstream lexstats( lexstatFile );
-  if ( !lexstats ){
+  if ( !TiCC::isFile( lexstatFile ) ){
     cerr << "problem opening lexstat file: " << lexstatFile << endl;
     exit(1);
   }
@@ -1045,35 +1064,23 @@ int main( int argc, char **argv ){
     }
   }
 
-  map<UChar,bitType> alfabet;
   cout << "reading alphabet." << endl;
-  string line;
-  while ( getline( lexicon, line ) ){
-    if ( line.size() == 0 || line[0] == '#' )
-      continue;
-    vector<string> vec = TiCC::split( line );
-    if ( vec.size() != 3 ){
-      cerr << "invalid line '" << line << "' in " << alfabetFile << endl;
-      exit( EXIT_FAILURE );
-    }
-    UnicodeString key = TiCC::UnicodeFromUTF8(vec[0]);
-    bitType value = TiCC::stringTo<bitType>( vec[2] );
-    alfabet[key[0]] = value;
-  }
-
+  map<UChar,bitType> alphabet = read_alphabet( alfabetFile );
   map<string,set<streamsize> > fileIds;
   map<bitType,size_t> char_conf_val_counts;
   map<bitType,vector<size_t>> cc_freqs;
   cout << "start indexing input and determining CHAR_CONF_VAL counts AND CC freq per CHAR_CONF_VAL" << endl;
   int failures = 0;
+  ifstream input( inFile );
   streamsize pos = input.tellg();
-  while ( getline( input, line ) ){
+  string input_line;
+  while ( getline( input, input_line ) ){
     if ( verbose ){
-      cerr << "bekijk " << line << endl;
+      cerr << "bekijk " << input_line << endl;
     }
-    vector<string> parts = TiCC::split_at( line, "~" );
+    vector<string> parts = TiCC::split_at( input_line, "~" );
     if ( parts.size() != RANK_COUNT ){
-      cerr << "invalid line: " << line << endl;
+      cerr << "invalid line: " << input_line << endl;
       cerr << "expected " << RANK_COUNT << " ~ separated values." << endl;
       if ( ++failures > 50 ){
 	cerr << "too many invalid lines" << endl;
@@ -1120,10 +1127,12 @@ int main( int argc, char **argv ){
 
   cout << "reading lexstat file " << lexstatFile
        << " and extracting pairs." << endl;
-  while ( getline( lexstats, line ) ){
-    vector<string> vec = TiCC::split_at( line, "#" );
+  ifstream lexstats( lexstatFile );
+  string stats_line;
+  while ( getline( lexstats, stats_line ) ){
+    vector<string> vec = TiCC::split_at( stats_line, "#" );
     if ( vec.size() < 2 ){
-      cerr << "invalid line '" << line << "' in " << lexstatFile << endl;
+      cerr << "invalid line '" << stats_line << "' in " << lexstatFile << endl;
       exit( EXIT_FAILURE );
     }
     bitType key = TiCC::stringTo<bitType>( vec[0] );
@@ -1137,10 +1146,10 @@ int main( int argc, char **argv ){
 	}
 	// look up diffs for value[0] - value[3], value[0] - value[4],
 	// value[1] - value[3] and value [1] - value[4];
-	bitType b1 = alfabet[value[0]];
-	bitType b2 = alfabet[value[1]];
-	bitType b3 = alfabet[value[3]];
-	bitType b4 = alfabet[value[4]];
+	bitType b1 = alphabet[value[0]];
+	bitType b2 = alphabet[value[1]];
+	bitType b3 = alphabet[value[3]];
+	bitType b4 = alphabet[value[4]];
 	if ( b1 != 0 && b2 != 0 && b3 != 0 && b4 != 0 ){
 	  vector<size_t> counts(4);
 	  bitType diff;
@@ -1235,8 +1244,8 @@ int main( int argc, char **argv ){
   }
 
   if ( !freqOutFile.empty() ){
-    ofstream os( freqOutFile );
-    if ( os.good() ){
+    ofstream fs( freqOutFile );
+    if ( fs.good() ){
       cout << "dumping character confusions into " << freqOutFile << endl;
       multimap<size_t,bitType, std::greater<int> > sorted;
       for ( const auto& it: char_conf_val_counts ){
@@ -1249,15 +1258,15 @@ int main( int argc, char **argv ){
 	string tr = char_conf_val_string[it.second];
 	if ( tr.empty() ){
 	  if ( it.second == 0 ){
-	    os << it.second << "\ttransposition\t" << it.first << endl;
+	    fs << it.second << "\ttransposition\t" << it.first << endl;
 	  }
 	  else {
 	    cerr << "no translation for char_conf_val: " << it.second << endl;
-	    os << it.second << "\tmissing\t" << it.first << endl;
+	    fs << it.second << "\tmissing\t" << it.first << endl;
 	  }
 	}
 	else {
-	  os << it.second << "\t" << tr << "\t" << it.first << endl;
+	  fs << it.second << "\t" << tr << "\t" << it.first << endl;
 	}
       }
     }
@@ -1279,16 +1288,16 @@ int main( int argc, char **argv ){
   for( size_t i=0; i < work.size(); ++i ){
     const set<streamsize>& ids = work[i]._st;
     ifstream in( inFile );
-    vector<record> records;
+    vector<rank_record> rank_records;
     auto id_iter = ids.begin();
     while ( id_iter != ids.end() ){
       vector<word_dist> vec;
       in.seekg( *id_iter );
       ++id_iter;
-      string line;
-      getline( in, line );
-      record rec( line, sub_artifreq_f1, sub_artifreq_f2, vec );
-      records.push_back( rec );
+      string rec_line;
+      getline( in, rec_line );
+      rank_record rec( rec_line, sub_artifreq_f1, sub_artifreq_f2, vec );
+      rank_records.push_back( rec );
       if ( verbose ){
 	int tmp = 0;
 #pragma omp critical (count)
@@ -1311,10 +1320,10 @@ int main( int argc, char **argv ){
 #endif
       }
     }
-    collect_ngrams( records, variants_set );
+    collect_ngrams( rank_records, variants_set );
   }
 
-  map<string,multimap<double,record,std::greater<double>>> results;
+  map<string,multimap<double,rank_record,std::greater<double>>> results;
   cout << "Start the REAL work, with " << work.size()
        << " iterations on " << numThreads << " thread(s)." << endl;
 #pragma omp parallel for schedule(dynamic,1) shared(verbose,db)
@@ -1331,15 +1340,15 @@ int main( int argc, char **argv ){
       }
     }
     ifstream in( inFile );
-    vector<record> records;
+    vector<rank_record> rank_records;
     auto id_iter = ids.begin();
     while ( id_iter != ids.end() ){
       in.seekg( *id_iter );
       ++id_iter;
       string line;
       getline( in, line );
-      record rec( line, sub_artifreq_f1, sub_artifreq_f2, vec );
-      records.push_back( rec );
+      rank_record rec( line, sub_artifreq_f1, sub_artifreq_f2, vec );
+      rank_records.push_back( rec );
       if ( verbose ){
 	int tmp = 0;
 #pragma omp critical (count)
@@ -1362,11 +1371,11 @@ int main( int argc, char **argv ){
 #endif
       }
     }
-    records = filter_ngrams( records, variants_set );
-    if ( !records.empty() ){
+    rank_records = filter_ngrams( rank_records, variants_set );
+    if ( !rank_records.empty() ){
       if ( ALTERNATIVE ){
 	map<bitType,vector<size_t>> local_cc_freqs;
-	for ( const auto& r_it : records ){
+	for ( const auto& r_it : rank_records ){
 	  local_cc_freqs[r_it.char_conf_val].push_back( r_it.candidate_freq );
 	}
 	map<bitType,size_t> local_char_conf_val_medians;
@@ -1385,12 +1394,12 @@ int main( int argc, char **argv ){
 	  //    cerr << "median " << it.first << " = " << median << endl;
 	  local_char_conf_val_medians[it.first] = median;
 	}
-	::rank( records, results, clip, char_conf_val_counts, char_conf_val2_counts,
+	::rank( rank_records, results, clip, char_conf_val_counts, char_conf_val2_counts,
 		local_char_conf_val_medians,
 		db, skip, skip_factor );
       }
       else {
-	::rank( records, results, clip, char_conf_val_counts, char_conf_val2_counts,
+	::rank( rank_records, results, clip, char_conf_val_counts, char_conf_val2_counts,
 		char_conf_val_medians,
 		db, skip, skip_factor );
       }
@@ -1400,11 +1409,11 @@ int main( int argc, char **argv ){
   if ( clip == 1 ){
     // we re-sort the output on descending frequency AND descending on rank,
     // needed for chaining
-    // map<string,multimap<double,record,std::greater<double>>> results;
+    // map<string,multimap<double,rank_record,std::greater<double>>> results;
     // but we know that every multimap has only 1 entry for clip = 1
     multimap< size_t, multimap<double, string, std::greater<double>>, std::greater<size_t> > o_vec;
     for ( const auto& it : results ){
-      const record *rec = &it.second.begin()->second;
+      const rank_record *rec = &it.second.begin()->second;
       auto oit = o_vec.find( rec->candidate_freq );
       if ( oit != o_vec.end() ){
 	oit->second.insert( make_pair( rec->rank, rec->extractResults() ) );
@@ -1424,7 +1433,6 @@ int main( int argc, char **argv ){
   }
   else {
     // output the result
-    // map<string,multimap<double,record,std::greater<double>>> results;
     for ( const auto& it : results ){
       for( const auto& mit : it.second ){
 	os << mit.second.extractResults() << endl;

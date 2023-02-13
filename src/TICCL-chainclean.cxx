@@ -68,9 +68,9 @@ void usage( const string& name ){
   exit( EXIT_FAILURE );
 }
 
-class record {
+class chain_record {
 public:
-  record():deleted(false){};
+  chain_record():deleted(false){};
   string variant;
   vector<string> v_parts;
   vector<string> v_dh_parts;
@@ -84,7 +84,7 @@ public:
   bool deleted;
 };
 
-ostream& operator<<( ostream& os, const record& rec ){
+ostream& operator<<( ostream& os, const chain_record& rec ){
   os << rec.variant << "#" << rec.v_freq << "#" << rec.cc << "#"
      << rec.cc_freq << "#";
   if ( rec.ccv != "none" ){
@@ -94,7 +94,7 @@ ostream& operator<<( ostream& os, const record& rec ){
   return os;
 }
 
-ostream& operator<<( ostream& os, const record *rec ){
+ostream& operator<<( ostream& os, const chain_record *rec ){
   os << *rec;
   return os;
 }
@@ -235,7 +235,7 @@ int main( int argc, char **argv ){
   cout << "read " << valid_words.size() << " validated words from "
        << lex_name << endl;
   cout << "start reading chained results" << endl;
-  list<record> records;
+  list<chain_record> chain_records;
   while ( getline( input, line ) ){
     vector<string> vec;
     TiCC::split_exact_at( line, vec, "#" );
@@ -248,7 +248,7 @@ int main( int argc, char **argv ){
       cerr << "\t found " << vec.size() << endl;
       exit( EXIT_FAILURE );
     }
-    record rec;
+    chain_record rec;
     rec.variant = vec[0];
     rec.v_freq = vec[1];
     rec.cc = vec[2];
@@ -264,11 +264,11 @@ int main( int argc, char **argv ){
       }
       rec.ld = vec[5];
     }
-    records.push_back( rec );
+    chain_records.push_back( rec );
   }
-  cout << "start processing " << records.size() << " chained results" << endl;
+  cout << "start processing " << chain_records.size() << " chained results" << endl;
   map<string,int> parts_freq;
-  for ( auto& rec : records ){
+  for ( auto& rec : chain_records ){
     rec.v_parts = TiCC::split_at( rec.variant, S_SEPARATOR );
     rec.v_dh_parts = TiCC::split_at_first_of( rec.variant, S_SEPARATOR+"-" );
     rec.cc_parts = TiCC::split_at( rec.cc, S_SEPARATOR );
@@ -306,8 +306,8 @@ int main( int argc, char **argv ){
     }
   }
 
-  list<record*> copy_records;
-  for ( auto& rec : records ){
+  list<chain_record*> copy_chain_records;
+  for ( auto& rec : chain_records ){
     if ( rec.v_parts.size() > 1 ){
       string tmp;
       for ( const auto& p : rec.v_parts ){
@@ -317,10 +317,10 @@ int main( int argc, char **argv ){
 	rec.deleted = true;
       }
     }
-    copy_records.push_back( &rec );
+    copy_chain_records.push_back( &rec );
   }
   bool do_low2 = true;
-  set<record*> done_records;
+  set<chain_record*> done_chain_records;
   map<string,string> done;
   size_t counter = 0;
   for ( const auto& part : desc_parts_freq ) {
@@ -346,7 +346,7 @@ int main( int argc, char **argv ){
     map<string,int> cc_freqs;
     map<int,string> cc_order;
     int oc = 0;
-    for ( const auto& it : records ){
+    for ( const auto& it : chain_records ){
       bool match = false;
       for ( const auto& p : it.v_dh_parts ){
 	string v_part;
@@ -433,14 +433,14 @@ int main( int argc, char **argv ){
 	  cerr << "BEKIJK: " << cand_cor << "[" << dvm_it.first << "]" << endl;
 	}
 	map<string,int> uniq;
-	auto it = copy_records.begin();
-	while ( it != copy_records.end() ){
-	  record* rec = *it;
+	auto it = copy_chain_records.begin();
+	while ( it != copy_chain_records.end() ){
+	  chain_record* rec = *it;
 	  if ( rec->deleted ){
 	    ++it;
 	    continue;
 	  }
-	  if ( done_records.find( rec ) != done_records.end() ){
+	  if ( done_chain_records.find( rec ) != done_chain_records.end() ){
 	    if ( show && rec->variant.find( unk_part) != string::npos ) {
 	      cerr << "skip already done " << rec << endl;
 	    }
@@ -467,7 +467,7 @@ int main( int argc, char **argv ){
 		cerr << "KEEP: " << rec << endl;
 	      }
 	      done[corr] = vari;
-	      done_records.insert(rec);
+	      done_chain_records.insert(rec);
 	      if ( rec->cc_parts.size() == 1 ){
 		// so this is a unigram CC
 		++uniq[vari];
@@ -553,7 +553,7 @@ int main( int argc, char **argv ){
 			cerr << "KEEP 1: " << rec << endl;
 		      }
 		      done[cor_part] = lvar;
-		      done_records.insert(rec);
+		      done_chain_records.insert(rec);
 		    }
 		  }
 		  else {
@@ -561,7 +561,7 @@ int main( int argc, char **argv ){
 		      cerr << "KEEP 2: " << rec << endl;
 		    }
 		    done[cor_part] = lvar;
-		    done_records.insert(rec);
+		    done_chain_records.insert(rec);
 		  }
 		  break;
 		}
@@ -575,7 +575,7 @@ int main( int argc, char **argv ){
   }
   ofstream os( out_name );
   int count = 0;
-  for ( const auto it : copy_records ){
+  for ( const auto it : copy_chain_records ){
     if ( it != 0 ){
       if ( !it->deleted ){
 	++count;
@@ -583,10 +583,10 @@ int main( int argc, char **argv ){
       }
     }
   }
-  cerr << endl << "wrote " << count << " records to " << out_name << endl;
+  cerr << endl << "wrote " << count << " chain_records to " << out_name << endl;
   ofstream osd( out_name + ".deleted" );
   count = 0;
-  for ( const auto it : copy_records ){
+  for ( const auto it : copy_chain_records ){
     if ( it != 0 ){
       if ( it->deleted ){
 	++count;

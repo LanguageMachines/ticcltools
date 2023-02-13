@@ -499,9 +499,9 @@ S_Class classify_n_gram( const vector<UnicodeString>& parts,
     }
     else {
       cl = classify( wrd, alphabet, pun );
-      UnicodeString us = pun;
-      us.toLower();
-      if ( decap_clean_words.find( us ) != decap_clean_words.end() ){
+      UnicodeString l_pun = pun;
+      l_pun.toLower();
+      if ( decap_clean_words.find( l_pun ) != decap_clean_words.end() ){
 	// so the depunct word is lexically clean
 	++lexclean;
 	if ( verbose ){
@@ -905,12 +905,12 @@ int main( int argc, char *argv[] ){
     cerr << "unable to open output file: " << unk_file_name << endl;
     exit(EXIT_FAILURE);
   }
-  ofstream us( unk_file_name );
+  ofstream unk_s( unk_file_name );
   if ( !TiCC::createPath( punct_file_name ) ){
     cerr << "unable to open output file: " << punct_file_name << endl;
     exit(EXIT_FAILURE);
   }
-  ofstream ps( punct_file_name );
+  ofstream punct_s( punct_file_name );
   if ( doAcro ){
     if ( !TiCC::createPath( acro_file_name ) ){
       cerr << "unable to open output file: " << acro_file_name << endl;
@@ -1134,7 +1134,7 @@ int main( int argc, char *argv[] ){
   auto wit = wf.rbegin();
   while ( wit != wf.rend() ){
     for ( const auto& sit : wit->second ){
-      us << sit << "\t" << wit->first << endl;
+      unk_s << sit << "\t" << wit->first << endl;
     }
     ++wit;
   }
@@ -1162,7 +1162,7 @@ int main( int argc, char *argv[] ){
     cout << "created " << acro_file_name << endl;
   }
   for ( const auto& pit : punct_words ){
-    ps << pit.first << "\t" << pit.second << endl;
+    punct_s << pit.first << "\t" << pit.second << endl;
   }
   cout << "created " << punct_file_name << endl;
   cout << "done!" << endl;

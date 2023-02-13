@@ -123,8 +123,8 @@ bool fillAlphabet( istream& is,
     if ( freq > clip || freq == 0 ){
       // freq = 0 is special, for separator
       UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
-      bitType hash = TiCC::stringTo<bitType>( v[2] );
-      alphabet[v0[0]] = hash;
+      bitType hash_val = TiCC::stringTo<bitType>( v[2] );
+      alphabet[v0[0]] = hash_val;
     }
   }
   return true;
