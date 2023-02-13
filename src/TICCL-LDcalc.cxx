@@ -690,18 +690,19 @@ void handleTranspositions( const set<string>& s,
       if ( transpose_pair( record, low_freqMap,
 			   dis_map, dis_count, ngram_count,
 			   freqThreshold, low_limit, alphabet, following ) ){
-	UnicodeString key = record.get_key();
+	UnicodeString key_string = record.get_key();
 #pragma omp critical (output)
 	{
 	  if ( following ){
-	    if ( record_store.find(key) == record_store.end() ){
+	    if ( record_store.find(key_string) == record_store.end() ){
 	      cerr << "1 insert: " << record.toString() << endl;
 	    }
 	    else {
-	      cerr << "1 emplace: " << record_store.find(key)->second.toString() << endl;
+	      cerr << "1 emplace: "
+		   << record_store.find(key_string)->second.toString() << endl;
 	    }
 	  }
-	  record_store.emplace(key,record);
+	  record_store.emplace(key_string,record);
 	  if ( following ){
 	    cerr << "1 emplaced result      : " << record.toString() << endl;
 	  }
@@ -872,38 +873,38 @@ int main( int argc, char **argv ){
     }
   }
 
-  string indexFile;
-  string anahashFile;
-  string frequencyFile;
-  string histconfFile;
-  string diaconfFile;
-  string alfabetFile;
+  string index_file;
+  string anahash_file;
+  string frequency_file;
+  string histconf_file;
+  string diaconf_file;
+  string alfabet_file;
   int LDvalue=2;
   bool noKHCld = opts.extract("nohld");
-  if ( !opts.extract( "index", indexFile ) ){
+  if ( !opts.extract( "index", index_file ) ){
     cerr << progname << ": missing --index option" << endl;
     exit( EXIT_FAILURE );
   }
-  if ( !TiCC::match_back( indexFile, ".index" )
-       && !TiCC::match_back( indexFile, ".indexNT" ) ){
+  if ( !TiCC::match_back( index_file, ".index" )
+       && !TiCC::match_back( index_file, ".indexNT" ) ){
     cerr << progname << ": --index files must have extension: '.index' or '.indexNT' "
 	 << endl;
     exit( EXIT_FAILURE );
   }
-  if ( !opts.extract( "hash", anahashFile ) ){
+  if ( !opts.extract( "hash", anahash_file ) ){
     cerr << progname << ": missing --hash option" << endl;
     exit( EXIT_FAILURE );
   }
-  if ( !opts.extract( "clean", frequencyFile ) ){
+  if ( !opts.extract( "clean", frequency_file ) ){
     cerr << progname << ": missing --clean option" << endl;
     exit( EXIT_FAILURE );
   }
-  opts.extract( "alph", alfabetFile );
-  opts.extract( "hist", histconfFile );
-  if ( opts.extract( "diac", diaconfFile ) ){
-    if ( !TiCC::match_back( diaconfFile, ".diac" ) ){
-      cerr << progname << ": invalid extension for --diac file '" << diaconfFile
-	   << "' (must be .diac) " << endl;
+  opts.extract( "alph", alfabet_file );
+  opts.extract( "hist", histconf_file );
+  if ( opts.extract( "diac", diaconf_file ) ){
+    if ( !TiCC::match_back( diaconf_file, ".diac" ) ){
+      cerr << progname << ": invalid extension for --diac file '"
+	   << diaconf_file << "' (must be .diac) " << endl;
       exit(EXIT_FAILURE);
     }
   }
@@ -920,8 +921,8 @@ int main( int argc, char **argv ){
     }
   }
   else {
-    outFile = indexFile + ".ldcalc";
-    shortFile = indexFile + ".short.ldcalc";
+    outFile = index_file + ".ldcalc";
+    shortFile = index_file + ".short.ldcalc";
   }
   string ambiFile = outFile + ".ambi";
   size_t artifreq = 0;
@@ -989,28 +990,28 @@ int main( int argc, char **argv ){
     exit(EXIT_FAILURE);
   }
 
-  if ( !alfabetFile.empty() ){
-    ifstream lexicon( alfabetFile );
+  if ( !alfabet_file.empty() ){
+    ifstream lexicon( alfabet_file );
     if ( !lexicon ){
-      cerr << progname << ": problem opening alfabet file: " << alfabetFile << endl;
+      cerr << progname << ": problem opening alfabet file: " << alfabet_file << endl;
       exit(EXIT_FAILURE);
     }
-    cout << progname << ": reading alphabet: " << alfabetFile << endl;
+    cout << progname << ": reading alphabet: " << alfabet_file << endl;
     fillAlphabet( lexicon, alphabet );
     cout << progname << ": read " << alphabet.size() << " letters with frequencies" << endl;
   }
-  ifstream ff( frequencyFile  );
-  if ( !ff ){
-    cerr << progname << ": problem opening " << frequencyFile << endl;
+  ifstream f_stream( frequency_file  );
+  if ( !f_stream ){
+    cerr << progname << ": problem opening " << frequency_file << endl;
     exit(EXIT_FAILURE);
   }
-  cout << progname << ": reading clean file: " << frequencyFile << endl;
+  cout << progname << ": reading clean file: " << frequency_file << endl;
   map<string, size_t> freqMap;
   map<UnicodeString, size_t> low_freqMap;
   string line;
   size_t ign = 0;
   size_t skipped = 0;
-  while ( getline( ff, line ) ){
+  while ( getline( f_stream, line ) ){
     vector<string> v1 = TiCC::split( line );
     if ( v1.size() != 2 ){
       ++ign;
@@ -1054,15 +1055,15 @@ int main( int argc, char **argv ){
     cout << progname << ": skipped " << ign << " spaced words in the clean file" << endl;
   }
   set<bitType> histMap;
-  if ( !histconfFile.empty() ){
-    ifstream ff( histconfFile );
-    if ( !ff ){
-      cerr << "problem opening " << histconfFile << endl;
+  if ( !histconf_file.empty() ){
+    ifstream hist_stream( histconf_file );
+    if ( !hist_stream ){
+      cerr << "problem opening " << histconf_file << endl;
       exit(EXIT_FAILURE);
     }
-    string line;
-    while ( getline( ff, line ) ){
-      vector<string> v = TiCC::split_at( line, "#" );
+    string hist_line;
+    while ( getline( hist_stream, hist_line ) ){
+      vector<string> v = TiCC::split_at( hist_line, "#" );
       if ( v.size() != 2 ){
 	continue;
       }
@@ -1070,7 +1071,7 @@ int main( int argc, char **argv ){
       histMap.insert(val);
     }
     if ( histMap.empty() ){
-      cerr << progname << ": the historical confusions file " << histconfFile
+      cerr << progname << ": the historical confusions file " << histconf_file
 	   << " doesn't seem to be in the right format." << endl
 	   << " should contain lines like: 10331739614#f~s" << endl;
     }
@@ -1080,15 +1081,15 @@ int main( int argc, char **argv ){
   }
 
   set<bitType> diaMap;
-  if ( !diaconfFile.empty() ){
-    ifstream ff( diaconfFile );
-    if ( !ff ){
-      cerr << progname << ": problem opening " << diaconfFile << endl;
+  if ( !diaconf_file.empty() ){
+    ifstream dia_stream( diaconf_file );
+    if ( !dia_stream ){
+      cerr << progname << ": problem opening " << diaconf_file << endl;
       exit(EXIT_FAILURE);
     }
-    string line;
-    while ( getline( ff, line ) ){
-      vector<string> v = TiCC::split_at( line, "#" );
+    string dia_line;
+    while ( getline( dia_stream, dia_line ) ){
+      vector<string> v = TiCC::split_at( dia_line, "#" );
       if ( v.size() != 2 ){
 	continue;
       }
@@ -1096,7 +1097,7 @@ int main( int argc, char **argv ){
       diaMap.insert(val);
     }
     if ( diaMap.empty() ){
-      cerr << progname << ": the diacritical confusions file " << histconfFile
+      cerr << progname << ": the diacritical confusions file " << histconf_file
 	   << " doesn't seem to be in the right format." << endl
 	   << " should contain lines like: 10331739614#e~é" << endl;
       exit(EXIT_FAILURE);
@@ -1106,14 +1107,15 @@ int main( int argc, char **argv ){
     }
   }
 
-  ifstream indexf( indexFile );
+  ifstream indexf( index_file );
   if ( !indexf ){
-    cerr << progname << ": problem opening: " << indexFile << endl;
+    cerr << progname << ": problem opening: " << index_file << endl;
     exit(EXIT_FAILURE);
   }
-  ifstream anaf( anahashFile );
+  ifstream anaf( anahash_file );
   if ( !anaf ){
-    cerr << progname << ": problem opening anagram hashes file: " << anahashFile << endl;
+    cerr << progname << ": problem opening anagram hashes file: "
+	 << anahash_file << endl;
     exit(EXIT_FAILURE);
   }
   map<bitType,set<string> > hashMap;
@@ -1162,7 +1164,7 @@ int main( int argc, char **argv ){
     ++file_lines;
   }
   if ( file_lines == 0 ){
-    cerr << "the indexfile: '" << indexFile
+    cerr << "the indexfile: '" << index_file
 	 << "' is empty! No further processing possible." << endl;
     exit( EXIT_FAILURE );
   }
@@ -1171,8 +1173,8 @@ int main( int argc, char **argv ){
   indexf.seekg( 0 );
   while ( getline( indexf, line ) ){
     if ( err_cnt > 9 ){
-      cerr << progname << ": FATAL ERROR: too many problems in indexfile: " << indexFile
-	   << " terminated" << endl;
+      cerr << progname << ": FATAL ERROR: too many problems in indexfile: "
+	   << index_file << " terminated" << endl;
       exit( EXIT_FAILURE);
     }
     ++line_nr;
