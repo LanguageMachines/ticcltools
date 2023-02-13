@@ -342,6 +342,9 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 			    ngram_count );
   }
   else {
+#ifndef OLD_STRIP_STUFF // this seems to be OK
+    return false;
+#else                   // this seems to be unwanted
     bool uncommon = true;
     using TiCC::operator<<;
     if ( follow ){
@@ -351,8 +354,6 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 	     << endl;
       }
     }
-
-#ifdef OLD_STRIP_STUFF
     while( !parts1.empty() && !parts2.empty() ){
       UnicodeString left = parts1.back();
       left.toLower();
@@ -383,7 +384,6 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 	break;
       }
     }
-#endif
     if ( follow ){
 #pragma omp critical (debugout)
       {
@@ -436,6 +436,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 			    dis_map,
 			    dis_count,
 			    ngram_count );
+#endif
   }
 }
 
@@ -722,8 +723,7 @@ bool compare_pair( ld_record& record,
 		   map<UnicodeString, size_t>& ngram_count,
 		   size_t freqThreshold,
 		   size_t low_limit,
-		   const map<UChar,bitType>& alphabet,
-		   bool following ){
+		   const map<UChar,bitType>& alphabet ){
   if ( !record.ld_check( ldValue ) ){
     return false;
   }
@@ -790,7 +790,7 @@ void compareSets( int ldValue,
 			isKHC, noKHCld, isDIAC, following );
       if ( compare_pair( record, low_freqMap, ldValue, KWC,
 			 dis_map, dis_count, ngram_count,
-			 freqThreshold, low_limit, alphabet, following ) ){
+			 freqThreshold, low_limit, alphabet ) ){
 	UnicodeString key = record.get_key();
 #pragma omp critical (output)
 	{
