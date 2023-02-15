@@ -1244,10 +1244,8 @@ int main( int argc, char **argv ){
 	    bool do_trans = false;
 #pragma omp critical (debugout)
 	    {
-	      if ( handledTrans.find( key ) == handledTrans.end() ){
-		handledTrans.insert( key );
-		do_trans = true;
-	      }
+	      auto res = handledTrans.insert( key );
+	      do_trans = res.second == true;
 	    }
 	    if ( do_trans ){
 	      handleTranspositions( sit1->second,
