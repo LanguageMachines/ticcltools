@@ -36,7 +36,8 @@ struct word_dist {
 };
 
 class wordvec_tester {
- public:
+public:
+  wordvec_tester(): _dim(0){};
   bool fill( const std::string& );
   bool lookup( const std::string&,
 	       size_t,

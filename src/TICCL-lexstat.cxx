@@ -71,29 +71,29 @@ void create_output( string& name, const map<UChar,size_t>& chars,
      << " accepted characters and " << out_count << " clipped characters."
      << endl;
   int start = 100;
-  bitType hash = high_five( start );
-  hashes.insert( make_pair( "*", hash ) );
-  os << "# *\tdigits_and_punctuation\t" << hash << endl;
+  bitType hash_val = high_five( start );
+  hashes.insert( make_pair( "*", hash_val ) );
+  os << "# *\tdigits_and_punctuation\t" << hash_val << endl;
   start = 101;
-  hash = high_five( start );
-  hashes.insert( make_pair( "$", hash ) );
-  os << "# $\tunknown_characters\t" << hash << endl;
+  hash_val = high_five( start );
+  hashes.insert( make_pair( "$", hash_val ) );
+  os << "# $\tunknown_characters\t" << hash_val << endl;
   start = 102;
   int spec_cnt = 2;
   if ( !separator.isEmpty() ){
     ++spec_cnt;
-    hash = high_five( start );
-    hashes.insert( make_pair( separator, hash ) );
-    os << separator << "\t0\t\t" << hash << endl;
+    hash_val = high_five( start );
+    hashes.insert( make_pair( separator, hash_val ) );
+    os << separator << "\t0\t\t" << hash_val << endl;
     start = 103;
   }
   int out_cnt = 0;
   auto rit = reverse.rbegin();
   while ( rit != reverse.rend() ){
-    hash = high_five( start );
+    hash_val = high_five( start );
     UnicodeString us( rit->second );
-    hashes.insert( make_pair( us, hash ) );
-    os << us << "\t" << rit->first << "\t" << hash << endl;
+    hashes.insert( make_pair( us, hash_val ) );
+    os << us << "\t" << rit->first << "\t" << hash_val << endl;
     ++out_cnt;
     ++start;
     ++rit;
@@ -192,15 +192,15 @@ void generate_confusion( const string& name,
     while ( it2 != hashes.cend() ){
       if ( it2 != it1 ){
 	// 1-1 substitutions
-	bitType div;
+	bitType div11;
 	if ( it2->second > it1->second ){
-	  div = it2->second - it1->second;
+	  div11 = it2->second - it1->second;
 	}
 	else {
-	  div = it1->second - it2->second;
+	  div11 = it1->second - it2->second;
 	}
 	UnicodeString s2 = it1->first + "~" + it2->first;
-	conditionally_insert( confusions, div, s2, full );
+	conditionally_insert( confusions, div11, s2, full );
       }
       ++it2;
     }
@@ -209,37 +209,37 @@ void generate_confusion( const string& name,
       while ( it2 != hashes.end() ){
 	// 2-0 substitutions
 	UnicodeString s20 = it1->first + it2->first + "~";
-	bitType div = it2->second + it1->second;
-	conditionally_insert( confusions, div, s20, full );
+	bitType div20 = it2->second + it1->second;
+	conditionally_insert( confusions, div20, s20, full );
 	auto it3 = hashes.cbegin();
 	while ( it3 != hashes.cend() ){
 	  if ( it3 != it2 && it3 != it1 ){
 	    // 2-1 substitutions
 	    UnicodeString s = it1->first + it2->first + "~" + it3->first;
-	    bitType div;
+	    bitType div21;
 	    bitType d1 = it1->second + it2->second;
 	    bitType d2 = it3->second;
 	    if ( d1 > d2 ){
-	      div = d1 - d2;
+	      div21 = d1 - d2;
 	    }
 	    else {
-	      div = d2 - d1;
+	      div21 = d2 - d1;
 	    }
-	    conditionally_insert( confusions, div, s, full );
+	    conditionally_insert( confusions, div21, s, full );
 	  }
 	  if ( it2 != it1 && it3 != it1 ){
 	    // 1-2 substitutions
 	    UnicodeString s = it1->first + "~" + it2->first + it3->first;
-	    bitType div;
+	    bitType div12;
 	    bitType d1 = it1->second;
 	    bitType d2 = it2->second + it3->second;
 	    if ( d1 > d2 ){
-	      div = d1 - d2;
+	      div12 = d1 - d2;
 	    }
 	    else {
-	      div = d2 - d1;
+	      div12 = d2 - d1;
 	    }
-	    conditionally_insert( confusions, div, s, full );
+	    conditionally_insert( confusions, div12, s, full );
 	  }
 	  auto it4 = hashes.cbegin();
 	  while ( it4 != hashes.cend() ){
@@ -247,51 +247,51 @@ void generate_confusion( const string& name,
 	      // 2-2 substitutions
 	      UnicodeString s = it1->first + it2->first + "~"
 		+ it3->first + it4->first;
-	      bitType div;
+	      bitType div22;
 	      bitType d1 = it1->second + it2->second;
 	      bitType d2 = it3->second + it4->second;
 	      if ( d1 > d2 ){
-		div = d1 - d2;
+		div22 = d1 - d2;
 	      }
 	      else {
-		div = d2 - d1;
+		div22 = d2 - d1;
 	      }
-	      conditionally_insert( confusions, div, s, full );
+	      conditionally_insert( confusions, div22, s, full );
 	    }
 	    if ( depth > 2 ){
 	      // 3-0 substitutions
 	      UnicodeString s30 = it1->first + it2->first + it3->first + "~";
-	      bitType div = it1->second + it2->second + it3->second;
-	      conditionally_insert( confusions, div, s30, full );
+	      bitType div30 = it1->second + it2->second + it3->second;
+	      conditionally_insert( confusions, div30, s30, full );
 	      if ( it4 != it1 && it4 != it2 && it4 != it3 ){
 		// 3-1 substitutions
 		UnicodeString s = it1->first + it2->first + it3->first + "~"
 		  + it4->first;
-		bitType div;
+		bitType div31;
 		bitType d1 = it4->second;
 		bitType d2 = it3->second + it2->second + it1->second;
 		if ( d1 > d2 ){
-		  div = d1 - d2;
+		  div31 = d1 - d2;
 		}
 		else {
-		  div = d2 - d1;
+		  div31 = d2 - d1;
 		}
-		conditionally_insert( confusions, div, s, full );
+		conditionally_insert( confusions, div31, s, full );
 	      }
 	      if ( it2 != it1 && it3 != it1 && it4 != it1 ){
 		// 1-3 substitutions
 		UnicodeString s = it1->first + "~"
 		  + it2->first + it3->first + it4->first;
-		bitType div;
+		bitType div13;
 		bitType d1 = it1->second;
 		bitType d2 = it2->second + it3->second + it4->second;
 		if ( d1 > d2 ){
-		  div = d1 - d2;
+		  div13 = d1 - d2;
 		}
 		else {
-		  div = d2 - d1;
+		  div13 = d2 - d1;
 		}
-		conditionally_insert( confusions, div, s, full );
+		conditionally_insert( confusions, div13, s, full );
 	      }
 	      auto it5 = hashes.cbegin();
 	      while ( it5 != hashes.cend() ){
@@ -300,16 +300,16 @@ void generate_confusion( const string& name,
 		  // 3-2 substitutions
 		  UnicodeString s = it1->first + it2->first + it3->first + "~"
 		    + it4->first + it5->first;
-		  bitType div;
+		  bitType div32;
 		  bitType d1 = it5->second + it4->second;
 		  bitType d2 = it3->second + it2->second + it1->second;
 		  if ( d1 > d2 ){
-		    div = d1 - d2;
+		    div32 = d1 - d2;
 		  }
 		  else {
-		    div = d2 - d1;
+		    div32 = d2 - d1;
 		  }
-		  conditionally_insert( confusions, div, s, full );
+		  conditionally_insert( confusions, div32, s, full );
 		}
 		if ( it3 != it1 && it3 != it2 &&
 		     it4 != it1 && it4 != it2 &&
@@ -317,16 +317,16 @@ void generate_confusion( const string& name,
 		  // 2-3 substitutions
 		  UnicodeString s = it1->first + it2->first + "~" + it3->first
 		    +it4->first + it5->first;
-		  bitType div;
+		  bitType div23;
 		  bitType d1 = it5->second + it4->second + it3->second;
 		  bitType d2 = it2->second + it1->second;
 		  if ( d1 > d2 ){
-		    div = d1 - d2;
+		    div23 = d1 - d2;
 		  }
 		  else {
-		    div = d2 - d1;
+		    div23 = d2 - d1;
 		  }
-		  conditionally_insert( confusions, div, s, full );
+		  conditionally_insert( confusions, div23, s, full );
 		}
 		auto it6 = hashes.cbegin();
 		while ( it6 != hashes.cend() ){
@@ -338,14 +338,14 @@ void generate_confusion( const string& name,
 		      +it4->first + it5->first + it6->first;
 		    bitType d1 = it6->second + it5->second + it4->second;
 		    bitType d2 = it3->second + it2->second + it1->second;
-		    bitType div;
+		    bitType div33;
 		    if ( d1 > d2 ){
-		      div = d1 - d2;
+		      div33 = d1 - d2;
 		    }
 		    else {
-		      div = d2 - d1;
+		      div33 = d2 - d1;
 		    }
-		    conditionally_insert( confusions, div, s, full );
+		    conditionally_insert( confusions, div33, s, full );
 		  }
 		  ++it6;
 		}

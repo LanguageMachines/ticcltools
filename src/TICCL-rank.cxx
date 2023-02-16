@@ -499,30 +499,18 @@ void rank( vector<rank_record>& recs,
     for ( const auto& r : recs ){
       cout << "\t" << r.candidate << " rank= " << r.cls_rank << endl;
     }
-  }
-
-  if ( follow ){
     cout << "step 5: canon_rank: " << endl;
     for ( const auto& r : recs ){
       cout << "\t" << r.candidate << " rank= " << r.canon_rank << endl;
     }
-  }
-
-  if ( follow ){
     cout << "step 6: fl_rank: " << endl;
     for ( const auto& r : recs ){
       cout << "\t" << r.candidate << " rank= " << r.fl_rank << endl;
     }
-  }
-
-  if ( follow ){
     cout << "step 7: ll_rank: " << endl;
     for ( const auto& r : recs ){
       cout << "\t" << r.candidate << " rank= " << r.ll_rank << endl;
     }
-  }
-
-  if ( follow ){
     cout << "step 8: khc_rank: " << endl;
     for ( const auto& r : recs ){
       cout << "\t" << r.candidate << " rank= " << r.khc_rank << endl;
@@ -570,9 +558,6 @@ void rank( vector<rank_record>& recs,
     for ( const auto& r : recs ){
       cout << "\t" << r.candidate << " count=" << r.variant_count << " rank= " << r.variant_rank << endl;
     }
-  }
-
-  if ( follow ){
     cout << "step 13: cosine_rank: " << endl;
     for ( const auto& r : recs ){
       cout << "\t" << r.candidate << " rank= " << r.cosine_rank << endl;
@@ -589,7 +574,7 @@ void rank( vector<rank_record>& recs,
 
   double sum = 0.0;
   for( auto& vit : recs ){
-    double rank =
+    double rank_v =
       (skip[0]?0:vit.f2len_rank) +  // number of characters in the frequency
       (skip[1]?0:vit.freq_rank) +   // frequency of the CC
       (skip[2]?0:vit.ld_rank) +     // levenshtein distance
@@ -605,17 +590,17 @@ void rank( vector<rank_record>& recs,
       (skip[12]?0:vit.cosine_rank) + // WordVector rank
       (skip[13]?0:vit.ngram_rank);
     if ( follow ){
-      cerr << "Rank=" << rank << endl;
+      cerr << "Rank=" << rank_v << endl;
     }
-    rank = rank/factor;
+    rank_v = rank_v/factor;
     if ( follow ){
-      cerr << "Rank/" << factor << " = " << rank << endl;
+      cerr << "Rank/" << factor << " = " << rank_v << endl;
     }
-    sum += rank;
+    sum += rank_v;
     if ( follow ){
       cerr << "Sum =" << sum << endl;
     }
-    vit.rank = rank;
+    vit.rank = rank_v;
   }
 
   if ( recs.size() == 1 ){
