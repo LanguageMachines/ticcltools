@@ -99,7 +99,8 @@ ostream& operator<<( ostream& os, const chain_record *rec ){
   return os;
 }
 
-vector<string> sort( vector<string>& in, map<int,string>& cc_order){
+vector<string> sort( const vector<string>& in,
+		     const map<int,string>& cc_order){
   vector<string> uit;
   for ( const auto& it : cc_order ){
     for ( const auto& s : in ){

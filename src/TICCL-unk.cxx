@@ -87,16 +87,19 @@ bool fillAlpha( istream& is, set<UChar>& alphabet ){
     }
     UnicodeString us = TiCC::UnicodeFromUTF8( v[0] );
     us.toLower();
-    if ( alphabet.find( us[0] ) == alphabet.end() ){
-      alphabet.insert( us[0] );
+    auto l_stat = alphabet.insert( us[0] );
+    if ( l_stat.second ) {
+      // a new lowercase letter
       ++l_cnt;
     }
     us.toUpper();
-    if ( alphabet.find( us[0] ) == alphabet.end() ){
-      alphabet.insert( us[0] );
+    auto u_stat = alphabet.insert( us[0] );
+    if ( u_stat.second ){
+      // a new uppercase letter
       ++u_cnt;
     }
     else {
+      // upper and lower are the same: A symbol
       ++s_cnt;
     }
     // for now, we don't use the other fields

@@ -151,6 +151,7 @@ ld_record::ld_record( const string& s1, const string& s2,
 		      const map<UnicodeString,size_t>& low_f_map,
 		      bool is_KHC, bool no_KHCld, bool is_diachrone,
 		      bool following ):
+  str1(TiCC::UnicodeFromUTF8(s1)),
   ld(-1),
   cls(0),
   KWC(0),
@@ -164,7 +165,6 @@ ld_record::ld_record( const string& s1, const string& s2,
   noKHCld(no_KHCld),
   is_diac(is_diachrone)
 {
-  str1 = TiCC::UnicodeFromUTF8(s1);
   auto const it1 = f_map.find( s1 );
   if ( it1 != f_map.end() ){
     freq1 = it1->second;

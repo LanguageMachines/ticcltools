@@ -829,7 +829,7 @@ int main( int argc, char **argv ){
     cerr << PACKAGE_STRING << endl;
     exit(EXIT_SUCCESS);
   }
-  bool verbose = opts.extract( 'v' ) || opts.extract("verbose");
+  verbose = opts.extract( 'v' ) || opts.extract("verbose");
   bool ALTERNATIVE = opts.extract( "ALTERNATIVE" );
   string alfabetFile;
   string lexstatFile;

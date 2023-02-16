@@ -172,17 +172,17 @@ size_t init( vector<experiment>& exps,
     exps.push_back( e );
     return 1;
   }
-  auto hash = hashes.begin();
+  auto hash_it = hashes.begin();
   for ( size_t i=0; i < threads; ++i ){
     experiment e;
-    e.start = hash;
-    for ( size_t j=0; j < partsize && hash != hashes.end(); ++j ){
-      ++hash;
+    e.start = hash_it;
+    for ( size_t j=0; j < partsize && hash_it != hashes.end(); ++j ){
+      ++hash_it;
     }
-    e.finish = hash;
+    e.finish = hash_it;
     exps.push_back( e );
   }
-  if ( hash != hashes.end() ){
+  if ( hash_it != hashes.end() ){
     exps[exps.size()-1].finish = hashes.end();
   }
   return threads;

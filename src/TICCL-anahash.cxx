@@ -44,7 +44,7 @@ using namespace	std;
 using namespace icu;
 
 void create_output( ostream& os,
-		    map<bitType, set<UnicodeString> >& anagrams ){
+		    const map<bitType, set<UnicodeString> >& anagrams ){
   for ( const auto& it : anagrams ){
     bitType val = it.first;
     os << val << "~";
@@ -338,8 +338,6 @@ int main( int argc, char *argv[] ){
 	}
       }
     }
-  }
-  if ( artifreq > 0 ){
     cout << "generating foci file: " << foci_file_name << " with " << foci.size() << " entries" << endl;
     ofstream fos( foci_file_name );
     create_output( fos, foci );
