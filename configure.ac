@@ -54,24 +54,6 @@ if test "x$prefix" = "xNONE"; then
    prefix="/usr/local"
 fi
 
-AC_ARG_WITH(roaring,
-	[  --with-roaring=DIR       use CRoaring installed in <DIR>;
-          note that you can install roaring in a non-default directory],
-        [CXXFLAGS="$CXXFLAGS -I $withval"
-	 LIBS="$LIBS -L$withval/lib"],
-        [LIBS="$LIBS -L$prefix/lib"] )
-
-AC_SEARCH_LIBS( [roaring_bitmap_create],
-		[roaring],
-		[AC_DEFINE(HAVE_ROARING, 1 , Define to 1 if you have roaring stuff )
-		 AM_CONDITIONAL([ROAR], [test 1 = 1])
-		 LIBS="$LIBS -lroaring"
-		 ],
-  		[AC_MSG_NOTICE([No CRoaring library found. Roaring versions of some programs disabled])
-   		AC_DEFINE(HAVE_ROARING, 0 , Define to 1 if you have roaring stuff )
-		   AM_CONDITIONAL([ROAR], [test 1 = 0])]
- 	     )
-
 PKG_PROG_PKG_CONFIG
 if test "x$PKG_CONFIG_PATH" = x; then
     export PKG_CONFIG_PATH="/usr/lib/pkgconfig:$prefix/lib/pkgconfig"
@@ -89,7 +71,7 @@ PKG_CHECK_MODULES([XML2], [libxml-2.0 >= 2.6.16] )
 CXXFLAGS="$CXXFLAGS $XML2_CFLAGS"
 LIBS="$XML2_LIBS $LIBS"
 
-PKG_CHECK_MODULES([ticcutils], [ticcutils >= 0.22] )
+PKG_CHECK_MODULES([ticcutils], [ticcutils >= 0.32] )
 CXXFLAGS="$ticcutils_CFLAGS $CXXFLAGS"
 LIBS="$ticcutils_LIBS $LIBS"
 
