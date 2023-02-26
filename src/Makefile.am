@@ -1,19 +1,11 @@
 AM_CPPFLAGS = -I@top_srcdir@/include
 AM_CXXFLAGS = -std=c++11 -g -W -Wall -pedantic -O3
 
-if ROAR
-bin_PROGRAMS = TICCL-indexer TICCL-indexerNT TICCL-indexerNT-roaring \
-	TICCL-LDcalc TICCL-LDcalc-roaring TICCL-unk TICCL-lexstat \
-	TICCL-anahash TICCL-rank TICCL-lexclean \
-	W2V-near W2V-dist W2V-analogy TICCL-stats \
-	TICCL-mergelex TICCL-chain TICCL-chainclean
-else
 bin_PROGRAMS = TICCL-indexer TICCL-indexerNT \
 	TICCL-LDcalc TICCL-unk TICCL-lexstat \
 	TICCL-anahash TICCL-rank TICCL-lexclean \
 	W2V-near W2V-dist W2V-analogy TICCL-stats \
 	TICCL-mergelex TICCL-chain TICCL-chainclean
-endif
 
 LDADD = libticcl.la
 lib_LTLIBRARIES = libticcl.la
@@ -23,9 +15,7 @@ libticcl_la_SOURCES = word2vec.cxx ticcl_common.cxx
 
 TICCL_indexer_SOURCES = TICCL-indexer.cxx
 TICCL_indexerNT_SOURCES = TICCL-indexerNT.cxx
-TICCL_indexerNT_roaring_SOURCES = TICCL-indexerNT-roaring.cxx
 TICCL_LDcalc_SOURCES = TICCL-LDcalc.cxx
-TICCL_LDcalc_roaring_SOURCES = TICCL-LDcalc-roaring.cxx
 TICCL_rank_SOURCES = TICCL-rank.cxx
 TICCL_stats_SOURCES = TICCL-stats.cxx
 TICCL_unk_SOURCES = TICCL-unk.cxx
