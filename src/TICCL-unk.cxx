@@ -75,17 +75,17 @@ bool fillAlpha( istream& is, set<UChar>& alphabet ){
   int l_cnt = 0;
   int u_cnt = 0;
   int s_cnt = 0;
-  string line;
-  while ( getline( is, line ) ){
-    if ( line.size() == 0 || line[0] == '#' ){
+  UnicodeString line;
+  while ( TiCC::getline( is, line ) ){
+    if ( line.length() == 0 || line[0] == '#' ){
       continue;
     }
-    vector<string> v = TiCC::split( line );
+    vector<UnicodeString> v = TiCC::split( line );
     if ( v.size() != 3 ){
       cerr << "unsupported format for alphabet file" << endl;
       exit(EXIT_FAILURE);
     }
-    UnicodeString us = TiCC::UnicodeFromUTF8( v[0] );
+    UnicodeString us = v[0];
     us.toLower();
     auto l_stat = alphabet.insert( us[0] );
     if ( l_stat.second ) {
@@ -111,17 +111,17 @@ bool fillAlpha( istream& is, set<UChar>& alphabet ){
 }
 
 bool fillHemp( istream& is, set<UnicodeString>& hemps ){
-  string line;
-  while ( getline( is, line ) ){
-    if ( line.size() == 0 || line[0] == '#' ){
+  UnicodeString line;
+  while ( TiCC::getline( is, line ) ){
+    if ( line.length() == 0 || line[0] == '#' ){
       continue;
     }
-    hemps.insert( TiCC::UnicodeFromUTF8(line) );
+    hemps.insert( line );
   }
   return true;
 }
 
-bool is_ticcl_punct( UChar uc ){
+bool is_unk_punct( UChar uc ){
   switch ( uc ){
   case '_':
     return true;
@@ -155,7 +155,7 @@ bool depunct( const UnicodeString& us, UnicodeString& result ){
   int i = 0;
   for ( ; i < us.length(); ++i ){
     // skip leading punctuation and spaces
-    if ( !( is_ticcl_punct( us[i] ) || u_isspace( us[i] ) ) ){
+    if ( !( is_unk_punct( us[i] ) || u_isspace( us[i] ) ) ){
       if ( i < us.length()-1
 	   && us[i] == '-'
 	   && !ticcl::isletter(us[i+1]) ){
@@ -168,7 +168,7 @@ bool depunct( const UnicodeString& us, UnicodeString& result ){
   int j = us.length()-1;
   for ( ; j >= 0; j-- ){
     // skip trailing punctuation and spaces
-    if ( !( is_ticcl_punct( us[j] ) || u_isspace( us[j] ) ) ){
+    if ( !( is_unk_punct( us[j] ) || u_isspace( us[j] ) ) ){
       if ( j > 0
 	   && us[j] == '-'
 	   && !ticcl::isletter(us[j-1]) ){
@@ -760,6 +760,71 @@ void format( const UnicodeString& line ){
   }
 }
 
+map<UnicodeString,unsigned int> read_back_lex( istream& is,
+					       size_t artifreq ){
+  map<UnicodeString,unsigned int> result;
+  UnicodeString line;
+  while ( TiCC::getline( is, line ) ){
+    vector<UnicodeString> v = TiCC::split_at( line, "\t" );
+    if ( v.empty() ){
+      // empty line, just ignore
+      continue;
+    }
+    if ( v.size() > 2 ){
+      cerr << "background file in strange format!" << endl;
+      cerr << "offending line: " << line << endl;
+      exit(EXIT_FAILURE);
+    }
+    unsigned int freq;
+    if ( v.size() == 2 ){
+      if ( !TiCC::stringTo(v[1],freq) ){
+	cerr << "value of " << v[1] << " is too big to fit in an unsigned int"
+	     << endl;
+	cerr << "offending line: " << line << endl;
+	exit(EXIT_FAILURE);
+      }
+    }
+    else {
+      freq = artifreq;
+    }
+    result[v[0]] = freq;
+  }
+  return result;
+}
+
+map<UnicodeString,unsigned> read_fore_lex( istream& is ){
+  map<UnicodeString,unsigned> result;
+  size_t err_cnt = 0;
+  size_t line_cnt = 0 ;
+  UnicodeString line;
+  while ( TiCC::getline( is, line ) ){
+    ++line_cnt;
+    line.trim();
+    if ( line.isEmpty() ){
+      continue;
+    }
+    vector<UnicodeString> v = TiCC::split_at( line, "\t" );
+    if ( v.empty() ){
+      // empty line. just ignore
+      continue;
+    }
+    if ( v.size() < 2 ){
+      cerr << "error in line #" << line_cnt
+	   << " content='" << line << "'" << endl;
+      if ( ++err_cnt > 10 ){
+	cerr << "frequency file seems to be in wrong format!" << endl;
+	cerr << "too many errors, bailing out" << endl;
+	exit(EXIT_FAILURE);
+      }
+      continue;
+    }
+
+    unsigned int freq = TiCC::stringTo<unsigned int>(v[1]);
+    result[v[0]] = freq;
+  }
+  return result;
+}
+
 UnicodeString default_filter = "æ >ae;"
   "Æ } [:Uppercase Letter:]* > AE;"
   "Æ > Ae;"
@@ -835,7 +900,7 @@ int main( int argc, char *argv[] ){
   }
   string alphafile;
   string background_file;
-  unsigned int artifreq = 0;
+  size_t artifreq = 0;
   bool doAcro = opts.extract("acro");
   verbose = opts.extract('v');
   opts.extract("background", background_file);
@@ -998,33 +1063,7 @@ int main( int argc, char *argv[] ){
       cerr << "unable to open background file: " << background_file << endl;
       exit(EXIT_FAILURE);
     }
-    string line;
-    while ( getline( extra, line ) ){
-      vector<string> v = TiCC::split_at( line, "\t" );
-      if ( v.empty() ){
-	// empty line, just ignore
-	continue;
-      }
-      if ( v.size() > 2 ){
-	cerr << "background file in strange format!" << endl;
-	cerr << "offending line: " << line << endl;
-	exit(EXIT_FAILURE);
-      }
-      unsigned int freq;
-      if ( v.size() == 2 ){
-	if ( !TiCC::stringTo(v[1],freq) ){
-	  cerr << "value of " << v[1] << " is too big to fit in an unsigned int"
-	       << endl;
-	  cerr << "offending line: " << line << endl;
-	  exit(EXIT_FAILURE);
-	}
-      }
-      else {
-	freq = artifreq;
-      }
-      UnicodeString word = TiCC::UnicodeFromUTF8(v[0]);
-      back_lexicon[word] = freq;
-    }
+    back_lexicon = read_back_lex( extra, artifreq );
     cout << "read a background lexicon with " << back_lexicon.size()
 	 << " entries." << endl;
 
@@ -1036,35 +1075,7 @@ int main( int argc, char *argv[] ){
     }
   }
   string line;
-  size_t line_cnt = 0 ;
-  size_t err_cnt = 0;
-  map<UnicodeString,unsigned> fore_lexicon;
-  while ( getline( is, line ) ){
-    ++line_cnt;
-    line = TiCC::trim( line );
-    if ( line.empty() ){
-      continue;
-    }
-    vector<string> v = TiCC::split_at( line, "\t" );
-    if ( v.empty() ){
-      // empty line. just ignore
-      continue;
-    }
-    if ( v.size() < 2 ){
-      cerr << "error in line #" << line_cnt
-	   << " content='" << line << "'" << endl;
-      if ( ++err_cnt > 10 ){
-	cerr << "frequency file seems to be in wrong format!" << endl;
-	cerr << "too many errors, bailing out" << endl;
-	exit(EXIT_FAILURE);
-      }
-      continue;
-    }
-
-    UnicodeString word = TiCC::UnicodeFromUTF8(v[0]);
-    unsigned int freq = TiCC::stringTo<unsigned int>(v[1]);
-    fore_lexicon[word] = freq;
-  }
+  map<UnicodeString,unsigned> fore_lexicon = read_fore_lex( is );
   cout << "start classifying the foreground lexicon with "
        << fore_lexicon.size() << " entries"<< endl;
   for ( const auto& wf : fore_lexicon ){
