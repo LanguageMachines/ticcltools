@@ -761,6 +761,42 @@ set<bitType> fill_set( const string& file_name ){
   return result;
 }
 
+map<bitType,set<string>> fill_hashmap( istream& is,
+				       const map<string,size_t>& freq_map ){
+  map<bitType,set<string>> result;
+  string line;
+  while ( getline( is, line ) ){
+    vector<string> v1 = TiCC::split_at( line, "~" );
+    if ( v1.size() != 2 ){
+      continue;
+    }
+    else {
+      vector<string> v2 = TiCC::split_at( v1[1], "#" );
+      if ( v2.size() < 1 ){
+	cerr << progname << ": strange line: " << line << endl
+	     << " in anagram hashes file" << endl;
+	exit(EXIT_FAILURE);
+      }
+      else {
+	bitType key = TiCC::stringTo<bitType>( v1[0] );
+	for ( size_t i=0; i < v2.size(); ++i ){
+	  auto it = freq_map.find( v2[i] );
+	  if ( it != freq_map.end() ){
+	    // only store words from the .clean lexicon
+	    result[key].insert( v2[i] );
+	  }
+	  else {
+	    if ( verbose > 1 ){
+	      cerr << "skip hash for " << v2[i] << " (not in lexicon)" << endl;
+	    }
+	  }
+	}
+      }
+    }
+  }
+  return result;
+}
+
 int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
@@ -1018,36 +1054,7 @@ int main( int argc, char **argv ){
 	 << anahash_file << endl;
     exit(EXIT_FAILURE);
   }
-  map<bitType,set<string> > hashMap;
-  while ( getline( anaf, line ) ){
-    vector<string> v1 = TiCC::split_at( line, "~" );
-    if ( v1.size() != 2 ){
-      continue;
-    }
-    else {
-      vector<string> v2 = TiCC::split_at( v1[1], "#" );
-      if ( v2.size() < 1 ){
-	cerr << progname << ": strange line: " << line << endl
-	     << " in anagram hashes file" << endl;
-	exit(EXIT_FAILURE);
-      }
-      else {
-	bitType key = TiCC::stringTo<bitType>( v1[0] );
-	for ( size_t i=0; i < v2.size(); ++i ){
-	  auto it = freqMap.find( v2[i] );
-	  if ( it != freqMap.end() ){
-	    // only store words from the .clean lexicon
-	    hashMap[key].insert( v2[i] );
-	  }
-	  else {
-	    if ( verbose > 1 ){
-	      cerr << "skip hash for " << v2[i] << " (not in lexicon)" << endl;
-	    }
-	  }
-	}
-      }
-    }
-  }
+  map<bitType,set<string> > hashMap = fill_hashmap( anaf, freqMap );
   cout << progname << ": read " << hashMap.size() << " hash values" << endl;
 
   size_t count=0;
