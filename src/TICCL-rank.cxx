@@ -56,7 +56,7 @@ using TiCC::operator<<;
 
 const int RANK_COUNT=14;
 
-set<string> follow_words;
+set<UnicodeString> follow_words;
 
 bool verbose = false;
 
@@ -87,12 +87,15 @@ void usage( const string& name ){
 
 class rank_record {
 public:
-  rank_record( const string &, size_t, size_t, const vector<word_dist>& );
-  string extractResults() const;
-  string extractLong( const vector<bool>& skip ) const;
-  string variant;
-  string candidate;
-  string lower_candidate;
+  rank_record( const UnicodeString &,
+	       size_t,
+	       size_t,
+	       const vector<word_dist>& );
+  UnicodeString extractResults() const;
+  UnicodeString extractLong( const vector<bool>& skip ) const;
+  UnicodeString variant;
+  UnicodeString candidate;
+  UnicodeString lower_candidate;
   double variant_count;
   double variant_rank;
   size_t variant_freq;
@@ -130,9 +133,9 @@ public:
 };
 
 float lookup( const vector<word_dist>& vec,
-	      const string& word ){
+	      const UnicodeString& word ){
   for( size_t i=0; i < vec.size(); ++i ){
-    if ( vec[i].w == word ){
+    if ( vec[i].w == TiCC::UnicodeToUTF8(word) ){
       //	cerr << "JA! " << vec[i].d << endl;
       return vec[i].d;
     }
@@ -140,10 +143,10 @@ float lookup( const vector<word_dist>& vec,
   return 0.0;
 }
 
-rank_record::rank_record( const string& line,
-		size_t sub_artifreq_f1,
-		size_t sub_artifreq_f2,
-		const vector<word_dist>& WV ):
+rank_record::rank_record( const UnicodeString& line,
+			  size_t sub_artifreq_f1,
+			  size_t sub_artifreq_f2,
+			  const vector<word_dist>& WV ):
   variant_count(-1),
   f2len_rank(-1),
   ld(-1),
@@ -155,18 +158,18 @@ rank_record::rank_record( const string& line,
   median_rank(-1),
   rank(-10000)
 {
-  vector<string> parts = TiCC::split_at( line, "~" );
+  vector<UnicodeString> parts = TiCC::split_at( line, "~" );
   // file a rank_record with the RANK_COUNT parts of one line from a LDcalc output file
   if ( parts.size() == RANK_COUNT ){
     variant = parts[0];
     variant_freq = TiCC::stringTo<size_t>(parts[1]);
     low_variant_freq = TiCC::stringTo<size_t>(parts[2]);
     candidate = parts[3];
-    UnicodeString us = TiCC::UnicodeFromUTF8( candidate );
-    us.toLower();
-    lower_candidate = TiCC::UnicodeToUTF8( us );
+    UnicodeString ls = candidate;
+    ls.toLower();
+    lower_candidate = ls;
     variant_rank = -2000;  // bogus value, is set later
-    string f2_string = parts[4];
+    UnicodeString f2_string = parts[4];
     candidate_freq = TiCC::stringTo<size_t>( f2_string );
     reduced_candidate_freq = candidate_freq;
     if ( sub_artifreq_f1 > 0 && reduced_candidate_freq >= sub_artifreq_f1 ){
@@ -218,140 +221,146 @@ rank_record::rank_record( const string& line,
   }
 }
 
-string rank_record::extractLong( const vector<bool>& skip ) const {
-  string result = variant + "#";
-  result += TiCC::toString(variant_freq) + "#";
-  result += TiCC::toString(low_variant_freq) + "#";
-  result += candidate + "#";
-  result += TiCC::toString(candidate_freq) + "#";
-  result += TiCC::toString(low_candidate_freq) + "#";
-  result += TiCC::toString(char_conf_val) + "#";
-  result += TiCC::toString(f2len) + "~";
+UnicodeString rank_record::extractLong( const vector<bool>& skip ) const {
+  static UnicodeString hekje = "#";
+  UnicodeString result = variant + hekje;
+  result += TiCC::toUnicodeString(variant_freq) + hekje;
+  result += TiCC::toUnicodeString(low_variant_freq) + hekje;
+  result += candidate + hekje;
+  result += TiCC::toUnicodeString(candidate_freq) + hekje;
+  result += TiCC::toUnicodeString(low_candidate_freq) + hekje;
+  result += TiCC::toUnicodeString(char_conf_val) + hekje;
+  result += TiCC::toUnicodeString(f2len);
+  result += "~";
   double the_rank = 0;
   if ( skip[0] ){
     result += "N#";  }
   else {
     the_rank += f2len_rank;
-    result += TiCC::toString(f2len_rank) + "#";
+    result += TiCC::toUnicodeString(f2len_rank) + hekje;
   }
-  result += TiCC::toString(reduced_candidate_freq) + "~";
+  result += TiCC::toUnicodeString(reduced_candidate_freq) + "~";
   if ( skip[1] ){
     result += "N#";
   }
   else {
     the_rank += freq_rank;
-    result += TiCC::toString(freq_rank) + "#";
+    result += TiCC::toUnicodeString(freq_rank) + hekje;
   }
-  result += TiCC::toString(ld) + "~";
+  result += TiCC::toUnicodeString(ld) + "~";
   if ( skip[2] ){
     result += "N#";
   }
   else {
     the_rank += ld_rank;
-    result += TiCC::toString(ld_rank) + "#";
+    result += TiCC::toUnicodeString(ld_rank) + hekje;
   }
-  result += TiCC::toString(cls) + "~";
+  result += TiCC::toUnicodeString(cls) + "~";
   if ( skip[3] ){
     result += "N#";
   }
   else {
     the_rank += cls_rank;
-    result += TiCC::toString(cls_rank) + "#";
+    result += TiCC::toUnicodeString(cls_rank) + hekje;
   }
-  result += TiCC::toString(canon) + "~";
+  result += TiCC::toUnicodeString(canon);
+  result += "~";
   if ( skip[4] ){
     result += "N#";
   }
   else {
     the_rank += canon_rank;
-    result += TiCC::toString(canon_rank) + "#";
+    result += TiCC::toUnicodeString(canon_rank) + hekje;
   }
-  result += TiCC::toString(fl) + "~";
+  result += TiCC::toUnicodeString(fl) + "~";
   if ( skip[5] ){
     result += "N#";
   }
   else {
     the_rank += fl_rank;
-    result += TiCC::toString(fl_rank) + "#";
+    result += TiCC::toUnicodeString(fl_rank) + hekje;
   }
-  result += TiCC::toString(ll) + "~";
+  result += TiCC::toUnicodeString(ll) + "~";
   if ( skip[6] ){
     result += "N#";
   }
   else {
     the_rank += ll_rank;
-    result += TiCC::toString(ll_rank) + "#";
+    result += TiCC::toUnicodeString(ll_rank) + hekje;
   }
-  result += TiCC::toString(khc) + "~";
+  result += TiCC::toUnicodeString(khc) + "~";
   if ( skip[7] ){
     result += "N#";
   }
   else {
     the_rank += khc_rank;
-    result += TiCC::toString(khc_rank) + "#";
+    result += TiCC::toUnicodeString(khc_rank) + hekje;
   }
-  result += TiCC::toString(pairs1) + "~";
+  result += TiCC::toUnicodeString(pairs1);
+  result += "~";
   if ( skip[8] ){
     result += "N#";
   }
   else {
     the_rank += pairs1_rank;
-    result += TiCC::toString(pairs1_rank) + "#";
+    result += TiCC::toUnicodeString(pairs1_rank) + hekje;
   }
-  result += TiCC::toString(pairs2) + "~";
+  result += TiCC::toUnicodeString(pairs2);
+  result += "~";
   if ( skip[9] ){
     result += "N#";
   }
   else {
     the_rank += pairs2_rank;
-    result += TiCC::toString(pairs2_rank) + "#";
+    result += TiCC::toUnicodeString(pairs2_rank) + hekje;
   }
-  result += TiCC::toString(median) + "~";
+  result += TiCC::toUnicodeString(median) + "~";
   if ( skip[10] ){
     result += "N#";
   }
   else {
     the_rank += median_rank;
-    result += TiCC::toString(median_rank) + "#";
+    result += TiCC::toUnicodeString(median_rank) + hekje;
   }
-  result += TiCC::toString(variant_count) + "~";
+  result += TiCC::toUnicodeString(variant_count) + "~";
   if ( skip[11] ){
     result += "N#";
   }
   else {
     the_rank += variant_rank;
-    result += TiCC::toString(variant_rank) + "#";
+    result += TiCC::toUnicodeString(variant_rank) + hekje;
   }
-  result += TiCC::toString(cosine) + "~";
+  result += TiCC::toUnicodeString(cosine) + "~";
   if ( skip[12] ){
     result += "N#";
   }
   else {
     the_rank += cosine_rank;
-    result += TiCC::toString(cosine_rank) + "#";
+    result += TiCC::toUnicodeString(cosine_rank) + hekje;
   }
-  result += TiCC::toString(ngram_points) + "~";
+  result += TiCC::toUnicodeString(ngram_points) + "~";
   if ( skip[13] ){
     result += "N#";
   }
   else {
     the_rank += ngram_rank;
-    result += TiCC::toString(ngram_rank) + "#";
+    result += TiCC::toUnicodeString(ngram_rank) + hekje;
   }
-  result += TiCC::toString(the_rank) + "#";
-  result += TiCC::toString(rank);
+  result += TiCC::toUnicodeString(the_rank) + hekje;
+  result += TiCC::toUnicodeString(rank);
   return result;
 }
 
-string rank_record::extractResults() const {
-  string result = variant + "#";
-  result += TiCC::toString(variant_freq) + "#";
-  result += candidate + "#";
-  result += TiCC::toString(candidate_freq) + "#";
-  result += TiCC::toString(char_conf_val) + "#";
-  result += TiCC::toString(ld) + "#";
-  result += TiCC::toString(rank);
-  return result;
+UnicodeString rank_record::extractResults() const {
+  ostringstream ss;
+  ss << variant << "#"
+     << variant_freq << "#"
+     << candidate << "#"
+     << candidate_freq << "#"
+     << char_conf_val << "#"
+     << ld << "#"
+     << rank;
+  return TiCC::UnicodeFromUTF8(ss.str());
 }
 
 template <typename TObject, typename TMember, typename TValue>
@@ -387,7 +396,7 @@ void rank_desc_map( const Tmap& desc_map,
 }
 
 void rank( vector<rank_record>& recs,
-	   map<string,multimap<double,rank_record,std::greater<double>>>& results,
+	   map<UnicodeString,multimap<double,rank_record,std::greater<double>>>& results,
 	   int clip,
 	   const map<bitType,size_t>& char_conf_val_counts,
 	   const map<bitType,size_t>& char_conf_val2_counts,
@@ -413,7 +422,7 @@ void rank( vector<rank_record>& recs,
   multimap<size_t,size_t,std::greater<size_t>> pairmap2;
   multimap<size_t,size_t,std::greater<size_t>> median_map;
   multimap<size_t,size_t,std::greater<size_t>> ngram_map;
-  map<string,int> lowvarmap;
+  map<UnicodeString,int> lowvarmap;
   size_t count = 0;
 
   for ( auto& it : recs ){
@@ -620,9 +629,9 @@ void rank( vector<rank_record>& recs,
   }
 
   // sort rank_records on alphabeticaly on variant and descending on rank
-  map<string,multimap<double,rank_record*,std::greater<double>>> output;
+  map<UnicodeString,multimap<double,rank_record*,std::greater<double>>> output;
   for ( auto& it : recs ){
-    string variant = it.variant;
+    UnicodeString variant = it.variant;
     auto p = output.find(variant);
     if ( p != output.end()  ){
       p->second.insert( make_pair( it.rank, &it) );
@@ -655,7 +664,7 @@ void rank( vector<rank_record>& recs,
   }
 
   if ( db ){
-    multimap<double,string,greater<double>> outv;
+    multimap<double,UnicodeString,greater<double>> outv;
     for ( const auto& vit : recs ){
       outv.insert( make_pair( vit.rank, vit.extractLong(skip) ) );
     }
@@ -666,7 +675,8 @@ void rank( vector<rank_record>& recs,
   }
 }
 
-void collect_ngrams( const vector<rank_record>& rank_records, set<string>& variants_set ){
+void collect_ngrams( const vector<rank_record>& rank_records,
+		     set<UnicodeString>& variants_set ){
   vector<rank_record> sorted = rank_records;
   //  cerr << "\nCollecting NEW variant " << rank_records[0].variant << endl;
   // for ( auto const& it : rank_records ){
@@ -681,7 +691,7 @@ void collect_ngrams( const vector<rank_record>& rank_records, set<string>& varia
   //   cerr << it.variant << "~" << it.candidate << "::" << it.ngram_points << endl;
   // }
   // cerr << endl;
-  set<string> variants;
+  set<UnicodeString> variants;
   auto it = sorted.begin();
   while ( it != sorted.end() ){
     if ( verbose ){
@@ -709,7 +719,7 @@ void collect_ngrams( const vector<rank_record>& rank_records, set<string>& varia
 }
 
 vector<rank_record> filter_ngrams( const vector<rank_record>& rank_records,
-			      const set<string>& variants_set ){
+				   const set<UnicodeString>& variants_set ){
   //  cerr << "\nexamining NEW variant " << rank_records[0].variant << endl;
   // for ( auto const& it : rank_records ){
   //   cerr << it.variant << "~" << it.candidate << "::" << it.ngram_points << endl;
@@ -726,7 +736,8 @@ vector<rank_record> filter_ngrams( const vector<rank_record>& rank_records,
       }
     }
     if ( it->ngram_points == 0 ){
-      vector<string> parts = TiCC::split_at(it->variant,ticcl::S_SEPARATOR);
+      vector<UnicodeString> parts = TiCC::split_at(it->variant,
+						   ticcl::US_SEPARATOR);
       if ( verbose ){
 #pragma omp critical (log)
 	{
@@ -878,7 +889,7 @@ int main( int argc, char **argv ){
 #endif
 
   while ( opts.extract( "follow", arg_val ) ){
-    vector<string> parts = TiCC::split_at( arg_val, "," );
+    vector<UnicodeString> parts = TiCC::split_at( TiCC::UnicodeFromUTF8(arg_val), "," );
     for ( const auto& p : parts ){
       follow_words.insert( p );
     }
@@ -1091,14 +1102,14 @@ int main( int argc, char **argv ){
     char_conf_val_medians[it.first] = median;
   }
   map<bitType,size_t> char_conf_val2_counts;
-  map<bitType,string> char_conf_val_string;
+  map<bitType,UnicodeString> char_conf_val_string;
 
   cout << "reading lexstat file " << lexstatFile
        << " and extracting pairs." << endl;
   ifstream lexstats( lexstatFile );
-  string stats_line;
-  while ( getline( lexstats, stats_line ) ){
-    vector<string> vec = TiCC::split_at( stats_line, "#" );
+  UnicodeString stats_line;
+  while ( TiCC::getline( lexstats, stats_line ) ){
+    vector<UnicodeString> vec = TiCC::split_at( stats_line, "#" );
     if ( vec.size() < 2 ){
       cerr << "invalid line '" << stats_line << "' in " << lexstatFile << endl;
       exit( EXIT_FAILURE );
@@ -1106,7 +1117,7 @@ int main( int argc, char **argv ){
     bitType key = TiCC::stringTo<bitType>( vec[0] );
     char_conf_val_string[key] = vec[1];
     if ( char_conf_val_counts[key] > 0 ){
-      UnicodeString value = TiCC::UnicodeFromUTF8( vec[1] );
+      UnicodeString value = vec[1];
       if ( value.length() == 5 && value[2] == '~' ){
 	if ( verbose ){
 	  cerr << "bekijk tweetal: " << value << " met freq=" << char_conf_val_counts[key]
@@ -1223,8 +1234,8 @@ int main( int argc, char **argv ){
 	}
       }
       for ( const auto& it : sorted ){
-	string tr = char_conf_val_string[it.second];
-	if ( tr.empty() ){
+	UnicodeString tr = char_conf_val_string[it.second];
+	if ( tr.isEmpty() ){
 	  if ( it.second == 0 ){
 	    fs << it.second << "\ttransposition\t" << it.first << endl;
 	  }
@@ -1251,7 +1262,7 @@ int main( int argc, char **argv ){
 
   cout << "Start searching for ngram proof, with " << work.size()
        << " iterations on " << numThreads << " thread(s)." << endl;
-  set<string> variants_set;
+  set<UnicodeString> variants_set;
 #pragma omp parallel for schedule(dynamic,1) shared(variants_set,verbose)
   for( size_t i=0; i < work.size(); ++i ){
     const set<streamsize>& ids = work[i]._st;
@@ -1262,8 +1273,8 @@ int main( int argc, char **argv ){
       vector<word_dist> vec;
       in.seekg( *id_iter );
       ++id_iter;
-      string rec_line;
-      getline( in, rec_line );
+      UnicodeString rec_line;
+      TiCC::getline( in, rec_line );
       rank_record rec( rec_line, sub_artifreq_f1, sub_artifreq_f2, vec );
       rank_records.push_back( rec );
       if ( verbose ){
@@ -1291,7 +1302,7 @@ int main( int argc, char **argv ){
     collect_ngrams( rank_records, variants_set );
   }
 
-  map<string,multimap<double,rank_record,std::greater<double>>> results;
+  map<UnicodeString,multimap<double,rank_record,std::greater<double>>> results;
   cout << "Start the REAL work, with " << work.size()
        << " iterations on " << numThreads << " thread(s)." << endl;
 #pragma omp parallel for schedule(dynamic,1) shared(verbose,db)
@@ -1313,8 +1324,8 @@ int main( int argc, char **argv ){
     while ( id_iter != ids.end() ){
       in.seekg( *id_iter );
       ++id_iter;
-      string line;
-      getline( in, line );
+      UnicodeString line;
+      TiCC::getline( in, line );
       rank_record rec( line, sub_artifreq_f1, sub_artifreq_f2, vec );
       rank_records.push_back( rec );
       if ( verbose ){
@@ -1379,7 +1390,7 @@ int main( int argc, char **argv ){
     // needed for chaining
     // map<string,multimap<double,rank_record,std::greater<double>>> results;
     // but we know that every multimap has only 1 entry for clip = 1
-    multimap< size_t, multimap<double, string, std::greater<double>>, std::greater<size_t> > o_vec;
+    multimap< size_t, multimap<double, UnicodeString, std::greater<double>>, std::greater<size_t> > o_vec;
     for ( const auto& it : results ){
       const rank_record *rec = &it.second.begin()->second;
       auto oit = o_vec.find( rec->candidate_freq );
@@ -1387,7 +1398,7 @@ int main( int argc, char **argv ){
 	oit->second.insert( make_pair( rec->rank, rec->extractResults() ) );
       }
       else {
-	multimap<double, string, std::greater<double>> tmp;
+	multimap<double, UnicodeString, std::greater<double>> tmp;
 	tmp.insert( make_pair( rec->rank, rec->extractResults() ) );
 	o_vec.insert( make_pair( rec->candidate_freq, tmp ) );
       }
