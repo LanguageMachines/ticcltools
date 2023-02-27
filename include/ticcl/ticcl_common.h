@@ -31,24 +31,94 @@
 #include "unicode/ustream.h"
 #include "unicode/uchar.h"
 
-typedef uint64_t bitType;
+namespace ticcl {
+  typedef uint64_t bitType;
 
-const std::string S_SEPARATOR = "_";
-const icu::UnicodeString US_SEPARATOR = "_";
-extern const bitType HonderdHash;
-extern const bitType HonderdEenHash;
+  const std::string S_SEPARATOR = "_";
+  const icu::UnicodeString US_SEPARATOR = "_";
+  extern const bitType HonderdHash;
+  extern const bitType HonderdEenHash;
 
-bitType high_five( int );
-bitType hash( const icu::UnicodeString& ,
-	      std::map<UChar,bitType>&,
-	      bool =false );
+  bitType high_five( int );
+  bitType hash( const icu::UnicodeString& ,
+		std::map<UChar,bitType>&,
+		bool =false );
 
-unsigned int ldCompare( const icu::UnicodeString&,
-			const icu::UnicodeString& );
+  unsigned int ldCompare( const icu::UnicodeString&,
+			  const icu::UnicodeString& );
 
-bool fillAlphabet( std::istream&,
-		   std::map<UChar,bitType>&,
-		   int =0 );
+  bool fillAlphabet( std::istream&,
+		     std::map<UChar,bitType>&,
+		     int =0 );
+
+  inline bool ispunct( int8_t charT ){
+    return ( charT == U_OTHER_PUNCTUATION ||
+	     charT == U_INITIAL_PUNCTUATION ||
+	     charT == U_FINAL_PUNCTUATION ||
+	     charT == U_CONNECTOR_PUNCTUATION ||
+	     charT == U_START_PUNCTUATION ||
+	     charT == U_END_PUNCTUATION ||
+	     charT == U_DASH_PUNCTUATION );
+  }
+
+  inline bool ispunct( UChar uc ){
+    int8_t charT =  u_charType( uc );
+    return ispunct( charT );
+  }
+
+  inline bool isdigit( int8_t charT ){
+    return charT == U_DECIMAL_DIGIT_NUMBER;
+  }
+
+  inline bool isdigit( UChar uc ){
+    int8_t charT =  u_charType( uc );
+    return isdigit( charT );
+  }
+
+  inline bool isupper( int8_t charT ){
+    return charT == U_UPPERCASE_LETTER;
+  }
+
+  inline bool isupper( UChar uc ){
+    int8_t charT =  u_charType( uc );
+    return isupper( charT );
+  }
+
+  inline bool islower( int8_t charT ){
+    return charT == U_LOWERCASE_LETTER;
+  }
+
+  inline bool islower( UChar uc ){
+    int8_t charT =  u_charType( uc );
+    return islower( charT );
+  }
+
+  inline bool isother( int8_t charT ){
+    return ( charT == U_MATH_SYMBOL ||
+	     charT == U_OTHER_SYMBOL ||
+	     charT == U_OTHER_NUMBER ||
+	     charT == U_FORMAT_CHAR ||
+	     charT == U_NON_SPACING_MARK ||
+	     charT == U_CURRENCY_SYMBOL ||
+	     charT == U_MODIFIER_SYMBOL ||
+	     charT == U_CONTROL_CHAR );
+  }
+
+  inline bool isother( UChar uc ){
+    int8_t charT =  u_charType( uc );
+    return isother( charT );
+  }
+
+  inline bool isletter( int8_t charT ){
+    return ( charT == U_LOWERCASE_LETTER ||
+	     charT == U_UPPERCASE_LETTER );
+  }
+
+  inline bool isletter( UChar uc ){
+    int8_t charT =  u_charType( uc );
+    return isletter( charT );
+  }
+} // namespace ticcl
 
 inline std::string toString( int8_t c ){
   switch ( c ){
@@ -115,74 +185,6 @@ inline std::string toString( int8_t c ){
   default:
     return "OMG IK HEB GEEN IDEE!";
   }
-}
-
-inline bool ticc_ispunct( int8_t charT ){
-  return ( charT == U_OTHER_PUNCTUATION ||
-	   charT == U_INITIAL_PUNCTUATION ||
-	   charT == U_FINAL_PUNCTUATION ||
-	   charT == U_CONNECTOR_PUNCTUATION ||
-	   charT == U_START_PUNCTUATION ||
-	   charT == U_END_PUNCTUATION ||
-	   charT == U_DASH_PUNCTUATION );
-}
-
-inline bool ticc_ispunct( UChar uc ){
-  int8_t charT =  u_charType( uc );
-  return ticc_ispunct( charT );
-}
-
-inline bool ticc_isdigit( int8_t charT ){
-  return charT == U_DECIMAL_DIGIT_NUMBER;
-}
-
-inline bool ticc_isdigit( UChar uc ){
-  int8_t charT =  u_charType( uc );
-  return ticc_isdigit( charT );
-}
-
-inline bool ticc_isupper( int8_t charT ){
-  return charT == U_UPPERCASE_LETTER;
-}
-
-inline bool ticc_isupper( UChar uc ){
-  int8_t charT =  u_charType( uc );
-  return ticc_isupper( charT );
-}
-
-inline bool ticc_islower( int8_t charT ){
-  return charT == U_LOWERCASE_LETTER;
-}
-
-inline bool ticc_islower( UChar uc ){
-  int8_t charT =  u_charType( uc );
-  return ticc_islower( charT );
-}
-
-inline bool ticc_isother( int8_t charT ){
-  return ( charT == U_MATH_SYMBOL ||
-	   charT == U_OTHER_SYMBOL ||
-	   charT == U_OTHER_NUMBER ||
-	   charT == U_FORMAT_CHAR ||
-	   charT == U_NON_SPACING_MARK ||
-	   charT == U_CURRENCY_SYMBOL ||
-	   charT == U_MODIFIER_SYMBOL ||
-	   charT == U_CONTROL_CHAR );
-}
-
-inline bool ticc_isother( UChar uc ){
-  int8_t charT =  u_charType( uc );
-  return ticc_isother( charT );
-}
-
-inline bool ticc_isletter( int8_t charT ){
-  return ( charT == U_LOWERCASE_LETTER ||
-	   charT == U_UPPERCASE_LETTER );
-}
-
-inline bool ticc_isletter( UChar uc ){
-  int8_t charT =  u_charType( uc );
-  return ticc_isletter( charT );
 }
 
 #endif //  TICCL_COMMON_H

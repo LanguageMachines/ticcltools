@@ -49,6 +49,7 @@
 
 using namespace std;
 using namespace icu;
+using ticcl::bitType;
 
 string progname;
 int verbose = 0;
@@ -292,8 +293,8 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 				map<UnicodeString, size_t>& dis_count,
 				map<UnicodeString, size_t>& ngram_count ){
   ngram_point = 0;
-  vector<UnicodeString> parts1 = TiCC::split_at( str1, US_SEPARATOR );
-  vector<UnicodeString> parts2 = TiCC::split_at( str2, US_SEPARATOR );
+  vector<UnicodeString> parts1 = TiCC::split_at( str1, ticcl::US_SEPARATOR );
+  vector<UnicodeString> parts2 = TiCC::split_at( str2, ticcl::US_SEPARATOR );
   if ( parts1.size() == 1 && parts2.size() == 1 ){
     if ( follow ){
 #pragma omp critical (debugout)
@@ -347,7 +348,7 @@ bool ld_record::analyze_ngrams( const map<UnicodeString, size_t>& low_freqMap,
 }
 
 bool ld_record::ld_is( int wanted ) {
-  ld = ldCompare( ls1, ls2 );
+  ld = ticcl::ldCompare( ls1, ls2 );
   if ( ld != wanted ){
     if ( !( isKHC && noKHCld ) ){
       if ( follow ){
@@ -376,7 +377,7 @@ bool ld_record::ld_is( int wanted ) {
 }
 
 bool ld_record::ld_check( int ldvalue ) {
-  ld = ldCompare( ls1, ls2 );
+  ld = ticcl::ldCompare( ls1, ls2 );
   if ( ld <= ldvalue ){
     // LD is ok
     if ( follow ){
@@ -741,6 +742,25 @@ void add_short( ostream& os,
   }
 }
 
+set<bitType> fill_set( const string& file_name ){
+  ifstream is( file_name );
+  if ( !is ){
+    cerr << progname << ": problem opening " << file_name << endl;
+    exit(EXIT_FAILURE);
+  }
+  set<bitType> result;
+  string hist_line;
+  while ( getline( is, hist_line ) ){
+    vector<string> v = TiCC::split_at( hist_line, "#" );
+    if ( v.size() != 2 ){
+      continue;
+    }
+    bitType val = TiCC::stringTo<bitType>(v[0]);
+    result.insert(val);
+  }
+  return result;
+}
+
 int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
@@ -903,7 +923,7 @@ int main( int argc, char **argv ){
       exit(EXIT_FAILURE);
     }
     cout << progname << ": reading alphabet: " << alfabet_file << endl;
-    fillAlphabet( lexicon, alphabet );
+    ticcl::fillAlphabet( lexicon, alphabet );
     cout << progname << ": read " << alphabet.size() << " letters with frequencies" << endl;
   }
   ifstream f_stream( frequency_file  );
@@ -960,56 +980,30 @@ int main( int argc, char **argv ){
   if ( ign > 0 ){
     cout << progname << ": skipped " << ign << " spaced words in the clean file" << endl;
   }
-  set<bitType> histMap;
+  set<bitType> histSet;
   if ( !histconf_file.empty() ){
-    ifstream hist_stream( histconf_file );
-    if ( !hist_stream ){
-      cerr << "problem opening " << histconf_file << endl;
-      exit(EXIT_FAILURE);
-    }
-    string hist_line;
-    while ( getline( hist_stream, hist_line ) ){
-      vector<string> v = TiCC::split_at( hist_line, "#" );
-      if ( v.size() != 2 ){
-	continue;
-      }
-      bitType val = TiCC::stringTo<bitType>(v[0]);
-      histMap.insert(val);
-    }
-    if ( histMap.empty() ){
+    histSet = fill_set( histconf_file );
+    if ( histSet.empty() ){
       cerr << progname << ": the historical confusions file " << histconf_file
 	   << " doesn't seem to be in the right format." << endl
 	   << " should contain lines like: 10331739614#f~s" << endl;
     }
     else {
-      cout << progname << ": read " << histMap.size() << " historical confusions." << endl;
+      cout << progname << ": read " << histSet.size() << " historical confusions." << endl;
     }
   }
-
-  set<bitType> diaMap;
+  set<bitType> diaSet;
   if ( !diaconf_file.empty() ){
-    ifstream dia_stream( diaconf_file );
-    if ( !dia_stream ){
-      cerr << progname << ": problem opening " << diaconf_file << endl;
-      exit(EXIT_FAILURE);
-    }
-    string dia_line;
-    while ( getline( dia_stream, dia_line ) ){
-      vector<string> v = TiCC::split_at( dia_line, "#" );
-      if ( v.size() != 2 ){
-	continue;
-      }
-      bitType val = TiCC::stringTo<bitType>(v[0]);
-      diaMap.insert(val);
-    }
-    if ( diaMap.empty() ){
+    diaSet = fill_set( diaconf_file );
+    if ( diaSet.empty() ){
       cerr << progname << ": the diacritical confusions file " << histconf_file
 	   << " doesn't seem to be in the right format." << endl
 	   << " should contain lines like: 10331739614#e~é" << endl;
       exit(EXIT_FAILURE);
     }
     else {
-      cout << progname << ": read " << diaMap.size() << " diacritical confusions." << endl;
+      cout << progname << ": read " << diaSet.size()
+	   << " diacritical confusions." << endl;
     }
   }
 
@@ -1121,11 +1115,11 @@ int main( int argc, char **argv ){
       else {
 	bitType mainKey = TiCC::stringTo<bitType>(key_s);
 	bool isKHC = false;
-	if ( histMap.find( mainKey ) != histMap.end() ){
+	if ( histSet.find( mainKey ) != histSet.end() ){
 	  isKHC = true;
 	}
 	bool isDIAC = false;
-	if ( diaMap.find( mainKey ) != diaMap.end() ){
+	if ( diaSet.find( mainKey ) != diaSet.end() ){
 	  isDIAC = true;
 	}
 #pragma omp parallel for schedule(dynamic,1)

@@ -51,6 +51,8 @@
 using namespace std;
 using namespace icu;
 
+using ticcl::bitType;
+
 void usage( const string& name ){
   cerr << name << endl;
   cerr << "options: " << endl;
@@ -324,11 +326,11 @@ int main( int argc, char **argv ){
   set<bitType> anaSet;
   string line;
   while ( getline( ana, line ) ){
-    vector<string> parts;
-    if ( TiCC::split_at( line, parts, "~" ) > 1 ){
+    vector<string> parts = TiCC::split_at( line, "~" );
+    if ( parts.size() > 1 ){
       bitType bit = TiCC::stringTo<bitType>( parts[0] );
-      vector<string> parts2;
-      if ( TiCC::split_at( parts[1], parts2, "#" ) > 0 ){
+      vector<string> parts2 = TiCC::split_at( parts[1], "#" );
+      if ( parts2.size() > 0 ){
 	UnicodeString firstItem = TiCC::UnicodeFromUTF8( parts2[0] );
 	if ( firstItem.length() >= lowValue &&
 	     firstItem.length() <= highValue ){
@@ -350,7 +352,6 @@ int main( int argc, char **argv ){
   set<bitType> confSet;
   size_t count = 0;
   while ( getline( conf, line ) ){
-    vector<string> parts;
     if ( ++count % 1000 == 0 ){
       cout << ".";
       cout.flush();
@@ -358,7 +359,8 @@ int main( int argc, char **argv ){
 	cout << endl << count << endl;;
       }
     }
-    if ( TiCC::split_at( line, parts, "#" ) > 0 ){
+    vector<string> parts = TiCC::split_at( line, "#" );
+    if ( parts.size() > 0 ){
       bitType bit = TiCC::stringTo<bitType>( parts[0] );
       confSet.insert( bit );
     }

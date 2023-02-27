@@ -46,10 +46,10 @@
 
 using namespace std;
 using namespace icu;
-
+using ticcl::bitType;
 using TiCC::operator<<;
 
-const string high_101 = TiCC::toString(HonderdEenHash);
+const string high_101 = TiCC::toString(ticcl::HonderdEenHash);
 
 unsigned int ld( const UnicodeString& in1,
 		 const UnicodeString& in2,
@@ -60,7 +60,7 @@ unsigned int ld( const UnicodeString& in1,
     s1.toLower();
     s2.toLower();
   }
-  return ldCompare( s1, s2 );
+  return ticcl::ldCompare( s1, s2 );
 }
 
 map<UChar,bitType> alphabet;
@@ -273,8 +273,8 @@ void chain_class::output( const string& out_file ){
 	string val = w_cc_conf[s+t_it.first];
 	if ( val.empty() ){
 	  //	  cerr << "GEEN waarde voor " << s+t_it.first << endl;
-	  bitType h1 = ::hash(s, alphabet );
-	  bitType h2 = ::hash(t_it.first, alphabet );
+	  bitType h1 = ticcl::hash(s, alphabet );
+	  bitType h2 = ticcl::hash(t_it.first, alphabet );
 	  bitType h_val;
 	  if ( h1 > h2 ){
 	    h_val = h1 - h2;
@@ -349,7 +349,7 @@ int main( int argc, char **argv ){
   else {
     ifstream is( alphabet_name );
     cout << "start reading alphabet: " << alphabet_name << endl;
-    fillAlphabet( is, alphabet, 0 );
+    ticcl::fillAlphabet( is, alphabet, 0 );
     cout << "finished reading alphabet. (" << alphabet.size() << " characters)"
 	 << endl;
   }

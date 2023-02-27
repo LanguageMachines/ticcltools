@@ -44,6 +44,7 @@ bool verbose = false;
 
 using namespace	std;
 using namespace icu;
+using ticcl::bitType;
 
 void create_output( string& name, const map<UChar,size_t>& chars,
 		    string& orig, map<UnicodeString,bitType>& hashes,
@@ -71,18 +72,18 @@ void create_output( string& name, const map<UChar,size_t>& chars,
      << " accepted characters and " << out_count << " clipped characters."
      << endl;
   int start = 100;
-  bitType hash_val = high_five( start );
+  bitType hash_val = ticcl::high_five( start );
   hashes.insert( make_pair( "*", hash_val ) );
   os << "# *\tdigits_and_punctuation\t" << hash_val << endl;
   start = 101;
-  hash_val = high_five( start );
+  hash_val = ticcl::high_five( start );
   hashes.insert( make_pair( "$", hash_val ) );
   os << "# $\tunknown_characters\t" << hash_val << endl;
   start = 102;
   int spec_cnt = 2;
   if ( !separator.isEmpty() ){
     ++spec_cnt;
-    hash_val = high_five( start );
+    hash_val = ticcl::high_five( start );
     hashes.insert( make_pair( separator, hash_val ) );
     os << separator << "\t0\t\t" << hash_val << endl;
     start = 103;
@@ -90,7 +91,7 @@ void create_output( string& name, const map<UChar,size_t>& chars,
   int out_cnt = 0;
   auto rit = reverse.rbegin();
   while ( rit != reverse.rend() ){
-    hash_val = high_five( start );
+    hash_val = ticcl::high_five( start );
     UnicodeString us( rit->second );
     hashes.insert( make_pair( us, hash_val ) );
     os << us << "\t" << rit->first << "\t" << hash_val << endl;

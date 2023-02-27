@@ -50,6 +50,7 @@
 
 using namespace std;
 using namespace icu;
+using ticcl::bitType;
 
 void usage( const string& name ){
   cerr << name << endl;

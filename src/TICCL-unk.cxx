@@ -134,10 +134,10 @@ bool is_ticcl_punct( UChar uc ){
   case '-':
     return false;
   default:
-    if ( ticc_ispunct( uc ) ){
+    if ( ticcl::ispunct( uc ) ){
       return true;
     }
-    else if ( ticc_isother( uc ) ){
+    else if ( ticcl::isother( uc ) ){
       return true;
     }
     else {
@@ -156,7 +156,9 @@ bool depunct( const UnicodeString& us, UnicodeString& result ){
   for ( ; i < us.length(); ++i ){
     // skip leading punctuation and spaces
     if ( !( is_ticcl_punct( us[i] ) || u_isspace( us[i] ) ) ){
-      if ( i < us.length()-1 && us[i] == '-' && !ticc_isletter(us[i+1]) ){
+      if ( i < us.length()-1
+	   && us[i] == '-'
+	   && !ticcl::isletter(us[i+1]) ){
 	++i;
 	continue;
       }
@@ -167,7 +169,9 @@ bool depunct( const UnicodeString& us, UnicodeString& result ){
   for ( ; j >= 0; j-- ){
     // skip trailing punctuation and spaces
     if ( !( is_ticcl_punct( us[j] ) || u_isspace( us[j] ) ) ){
-      if ( j > 0 && us[j] == '-' && !ticc_isletter(us[j-1]) ){
+      if ( j > 0
+	   && us[j] == '-'
+	   && !ticcl::isletter(us[j-1]) ){
 	--j;
 	continue;
       }
@@ -250,16 +254,16 @@ S_Class classify( const UnicodeString& word,
 	if ( verbose ){
 	  cerr << "bekijk karakter " << UnicodeString(uchar) << " van type " << toString(charT) << endl;
 	}
-	if ( ticc_isletter( charT ) ){
+	if ( ticcl::isletter( charT ) ){
 	  ++is_letter;
 	}
-	else if ( ticc_isdigit( charT ) ){
+	else if ( ticcl::isdigit( charT ) ){
 	  ++is_digit;
 	}
-	else if ( ticc_ispunct( charT ) ){
+	else if ( ticcl::ispunct( charT ) ){
 	  ++is_punct;
 	}
-	else if ( ticc_isother( charT ) ){
+	else if ( ticcl::isother( charT ) ){
 	  ++is_out;
 	  // OUT
 	}
@@ -423,12 +427,12 @@ S_Class classify( const UnicodeString& us,
 
 bool isAcro( const vector<UnicodeString>& parts,
 	     set<UnicodeString>& result ){
-  static UnicodeString pattern =  "(?:de|het|een)" + US_SEPARATOR
+  static UnicodeString pattern =  "(?:de|het|een)" + ticcl::US_SEPARATOR
     + "(\\p{Lu}+)-{0,1}(?:\\p{L}*)";
   static TiCC::UnicodeRegexMatcher acro_detect( pattern, "acro_detector" );
   result.clear();
   for ( size_t i = 0; i < parts.size() -1; ++i ){
-    UnicodeString us = parts[i] + US_SEPARATOR + parts[i+1];
+    UnicodeString us = parts[i] + ticcl::US_SEPARATOR + parts[i+1];
     UnicodeString pre, post;
     // acro_detect.set_debug(1);
     // cerr << "IS ACRO: test pattern = " << acro_detect.Pattern() << endl;
@@ -456,7 +460,7 @@ bool isAcro( const UnicodeString& word ){
 UnicodeString filter_punct( const UnicodeString& us ){
   UnicodeString result;
   for ( int i=0; i < us.length(); ++i ){
-    if ( !ticc_ispunct(us[i]) ){
+    if ( !ticcl::ispunct(us[i]) ){
       result += us[i];
     }
   }
@@ -590,7 +594,7 @@ S_Class classify_n_gram( const vector<UnicodeString>& parts,
     if ( pun.isEmpty() ){
       pun = wrd;
     }
-    end_pun += pun + US_SEPARATOR;
+    end_pun += pun + ticcl::US_SEPARATOR;
   }
   if ( end_pun.length() > 0 ){
     end_pun.remove( end_pun.length()-1 );
@@ -621,15 +625,15 @@ void classify_one_entry( const UnicodeString& orig_word, unsigned int freq,
     }
     cerr << endl << endl;
   }
-  vector<UnicodeString> parts = TiCC::split_at( word, US_SEPARATOR );
+  vector<UnicodeString> parts = TiCC::split_at( word, ticcl::US_SEPARATOR );
   if ( parts.size() == 0 ){
     return;
   }
-  if ( word[0] == US_SEPARATOR[0] ){
-    parts[0] = US_SEPARATOR + parts[0];
+  if ( word[0] == ticcl::US_SEPARATOR[0] ){
+    parts[0] = ticcl::US_SEPARATOR + parts[0];
   }
-  if ( word[word.length()-1] == US_SEPARATOR[0] ){
-    parts.back() += US_SEPARATOR;
+  if ( word[word.length()-1] == ticcl::US_SEPARATOR[0] ){
+    parts.back() += ticcl::US_SEPARATOR;
   }
   if ( parts.size() == 2
        && word.length() < 6 ){
@@ -962,7 +966,7 @@ int main( int argc, char *argv[] ){
     cout << "start classifying the Historical Emphases with "
 	 << hemps.size() << " entries"<< endl;
     for ( const auto& hemp : hemps ){
-      vector<UnicodeString> uparts = TiCC::split_at( hemp, US_SEPARATOR );
+      vector<UnicodeString> uparts = TiCC::split_at( hemp, ticcl::US_SEPARATOR );
       UnicodeString clean;
       for ( const auto& u : uparts ){
 	clean += u;

@@ -42,6 +42,7 @@
 
 using namespace	std;
 using namespace icu;
+using ticcl::bitType;
 
 void create_output( ostream& os,
 		    const map<bitType, set<UnicodeString> >& anagrams ){
@@ -133,7 +134,7 @@ int main( int argc, char *argv[] ){
   opts.extract( "background", backfile );
   opts.extract( "separator", separator );
   if ( separator.isEmpty() ){
-    separator = US_SEPARATOR;
+    separator = ticcl::US_SEPARATOR;
   }
   bool list = opts.extract( "list" );
   string value;
@@ -212,7 +213,7 @@ int main( int argc, char *argv[] ){
 
   map<UChar,bitType> alphabet;
   cout << "reading alphabet file: " << alphafile << endl;
-  if ( !fillAlphabet( as, alphabet, clip ) ){
+  if ( !ticcl::fillAlphabet( as, alphabet, clip ) ){
     cerr << "serious problems reading alphabet file: " << alphafile << endl;
     exit(EXIT_FAILURE);
   }
@@ -270,7 +271,7 @@ int main( int argc, char *argv[] ){
     }
     UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
     UnicodeString word = filter_tilde_hashtag( v0 );
-    bitType h = ::hash( word, alphabet );
+    bitType h = ticcl::hash( word, alphabet );
     if ( list ){
       out_stream << v0 << "\t" << h << endl;
     }
@@ -295,7 +296,7 @@ int main( int argc, char *argv[] ){
   if ( artifreq > 0 ){ // so NOT when creating a simple list!
     for ( const auto& it : freq_list ){
       UnicodeString word = it.first;
-      bitType h = ::hash( word, alphabet );
+      bitType h = ticcl::hash( word, alphabet );
       if ( do_ngrams ){
 	vector<UnicodeString> parts = TiCC::split_at( word, separator );
 	if ( parts.size() > 0 ){
@@ -357,7 +358,7 @@ int main( int argc, char *argv[] ){
       }
       UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
       UnicodeString word = filter_tilde_hashtag( v0 );
-      bitType h = ::hash( word, alphabet );
+      bitType h = ticcl::hash( word, alphabet );
       anagrams[h].insert( word );
       bitType freq = 1;
       if ( v.size() == 2 ){

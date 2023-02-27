@@ -51,6 +51,7 @@
 
 using namespace std;
 using namespace icu;
+using ticcl::bitType;
 using TiCC::operator<<;
 
 const int RANK_COUNT=14;
@@ -725,7 +726,7 @@ vector<rank_record> filter_ngrams( const vector<rank_record>& rank_records,
       }
     }
     if ( it->ngram_points == 0 ){
-      vector<string> parts = TiCC::split_at(it->variant,S_SEPARATOR);
+      vector<string> parts = TiCC::split_at(it->variant,ticcl::S_SEPARATOR);
       if ( verbose ){
 #pragma omp critical (log)
 	{
@@ -765,26 +766,6 @@ struct wid {
   set<streamsize> _st;
 };
 
-map<UChar,bitType> read_alphabet( const string& name ){
-  ifstream lex( name );
-  map<UChar,bitType> result;
-  string line;
-  while ( getline( lex, line ) ){
-    if ( line.size() == 0 || line[0] == '#' ){
-      continue;
-    }
-    vector<string> vec = TiCC::split( line );
-    if ( vec.size() != 3 ){
-      cerr << "invalid line '" << line << "' in " << name << endl;
-      exit( EXIT_FAILURE );
-    }
-    UnicodeString key = TiCC::UnicodeFromUTF8(vec[0]);
-    bitType value = TiCC::stringTo<bitType>( vec[2] );
-    result[key[0]] = value;
-  }
-  return result;
-}
-
 int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
@@ -816,7 +797,7 @@ int main( int argc, char **argv ){
   }
   verbose = opts.extract( 'v' ) || opts.extract("verbose");
   bool ALTERNATIVE = opts.extract( "ALTERNATIVE" );
-  string alfabetFile;
+  string alphabetFile;
   string lexstatFile;
   string freqOutFile;
   string wordvecFile;
@@ -831,7 +812,7 @@ int main( int argc, char **argv ){
     exit(EXIT_FAILURE);
   }
   opts.extract("charconfreq",freqOutFile);
-  if ( !opts.extract("alph",alfabetFile) ){
+  if ( !opts.extract("alph",alphabetFile) ){
     cerr << "missing --alph option" << endl;
     exit(EXIT_FAILURE);
   }
@@ -965,8 +946,8 @@ int main( int argc, char **argv ){
     exit(1);
   }
 
-  if ( !TiCC::isFile( alfabetFile ) ){
-    cerr << "problem opening alfabet file: " << alfabetFile << endl;
+  if ( !TiCC::isFile( alphabetFile ) ){
+    cerr << "problem opening alphabet file: " << alphabetFile << endl;
     exit(1);
   }
 
@@ -1050,7 +1031,9 @@ int main( int argc, char **argv ){
   }
 
   cout << "reading alphabet." << endl;
-  map<UChar,bitType> alphabet = read_alphabet( alfabetFile );
+  map<UChar,bitType> alphabet;
+  ifstream is( alphabetFile );
+  ticcl::fillAlphabet( is, alphabet );
   map<string,set<streamsize> > fileIds;
   map<bitType,size_t> char_conf_val_counts;
   map<bitType,vector<size_t>> cc_freqs;

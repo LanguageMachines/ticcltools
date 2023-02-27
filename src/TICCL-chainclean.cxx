@@ -275,10 +275,10 @@ int main( int argc, char **argv ){
   cout << "start processing " << chain_records.size() << " chained results" << endl;
   map<string,int> parts_freq;
   for ( auto& rec : chain_records ){
-    rec.v_parts = TiCC::split_at( rec.variant, S_SEPARATOR );
-    rec.v_dh_parts = TiCC::split_at_first_of( rec.variant, S_SEPARATOR+"-" );
-    rec.cc_parts = TiCC::split_at( rec.cc, S_SEPARATOR );
-    rec.cc_dh_parts = TiCC::split_at_first_of( rec.cc, S_SEPARATOR+"-" );
+    rec.v_parts = TiCC::split_at( rec.variant, ticcl::S_SEPARATOR );
+    rec.v_dh_parts = TiCC::split_at_first_of( rec.variant, ticcl::S_SEPARATOR+"-" );
+    rec.cc_parts = TiCC::split_at( rec.cc, ticcl::S_SEPARATOR );
+    rec.cc_dh_parts = TiCC::split_at_first_of( rec.cc, ticcl::S_SEPARATOR+"-" );
     if ( rec.v_parts.size() == 1 ){
       continue;
     }
