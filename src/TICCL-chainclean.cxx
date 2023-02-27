@@ -213,16 +213,19 @@ int main( int argc, char **argv ){
   ifstream lexicon( lex_name );
   string line;
   while ( getline( lexicon, line ) ){
-    if ( line.size() == 0 || line[0] == '#' )
+    if ( line.size() == 0 || line[0] == '#' ){
       continue;
+    }
     vector<string> vec = TiCC::split( line );
     if ( vec.size() < 2 ){
-      cerr << progname << ": invalid line '" << line << "' in " << lex_name << endl;
+      cerr << progname << ": invalid line '" << line << "' in "
+	   << lex_name << endl;
       exit( EXIT_FAILURE );
     }
     unsigned int freq = 0;
     if ( !TiCC::stringTo(vec[1], freq) ) {
-      cerr << progname << ": invalid frequency in '" << line << "' in " << lex_name << endl;
+      cerr << progname << ": invalid frequency in '" << line << "' in "
+	   << lex_name << endl;
       exit( EXIT_FAILURE );
     }
     if ( freq >= artifreq ){

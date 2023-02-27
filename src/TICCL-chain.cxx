@@ -49,7 +49,7 @@ using namespace icu;
 using ticcl::bitType;
 using TiCC::operator<<;
 
-const string high_101 = TiCC::toString(ticcl::HonderdEenHash);
+const UnicodeString high_101 = TiCC::toUnicodeString(ticcl::HonderdEenHash);
 
 unsigned int ld( const UnicodeString& in1,
 		 const UnicodeString& in2,
@@ -69,7 +69,7 @@ class chain_class {
 public:
   chain_class(): chain_class( 0,false ){};
   chain_class( int v, bool c ): verbosity(v), caseless(c), cc_vals_present(true){};
-  bool fill( const string&, bool );
+  bool fill( const UnicodeString&, bool );
   void debug_info( ostream& );
   void output( const string& );
   UnicodeString top_head( const UnicodeString& );
@@ -78,7 +78,7 @@ public:
   map<UnicodeString,UnicodeString> heads;
   map<UnicodeString, set<UnicodeString>> table;
   map<UnicodeString, size_t > var_freq;
-  map<UnicodeString, string> w_cc_conf;
+  map<UnicodeString, UnicodeString> w_cc_conf;
   set<UnicodeString> processed;
   int verbosity;
   bool caseless;
@@ -133,9 +133,8 @@ UChar diff_char( const UnicodeString& in1, const UnicodeString& in2 ){
   return result;
 }
 
-bool chain_class::fill( const string& line, bool nounk ){
-  vector<string> parts;
-  TiCC::split_exact_at( line, parts, "#" );
+bool chain_class::fill( const UnicodeString& line, bool nounk ){
+  vector<UnicodeString> parts = TiCC::split_exact_at( line, "#" );
   if ( parts.size() < 6
        || parts.size() > 7 ){
     return false;
@@ -148,7 +147,7 @@ bool chain_class::fill( const string& line, bool nounk ){
       cerr << "conflicting data in chained file, didn't expect cc_val entries" << endl;
       exit(EXIT_FAILURE);
     }
-    UnicodeString a_word = TiCC::UnicodeFromUTF8(parts[0]); // a possibly correctable word
+    UnicodeString a_word = parts[0]; // a possibly correctable word
     if ( processed.find(a_word) != processed.end() ){
       // we have already seen this word. probably ranked with a clip >1
       // just ignore!
@@ -159,11 +158,11 @@ bool chain_class::fill( const string& line, bool nounk ){
       processed.insert(a_word);
       // so a new word with Correction Candidate
       size_t freq1 = TiCC::stringTo<size_t>(parts[1]);
-      UnicodeString candidate = TiCC::UnicodeFromUTF8( parts[2] );
+      UnicodeString candidate = parts[2];
       // a Correction Candidate
       size_t freq2 = TiCC::stringTo<size_t>(parts[3]);
       if ( cc_vals_present ){
-	string cc_val = parts[4];
+	UnicodeString cc_val = parts[4];
 	if ( nounk && cc_val == high_101 ){
 	  //	  cerr << "diff?? " << a_word << " " << candidate << endl;
 	  // one character difference
@@ -270,8 +269,8 @@ void chain_class::output( const string& out_file ){
       oss << s << "#" << var_freq[s] << "#" << t_it.first
 	  << "#" << var_freq[t_it.first];
       if ( cc_vals_present ){
-	string val = w_cc_conf[s+t_it.first];
-	if ( val.empty() ){
+	UnicodeString val = w_cc_conf[s+t_it.first];
+	if ( val.isEmpty() ){
 	  //	  cerr << "GEEN waarde voor " << s+t_it.first << endl;
 	  bitType h1 = ticcl::hash(s, alphabet );
 	  bitType h2 = ticcl::hash(t_it.first, alphabet );
@@ -283,7 +282,7 @@ void chain_class::output( const string& out_file ){
 	    h_val = h2 - h1;
 	  }
 	  //	  cerr << "h_val=" << h_val << endl;
-	  w_cc_conf[s+t_it.first] = TiCC::toString(h_val);
+	  w_cc_conf[s+t_it.first] = TiCC::toUnicodeString(h_val);
 	  //	  cerr << "nieuwe waarde voor " << s+t_it.first << "=" << w_cc_conf[s+t_it.first] << endl;
 	}
 	oss << "#" + w_cc_conf[s+t_it.first];
@@ -394,8 +393,8 @@ int main( int argc, char **argv ){
   }
 
   chain_class chains( verbosity, caseless );
-  string line;
-  while( getline( input, line ) ){
+  UnicodeString line;
+  while( TiCC::getline( input, line ) ){
     if ( !chains.fill( line, nounk ) ){
       cerr << "invalid line: '" << line << "'" << endl;
     }
