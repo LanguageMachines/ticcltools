@@ -60,6 +60,8 @@ void usage( const string& name ){
   cerr << "\t--artifrq The artifreq. Default 100000000 ." << endl;
   cerr << "\t--low=<low>\t delete records with ngrams shorter than 'low' "
        << endl;
+  cerr << "\t--caseless=<yes|no> Perform caseless string comparison" << endl
+       << "\t\t  (default=YES)" << endl;
   cerr << "\t\t characters. (default = 5)" << endl;
   cerr << "\t-o <outputfile> name of the outputfile." << endl;
   cerr << "\t-h or --help this message." << endl;
@@ -117,7 +119,7 @@ int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
-    opts.set_long_options( "lexicon:,artifrq:,follow:,low:" );
+    opts.set_long_options( "lexicon:,artifrq:,follow:,low:,caseless:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -147,6 +149,13 @@ int main( int argc, char **argv ){
   if ( opts.extract( "artifrq", value ) ){
     if ( !TiCC::stringTo(value,artifreq) ) {
       cerr << "illegal value for --artifrq (" << value << ")" << endl;
+      exit(EXIT_FAILURE);
+    }
+  }
+  bool caseless = true;
+  if ( opts.extract( "caseless", value ) ){
+    if ( !TiCC::stringTo(value,caseless) ) {
+      cerr << "illegal value for --caseless (" << value << ")" << endl;
       exit(EXIT_FAILURE);
     }
   }
@@ -203,7 +212,6 @@ int main( int argc, char **argv ){
     cerr << "problem opening input file: " << in_name << endl;
     exit(1);
   }
-  bool do_low1 = true;
   set<string> valid_words;
   ifstream lexicon( lex_name );
   string line;
@@ -221,7 +229,7 @@ int main( int argc, char **argv ){
       exit( EXIT_FAILURE );
     }
     if ( freq >= artifreq ){
-      if ( do_low1 ){
+      if ( caseless ){
 	valid_words.insert( TiCC::utf8_lowercase( vec[0] ) );
       }
       else {
@@ -279,7 +287,7 @@ int main( int argc, char **argv ){
     }
     for ( const auto& p : rec.v_parts ){
       string key;
-      if ( do_low1 ){
+      if ( caseless ){
 	key = TiCC::utf8_lowercase( p );
       }
       else {
@@ -320,7 +328,6 @@ int main( int argc, char **argv ){
     }
     copy_chain_records.push_back( &rec );
   }
-  bool do_low2 = true;
   set<chain_record*> done_chain_records;
   map<string,string> done;
   size_t counter = 0;
@@ -333,7 +340,7 @@ int main( int argc, char **argv ){
       }
     }
     string unk_part;
-    if ( do_low2 ){
+    if ( caseless ){
       unk_part = TiCC::utf8_lowercase(part.second);
     }
     else {
@@ -351,7 +358,7 @@ int main( int argc, char **argv ){
       bool match = false;
       for ( const auto& p : it.v_dh_parts ){
 	string v_part;
-	if ( do_low1 ){
+	if ( caseless ){
 	  v_part = TiCC::utf8_lowercase(p);
 	}
 	else {
@@ -371,7 +378,7 @@ int main( int argc, char **argv ){
       if ( match ){
 	for ( const auto& cp : it.cc_dh_parts ){
 	  string c_part;
-	  if ( do_low2 ){
+	  if ( caseless ){
 	    c_part = TiCC::utf8_lowercase(cp);
 	  }
 	  else {
@@ -424,7 +431,7 @@ int main( int argc, char **argv ){
       }
       for ( const auto& dcc : dvm_it.second ){
 	string cand_cor;
-	if ( do_low2 ){
+	if ( caseless ){
 	  cand_cor = TiCC::utf8_lowercase( dcc );
 	}
 	else {
@@ -451,7 +458,7 @@ int main( int argc, char **argv ){
 	  if ( rec->v_parts.size() == 1 ){
 	    string vari;
 	    string corr;
-	    if ( do_low2 ){
+	    if ( caseless ){
 	      vari = TiCC::utf8_lowercase( rec->variant );
 	      corr = TiCC::utf8_lowercase( rec->cc );
 	    }
@@ -501,7 +508,7 @@ int main( int argc, char **argv ){
 	    bool match = false;
 	    for( const auto& cp : rec->cc_parts ){
 	      string cor_part;
-	      if ( do_low2 ){
+	      if ( caseless ){
 		cor_part = TiCC::utf8_lowercase( cp );
 	      }
 	      else {
@@ -511,7 +518,7 @@ int main( int argc, char **argv ){
 		// CC match
 		for ( const auto& p : rec->v_parts ){
 		  string p_part;
-		  if ( do_low2 ){
+		  if ( caseless ){
 		    p_part = TiCC::utf8_lowercase( p );
 		  }
 		  else {
@@ -529,7 +536,7 @@ int main( int argc, char **argv ){
 			 << " matched in: " << rec << endl;
 		  }
 		  string lvar;
-		  if ( do_low2 ){
+		  if ( caseless ){
 		    lvar = TiCC::utf8_lowercase(rec->variant);
 		  }
 		  else {
