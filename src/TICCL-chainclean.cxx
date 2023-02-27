@@ -38,9 +38,6 @@
 #include <cstring>
 #include <cmath>
 #include "config.h"
-#ifdef HAVE_OPENMP
-#include "omp.h"
-#endif
 #include "ticcutils/StringOps.h"
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/PrettyPrint.h"
