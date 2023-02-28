@@ -44,6 +44,13 @@ using namespace	std;
 using namespace icu;
 using ticcl::bitType;
 
+// globals
+size_t artifreq = 0;
+UnicodeString separator;
+bool do_list = false;
+bool do_merge = false;
+bool do_ngrams = false;
+
 void create_output( ostream& os,
 		    const map<bitType, set<UnicodeString>>& anagrams ){
   for ( const auto& it : anagrams ){
@@ -127,10 +134,7 @@ void read_data( istream& is,
 		map<UnicodeString,bitType>& merged,
 		map<UnicodeString,bitType>& freq_list,
 		const map<UChar,bitType>& alphabet,
-		size_t artifreq,
-		ostream& os,
-		bool do_list,
-		bool do_merge ){
+		ostream& os ){
   UnicodeString line;
   while ( TiCC::getline( is, line ) ){
     // we build a frequency list
@@ -161,10 +165,7 @@ void read_data( istream& is,
 
 map<bitType, set<UnicodeString>>
 extract_foci( const map<UnicodeString,bitType>& freq_list,
-	      const map<UChar,bitType>& alphabet,
-	      const UnicodeString& separator,
-	      size_t artifreq,
-	      bool do_ngrams ){
+	      const map<UChar,bitType>& alphabet ){
   map<bitType, set<UnicodeString>> foci;
   for ( const auto& it : freq_list ){
     UnicodeString word = it.first;
@@ -233,9 +234,7 @@ int main( int argc, char *argv[] ){
   }
   string alphafile;
   string backfile;
-  UnicodeString separator;
   int clip = 0;
-  size_t artifreq = 0;
   if ( opts.extract('h' ) || opts.extract("help") ){
     usage( progname );
     exit(EXIT_SUCCESS);
@@ -251,7 +250,7 @@ int main( int argc, char *argv[] ){
   if ( separator.isEmpty() ){
     separator = ticcl::US_SEPARATOR;
   }
-  bool list = opts.extract( "list" );
+  do_list = opts.extract( "list" );
   string value;
   if ( opts.extract( "clip", value ) ){
     if ( !TiCC::stringTo(value,clip) ) {
@@ -265,7 +264,7 @@ int main( int argc, char *argv[] ){
       exit( EXIT_FAILURE );
     }
   }
-  bool do_ngrams = opts.extract( "ngrams" );
+  do_ngrams = opts.extract( "ngrams" );
   string out_file_name;
   opts.extract( "o", out_file_name );
   if ( !opts.empty() ){
@@ -304,14 +303,14 @@ int main( int argc, char *argv[] ){
   }
   if ( out_file_name.empty() ){
     out_file_name = file_name;
-    if ( list ){
+    if ( do_list ){
       out_file_name += ".list";
     }
     else {
       out_file_name += ".anahash";
     }
   }
-  else if ( list ){
+  else if ( do_list ){
     // assure .list suffix
     if ( !TiCC::match_back( out_file_name, ".list" ) ){
       out_file_name += ".list";
@@ -333,9 +332,8 @@ int main( int argc, char *argv[] ){
   }
   cout << "finished reading alphabet. (" << alphabet.size() << " characters)"
        << endl;
-  bool doMerge = false;
   string foci_file_name = file_name;
-  if ( list ){
+  if ( do_list ){
     if ( artifreq > 0 ){
       cerr << "option --artifrq not supported for --list" << endl;
       exit( EXIT_FAILURE);
@@ -366,7 +364,7 @@ int main( int argc, char *argv[] ){
 	cerr << "unable to open background frequency file: " << backfile << endl;
 	exit(EXIT_FAILURE);
       }
-      doMerge = true;
+      do_merge = true;
     }
   }
   map<UnicodeString,bitType> merged;
@@ -380,21 +378,15 @@ int main( int argc, char *argv[] ){
 	     merged,
 	     freq_list,
 	     alphabet,
-	     artifreq,
-	     out_stream,
-	     list,
-	     doMerge );
+	     out_stream );
 
-  if ( list ){
+  if ( do_list ){
     cout << "created a list file: " << out_file_name << endl;
     exit( EXIT_SUCCESS );
   }
   if ( artifreq > 0 ){ // so NOT when creating a simple list!
     auto foci = extract_foci( freq_list,
-			      alphabet,
-			      separator,
-			      artifreq,
-			      do_ngrams );
+			      alphabet );
     cout << "generating foci file: " << foci_file_name << " with " << foci.size() << " entries" << endl;
     ofstream fos( foci_file_name );
     create_output( fos, foci );
@@ -402,7 +394,7 @@ int main( int argc, char *argv[] ){
     //   fos << f.first << endl;
     // }
   }
-  if ( doMerge ){
+  if ( do_merge ){
     cerr << "merge background corpus: " << backfile << endl;
     ifstream bs( backfile );
     read_backgound( bs, anagrams, merged, alphabet );
