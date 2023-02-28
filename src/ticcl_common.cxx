@@ -49,7 +49,7 @@ namespace ticcl {
   }
 
   bitType hash( const UnicodeString& s,
-		map<UChar,bitType>& alphabet,
+		const map<UChar,bitType>& alphabet,
 		bool debug ){
     UnicodeString us = s;
     us.toLower();

@@ -45,7 +45,7 @@ using namespace icu;
 using ticcl::bitType;
 
 void create_output( ostream& os,
-		    const map<bitType, set<UnicodeString> >& anagrams ){
+		    const map<bitType, set<UnicodeString>>& anagrams ){
   for ( const auto& it : anagrams ){
     bitType val = it.first;
     os << val << "~";
@@ -97,6 +97,121 @@ void usage( const string& name ){
   cerr << "\t\t we split them into 1-grams and do a frequency lookup per part for the artifreq value." << endl;
   cerr << "\t-V or --version\t show version " << endl;
   cerr << "\t-v\t verbose (not used yet) " << endl;
+}
+
+void read_backgound( istream& is,
+		     map<bitType, set<UnicodeString>>& anagrams,
+		     map<UnicodeString,bitType>& merged,
+		     const map<UChar,bitType>& alphabet ){
+  UnicodeString line;
+  while ( TiCC::getline( is, line ) ){
+    vector<UnicodeString> v = TiCC::split_at( line, "\t" );
+    if ( ! ( v.size() == 1 || v.size() == 2 ) ){
+      cerr << "background file in wrong format!" << endl;
+      cerr << "offending line: " << line << endl;
+      exit(EXIT_FAILURE);
+    }
+    UnicodeString word = filter_tilde_hashtag( v[0] );
+    bitType h = ticcl::hash( word, alphabet );
+    anagrams[h].insert( word );
+    bitType freq = 1;
+    if ( v.size() == 2 ){
+      freq = TiCC::stringTo<bitType>( v[1] );
+    }
+    merged[v[0]] += freq;
+  }
+}
+
+void read_data( istream& is,
+		map<bitType, set<UnicodeString>>& anagrams,
+		map<UnicodeString,bitType>& merged,
+		map<UnicodeString,bitType>& freq_list,
+		const map<UChar,bitType>& alphabet,
+		size_t artifreq,
+		ostream& os,
+		bool do_list,
+		bool do_merge ){
+  UnicodeString line;
+  while ( TiCC::getline( is, line ) ){
+    // we build a frequency list
+    vector<UnicodeString> v = TiCC::split_at( line, "\t" );
+    if ( !( v.size() == 1 || v.size() == 2 ) ){
+      cerr << "frequency file in wrong format!" << endl;
+      cerr << "offending line: " << line << endl;
+      exit(EXIT_FAILURE);
+    }
+    UnicodeString word = filter_tilde_hashtag( v[0] );
+    bitType h = ticcl::hash( word, alphabet );
+    if ( do_list ){
+      os << v[0] << "\t" << h << endl;
+    }
+    else {
+      anagrams[h].insert( word );
+      bitType freq = 1;
+      if ( v.size() == 2 ){
+	freq = TiCC::stringTo<bitType>( v[1] );
+      }
+      freq_list[word] = freq;
+      if ( do_merge && artifreq > 0  ){
+	merged[v[0]] = freq;
+      }
+    }
+  }
+}
+
+map<bitType, set<UnicodeString>>
+extract_foci( const map<UnicodeString,bitType>& freq_list,
+	      const map<UChar,bitType>& alphabet,
+	      const UnicodeString& separator,
+	      size_t artifreq,
+	      bool do_ngrams ){
+  map<bitType, set<UnicodeString>> foci;
+  for ( const auto& it : freq_list ){
+    UnicodeString word = it.first;
+    bitType h = ticcl::hash( word, alphabet );
+    if ( do_ngrams ){
+      vector<UnicodeString> parts = TiCC::split_at( word, separator );
+      if ( parts.size() > 0 ){
+	// we have an -n-gram
+	bool accept = false;
+	// we split the ngram to see if it is worth adding it to
+	// the foci list.
+	//    - NOT if no part is in the input
+	//    - NOT if all parts are know words.
+	for ( auto const& part: parts ){
+	  const auto u_it = freq_list.find( part );
+	  if ( u_it != freq_list.end()
+	       && u_it->second < artifreq ){
+	    // so this part IS present in the input, but not in the background
+	    UnicodeString l_part = part;
+	    l_part.toLower();
+	    const auto l_it = freq_list.find(l_part);
+	    if ( l_it == freq_list.end()
+		 || l_it->second < artifreq ){
+	      // the lowercase part is NOT present OR NOT the background
+	      accept = true;
+	    }
+	  }
+	}
+	if ( accept ){
+	  word.toLower();
+	  foci[h].insert( word );
+	}
+      }
+    }
+    else {
+      bitType freq = it.second;
+      if ( freq < artifreq ){
+	word.toLower();
+	const auto l_it = freq_list.find(word);
+	if ( l_it == freq_list.end()
+	     || l_it->second < artifreq ){
+	  foci[h].insert(word);
+	}
+      }
+    }
+  }
+  return foci;
 }
 
 int main( int argc, char *argv[] ){
@@ -175,8 +290,7 @@ int main( int argc, char *argv[] ){
     exit(EXIT_FAILURE);
   }
   string file_name = fileNames[0];
-  ifstream is( file_name );
-  if ( !is ){
+  if ( !TiCC::isFile( file_name) ){
     cerr << "unable to open corpus frequency file: " << file_name << endl;
     exit(EXIT_FAILURE);
   }
@@ -184,8 +298,7 @@ int main( int argc, char *argv[] ){
     cerr << "We need an alphabet file!" << endl;
     exit(EXIT_FAILURE);
   }
-  ifstream as( alphafile );
-  if ( !as ){
+  if ( !TiCC::isFile(alphafile) ){
     cerr << "unable to open alphabet file: " << alphafile << endl;
     exit(EXIT_FAILURE);
   }
@@ -213,6 +326,7 @@ int main( int argc, char *argv[] ){
 
   map<UChar,bitType> alphabet;
   cout << "reading alphabet file: " << alphafile << endl;
+  ifstream as( alphafile );
   if ( !ticcl::fillAlphabet( as, alphabet, clip ) ){
     cerr << "serious problems reading alphabet file: " << alphafile << endl;
     exit(EXIT_FAILURE);
@@ -255,89 +369,32 @@ int main( int argc, char *argv[] ){
       doMerge = true;
     }
   }
-  ofstream out_stream( out_file_name );
   map<UnicodeString,bitType> merged;
   map<UnicodeString,bitType> freq_list;
-  map<bitType, set<UnicodeString> > anagrams;
+  map<bitType, set<UnicodeString>> anagrams;
   cout << "start hashing from the corpus frequency file: " << file_name << endl;
-  UnicodeString line;
-  while ( TiCC::getline( is, line ) ){
-    // we build a frequency list
-    vector<UnicodeString> v = TiCC::split_at( line, "\t" );
-    if ( !( v.size() == 1 || v.size() == 2 ) ){
-      cerr << "frequency file in wrong format!" << endl;
-      cerr << "offending line: " << line << endl;
-      exit(EXIT_FAILURE);
-    }
-    UnicodeString word = filter_tilde_hashtag( v[0] );
-    bitType h = ticcl::hash( word, alphabet );
-    if ( list ){
-      out_stream << v[0] << "\t" << h << endl;
-    }
-    else {
-      anagrams[h].insert( word );
-      bitType freq = 1;
-      if ( v.size() == 2 ){
-	freq = TiCC::stringTo<bitType>( v[1] );
-      }
-      freq_list[word] = freq;
-      if ( doMerge && artifreq > 0  ){
-	merged[v[0]] = freq;
-      }
-    }
-  }
+  ifstream is( file_name );
+  ofstream out_stream( out_file_name );
+  read_data( is,
+	     anagrams,
+	     merged,
+	     freq_list,
+	     alphabet,
+	     artifreq,
+	     out_stream,
+	     list,
+	     doMerge );
 
   if ( list ){
     cout << "created a list file: " << out_file_name << endl;
     exit( EXIT_SUCCESS );
   }
-  map<bitType, set<UnicodeString> > foci;
   if ( artifreq > 0 ){ // so NOT when creating a simple list!
-    for ( const auto& it : freq_list ){
-      UnicodeString word = it.first;
-      bitType h = ticcl::hash( word, alphabet );
-      if ( do_ngrams ){
-	vector<UnicodeString> parts = TiCC::split_at( word, separator );
-	if ( parts.size() > 0 ){
-	  // we have an -n-gram
-	  bool accept = false;
-	  // we split the ngram to see if it is worth adding it to
-	  // the foci list.
-	  //    - NOT if no part is in the input
-	  //    - NOT if all parts are know words.
-	  for ( auto const& part: parts ){
-	    const auto u_it = freq_list.find( part );
-	    if ( u_it != freq_list.end()
-		 && u_it->second < artifreq ){
-	      // so this part IS present in the input, but not in the background
-	      UnicodeString l_part = part;
-	      l_part.toLower();
-	      const auto l_it = freq_list.find(l_part);
-	      if ( l_it == freq_list.end()
-		   || l_it->second < artifreq ){
-		// the lowercase part is NOT present OR NOT the background
-		accept = true;
-	      }
-	    }
-	  }
-	  if ( accept ){
-	    word.toLower();
-	    foci[h].insert( word );
-	  }
-	}
-      }
-      else {
-	bitType freq = it.second;
-	if ( freq < artifreq ){
-	  word.toLower();
-	  const auto l_it = freq_list.find(word);
-	  if ( l_it == freq_list.end()
-	       || l_it->second < artifreq ){
-	    foci[h].insert(word);
-	  }
-	}
-      }
-    }
+    auto foci = extract_foci( freq_list,
+			      alphabet,
+			      separator,
+			      artifreq,
+			      do_ngrams );
     cout << "generating foci file: " << foci_file_name << " with " << foci.size() << " entries" << endl;
     ofstream fos( foci_file_name );
     create_output( fos, foci );
@@ -348,22 +405,7 @@ int main( int argc, char *argv[] ){
   if ( doMerge ){
     cerr << "merge background corpus: " << backfile << endl;
     ifstream bs( backfile );
-    while ( TiCC::getline( bs, line ) ){
-      vector<UnicodeString> v = TiCC::split_at( line, "\t" );
-      if ( ! ( v.size() == 1 || v.size() == 2 ) ){
-	cerr << "background file in wrong format!" << endl;
-	cerr << "offending line: " << line << endl;
-	exit(EXIT_FAILURE);
-      }
-      UnicodeString word = filter_tilde_hashtag( v[0] );
-      bitType h = ticcl::hash( word, alphabet );
-      anagrams[h].insert( word );
-      bitType freq = 1;
-      if ( v.size() == 2 ){
-	freq = TiCC::stringTo<bitType>( v[1] );
-      }
-      merged[v[0]] += freq;
-    }
+    read_backgound( bs, anagrams, merged, alphabet );
     string merge_file_name = file_name + ".merged";
     ofstream ms( merge_file_name );
     for ( const auto& it : merged ){

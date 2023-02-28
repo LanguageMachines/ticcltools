@@ -44,7 +44,7 @@ namespace ticcl {
 
   bitType high_five( int );
   bitType hash( const icu::UnicodeString& ,
-		std::map<UChar,bitType>&,
+		const std::map<UChar,bitType>&,
 		bool =false );
 
   unsigned int ldCompare( const icu::UnicodeString&,
