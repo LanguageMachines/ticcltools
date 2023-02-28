@@ -260,20 +260,19 @@ int main( int argc, char *argv[] ){
   map<UnicodeString,bitType> freq_list;
   map<bitType, set<UnicodeString> > anagrams;
   cout << "start hashing from the corpus frequency file: " << file_name << endl;
-  string line;
-  while ( getline( is, line ) ){
+  UnicodeString line;
+  while ( TiCC::getline( is, line ) ){
     // we build a frequency list
-    vector<string> v = TiCC::split_at( line, "\t" );
+    vector<UnicodeString> v = TiCC::split_at( line, "\t" );
     if ( !( v.size() == 1 || v.size() == 2 ) ){
       cerr << "frequency file in wrong format!" << endl;
       cerr << "offending line: " << line << endl;
       exit(EXIT_FAILURE);
     }
-    UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
-    UnicodeString word = filter_tilde_hashtag( v0 );
+    UnicodeString word = filter_tilde_hashtag( v[0] );
     bitType h = ticcl::hash( word, alphabet );
     if ( list ){
-      out_stream << v0 << "\t" << h << endl;
+      out_stream << v[0] << "\t" << h << endl;
     }
     else {
       anagrams[h].insert( word );
@@ -283,7 +282,7 @@ int main( int argc, char *argv[] ){
       }
       freq_list[word] = freq;
       if ( doMerge && artifreq > 0  ){
-	merged[v0] = freq;
+	merged[v[0]] = freq;
       }
     }
   }
@@ -349,22 +348,21 @@ int main( int argc, char *argv[] ){
   if ( doMerge ){
     cerr << "merge background corpus: " << backfile << endl;
     ifstream bs( backfile );
-    while ( getline( bs, line ) ){
-      vector<string> v = TiCC::split_at( line, "\t" );
+    while ( TiCC::getline( bs, line ) ){
+      vector<UnicodeString> v = TiCC::split_at( line, "\t" );
       if ( ! ( v.size() == 1 || v.size() == 2 ) ){
 	cerr << "background file in wrong format!" << endl;
 	cerr << "offending line: " << line << endl;
 	exit(EXIT_FAILURE);
       }
-      UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
-      UnicodeString word = filter_tilde_hashtag( v0 );
+      UnicodeString word = filter_tilde_hashtag( v[0] );
       bitType h = ticcl::hash( word, alphabet );
       anagrams[h].insert( word );
       bitType freq = 1;
       if ( v.size() == 2 ){
 	freq = TiCC::stringTo<bitType>( v[1] );
       }
-      merged[v0] += freq;
+      merged[v[0]] += freq;
     }
     string merge_file_name = file_name + ".merged";
     ofstream ms( merge_file_name );
