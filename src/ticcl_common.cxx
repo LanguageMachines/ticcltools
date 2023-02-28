@@ -131,4 +131,71 @@ namespace ticcl {
     return true;
   }
 
+  set<bitType> read_bit_set( istream& is ){
+    set<bitType> result;
+    while ( is ){
+      bitType bit;
+      is >> bit;
+      is.ignore( INT_MAX, '\n' );
+      result.insert( bit );
+    }
+    return result;
+  }
+
+  set<bitType> read_anahash( istream& is,
+			     const int& low,
+			     const int& high,
+			     size_t& skipped,
+			     bool verbose ){
+    set<bitType> result;
+    UnicodeString line;
+    while ( TiCC::getline( is, line ) ){
+      vector<UnicodeString> parts = TiCC::split_at( line, "~" );
+      if ( parts.size() > 1 ){
+	bitType bit = TiCC::stringTo<bitType>( parts[0] );
+	vector<UnicodeString> parts2 = TiCC::split_at( parts[1], "#" );
+	if ( parts2.size() > 0 ){
+	  UnicodeString firstItem = parts2[0];
+	  if ( firstItem.length() >= low &&
+	       firstItem.length() <= high ){
+	    result.insert( bit );
+	  }
+	  else {
+	    if ( verbose ){
+	      cerr << "skip " << parts2[0] << endl;
+	    }
+	    ++skipped;
+	  }
+	}
+      }
+    }
+    return result;
+  }
+
+  set<bitType> read_confusions( istream& is ){
+    set<bitType> result;
+    size_t count = 0;
+    UnicodeString line;
+    while ( TiCC::getline( is, line ) ){
+      if ( ++count % 1000 == 0 ){
+	cout << ".";
+	cout.flush();
+	if ( count % 50000 == 0 ){
+	  cout << endl << count << endl;;
+	}
+      }
+      vector<UnicodeString> parts = TiCC::split_at( line, "#" );
+      if ( parts.size() > 0 ){
+	bitType bit = TiCC::stringTo<bitType>( parts[0] );
+	result.insert( bit );
+      }
+      else {
+	cerr << "problems with line " << line << endl;
+	cerr << "bail out " << endl;
+	exit(1);
+      }
+    }
+    return result;
+  }
+
 } // namespace ticcl

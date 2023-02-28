@@ -44,6 +44,7 @@
 #include "ticcutils/StringOps.h"
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/Unicode.h"
+#include "ticcutils/FileUtils.h"
 #include "ticcl/ticcl_common.h"
 
 #include "config.h"
@@ -162,6 +163,31 @@ void handle_exp( const experiment& exp,
   }
 }
 
+void output_result( ostream& os,
+		    map<bitType,set<bitType> > result ){
+  for ( auto const& rit : result ){
+    os << rit.first << "#";
+    auto it = rit.second.begin();
+    while ( it != rit.second.end() ){
+      os << *it;
+      ++it;
+      if ( it != rit.second.end() ){
+	os << ",";
+      }
+    }
+    os << endl;
+    os.flush();
+  }
+}
+
+void output_confusions( ostream& csf,
+			map<bitType,set<bitType> > result ){
+  for ( auto const& rit : result ){
+    csf << rit.first << "#" << rit.second.size() << endl;
+    csf.flush();
+  }
+}
+
 int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
@@ -250,8 +276,7 @@ int main( int argc, char **argv ){
     exit(EXIT_FAILURE);
   }
 
-  ifstream cwav( anahashFile );
-  if ( !cwav ){
+  if ( !TiCC::isFile( anahashFile ) ){
     cerr << "problem opening corpus word anagram hash file: "
 	 << anahashFile << endl;
     exit(1);
@@ -282,68 +307,34 @@ int main( int argc, char **argv ){
     exit(1);
   }
 
-  ifstream conf( confFile );
-  if ( !conf ){
+  if ( !TiCC::isFile( confFile ) ){
     cerr << "problem opening character confusion anagram file: "
 	 << confFile << endl;
     exit(1);
   }
 
-  ifstream foc( fociFile );
-  if ( !foc ){
+  if ( !TiCC::isFile( fociFile ) ){
     cerr << "problem opening foci file: " << fociFile << endl;
     exit(1);
   }
 
   cout << "reading corpus word anagram hash values" << endl;
+  ifstream cwav( anahashFile );
   size_t skipped = 0;
-  set<bitType> hashSet;
-  string line;
-  while ( getline( cwav, line ) ){
-    vector<string> parts;
-    if ( TiCC::split_at( line, parts, "~" ) > 1 ){
-      bitType bit = TiCC::stringTo<bitType>( parts[0] );
-      vector<string> parts2;
-      if ( TiCC::split_at( parts[1], parts2, "#" ) > 0 ){
-	UnicodeString firstItem = TiCC::UnicodeFromUTF8( parts2[0] );
-	if ( firstItem.length() >= lowValue &&
-	     firstItem.length() <= highValue ){
-	  hashSet.insert( bit );
-	}
-	else {
-	  if ( verbose ){
-	    cerr << "skip " << parts2[0] << endl;
-	  }
-	  ++skipped;
-	}
-      }
-    }
-  }
+  set<bitType> hashSet = ticcl::read_anahash( cwav,
+					      lowValue,
+					      highValue,
+					      skipped,
+					      verbose );
   cout << "read " << hashSet.size() << " corpus word anagram values" << endl;
   cout << "skipped " << skipped << " out-of-band corpus word values" << endl;
 
-  set<bitType> focSet;
-  while ( foc ){
-    bitType bit;
-    foc >> bit;
-    foc.ignore( INT_MAX, '\n' );
-    focSet.insert( bit );
-  }
+  ifstream foc( fociFile );
+  set<bitType> focSet = ticcl::read_bit_set( foc );
   cout << "read " << focSet.size() << " foci values" << endl;
 
-  set<bitType> confSet;
-  while ( getline( conf, line ) ){
-    vector<string> parts;
-    if ( TiCC::split_at( line, parts, "#" ) > 0 ){
-      bitType bit = TiCC::stringTo<bitType>( parts[0] );
-      confSet.insert(bit);
-    }
-    else {
-      cerr << "problems with line " << line << endl;
-      cerr << "bail out " << endl;
-      exit(1);
-    }
-  }
+  ifstream conf( confFile );
+  set<bitType> confSet = ticcl::read_confusions( conf );
   cout << "read " << confSet.size()
        << " character confusion anagram values" << endl;
 
@@ -363,27 +354,12 @@ int main( int argc, char **argv ){
   for ( size_t i=0; i < expsize; ++i ){
     handle_exp( experiments[i], count, hashSet, confSet, result );
   }
-  for ( auto const& rit : result ){
-    of << rit.first << "#";
-    if ( csf ){
-      *csf << rit.first << "#" << rit.second.size() << endl;
-    }
-    auto it = rit.second.begin();
-    while ( it != rit.second.end() ){
-      of << *it;
-      ++it;
-      if ( it != rit.second.end() ){
-	of << ",";
-      }
-    }
-    of << endl;
-    of.flush();
-    if ( csf ){
-      csf->flush();
-    }
-  }
+
+  output_result( of, result );
+
   cout << "\nwrote indexes into: " << outFile << endl;
   if ( csf ){
+    output_confusions( *csf, result );
     cout << "wrote confusion statistics into: " << confstats_file << endl;
     csf->close();
     delete csf;

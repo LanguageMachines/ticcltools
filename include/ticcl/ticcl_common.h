@@ -27,6 +27,9 @@
 #define TICCL_COMMON_H
 
 #include <map>
+#include <set>
+#include <climits>
+
 #include "unicode/unistr.h"
 #include "unicode/ustream.h"
 #include "unicode/uchar.h"
@@ -118,6 +121,15 @@ namespace ticcl {
     int8_t charT =  u_charType( uc );
     return isletter( charT );
   }
+
+  std::set<bitType> read_bit_set( std::istream& );
+  std::set<bitType> read_anahash( std::istream&,
+				  const int&,
+				  const int&,
+				  size_t&,
+				  bool );
+  std::set<bitType> read_confusions( std::istream& );
+
 } // namespace ticcl
 
 inline std::string toString( int8_t c ){

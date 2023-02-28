@@ -511,9 +511,9 @@ int main( int argc, char *argv[] ){
   }
 
   map<UChar,size_t> lchars;
-  string line;
-  while ( getline( is, line ) ){
-    UnicodeString us = TiCC::UnicodeFromUTF8( line );
+  UnicodeString line;
+  while ( TiCC::getline( is, line ) ){
+    UnicodeString us = line;
     us.toLower();
     for ( int i = 0; i < us.length(); ++i ){
       ++lchars[us[i]];

@@ -41,6 +41,7 @@
 #include "ticcutils/StringOps.h"
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/Unicode.h"
+#include "ticcutils/FileUtils.h"
 #include "ticcl/ticcl_common.h"
 
 #include "config.h"
@@ -269,13 +270,11 @@ int main( int argc, char **argv ){
     usage(progname);
     exit(EXIT_FAILURE);
   }
-  ifstream ana( anahashFile );
-  if ( !ana ){
+  if ( !TiCC::isFile(anahashFile) ){
     cerr << "problem opening corpus anagram hashfile: " << anahashFile << endl;
     exit(1);
   }
-  ifstream conf( confFile );
-  if ( !conf ){
+  if ( !TiCC::isFile(confFile) ){
     cerr << "problem opening charconfusion file: " << confFile << endl;
     exit(1);
   }
@@ -287,12 +286,7 @@ int main( int argc, char **argv ){
       cerr << "problem opening foci file: " << fociFile << endl;
       exit(1);
     }
-    while ( foc ){
-      bitType bit;
-      foc >> bit;
-      foc.ignore( INT_MAX, '\n' );
-      focSet.insert( bit );
-    }
+    focSet = ticcl::read_bit_set( foc );
     cout << "read " << focSet.size() << " foci values" << endl;
   }
 
@@ -322,54 +316,19 @@ int main( int argc, char **argv ){
     }
   }
   cout << "reading corpus word anagram hash values" << endl;
+  ifstream ana( anahashFile );
   size_t skipped = 0;
-  set<bitType> anaSet;
-  string line;
-  while ( getline( ana, line ) ){
-    vector<string> parts = TiCC::split_at( line, "~" );
-    if ( parts.size() > 1 ){
-      bitType bit = TiCC::stringTo<bitType>( parts[0] );
-      vector<string> parts2 = TiCC::split_at( parts[1], "#" );
-      if ( parts2.size() > 0 ){
-	UnicodeString firstItem = TiCC::UnicodeFromUTF8( parts2[0] );
-	if ( firstItem.length() >= lowValue &&
-	     firstItem.length() <= highValue ){
-	  anaSet.insert( bit );
-	}
-	else {
-	  if ( verbose ){
-	    cerr << "skip " << parts2[0] << endl;
-	  }
-	  ++skipped;
-	}
-      }
-    }
-  }
+  set<bitType> anaSet = ticcl::read_anahash( ana,
+					     lowValue,
+					     highValue,
+					     skipped,
+					     verbose );
   cout << "read " << anaSet.size() << " corpus anagram values" << endl;
   cout << "skipped " << skipped << " out-of-band corpus anagram values" << endl;
 
   cout << "reading character confusion anagram values" << endl;
-  set<bitType> confSet;
-  size_t count = 0;
-  while ( getline( conf, line ) ){
-    if ( ++count % 1000 == 0 ){
-      cout << ".";
-      cout.flush();
-      if ( count % 50000 == 0 ){
-	cout << endl << count << endl;;
-      }
-    }
-    vector<string> parts = TiCC::split_at( line, "#" );
-    if ( parts.size() > 0 ){
-      bitType bit = TiCC::stringTo<bitType>( parts[0] );
-      confSet.insert( bit );
-    }
-    else {
-      cerr << "problems with line " << line << endl;
-      cerr << "bail out " << endl;
-      exit(1);
-    }
-  }
+  ifstream conf( confFile );
+  set<bitType> confSet = ticcl::read_confusions( conf );
   cout << endl << "read " << confSet.size()
        << " character confusion anagram values" << endl;
 
@@ -382,7 +341,7 @@ int main( int argc, char **argv ){
 
 
   cout << "processing all character confusion values" << endl;
-  count = 0;
+  size_t count = 0;
 #pragma omp parallel for shared( experiments, of, csf )
   for ( size_t i=0; i < expsize; ++i ){
     handle_confs( experiments[i], count, anaSet, focSet, of, csf );
