@@ -222,133 +222,130 @@ rank_record::rank_record( const UnicodeString& line,
 }
 
 UnicodeString rank_record::extractLong( const vector<bool>& skip ) const {
-  static UnicodeString hekje = "#";
-  UnicodeString result = variant + hekje;
-  result += TiCC::toUnicodeString(variant_freq) + hekje;
-  result += TiCC::toUnicodeString(low_variant_freq) + hekje;
-  result += candidate + hekje;
-  result += TiCC::toUnicodeString(candidate_freq) + hekje;
-  result += TiCC::toUnicodeString(low_candidate_freq) + hekje;
-  result += TiCC::toUnicodeString(char_conf_val) + hekje;
-  result += TiCC::toUnicodeString(f2len);
-  result += "~";
+  ostringstream ss;
+  ss << variant << "#"
+     << variant_freq << "#"
+     << low_variant_freq << "#"
+     << candidate << "#"
+     << candidate_freq << "#"
+     << low_candidate_freq << "#"
+     << char_conf_val << "#"
+     << f2len << "~";
   double the_rank = 0;
   if ( skip[0] ){
-    result += "N#";  }
+    ss << "N#";
+  }
   else {
     the_rank += f2len_rank;
-    result += TiCC::toUnicodeString(f2len_rank) + hekje;
+    ss << f2len_rank << "#";
   }
-  result += TiCC::toUnicodeString(reduced_candidate_freq) + "~";
+  ss << reduced_candidate_freq << "~";
   if ( skip[1] ){
-    result += "N#";
+    ss << "N#";
   }
   else {
     the_rank += freq_rank;
-    result += TiCC::toUnicodeString(freq_rank) + hekje;
+    ss << freq_rank << "#";
   }
-  result += TiCC::toUnicodeString(ld) + "~";
+  ss << ld << "~";
   if ( skip[2] ){
-    result += "N#";
+    ss << "N#";
   }
   else {
     the_rank += ld_rank;
-    result += TiCC::toUnicodeString(ld_rank) + hekje;
+    ss << ld_rank << "#";
   }
-  result += TiCC::toUnicodeString(cls) + "~";
+  ss << cls << "~";
   if ( skip[3] ){
-    result += "N#";
+    ss << "N#";
   }
   else {
     the_rank += cls_rank;
-    result += TiCC::toUnicodeString(cls_rank) + hekje;
+    ss << cls_rank << "#";
   }
-  result += TiCC::toUnicodeString(canon);
-  result += "~";
+  ss << canon << "~";
   if ( skip[4] ){
-    result += "N#";
+    ss << "N#";
   }
   else {
     the_rank += canon_rank;
-    result += TiCC::toUnicodeString(canon_rank) + hekje;
+    ss << canon_rank << "#";
   }
-  result += TiCC::toUnicodeString(fl) + "~";
+  ss << fl << "~";
   if ( skip[5] ){
-    result += "N#";
+    ss << "N#";
   }
   else {
     the_rank += fl_rank;
-    result += TiCC::toUnicodeString(fl_rank) + hekje;
+    ss << fl_rank << "#";
   }
-  result += TiCC::toUnicodeString(ll) + "~";
+  ss << ll << "~";
   if ( skip[6] ){
-    result += "N#";
+    ss << "N#";
   }
   else {
     the_rank += ll_rank;
-    result += TiCC::toUnicodeString(ll_rank) + hekje;
+    ss << ll_rank << "#";
   }
-  result += TiCC::toUnicodeString(khc) + "~";
+  ss << khc << "~";
   if ( skip[7] ){
-    result += "N#";
+    ss << "N#";
   }
   else {
     the_rank += khc_rank;
-    result += TiCC::toUnicodeString(khc_rank) + hekje;
+    ss << khc_rank << "#";
   }
-  result += TiCC::toUnicodeString(pairs1);
-  result += "~";
+  ss << pairs1 << "~";
   if ( skip[8] ){
-    result += "N#";
+    ss << "N#";
   }
   else {
     the_rank += pairs1_rank;
-    result += TiCC::toUnicodeString(pairs1_rank) + hekje;
+    ss << pairs1_rank << "#";
   }
-  result += TiCC::toUnicodeString(pairs2);
-  result += "~";
+  ss <<pairs2 << "~";
   if ( skip[9] ){
-    result += "N#";
+    ss << "N#";
   }
   else {
     the_rank += pairs2_rank;
-    result += TiCC::toUnicodeString(pairs2_rank) + hekje;
+    ss << pairs2_rank << "#";
   }
-  result += TiCC::toUnicodeString(median) + "~";
+  ss << median << "~";
   if ( skip[10] ){
-    result += "N#";
+    ss << "N#";
   }
   else {
     the_rank += median_rank;
-    result += TiCC::toUnicodeString(median_rank) + hekje;
+    ss << median_rank << "#";
   }
-  result += TiCC::toUnicodeString(variant_count) + "~";
+  ss << variant_count << "~";
   if ( skip[11] ){
-    result += "N#";
+    ss << "N#";
   }
   else {
     the_rank += variant_rank;
-    result += TiCC::toUnicodeString(variant_rank) + hekje;
+    ss << variant_rank << "#";
   }
-  result += TiCC::toUnicodeString(cosine) + "~";
+  ss <<cosine << "~";
   if ( skip[12] ){
-    result += "N#";
+    ss << "N#";
   }
   else {
     the_rank += cosine_rank;
-    result += TiCC::toUnicodeString(cosine_rank) + hekje;
+    ss << cosine_rank << "#";
   }
-  result += TiCC::toUnicodeString(ngram_points) + "~";
+  ss << ngram_points << "~";
   if ( skip[13] ){
-    result += "N#";
+    ss << "N#";
   }
   else {
     the_rank += ngram_rank;
-    result += TiCC::toUnicodeString(ngram_rank) + hekje;
+    ss << ngram_rank << "#";
   }
-  result += TiCC::toUnicodeString(the_rank) + hekje;
-  result += TiCC::toUnicodeString(rank);
-  return result;
+  ss << the_rank << "#"
+     << rank;
+  return TiCC::UnicodeFromUTF8(ss.str());
 }
 
 UnicodeString rank_record::extractResults() const {
