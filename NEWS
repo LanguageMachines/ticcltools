@@ -2,13 +2,13 @@ ticcltools 0.9 2023-02-28
 [Ko van der Sloot]
 * LDcalc:
  - No longer filter out n-grams with common parts. Was too aggressive
- - Removed some outcommented old code
+ - Removed some more outcommented old code
 * chainclean: added a --caseless option. (Default is true)
 * Removed Roaring versions of the code. Lacked maintenance for years.
 * internally shifting towards UnicodeString in general
-* a lot of C++ cleanup, with some refactoring
+* a lot of C++ cleanup, with some refactoring, splitting up long blobs of code
 
-{Maarten van Gompel]
+[Maarten van Gompel]
 * Updated README
 * added Docker stuff
 
