@@ -1,4 +1,4 @@
-ticcltools 0.9 2023-02-28
+ticcltools 0.10 2023-02-28
 [Ko van der Sloot]
 * LDcalc:
  - No longer filter out n-grams with common parts. Was too aggressive
@@ -8,6 +8,7 @@ ticcltools 0.9 2023-02-28
 * internally shifting towards UnicodeString in general
 * a lot of C++ cleanup, with some refactoring, splitting up long blobs of code
 
+ticcltools 0.9 2022-09-14
 [Maarten van Gompel]
 * Updated README
 * added Docker stuff
