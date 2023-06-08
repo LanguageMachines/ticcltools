@@ -271,7 +271,6 @@ bool ld_record::handle_the_pair( const UnicodeString& diff_part1,
     {
       ++ngram_count[disamb_pair];
       // keep pair for later
-      //      ngram_count.erase(str1 + "~" + str2);
     }
     // signal to discard this ngram (in favor of the unigram within)
     if ( follow ){
@@ -1215,7 +1214,7 @@ int main( int argc, char **argv ){
     else {
       // Ok, our data seems to be incomplete
       // that is not our problem, so ignore
-      if ( verbose > 1 ){
+      if ( verbose > 2 ){
 	cerr << "ignoring " << it.first << endl;
       }
     }
