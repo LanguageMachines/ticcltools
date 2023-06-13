@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <set>
 #include <map>
+#include <algorithm>
 #include <functional>
 #include <vector>
 #include <cstdlib>
@@ -102,11 +103,9 @@ vector<string> sort( const vector<string>& in,
 		     const map<int,string>& cc_order){
   vector<string> uit;
   for ( const auto& it : cc_order ){
-    for ( const auto& s : in ){
-      if ( s == it.second ){
-	uit.push_back( s );
-	break;
-      }
+    auto vit = std::find( in.begin(), in.end(), it.second );
+    if ( vit != in.end() ){
+      uit.push_back(*vit);
     }
   }
   return uit;
