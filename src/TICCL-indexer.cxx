@@ -109,7 +109,7 @@ void handle_confs( const experiment& exp,
     bitType diff = confusie - vorige;
     totalShift += diff;
     auto it1 = anaSet.begin();
-    auto it2 = anaSet.begin();
+    auto it2 = it1;
     while ( it1 != anaSet.end() && it2 != anaSet.end() ){
       bitType v1 = *it1;
       bitType v2 = *it2;
