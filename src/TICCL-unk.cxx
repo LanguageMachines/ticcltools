@@ -1074,7 +1074,6 @@ int main( int argc, char *argv[] ){
       decap_clean_words[w] += it.second;
     }
   }
-  string line;
   map<UnicodeString,unsigned> fore_lexicon = read_fore_lex( is );
   cout << "start classifying the foreground lexicon with "
        << fore_lexicon.size() << " entries"<< endl;
