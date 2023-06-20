@@ -54,6 +54,8 @@ using namespace icu;
 
 using ticcl::bitType;
 
+set<bitType> follow_nums;
+
 void usage( const string& name ){
   cerr << name << endl;
   cerr << "options: " << endl;
@@ -106,7 +108,13 @@ void handle_confs( const experiment& exp,
       }
     }
     bitType confusie = *sit;
+    if ( follow_nums.find(confusie) != follow_nums.end() ){
+      cerr << "found confusion value: " << confusie << endl;
+    }
     bitType diff = confusie - vorige;
+    if ( follow_nums.find(diff) != follow_nums.end() ){
+      cerr << "found a difference value: " << diff << endl;
+    }
     totalShift += diff;
     auto it1 = anaSet.begin();
     auto it2 = it1;
@@ -121,6 +129,9 @@ void handle_confs( const experiment& exp,
 	v2 = 0;
       }
       if ( v1 == v2 ){
+	// if ( follow_nums.find(v1) != follow_nums.end() ){
+	//   cerr << "found a possible focus value: " << v1 << endl;
+	// }
 	bool foc = true;
 	if ( !focSet.empty() ){
 	  // do we have to focus?
@@ -129,7 +140,11 @@ void handle_confs( const experiment& exp,
 	  // not if both values out of focus
 	}
 	if ( foc ){
-	  result.insert(v1);
+	  auto emp = result.emplace(v1);
+	  if ( emp.second
+	       && follow_nums.find(v1) != follow_nums.end() ){
+	    cerr << "stored a focus value: " << v1 << endl;
+	  }
 	}
 	++it1;
 	++it2;
@@ -146,18 +161,28 @@ void handle_confs( const experiment& exp,
     if ( !result.empty() ){
       stringstream ss;
       ss << confusie << "#";
+      bool hit = false;
       for ( const auto& it : result ){
 	if ( it != *result.begin() ){
 	  ss << ",";
 	}
+	if ( follow_nums.find(it) != follow_nums.end() ){
+	  cerr << "Store " << it << " for confusion: " << confusie
+	       << endl;
+	  hit = true;
+	}
 	ss << it;
+      }
+      if ( hit
+	   || follow_nums.find(confusie) != follow_nums.end()){
+	cerr << "Stored followed value(s) in: " << ss.str() << endl;
       }
 #pragma omp critical(update)
       {
+	of << ss.str() << endl;
 	if ( csf ){
 	  *csf << confusie << "#" << result.size() << endl;
 	}
-	of << ss.str() << endl;
       }
     }
   }
@@ -196,7 +221,7 @@ int main( int argc, char **argv ){
   try {
     opts.set_short_options( "vVho:t:" );
     opts.set_long_options( "charconf:,hash:,low:,high:,help,version,"
-			   "foci:,threads:,confstats:" );
+			   "foci:,threads:,confstats:,follow:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -231,6 +256,14 @@ int main( int argc, char **argv ){
   opts.extract( "foci", fociFile );
   opts.extract( 'o', outFile );
   string value;
+  while ( opts.extract( "follow", value ) ){
+    bitType follow_num;
+    if ( !TiCC::stringTo(value,follow_num) ) {
+      cerr << "illegal value for --follow (" << value << ")" << endl;
+      exit( EXIT_FAILURE );
+    }
+    follow_nums.insert( follow_num );
+  }
   if ( opts.extract("low", value ) ){
     if ( !TiCC::stringTo(value,lowValue) ) {
       cerr << "illegal value for --low (" << value << ")" << endl;

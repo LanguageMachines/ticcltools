@@ -52,6 +52,7 @@
 using namespace std;
 using namespace icu;
 using ticcl::bitType;
+set<bitType> follow_nums;
 
 void usage( const string& name ){
   cerr << name << endl;
@@ -132,6 +133,12 @@ void handle_exp( const experiment& exp,
     if ( it3 != hashSet.end() ){
       set<bitType>::const_reverse_iterator it2( it3 );
       while ( it2 != hashSet.rend() ){
+#pragma omp critical
+	{
+	  if ( follow_nums.find(*it2) != follow_nums.end() ){
+	    cerr << "following: " << *it2 << endl;
+	  }
+	}
 	bitType diff = *it1 - *it2;
 	if ( diff > max ){
 	  break;
@@ -140,6 +147,10 @@ void handle_exp( const experiment& exp,
 #pragma omp critical
 	  {
 	    result[diff].insert(*it2);
+	    if ( follow_nums.find(diff) != follow_nums.end()
+		 || follow_nums.find(*it2) != follow_nums.end() ){
+	      cerr << "stored :" << diff << ":" << *it2 << endl;
+	    }
 	  }
 	}
 	++it2;
@@ -147,13 +158,24 @@ void handle_exp( const experiment& exp,
       // it3 is already set at hashSet.find( *it1 );
       ++it3;
       while ( it3 != hashSet.end() ){
+#pragma omp critical
+	{
+	  if ( follow_nums.find(*it1) != follow_nums.end() ){
+	    cerr << "following: " << *it1 << endl;
+	  }
+	}
 	bitType diff = *it3 - *it1;
-	if ( diff > max )
+	if ( diff > max ){
 	  break;
+	}
 	if ( confSet.find( diff ) != confSet.end() ){
 #pragma omp critical
 	  {
 	    result[diff].insert(*it1);
+	    if ( follow_nums.find(diff) != follow_nums.end()
+		 || follow_nums.find(*it1) != follow_nums.end() ){
+	      cerr << "stored :" << diff << ":" << *it1 << endl;
+	    }
 	  }
 	}
 	++it3;
@@ -193,7 +215,7 @@ int main( int argc, char **argv ){
   try {
     opts.set_short_options( "vVho:t:" );
     opts.set_long_options( "charconf:,hash:,low:,high:,foci:,help,"
-			   "version,threads:,confstats:" );
+			   "version,threads:,confstats:,follow:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
@@ -258,6 +280,14 @@ int main( int argc, char **argv ){
     exit(EXIT_FAILURE);
   }
 #endif
+  while ( opts.extract( "follow", value ) ){
+    bitType follow_num;
+    if ( !TiCC::stringTo(value,follow_num) ) {
+      cerr << "illegal value for --follow (" << value << ")" << endl;
+      exit( EXIT_FAILURE );
+    }
+    follow_nums.insert( follow_num );
+  }
   if ( opts.extract("low", value ) ){
     if ( !TiCC::stringTo(value,lowValue) ) {
       cerr << "illegal value for --low (" << value << ")" << endl;
