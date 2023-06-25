@@ -97,8 +97,8 @@ First ensure the following dependencies are installed on your system:
 
 * Git
 * A sane build environment with a C++ compiler (gcc or clang), make, libtool, pkg-config, autoconf, automake and autoconf-archive
-* libbz2, libtar, libicu, libxml2 (including -dev versions for the headers, note that the naming of the packages may vary based on your distribution)
-    * On debian/ubuntu, the following should suffice to install the necessary global dependencies: ``sudo apt install make gcc g++ autoconf automake autoconf-archive libtool autotools-dev libicu-dev libxml2-dev libbz2-dev zlib1g-dev libtar-dev``
+* libbz2, libicu, libxml2 (including -dev versions for the headers, note that the naming of the packages may vary based on your distribution)
+    * On debian/ubuntu, the following should suffice to install the necessary global dependencies: ``sudo apt install make gcc g++ autoconf automake autoconf-archive libtool autotools-dev libicu-dev libxml2-dev libbz2-dev zlib1g-dev``
 
 First ``git clone`` this repository, enter its directory and build as follows:
 
