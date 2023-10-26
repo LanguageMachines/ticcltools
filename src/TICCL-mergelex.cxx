@@ -48,14 +48,14 @@ using namespace	TiCC;
 
 bool verbose = false;
 
-void create_wf_list( const map<string, unsigned int>& wc,
+void create_wf_list( const map<UnicodeString, unsigned int>& wc,
 		     const string& filename, unsigned int total_in, bool doperc ){
   ofstream os( filename );
   if ( !os ){
     cerr << "failed to create outputfile '" << filename << "'" << endl;
     exit(EXIT_FAILURE);
   }
-  map<unsigned int, set<string> > wf;
+  map<unsigned int, set<UnicodeString> > wf;
   for( const auto& cit : wc ){
     wf[cit.second].insert( cit.first );
   }
@@ -84,17 +84,18 @@ void create_wf_list( const map<string, unsigned int>& wc,
   }
 }
 
-size_t read_words( const string& doc_name, map<string,unsigned int>& wc ){
+size_t read_words( const string& doc_name,
+		   map<UnicodeString,unsigned int>& wc ){
   size_t word_total = 0;
   ifstream is( doc_name );
-  string line;
-  while ( getline( is, line ) ){
-    vector<string> v;
-    if ( TiCC::split( line, v ) < 2 ){
+  UnicodeString line;
+  while ( TiCC::getline( is, line ) ){
+    vector<UnicodeString> v =TiCC::split( line );
+    if ( v.size() < 2 ){
       cerr << "invalid input: " << line << endl;
       continue;
     }
-    string wrd = v[0];
+    UnicodeString wrd = v[0];
     size_t frq = stringTo<int>(v[1]);
 #pragma omp critical
     {
@@ -231,7 +232,7 @@ int main( int argc, char *argv[] ){
   if ( to_do > 1 ){
     cout << "start processing of " << to_do << " files " << endl;
   }
-  map<string,unsigned int> wc;
+  map<UnicodeString,unsigned int> wc;
   unsigned int word_total =0;
 #pragma omp parallel for shared(file_names,word_total,wc)
   for ( size_t fn=0; fn < file_names.size(); ++fn ){
