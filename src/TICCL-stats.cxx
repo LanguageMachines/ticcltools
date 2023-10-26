@@ -48,7 +48,7 @@ using namespace	TiCC;
 
 bool verbose = false;
 
-void create_wf_list( const map<string, unsigned int>& wc,
+void create_wf_list( const map<UnicodeString, unsigned int>& wc,
 		     const string& filename, unsigned int totalIn,
 		     unsigned int clip,
 		     bool doperc ){
@@ -58,7 +58,7 @@ void create_wf_list( const map<string, unsigned int>& wc,
     cerr << "failed to create outputfile '" << filename << "'" << endl;
     exit(EXIT_FAILURE);
   }
-  map<unsigned int, set<string> > wf;
+  map<unsigned int, set<UnicodeString> > wf;
   for ( const auto& cit : wc ){
     if ( cit.second <= clip ){
       total -= cit.second;
@@ -105,32 +105,32 @@ static void error_sink(void *mydata, xmlError *error ){
   (*cnt)++;
 }
 
-bool is_emph( const string& data ){
-  return (data.size() < 2) && isalnum(data[0]);
+bool is_emph( const UnicodeString& data ){
+  return (data.length() < 2) && u_isalnum(data[0]);
 }
 
 size_t tel( const xmlNode *node, bool lowercase,
-	    size_t ngram, const string& sep,
-	    map<string, unsigned int>& wc,
-	    set<string>& emps ){
-  vector<string> buffer(ngram);
+	    size_t ngram, const UnicodeString& sep,
+	    map<UnicodeString, unsigned int>& wc,
+	    set<UnicodeString>& emps ){
+  vector<UnicodeString> buffer(ngram);
   size_t cnt = 0;
   size_t buf_cnt = 0;
   bool in_emph = false;
-  string emph_start;
-  string emph_word;
+  UnicodeString emph_start;
+  UnicodeString emph_word;
   xmlNode *pnt = node->children;
   while ( pnt ){
     //    cerr << "bekijk label: " << (char*)pnt->name << endl;
     cnt += tel( pnt, lowercase, ngram, sep, wc, emps );
     if ( pnt->type == XML_TEXT_NODE ){
-      string line  = (char*)( pnt->content );
+      UnicodeString line  = TiCC::UnicodeFromUTF8( (char*)( pnt->content ) );
       //      cerr << "text: " << line << endl;
-      vector<string> v = TiCC::split( line );
+      vector<UnicodeString> v = TiCC::split( line );
       for ( const auto& word : v ){
-	string wrd = word;
+	UnicodeString wrd = word;
 	if ( lowercase ){
-	  wrd = TiCC::utf8_lowercase( word );
+	  wrd.toLower();
 	}
 	if ( is_emph( wrd ) ){
 	  if ( in_emph ){
@@ -142,17 +142,17 @@ size_t tel( const xmlNode *node, bool lowercase,
 	  }
 	}
 	else {
-	  if ( in_emph && !emph_word.empty() ){
+	  if ( in_emph && !emph_word.isEmpty() ){
 	    emps.insert( emph_start + emph_word );
 	  }
 	  in_emph = false;
-	  emph_start.clear();
-	  emph_word.clear();
+	  emph_start.remove();
+	  emph_word.remove();
 	}
 	buffer[buf_cnt++] = wrd;
 	if ( buf_cnt == ngram ){
 	  buf_cnt = ngram-1;
-	  string gram;
+	  UnicodeString gram;
 	  for( size_t i=0; i < ngram -1; ++i ){
 	    gram += buffer[i] + sep;
 	    buffer[i] = buffer[i+1];
@@ -174,9 +174,9 @@ size_t tel( const xmlNode *node, bool lowercase,
 size_t word_xml_inventory( const string& docName,
 			   bool lowercase,
 			   size_t ngram,
-			   const string& sep,
-			   map<string,unsigned int>& wc,
-			   set<string>& emps ){
+			   const UnicodeString& sep,
+			   map<UnicodeString,unsigned int>& wc,
+			   set<UnicodeString>& emps ){
   xmlDoc *d = 0;
   int cnt = 0;
   xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
@@ -197,28 +197,28 @@ size_t word_xml_inventory( const string& docName,
 size_t word_inventory( const string& docName,
 		       bool lowercase,
 		       size_t ngram,
-		       const string& sep,
-		       map<string,unsigned int>& wc,
-		       set<string>& emps,
+		       const UnicodeString& sep,
+		       map<UnicodeString,unsigned int>& wc,
+		       set<UnicodeString>& emps,
 		       bool dolines ){
-  vector<string> buffer(ngram);
+  vector<UnicodeString> buffer(ngram);
   size_t buf_cnt = 0;
   size_t wordTotal = 0;
   ifstream is( docName );
-  string line;
+  UnicodeString line;
   bool in_emph = false;
-  string emph_start;
-  string emph_word;
-  while ( getline( is, line ) ){
+  UnicodeString emph_start;
+  UnicodeString emph_word;
+  while ( TiCC::getline( is, line ) ){
     if ( dolines ){
       buffer.clear();
       buf_cnt = 0;
     }
-    vector<string> v = TiCC::split( line );
+    vector<UnicodeString> v = TiCC::split( line );
     for ( const auto& word : v ){
-      string wrd = word;
+      UnicodeString wrd = word;
       if ( lowercase ){
-	wrd = TiCC::utf8_lowercase( word );
+	wrd.toLower();
       }
       if ( is_emph( wrd ) ){
 	if ( in_emph ){
@@ -230,17 +230,17 @@ size_t word_inventory( const string& docName,
 	}
       }
       else {
-	if ( in_emph && !emph_word.empty() ){
+	if ( in_emph && !emph_word.isEmpty() ){
 	  emps.insert( emph_start + emph_word );
 	}
 	in_emph = false;
-	emph_start.clear();
-	emph_word.clear();
+	emph_start.remove();
+	emph_word.remove();
       }
       buffer[buf_cnt++] = wrd;
       if ( buf_cnt == ngram ){
 	buf_cnt = ngram-1;
-	string gram;
+	UnicodeString gram;
 	for( size_t i=0; i < ngram -1; ++i ){
 	  gram += buffer[i] + sep;
 	  buffer[i] = buffer[i+1];
@@ -319,8 +319,12 @@ int main( int argc, char *argv[] ){
   bool dopercentage = opts.extract('p');
   bool lowercase = opts.extract("lower");
   bool recursiveDirs = opts.extract( 'R' );
-  string sep = "_";
-  opts.extract( "separator", sep );
+  UnicodeString sep = "_";
+  string value;
+  opts.extract( "separator", value );
+  if ( !value.empty() ){
+    sep = TiCC::UnicodeFromUTF8(value);
+  }
   if ( opts.extract( "underscore" ) ){
     if ( sep != "_" ){
       cerr << "--separator and --underscore conflict!" << endl;
@@ -334,7 +338,6 @@ int main( int argc, char *argv[] ){
     cerr << "an output filename prefix is required. (-o option) " << endl;
     exit(EXIT_FAILURE);
   }
-  string value;
   if ( opts.extract("clip", value ) ){
     if ( !stringTo(value, clip ) ){
       cerr << "illegal value for --clip (" << value << ")" << endl;
@@ -409,10 +412,10 @@ int main( int argc, char *argv[] ){
   if ( toDo > 1 ){
     cout << "start processing of " << toDo << " files " << endl;
   }
-  map<string,unsigned int> wc;
+  map<UnicodeString,unsigned int> wc;
   unsigned int wordTotal =0;
 
-  set<string> hemp;
+  set<UnicodeString> hemp;
 #pragma omp parallel for shared(fileNames,wordTotal,wc,hemp)
   for ( size_t fn=0; fn < fileNames.size(); ++fn ){
     string docName = fileNames[fn];

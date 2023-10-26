@@ -111,19 +111,19 @@ namespace ticcl {
   bool fillAlphabet( istream& is,
 		     map<UChar,bitType>& alphabet,
 		     int clip ){
-    string line;
-    while ( getline( is, line ) ){
-      if ( line.size() == 0 || line[0] == '#' ){
+    UnicodeString line;
+    while ( TiCC::getline( is, line ) ){
+      if ( line.length() == 0 || line[0] == '#' ){
 	continue;
       }
-      vector<string> v = TiCC::split_at( line, "\t" );
+      vector<UnicodeString> v = TiCC::split_at( line, "\t" );
       if ( v.size() != 3 ){
 	throw runtime_error( "unsupported format for alphabet file" );
       }
       int freq = TiCC::stringTo<int>( v[1] );
       if ( freq > clip || freq == 0 ){
 	// freq = 0 is special, for separator
-	UnicodeString v0 = TiCC::UnicodeFromUTF8( v[0] );
+	UnicodeString v0 = v[0];
 	bitType hash_val = TiCC::stringTo<bitType>( v[2] );
 	alphabet[v0[0]] = hash_val;
       }
