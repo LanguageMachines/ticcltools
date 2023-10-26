@@ -28,6 +28,7 @@
 #include <fstream>
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/StringOps.h"
+#include "ticcutils/Unicode.h"
 #include "ticcl/word2vec.h"
 
 using namespace std;
@@ -37,16 +38,16 @@ void usage( const string& name ){
   cerr << name << " --vectors=vectorfile [FILES]" << endl;
 }
 
-bool fill( const string& freqsFile, map<string,size_t>& freqs ){
+bool fill( const string& freqsFile, map<UnicodeString,size_t>& freqs ){
   ifstream is( freqsFile );
   if ( !is.good() ){
     return false;
   }
-  string line;
-  while ( getline( is, line ) ){
-    if ( line.empty() )
+  UnicodeString line;
+  while ( TiCC::getline( is, line ) ){
+    if ( line.isEmpty() )
       continue;
-    vector<string> parts = split( line );
+    vector<UnicodeString> parts = split( line );
     if ( parts.size() != 2 ){
       continue;
     }
@@ -61,7 +62,8 @@ bool fill( const string& freqsFile, map<string,size_t>& freqs ){
   return true;
 }
 
-size_t lookup( const string& s, const map<string,size_t>& frqs ){
+size_t lookup( const UnicodeString& s,
+	       const map<UnicodeString,size_t>& frqs ){
   const auto it = frqs.find( s );
   if ( it != frqs.end() )
     return it->second;
@@ -99,7 +101,7 @@ int main( int argc, char *argv[] ){
     cerr << "unsupported options: " << opts.toString() << endl;
     exit( EXIT_FAILURE );
   }
-  map<string,size_t> freqs;
+  map<UnicodeString,size_t> freqs;
   if ( !freqsFile.empty() ){
     if ( fill( freqsFile, freqs ) ){
       cerr << "filled a frequency hash with " << freqs.size()
@@ -129,11 +131,11 @@ int main( int argc, char *argv[] ){
       cerr << "failed to open: " << outname << endl;
       continue;
     }
-    string line;
+    UnicodeString line;
     int err_cnt = 5;
-    while ( getline( is, line ) ){
-      vector<string> parts = TiCC::split_at_first_of( line, "\t#" );
-      if ( parts.size() != 2 ){
+    while ( TiCC::getline( is, line ) ){
+      vector<UnicodeString> uparts = TiCC::split_at_first_of( line, "\t#" );
+      if ( uparts.size() != 2 ){
 	cerr << "invalid line (expected 2 tab or # seperated words/sentences)."
 	     << endl;
 	if ( --err_cnt > 0 ){
@@ -145,10 +147,14 @@ int main( int argc, char *argv[] ){
 	}
       }
       try {
+	vector<string> parts;
+	for ( const auto& up : uparts ){
+	  parts.push_back( TiCC::UnicodeToUTF8( up ) );
+	}
 	double cosine = WV.distance( parts[0], parts[1] );
 	if ( !freqs.empty() ){
-	  size_t f1 = lookup( parts[0], freqs );
-	  size_t f2 = lookup( parts[1], freqs );
+	  size_t f1 = lookup( uparts[0], freqs );
+	  size_t f2 = lookup( uparts[1], freqs );
 	  os << parts[0] << "\t" << f1 << "\t"
 	     << parts[1] << "\t" << f2 << "\t" << cosine << endl;
 	}

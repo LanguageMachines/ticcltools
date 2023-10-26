@@ -28,6 +28,7 @@
 #include <fstream>
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/StringOps.h"
+#include "ticcutils/Unicode.h"
 #include "ticcl/word2vec.h"
 
 using namespace std;
@@ -90,11 +91,11 @@ int main( int argc, char *argv[] ){
       continue;
     }
     int err_cnt = 10;
-    string line;
-    while ( getline( is, line ) ){
-      vector<string> words = TiCC::split_at_first_of( line, "\t#" );
-      size_t cnt = words.size();
-      if ( cnt == 1 && words[0] == "EXIT" ){
+    UnicodeString line;
+    while ( TiCC::getline( is, line ) ){
+      vector<UnicodeString> uwords = TiCC::split_at_first_of( line, "\t#" );
+      size_t cnt = uwords.size();
+      if ( cnt == 1 && uwords[0] == "EXIT" ){
 	break;
       }
       if  ( cnt != 3 ){
@@ -104,6 +105,10 @@ int main( int argc, char *argv[] ){
 	  break;
 	}
 	continue;
+      }
+      vector<string> words;
+      for ( const auto& uw : uwords ){
+	words.push_back( TiCC::UnicodeToUTF8( uw ) );
       }
       os << "Word Analogy for: " << words[0] << " " << words[1] << " " << words[2] << endl;
       vector<word_dist> results;

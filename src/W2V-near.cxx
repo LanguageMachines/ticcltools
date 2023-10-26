@@ -27,6 +27,7 @@
 #include <fstream>
 #include "ticcutils/CommandLine.h"
 #include "ticcutils/StringOps.h"
+#include "ticcutils/Unicode.h"
 #include "ticcl/word2vec.h"
 
 using namespace std;
@@ -88,11 +89,11 @@ int main( int argc, char *argv[] ){
       cerr << "failed to open: " << outname << endl;
       continue;
     }
-    string line;
-    while ( getline( is, line ) ){
+    UnicodeString line;
+    while ( TiCC::getline( is, line ) ){
       os << "NEIGHBORS of '" << line << "':" << endl;
       vector<word_dist> res;
-      if ( WV.lookup( line, NN, res ) ){
+      if ( WV.lookup( TiCC::UnicodeToUTF8(line), NN, res ) ){
 	for ( auto const& i : res ){
 	  os << "\t" << i.w << "\t" << i.d << endl;
 	}
