@@ -769,8 +769,8 @@ vector<rank_record> filter_ngrams( const vector<rank_record>& rank_records,
 }
 
 struct wid {
-  wid( const string& s, const set<streamsize>& st ): _s(s), _st(st) {};
-  string _s;
+  wid( const UnicodeString& s, const set<streamsize>& st ): _s(s), _st(st) {};
+  UnicodeString _s;
   set<streamsize> _st;
 };
 
@@ -1042,19 +1042,19 @@ int main( int argc, char **argv ){
   map<UChar,bitType> alphabet;
   ifstream is( alphabetFile );
   ticcl::fillAlphabet( is, alphabet );
-  map<string,set<streamsize> > fileIds;
+  map<UnicodeString,set<streamsize> > fileIds;
   map<bitType,size_t> char_conf_val_counts;
   map<bitType,vector<size_t>> cc_freqs;
   cout << "start indexing input and determining CHAR_CONF_VAL counts AND CC freq per CHAR_CONF_VAL" << endl;
   int failures = 0;
   ifstream input( inFile );
   streamsize pos = input.tellg();
-  string input_line;
-  while ( getline( input, input_line ) ){
+  UnicodeString input_line;
+  while ( TiCC::getline( input, input_line ) ){
     if ( verbose ){
       cerr << "bekijk " << input_line << endl;
     }
-    vector<string> parts = TiCC::split_at( input_line, "~" );
+    vector<UnicodeString> parts = TiCC::split_at( input_line, "~" );
     if ( parts.size() != RANK_COUNT ){
       cerr << "invalid line: " << input_line << endl;
       cerr << "expected " << RANK_COUNT << " ~ separated values." << endl;
@@ -1064,7 +1064,7 @@ int main( int argc, char **argv ){
       }
     }
     else {
-      string variant = parts[0];
+      UnicodeString variant = parts[0];
       fileIds[variant].insert( pos );
       bitType char_conf_val = TiCC::stringTo<bitType>(parts[6]);
       ++char_conf_val_counts[char_conf_val];
@@ -1307,7 +1307,7 @@ int main( int argc, char **argv ){
     const set<streamsize>& ids = work[i]._st;
     vector<word_dist> vec;
     if ( WV.size() > 0 ){
-      WV.lookup( work[i]._s, 20, vec );
+      WV.lookup( TiCC::UnicodeToUTF8(work[i]._s), 20, vec );
       if ( verbose ){
 #pragma omp critical (log)
 	{
