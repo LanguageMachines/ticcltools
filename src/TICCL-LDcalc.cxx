@@ -81,16 +81,16 @@ void usage( const string& progname ){
   exit( EXIT_FAILURE );
 }
 
-set<string> follow_words;
+set<UnicodeString> follow_words;
 map<UChar,bitType> alphabet;
 
 class ld_record {
 public:
-  ld_record( const string&,
-	     const string&,
+  ld_record( const UnicodeString&,
+	     const UnicodeString&,
 	     bitType key1,
 	     bitType key2,
-	     const map<string,size_t>&,
+	     const map<UnicodeString,size_t>&,
 	     const map<UnicodeString,size_t>&,
 	     bool, bool, bool,
 	     bool );
@@ -146,13 +146,15 @@ public:
 };
 
 
-ld_record::ld_record( const string& s1, const string& s2,
+ld_record::ld_record( const UnicodeString& s1,
+		      const UnicodeString& s2,
 		      bitType key1, bitType key2,
-		      const map<string,size_t>& f_map,
+		      const map<UnicodeString,size_t>& f_map,
 		      const map<UnicodeString,size_t>& low_f_map,
 		      bool is_KHC, bool no_KHCld, bool is_diachrone,
 		      bool following ):
-  str1(TiCC::UnicodeFromUTF8(s1)),
+  str1(s1),
+  str2(s2),
   ld(-1),
   cls(0),
   KWC(0),
@@ -189,7 +191,6 @@ ld_record::ld_record( const string& s1, const string& s2,
   else {
     freq2 = 0;
   }
-  str2 = TiCC::UnicodeFromUTF8(s2);
   ls2 = str2;
   ls2.toLower();
   auto const lit2 = low_f_map.find( ls2 );
@@ -561,9 +562,9 @@ bool transpose_pair( ld_record& record,
   return true;
 }
 
-void handleTranspositions( const set<string>& s,
+void handleTranspositions( const set<UnicodeString>& s,
 			   bitType key,
-			   const map<string,size_t>& freqMap,
+			   const map<UnicodeString,size_t>& freqMap,
 			   const map<UnicodeString,size_t>& low_freqMap,
 			   const map<UChar,bitType>& alphabet,
 			   map<UnicodeString,set<UnicodeString>>& dis_map,
@@ -578,14 +579,14 @@ void handleTranspositions( const set<string>& s,
   auto it1 = s.begin();
   while ( it1 != s.end() ) {
     bool following = false;
-    string str1 = *it1;
+    UnicodeString str1 = *it1;
     if ( follow_words.find( str1 ) != follow_words.end() ){
       following = true;
     }
     auto it2 = it1;
     ++it2;
     while ( it2 != s.end() ) {
-      string str2 = *it2;
+      UnicodeString str2 = *it2;
       if ( follow_words.find( str2 ) != follow_words.end() ){
 	following = true;
       }
@@ -650,8 +651,9 @@ bool compare_pair( ld_record& record,
 void compareSets( int ldValue,
 		  bitType KWC,
 		  bitType key1,
-		  const set<string>& s1, const set<string>& s2,
-		  const map<string,size_t>& freqMap,
+		  const set<UnicodeString>& s1,
+		  const set<UnicodeString>& s2,
+		  const map<UnicodeString,size_t>& freqMap,
 		  const map<UnicodeString,size_t>& low_freqMap,
 		  const map<UChar,bitType>& alphabet,
 		  map<UnicodeString,set<UnicodeString>>& dis_map,
@@ -669,7 +671,7 @@ void compareSets( int ldValue,
   auto it1 = s1.begin();
   while ( it1 != s1.end() ) {
     bool following = false;
-    string str1 = *it1;
+    UnicodeString str1 = *it1;
     if ( follow_words.find( str1 ) != follow_words.end() ){
       following = true;
     }
@@ -681,7 +683,7 @@ void compareSets( int ldValue,
     }
     auto it2 = s2.begin();
     while ( it2 != s2.end() ) {
-      string str2 = *it2;
+      UnicodeString str2 = *it2;
       if ( follow_words.find( str2 ) != follow_words.end() ){
 	following = true;
       }
@@ -722,13 +724,12 @@ void compareSets( int ldValue,
 
 void add_short( ostream& os,
 		const map<UnicodeString,size_t>& dis_count,
-		const map<string,size_t>& freqMap,
+		const map<UnicodeString,size_t>& freqMap,
 		const map<UnicodeString,size_t>& low_freqMap,
 		int max_ld, size_t threshold ){
   for ( const auto& entry : dis_count ){
     vector<UnicodeString> parts = TiCC::split_at( entry.first, "~" );
-    ld_record rec( TiCC::UnicodeToUTF8(parts[0]),
-		   TiCC::UnicodeToUTF8(parts[1]),
+    ld_record rec( parts[0], parts[1],
 		   0, 0,
 		   freqMap, low_freqMap,
 		   false, false, false, false );
@@ -748,9 +749,9 @@ set<bitType> fill_set( const string& file_name ){
     exit(EXIT_FAILURE);
   }
   set<bitType> result;
-  string hist_line;
-  while ( getline( is, hist_line ) ){
-    vector<string> v = TiCC::split_at( hist_line, "#" );
+  UnicodeString hist_line;
+  while ( TiCC::getline( is, hist_line ) ){
+    vector<UnicodeString> v = TiCC::split_at( hist_line, "#" );
     if ( v.size() != 2 ){
       continue;
     }
@@ -760,17 +761,17 @@ set<bitType> fill_set( const string& file_name ){
   return result;
 }
 
-map<bitType,set<string>> fill_hashmap( istream& is,
-				       const map<string,size_t>& freq_map ){
-  map<bitType,set<string>> result;
-  string line;
-  while ( getline( is, line ) ){
-    vector<string> v1 = TiCC::split_at( line, "~" );
+map<bitType,set<UnicodeString>> fill_hashmap( istream& is,
+					      const map<UnicodeString,size_t>& freq_map ){
+  map<bitType,set<UnicodeString>> result;
+  UnicodeString line;
+  while ( TiCC::getline( is, line ) ){
+    vector<UnicodeString> v1 = TiCC::split_at( line, "~" );
     if ( v1.size() != 2 ){
       continue;
     }
     else {
-      vector<string> v2 = TiCC::split_at( v1[1], "#" );
+      vector<UnicodeString> v2 = TiCC::split_at( v1[1], "#" );
       if ( v2.size() < 1 ){
 	cerr << progname << ": strange line: " << line << endl
 	     << " in anagram hashes file" << endl;
@@ -828,7 +829,8 @@ int main( int argc, char **argv ){
   }
   string value;
   while ( opts.extract( "follow", value ) ){
-    vector<string> parts = TiCC::split_at( value, "," );
+    UnicodeString uval = TiCC::UnicodeFromUTF8( value );
+    vector<UnicodeString> parts = TiCC::split_at( uval, "," );
     for ( const auto& p : parts ){
       follow_words.insert( p );
     }
@@ -967,20 +969,19 @@ int main( int argc, char **argv ){
     exit(EXIT_FAILURE);
   }
   cout << progname << ": reading clean file: " << frequency_file << endl;
-  map<string, size_t> freqMap;
+  map<UnicodeString, size_t> freqMap;
   map<UnicodeString, size_t> low_freqMap;
-  string line;
+  UnicodeString line;
   size_t ign = 0;
   size_t skipped = 0;
-  while ( getline( f_stream, line ) ){
-    vector<string> v1 = TiCC::split( line );
+  while ( TiCC::getline( f_stream, line ) ){
+    vector<UnicodeString> v1 = TiCC::split( line );
     if ( v1.size() != 2 ){
       ++ign;
       continue;
     }
     else {
-      string s = v1[0];
-      UnicodeString ls = TiCC::UnicodeFromUTF8(s);
+      UnicodeString ls = v1[0];
       if ( low_limit > 0 && ls.length() < low_limit ){
 	++skipped;
 	continue;
@@ -990,7 +991,7 @@ int main( int argc, char **argv ){
 	continue;
       }
       size_t freq = TiCC::stringTo<size_t>( v1[1] );
-      freqMap[s] = freq;
+      freqMap[ls] = freq;
       ls.toLower();
       if ( freq >= artifreq ){
 	// make sure that the artifrq is counted only once!
@@ -1053,7 +1054,7 @@ int main( int argc, char **argv ){
 	 << anahash_file << endl;
     exit(EXIT_FAILURE);
   }
-  map<bitType,set<string> > hashMap = fill_hashmap( anaf, freqMap );
+  map<bitType,set<UnicodeString> > hashMap = fill_hashmap( anaf, freqMap );
   cout << progname << ": read " << hashMap.size() << " hash values" << endl;
 
   size_t count=0;
@@ -1066,7 +1067,7 @@ int main( int argc, char **argv ){
   int err_cnt = 0;
 
   size_t file_lines = 0;
-  while ( getline( indexf, line ) ){
+  while ( TiCC::getline( indexf, line ) ){
     ++file_lines;
   }
   if ( file_lines == 0 ){
@@ -1077,7 +1078,7 @@ int main( int argc, char **argv ){
   cout << progname << ": " << file_lines << " character confusion values to be read.\n\t\tWe indicate progress by printing a dot for every 1000 confusion values processed" << endl;
   indexf.clear();
   indexf.seekg( 0 );
-  while ( getline( indexf, line ) ){
+  while ( TiCC::getline( indexf, line ) ){
     if ( err_cnt > 9 ){
       cerr << progname << ": FATAL ERROR: too many problems in indexfile: "
 	   << index_file << " terminated" << endl;
@@ -1087,11 +1088,11 @@ int main( int argc, char **argv ){
     if ( verbose > 1 ){
       cerr << "examine " << line << endl;
     }
-    line = TiCC::trim(line);
-    if ( line.empty() ){
+    line = line.trim();
+    if ( line.isEmpty() ){
       continue;
     }
-    vector<string> parts = TiCC::split_at( line, "#" );
+    vector<UnicodeString> parts = TiCC::split_at( line, "#" );
     if ( parts.size() != 2 ){
       cerr << progname << ": ERROR in line " << line_nr
 	   << " of the indexfile: unable to split in 2 parts at #"
@@ -1099,7 +1100,7 @@ int main( int argc, char **argv ){
       ++err_cnt;
     }
     else {
-      string key_s = parts[0];
+      UnicodeString key_s = parts[0];
       if ( ++count % 1000 == 0 ){
 	cout << ".";
 	cout.flush();
@@ -1107,7 +1108,7 @@ int main( int argc, char **argv ){
 	  cout << endl << count << endl;;
 	}
       }
-      string rest = parts[1];
+      UnicodeString rest = parts[1];
       if ( verbose > 1 ){
 	cerr << "extract parts from " << rest << endl;
       }
@@ -1130,7 +1131,7 @@ int main( int argc, char **argv ){
 	}
 #pragma omp parallel for schedule(dynamic,1)
 	for ( size_t i=0; i < parts.size(); ++i ){
-	  string keyS = parts[i];
+	  UnicodeString keyS = parts[i];
 	  bitType key = TiCC::stringTo<bitType>(keyS);
 	  auto sit1 = hashMap.find(key);
 	  if ( sit1 == hashMap.end() ){
