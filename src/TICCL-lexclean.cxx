@@ -43,7 +43,7 @@
 using namespace	std;
 using namespace	icu;
 
-void create_wf_list( const map<string, unsigned int>& wc,
+void create_wf_list( const map<UnicodeString, unsigned int>& wc,
 		     const string& filename, unsigned int totalIn,
 		     bool doperc ){
   unsigned int total = totalIn;
@@ -52,7 +52,7 @@ void create_wf_list( const map<string, unsigned int>& wc,
     cerr << "failed to create outputfile '" << filename << "'" << endl;
     exit(EXIT_FAILURE);
   }
-  map<unsigned int, set<string> > wf;
+  map<unsigned int, set<UnicodeString> > wf;
   for ( const auto& cit : wc ){
     wf[cit.second].insert( cit.first );
   }
@@ -82,7 +82,7 @@ void create_wf_list( const map<string, unsigned int>& wc,
 }
 
 void dump_quarantine( const string& filename,
-		      const map<string, unsigned int>& qw ){
+		      const map<UnicodeString, unsigned int>& qw ){
   ofstream os( filename );
   if ( !os ){
     cerr << "failed to create outputfile '" << filename << "'" << endl;
@@ -99,8 +99,7 @@ void dump_quarantine( const string& filename,
   cout << "with " << qw.size() << " items. " << endl;
 }
 
-bool isClean( const string& s, const set<UChar>& alp, bool reverse ){
-  UnicodeString us = TiCC::UnicodeFromUTF8( s );
+bool isClean( const UnicodeString& us, const set<UChar>& alp, bool reverse ){
   //  cerr << "check " << us << endl;
   for ( int i=0; i < us.length(); ++i ){
     //    cerr << "check " << us[i] << endl;
@@ -121,14 +120,14 @@ bool isClean( const string& s, const set<UChar>& alp, bool reverse ){
 }
 
 bool fillAlpha( const string& file, set<UChar>& alphabet ){
-  string line;
+  UnicodeString line;
   ifstream is( file );
-  while ( getline( is, line ) ){
-    if ( line.size() == 0 || line[0] == '#' ){
+  while ( TiCC::getline( is, line ) ){
+    if ( line.length() == 0 || line[0] == '#' ){
       continue;
     }
-    vector<string> v = TiCC::split( line );
-    UnicodeString us = TiCC::UnicodeFromUTF8( v[0] );
+    vector<UnicodeString> v = TiCC::split( line );
+    UnicodeString us = v[0];
     us.toLower();
     alphabet.insert( us[0] );
     us.toUpper();
@@ -220,14 +219,14 @@ int main( int argc, char *argv[] ){
     usage();
     exit(EXIT_SUCCESS);
   }
-  map<string,unsigned int> wc;
-  map<string,unsigned int> qw;
+  map<UnicodeString,unsigned int> wc;
+  map<UnicodeString,unsigned int> qw;
   for ( const auto& docName : fileNames ){
     ifstream is( docName );
-    string line;
+    UnicodeString line;
     unsigned int word_total = 0;
-    while ( getline( is, line ) ){
-      vector<string> vec = TiCC::split_at( line, "\t" );
+    while ( TiCC::getline( is, line ) ){
+      vector<UnicodeString> vec = TiCC::split_at( line, "\t" );
       size_t num = vec.size();
       if ( num == 1 ){
 	if ( isClean( vec[0], alphabet, reverse ) ){
@@ -238,10 +237,10 @@ int main( int argc, char *argv[] ){
 	}
       }
       else if ( num == 2 || num == 4 ){
-	string val = vec[0];
-	vector<string> v2;
+	UnicodeString val = vec[0];
 	if ( postagged ){
-	  if ( TiCC::split( val, v2 ) > 1 ){
+	  vector<UnicodeString> v2 = TiCC::split( val );
+	  if ( v2.size() > 1 ){
 	    val = v2[0];
 	  }
 	  else {
