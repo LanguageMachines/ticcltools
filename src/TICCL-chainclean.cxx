@@ -47,9 +47,10 @@
 #include "ticcl/word2vec.h"
 
 using namespace std;
+using namespace icu;
 using TiCC::operator<<;
 
-set<string> follow_words;
+set<UnicodeString> follow_words;
 
 void usage( const string& name ){
   cerr << "usage: " << name << "[options] chainfile " << endl;
@@ -71,16 +72,16 @@ void usage( const string& name ){
 class chain_record {
 public:
   chain_record():deleted(false){};
-  string variant;
-  vector<string> v_parts;
-  vector<string> v_dh_parts;
-  string v_freq;
-  string cc;
-  vector<string> cc_parts;
-  vector<string> cc_dh_parts;
-  string cc_freq;
-  string ccv;
-  string ld;
+  UnicodeString variant;
+  vector<UnicodeString> v_parts;
+  vector<UnicodeString> v_dh_parts;
+  UnicodeString v_freq;
+  UnicodeString cc;
+  vector<UnicodeString> cc_parts;
+  vector<UnicodeString> cc_dh_parts;
+  UnicodeString cc_freq;
+  UnicodeString ccv;
+  UnicodeString ld;
   bool deleted;
 };
 
@@ -99,9 +100,9 @@ ostream& operator<<( ostream& os, const chain_record *rec ){
   return os;
 }
 
-vector<string> sort( const vector<string>& in,
-		     const map<int,string>& cc_order){
-  vector<string> uit;
+vector<UnicodeString> sort( const vector<UnicodeString>& in,
+			    const map<int,UnicodeString>& cc_order){
+  vector<UnicodeString> uit;
   for ( const auto& it : cc_order ){
     auto vit = std::find( in.begin(), in.end(), it.second );
     if ( vit != in.end() ){
@@ -155,7 +156,7 @@ int main( int argc, char **argv ){
       exit(EXIT_FAILURE);
     }
   }
-  size_t low_limit = 5;
+  int low_limit = 5;
   if ( opts.extract( "low", value ) ){
     if ( !TiCC::stringTo(value,low_limit) ){
       cerr << progname << ": illegal value for --low (" << value << ")" << endl;
@@ -170,7 +171,8 @@ int main( int argc, char **argv ){
   }
 
   while ( opts.extract( "follow", value ) ){
-    vector<string> parts = TiCC::split_at( value, "," );
+    UnicodeString uvalue = TiCC::UnicodeFromUTF8(value);
+    vector<UnicodeString> parts = TiCC::split_at( uvalue, "," );
     for ( const auto& p : parts ){
       follow_words.insert( p );
     }
@@ -208,14 +210,14 @@ int main( int argc, char **argv ){
     cerr << "problem opening input file: " << in_name << endl;
     exit(1);
   }
-  set<string> valid_words;
+  set<UnicodeString> valid_words;
   ifstream lexicon( lex_name );
-  string line;
-  while ( getline( lexicon, line ) ){
-    if ( line.size() == 0 || line[0] == '#' ){
+  UnicodeString line;
+  while ( TiCC::getline( lexicon, line ) ){
+    if ( line.length() == 0 || line[0] == '#' ){
       continue;
     }
-    vector<string> vec = TiCC::split( line );
+    vector<UnicodeString> vec = TiCC::split( line );
     if ( vec.size() < 2 ){
       cerr << progname << ": invalid line '" << line << "' in "
 	   << lex_name << endl;
@@ -229,7 +231,7 @@ int main( int argc, char **argv ){
     }
     if ( freq >= artifreq ){
       if ( caseless ){
-	valid_words.insert( TiCC::utf8_lowercase( vec[0] ) );
+	valid_words.insert( vec[0].toLower() );
       }
       else {
 	valid_words.insert( vec[0] );
@@ -244,9 +246,8 @@ int main( int argc, char **argv ){
        << lex_name << endl;
   cout << "start reading chained results" << endl;
   list<chain_record> chain_records;
-  while ( getline( input, line ) ){
-    vector<string> vec;
-    TiCC::split_exact_at( line, vec, "#" );
+  while ( TiCC::getline( input, line ) ){
+    vector<UnicodeString> vec = TiCC::split_exact_at( line, "#" );
     bool no_ccv = false;
     if ( vec.size() == 6 ){
       no_ccv = true;
@@ -267,7 +268,7 @@ int main( int argc, char **argv ){
     }
     else {
       rec.ccv = vec[4];
-      if ( rec.ccv.empty() ){
+      if ( rec.ccv.isEmpty() ){
 	cerr << "YES: " << rec.variant << endl;
       }
       rec.ld = vec[5];
@@ -275,22 +276,19 @@ int main( int argc, char **argv ){
     chain_records.push_back( rec );
   }
   cout << "start processing " << chain_records.size() << " chained results" << endl;
-  map<string,int> parts_freq;
+  map<UnicodeString,int> parts_freq;
   for ( auto& rec : chain_records ){
-    rec.v_parts = TiCC::split_at( rec.variant, ticcl::S_SEPARATOR );
-    rec.v_dh_parts = TiCC::split_at_first_of( rec.variant, ticcl::S_SEPARATOR+"-" );
-    rec.cc_parts = TiCC::split_at( rec.cc, ticcl::S_SEPARATOR );
-    rec.cc_dh_parts = TiCC::split_at_first_of( rec.cc, ticcl::S_SEPARATOR+"-" );
+    rec.v_parts = TiCC::split_at( rec.variant, ticcl::US_SEPARATOR );
+    rec.v_dh_parts = TiCC::split_at_first_of( rec.variant, ticcl::US_SEPARATOR+"-" );
+    rec.cc_parts = TiCC::split_at( rec.cc, ticcl::US_SEPARATOR );
+    rec.cc_dh_parts = TiCC::split_at_first_of( rec.cc, ticcl::US_SEPARATOR+"-" );
     if ( rec.v_parts.size() == 1 ){
       continue;
     }
     for ( const auto& p : rec.v_parts ){
-      string key;
+      UnicodeString key = p;
       if ( caseless ){
-	key = TiCC::utf8_lowercase( p );
-      }
-      else {
-	key = p;
+	key.toLower();
       }
       if ( valid_words.find( key ) == valid_words.end() ){
 	++parts_freq[key];
@@ -301,7 +299,7 @@ int main( int argc, char **argv ){
   //
   // Maybe (but why) sorting parts_freq on freqency is needed?
   //
-  multimap<int,string,std::greater<int>> desc_parts_freq;
+  multimap<int,UnicodeString,std::greater<int>> desc_parts_freq;
   // sort on highest frequency first.
   // DOES IT REALLY MATTER???
   for ( const auto& cc : parts_freq ){
@@ -317,18 +315,18 @@ int main( int argc, char **argv ){
   list<chain_record*> copy_chain_records;
   for ( auto& rec : chain_records ){
     if ( rec.v_parts.size() > 1 ){
-      string tmp;
+      UnicodeString tmp;
       for ( const auto& p : rec.v_parts ){
 	tmp += p;
       }
-      if ( tmp.size() <= low_limit ){
+      if ( tmp.length() <= low_limit ){
 	rec.deleted = true;
       }
     }
     copy_chain_records.push_back( &rec );
   }
   set<chain_record*> done_chain_records;
-  map<string,string> done;
+  map<UnicodeString,UnicodeString> done;
   size_t counter = 0;
   for ( const auto& part : desc_parts_freq ) {
     if ( ++counter % 10 == 0 ){
@@ -338,30 +336,24 @@ int main( int argc, char **argv ){
 	cout << endl << counter << endl;
       }
     }
-    string unk_part;
+    UnicodeString unk_part = part.second;
     if ( caseless ){
-      unk_part = TiCC::utf8_lowercase(part.second);
-    }
-    else {
-      unk_part = part.second;
+      unk_part.toLower();
     }
     bool show = (verbosity>0)
       || follow_words.find( unk_part ) != follow_words.end();
     if ( show ){
       cerr << "\n  Loop for part: " << part.second << "/" << unk_part << endl;
     }
-    map<string,int> cc_freqs;
-    map<int,string> cc_order;
+    map<UnicodeString,int> cc_freqs;
+    map<int,UnicodeString> cc_order;
     int oc = 0;
     for ( const auto& it : chain_records ){
       bool match = false;
       for ( const auto& p : it.v_dh_parts ){
-	string v_part;
+	UnicodeString v_part = p;
 	if ( caseless ){
-	  v_part = TiCC::utf8_lowercase(p);
-	}
-	else {
-	  v_part = p;
+	  v_part.toLower();
 	}
 	if ( verbosity>1 ){
 	  cerr << "ZOEK: " << v_part << endl;
@@ -376,12 +368,9 @@ int main( int argc, char **argv ){
       }
       if ( match ){
 	for ( const auto& cp : it.cc_dh_parts ){
-	  string c_part;
+	  UnicodeString c_part = cp;
 	  if ( caseless ){
-	    c_part = TiCC::utf8_lowercase(cp);
-	  }
-	  else {
-	    c_part = cp;
+	    c_part.toLower();
 	  }
 	  if ( cc_freqs.find(c_part) == cc_freqs.end() ){
 	    // first encounter
@@ -394,7 +383,7 @@ int main( int argc, char **argv ){
 	}
       }
     }
-    multimap<int,string,std::greater<int>> desc_cc;
+    multimap<int,UnicodeString,std::greater<int>> desc_cc;
     set<int> keys;
     // sort on highest frequency first.
     // DOES IT REALLY MATTER???
@@ -408,14 +397,14 @@ int main( int argc, char **argv ){
 	cerr << it.first << "\t" << it.second << endl;
       }
     }
-    map<int,vector<string>,std::greater<int>> desc_cc_vec_map;
+    map<int,vector<UnicodeString>,std::greater<int>> desc_cc_vec_map;
     for ( const auto& key : keys ){
       auto const& pr = desc_cc.equal_range( key );
-      vector<string> in;
+      vector<UnicodeString> in;
       for ( auto it = pr.first; it != pr.second; ++it ){
 	in.push_back( it->second );
       }
-      vector<string> uit = sort(in,cc_order);
+      vector<UnicodeString> uit = sort(in,cc_order);
       desc_cc_vec_map[key] = uit;
     }
     if ( show ){
@@ -429,17 +418,14 @@ int main( int argc, char **argv ){
 	cerr << "With frequency = " << dvm_it.first << endl;
       }
       for ( const auto& dcc : dvm_it.second ){
-	string cand_cor;
+	UnicodeString cand_cor = dcc;
 	if ( caseless ){
-	  cand_cor = TiCC::utf8_lowercase( dcc );
-	}
-	else {
-	  cand_cor = dcc;
+	  cand_cor.toLower();
 	}
 	if ( show ){
 	  cerr << "BEKIJK: " << cand_cor << "[" << dvm_it.first << "]" << endl;
 	}
-	map<string,int> uniq;
+	map<UnicodeString,int> uniq;
 	auto it = copy_chain_records.begin();
 	while ( it != copy_chain_records.end() ){
 	  chain_record* rec = *it;
@@ -448,25 +434,21 @@ int main( int argc, char **argv ){
 	    continue;
 	  }
 	  if ( done_chain_records.find( rec ) != done_chain_records.end() ){
-	    if ( show && rec->variant.find( unk_part) != string::npos ) {
+	    if ( show && rec->variant.indexOf( unk_part) != -1 ) {
 	      cerr << "skip already done " << rec << endl;
 	    }
 	    ++it;
 	    continue;
 	  }
 	  if ( rec->v_parts.size() == 1 ){
-	    string vari;
-	    string corr;
+	    UnicodeString vari = rec->variant;
+	    UnicodeString corr = rec->cc;
 	    if ( caseless ){
-	      vari = TiCC::utf8_lowercase( rec->variant );
-	      corr = TiCC::utf8_lowercase( rec->cc );
-	    }
-	    else {
-	      vari = rec->variant;
-	      corr = rec->cc;
+	      vari.toLower();
+	      corr.toLower();
 	    }
 	    if ( vari == unk_part
-		 && corr.find(cand_cor) != string::npos ){
+		 && corr.indexOf(cand_cor) != -1 ){
 	      // this is (might be) THE desired CC
 	      if ( show ){
 		cerr << "UNI gram: both " << unk_part << " and " << cand_cor
@@ -506,22 +488,16 @@ int main( int argc, char **argv ){
 	    }
 	    bool match = false;
 	    for( const auto& cp : rec->cc_parts ){
-	      string cor_part;
+	      UnicodeString cor_part = cp;
 	      if ( caseless ){
-		cor_part = TiCC::utf8_lowercase( cp );
-	      }
-	      else {
-		cor_part = cp;
+		cor_part.toLower();
 	      }
 	      if ( cand_cor == cor_part ){
 		// CC match
 		for ( const auto& p : rec->v_parts ){
-		  string p_part;
+		  UnicodeString p_part = p;
 		  if ( caseless ){
-		    p_part = TiCC::utf8_lowercase( p );
-		  }
-		  else {
-		    p_part = p;
+		    p_part.toLower();
 		  }
 		  if ( p_part == unk_part ){
 		    // variant match too
@@ -534,22 +510,19 @@ int main( int argc, char **argv ){
 		    cerr << "both " << cor_part << " and " << unk_part
 			 << " matched in: " << rec << endl;
 		  }
-		  string lvar;
+		  UnicodeString lvar = rec->variant;
 		  if ( caseless ){
-		    lvar = TiCC::utf8_lowercase(rec->variant);
-		  }
-		  else {
-		    lvar = rec->variant;
+		    lvar.toLower();
 		  }
 		  if ( done.find( cor_part ) != done.end() ){
-		    string v = done[cor_part];
+		    UnicodeString v = done[cor_part];
 		    if ( uniq.find( unk_part ) != uniq.end() ){
 		      if ( local_show ){
 			cerr << "REMOVE uni: " << rec << endl;
 		      }
 		      (*it)->deleted = true;
 		    }
-		    else if ( lvar.find( v ) != string::npos ){
+		    else if ( lvar.indexOf( v ) != -1 ){
 		      if ( local_show ){
 			cerr << "REMOVE match: " << rec << endl;
 		      }
