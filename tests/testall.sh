@@ -117,7 +117,7 @@ fi
 
 echo "start TICCL-indexer"
 
-$bindir/TICCL-indexer -t max --hash $outdir/TESTDP035.clean.anahash --charconf $outdir/aspell.clip20.ld2.charconfus --foci $outdir/TESTDP035.clean.corpusfoci --confstats $outdir/TESTDP035.clean.confstats --follow=17638467 --follow=161002985566
+$bindir/TICCL-indexer -t max --hash $outdir/TESTDP035.clean.anahash --charconf $outdir/aspell.clip20.ld2.charconfus --foci $outdir/TESTDP035.clean.corpusfoci --confstats $outdir/TESTDP035.clean.confstats #--follow=17638467 --follow=161002985566
 
 if [ $? -ne 0 ]
 then
