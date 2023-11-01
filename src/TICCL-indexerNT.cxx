@@ -186,7 +186,7 @@ void handle_exp( const experiment& exp,
 }
 
 void output_result( ostream& os,
-		    map<bitType,set<bitType> > result ){
+		    const map<bitType,set<bitType>>& result ){
   for ( auto const& rit : result ){
     os << rit.first << "#";
     auto it = rit.second.begin();
@@ -203,7 +203,7 @@ void output_result( ostream& os,
 }
 
 void output_confusions( ostream& csf,
-			map<bitType,set<bitType> > result ){
+			const map<bitType,set<bitType>>& result ){
   for ( auto const& rit : result ){
     csf << rit.first << "#" << rit.second.size() << endl;
     csf.flush();

@@ -215,7 +215,7 @@ extract_foci( const map<UnicodeString,bitType>& freq_list,
   return foci;
 }
 
-int main( int argc, char *argv[] ){
+int main( int argc, const char *argv[] ){
   TiCC::CL_Options opts;
   try {
     opts.set_short_options( "vVho:" );
