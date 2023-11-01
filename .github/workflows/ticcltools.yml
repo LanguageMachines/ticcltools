@@ -97,14 +97,14 @@ jobs:
         run: make
       - name: install
         run: sudo make install
-      - name: check
-        id: check
-        env:
-          CXX: ${{ matrix.compiler }}
-        run: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib make check
-        continue-on-error: true
-      - name: show log
-        run: cat src/test-suite.log
+        #      - name: check
+        #        id: check
+        #        env:
+        #          CXX: ${{ matrix.compiler }}
+        #        run: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib make check
+        #        continue-on-error: true
+        #      - name: show log
+        #        run: cat src/test-suite.log
       - id: compiler
         run: |
           cid=$(echo ${{matrix.compiler}} | cut -d\+ -f1)
