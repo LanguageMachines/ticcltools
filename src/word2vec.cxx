@@ -38,18 +38,18 @@ bool wordvec_tester::fill( const string& name ){
     return false;
   }
   unsigned long words = 0;
-  unsigned long size = 0;
   if ( fscanf(f, "%lud", &words) != 1 ){
     cerr << "reading #words failed" << endl;
     fclose(f);
     return false;
   }
-  if ( fscanf(f, "%lud", &size) != 1 ){
+  unsigned long dim = 0;
+  if ( fscanf(f, "%lud", &dim) != 1 ){
     cerr << "reading #dimension failed" << endl;
     fclose(f);
     return false;
   }
-  _dim = size;
+  _dim = dim;
   for ( unsigned b = 0; b < words; b++) {
     string word;
     while (1) {

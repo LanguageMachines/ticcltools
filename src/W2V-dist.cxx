@@ -71,7 +71,7 @@ size_t lookup( const UnicodeString& s,
     return 0;
 }
 
-int main( int argc, char *argv[] ){
+int main( int argc, const char *argv[] ){
   CL_Options opts( "h", "vectors:,freqs:" );
   try {
     opts.init(argc,argv);

@@ -38,7 +38,7 @@ void usage( const string& name ){
   cerr << name << " --vectors=vectorfile [FILES]" << endl;
 }
 
-int main( int argc, char *argv[] ){
+int main( int argc, const char *argv[] ){
   CL_Options opts( "hn:", "vectors:" );
   try {
     opts.init(argc,argv);
