@@ -152,7 +152,7 @@ void usage(){
   cerr << "\t-V or --version\t show version " << endl;
 }
 
-int main( int argc, char *argv[] ){
+int main( int argc, const char *argv[] ){
   TiCC::CL_Options opts( "hVpa:x:t", "help,version" );
   try {
     opts.init(argc,argv);
