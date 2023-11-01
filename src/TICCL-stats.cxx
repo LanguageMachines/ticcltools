@@ -97,8 +97,8 @@ void create_wf_list( const map<UnicodeString, unsigned int>& wc,
   }
 }
 
-static void error_sink(void *mydata, xmlError *error ){
-  int *cnt = (int*)mydata;
+static void error_sink(void *mydata, const xmlError *error ){
+  int *cnt = static_cast<int*>(mydata);
   if ( *cnt == 0 ){
     cerr << "\nXML-error: " << error->message << endl;
   }
@@ -124,7 +124,7 @@ size_t tel( const xmlNode *node, bool lowercase,
     //    cerr << "bekijk label: " << (char*)pnt->name << endl;
     cnt += tel( pnt, lowercase, ngram, sep, wc, emps );
     if ( pnt->type == XML_TEXT_NODE ){
-      UnicodeString line  = TiCC::UnicodeFromUTF8( (char*)( pnt->content ) );
+      UnicodeString line  = TiCC::UnicodeFromUTF8( TiCC::to_char( pnt->content ) );
       //      cerr << "text: " << line << endl;
       vector<UnicodeString> v = TiCC::split( line );
       for ( const auto& word : v ){
@@ -188,7 +188,7 @@ size_t word_xml_inventory( const string& docName,
     }
     return 0;
   }
-  xmlNode *root = xmlDocGetRootElement( d );
+  const xmlNode *root = xmlDocGetRootElement( d );
   size_t wordTotal = tel( root, lowercase, ngram, sep, wc, emps );
   xmlFree( d );
   return wordTotal;
@@ -284,7 +284,7 @@ void usage( const string& name ){
   cerr << "\t-h or --help \t this message." << endl;
 }
 
-int main( int argc, char *argv[] ){
+int main( int argc, const char *argv[] ){
   CL_Options opts( "hnVvpe:t:o:RX", "clip:,lower,ngram:,underscore,separator:,hemp:,threads:" );
   try {
     opts.init(argc,argv);
