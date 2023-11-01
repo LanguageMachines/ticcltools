@@ -125,7 +125,7 @@ void usage( const string& name ){
   cerr << "\t-V or --version\t show version " << endl;
 }
 
-int main( int argc, char *argv[] ){
+int main( int argc, const char *argv[] ){
   CL_Options opts( "hVve:t:o:Rp", "threads:,help,version" );
   try {
     opts.init(argc,argv);
