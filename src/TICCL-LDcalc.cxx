@@ -137,7 +137,6 @@ public:
   bool canon;
   bool FLoverlap;
   bool LLoverlap;
-  UnicodeString KHC;
   int ngram_point;
   bool isKHC;
   bool noKHCld;
