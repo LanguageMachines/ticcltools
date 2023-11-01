@@ -1,0 +1,128 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'src/**'
+      - 'include/**'
+      - '.github/**'
+      - configure.ac
+
+  pull_request:
+    branches: [master]
+
+jobs:
+  notification:
+    runs-on: ubuntu-latest
+    name: Notify start to IRC-gitlama
+    outputs:
+      branch: ${{ steps.extract_branch.outputs.branch }}
+    steps:
+      - name: Extract Branch name
+        shell: bash
+        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
+        id: extract_branch
+      - name: IRC notification
+        uses: Gottox/irc-message-action@v2
+        with:
+          server: irc.uvt.nl
+          channel: '#gitlama'
+          nickname: GitHub
+          message: >
+            ${{ github.actor }} started a build of
+            ${{ github.event.repository.name }}
+            [${{ steps.extract_branch.outputs.branch }}]
+
+  build:
+    runs-on: ${{ matrix.os }}
+    needs: notification
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        compiler: [g++, clang++]
+
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
+
+      - uses: actions/checkout@v3
+      - name: Install Build Environment
+        run: |
+             if [ "$RUNNER_OS" == "Linux" ]; then
+                sudo apt-get install pkg-config autoconf-archive
+             else
+                brew upgrade;
+                brew install pkg-config;
+                brew install autoconf-archive;
+                brew install autoconf;
+                brew install automake;
+             fi
+      - name: Install Dependencies
+        run: |
+             if [ "$RUNNER_OS" == "Linux" ]; then
+                sudo apt-get install libicu-dev libxml2-dev libbz2-dev;
+                sudo apt-get install zlib1g-dev libexttextcat-dev;
+                sudo apt-get install cppcheck
+             else
+                brew install libxml2
+                brew install bzip2
+                brew install zlib
+                brew install libtextcat
+                brew install cppcheck
+             fi
+      - name: install TiccUtils
+        env:
+          CXX: ${{ matrix.compiler }}
+        run: |
+          git clone https://github.com/LanguageMachines/ticcutils;
+          cd ticcutils;
+          bash bootstrap.sh;
+          ./configure;
+          make;
+          sudo make install;
+          cd ..;
+
+      - name: bootstrap
+        run: sh bootstrap.sh
+      - name: configure
+        env:
+          CXX: ${{ matrix.compiler }}
+        run: ./configure
+      - name: Static Code-check
+        run: cppcheck --enable=all --suppress=missingIncludeSystem -I include -I /usr/local/include --quiet --error-exitcode=0 .
+      - name: make
+        run: make
+      - name: install
+        run: sudo make install
+      - name: check
+        id: check
+        env:
+          CXX: ${{ matrix.compiler }}
+        run: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib make check
+        continue-on-error: true
+      - name: show log
+        run: cat src/test-suite.log
+      - id: compiler
+        run: |
+          cid=$(echo ${{matrix.compiler}} | cut -d\+ -f1)
+          echo "cid=$cid" >> $GITHUB_ENV
+      - name: Notify IRC of failure
+        if: ${{ steps.check.outcome != 'success' }}
+        uses: Gottox/irc-message-action@v2
+        with:
+          server: irc.uvt.nl
+          channel: '#gitlama'
+          nickname: GH-${{ runner.os }}-${{ env.cid }}
+          message: "ticcltools [${{ needs.notification.outputs.branch }}] build with ${{ matrix.compiler }} by ${{ github.actor }} on ${{ matrix.os }}: \u00034FAIL\u0003"
+
+      - name: Notify IRC of succes
+        if: ${{ steps.check.outcome == 'success' }}
+        uses: Gottox/irc-message-action@v2
+        with:
+          server: irc.uvt.nl
+          channel: '#gitlama'
+          nickname: GH-${{ runner.os }}-${{ env.cid }}
+          message: "ticcltools [${{ needs.notification.outputs.branch }}] build with ${{ matrix.compiler }} by ${{ github.actor }} on ${{ matrix.os }}: \u00033SUCCESS\u0003"
