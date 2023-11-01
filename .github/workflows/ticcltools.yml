@@ -97,8 +97,8 @@ jobs:
         run: make
       - name: install
         run: sudo make install
-        #      - name: check
-        #        id: check
+      - name: check
+        id: check
         #        env:
         #          CXX: ${{ matrix.compiler }}
         #        run: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib make check
