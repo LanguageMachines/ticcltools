@@ -83,7 +83,7 @@ bool fillAlpha( istream& is, set<UChar>& alphabet ){
     vector<UnicodeString> v = TiCC::split( line );
     if ( v.size() != 3 ){
       cerr << "unsupported format for alphabet file" << endl;
-      exit(EXIT_FAILURE);
+      return false;
     }
     UnicodeString us = v[0];
     us.toLower();
@@ -110,7 +110,7 @@ bool fillAlpha( istream& is, set<UChar>& alphabet ){
   return true;
 }
 
-bool fillHemp( istream& is, set<UnicodeString>& hemps ){
+bool fillHemps( istream& is, set<UnicodeString>& hemps ){
   UnicodeString line;
   while ( TiCC::getline( is, line ) ){
     if ( line.length() == 0 || line[0] == '#' ){
@@ -1013,10 +1013,7 @@ int main( int argc, const char *argv[] ){
       exit(EXIT_FAILURE);
     }
     cout << "reading Historical Emphases: " << hemp_file << endl;
-    if ( !fillHemp( hs, hemps ) ){
-      cerr << "serious problem reading hemps file: " << hemp_file << endl;
-      exit(EXIT_FAILURE);
-    }
+    fillHemps( hs, hemps );
   }
   map<UnicodeString,unsigned int> all_clean_words;
   map<UnicodeString,unsigned int> fore_clean_words;

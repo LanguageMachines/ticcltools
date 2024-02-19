@@ -46,9 +46,12 @@ using namespace	std;
 using namespace icu;
 using ticcl::bitType;
 
-void create_output( string& name, const map<UChar,size_t>& chars,
-		    string& orig, map<UnicodeString,bitType>& hashes,
-		    int clip, UnicodeString& separator ){
+void create_output( const string& name,
+		    const map<UChar,size_t>& chars,
+		    const string& orig,
+		    map<UnicodeString,bitType>& hashes,
+		    const int clip,
+		    const UnicodeString& separator ){
   ofstream os( name );
   if ( !os ){
     cerr << "unable to open output file: " << name << endl;
