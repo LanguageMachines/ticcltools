@@ -249,10 +249,11 @@ S_Class classify( const UnicodeString& word,
       ++is_space; // ignored atm
     }
     else {
+      UnicodeString chars = uchar;
       int8_t charT = u_charType( uchar );
       if ( alphabet.empty() ){
 	if ( verbose ){
-	  cerr << "bekijk karakter " << UnicodeString(uchar) << " van type " << toString(charT) << endl;
+	  cerr << "bekijk karakter " << chars << " van type " << toString(charT) << endl;
 	}
 	if ( ticcl::isletter( charT ) ){
 	  ++is_letter;
@@ -268,37 +269,37 @@ S_Class classify( const UnicodeString& word,
 	  // OUT
 	}
 	else {
-	  cerr << "Warning: karakter '" << UnicodeString(uchar) << "' ("
-	       << TiCC::format_nonascii( TiCC::UnicodeToUTF8(UnicodeString(uchar)) )
+	  cerr << "Warning: karakter '" << chars << "' ("
+	       << TiCC::format_non_printable( chars )
 	       << ") is van onbekend type " << toString(charT) << endl;
 	  ++is_out;
 	}
       }
       else {
 	if ( verbose ){
-	  cerr << "bekijk karakter " << UnicodeString(uchar) << " van type " << toString(charT) << endl;
+	  cerr << "bekijk karakter " << chars << " van type " << toString(charT) << endl;
 	}
 	if ( alphabet.find( uchar ) != alphabet.end() ) {
 	  if ( verbose ){
-	    cerr << "'" << UnicodeString(uchar) << "' is IN het alfabet" << endl;
+	    cerr << "'" << chars << "' is IN het alfabet" << endl;
 	  }
 	  ++is_letter;
 	}
 	else if ( charT == U_DECIMAL_DIGIT_NUMBER ){
 	  if ( verbose ){
-	    cerr << "'" << UnicodeString(uchar) << "' is DIGIT" << endl;
+	    cerr << "'" << chars << "' is DIGIT" << endl;
 	  }
 	  ++is_digit;
 	}
 	else if ( uchar == '.' ){
 	  if ( verbose ){
-	    cerr << "'" << UnicodeString(uchar) << "' is PUNCT" << endl;
+	    cerr << "'" << chars << "' is PUNCT" << endl;
 	  }
 	  ++is_punct;
 	}
 	else {
 	  if ( verbose ){
-	    cerr << "'" << UnicodeString(uchar) << "' is OUT het alfabet" << endl;
+	    cerr << "'" << chars << "' is OUT het alfabet" << endl;
 	  }
 	  ++is_out;
 	}
