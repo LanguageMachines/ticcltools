@@ -334,6 +334,13 @@ int main( int argc, const char *argv[] ){
   }
   string hempName;
   opts.extract("hemp", hempName );
+  if ( !hempName.empty() ){
+    ofstream out( hempName );
+    if ( !out ){
+      cerr << "unable to create historical emphasis file: " << hempName << endl;
+    }
+    exit(EXIT_FAILURE);
+  }
   if ( !opts.extract( 'o', outputPrefix ) ){
     cerr << "an output filename prefix is required. (-o option) " << endl;
     exit(EXIT_FAILURE);
@@ -409,6 +416,15 @@ int main( int argc, const char *argv[] ){
     outputPrefix += "ticclstats";
   }
 
+  string wf_filename = outputPrefix + ".wordfreqlist";
+  string path = dirname( wf_filename ) + "/";
+  if ( !TiCC::createPath( path ) ){
+    cerr << "unable to create a path: " << path << endl;
+    exit(EXIT_FAILURE);
+  }
+  string ng = toString(ngram);
+  wf_filename += "." + ng + ".tsv";
+
   if ( toDo > 1 ){
     cout << "start processing of " << toDo << " files " << endl;
   }
@@ -440,24 +456,11 @@ int main( int argc, const char *argv[] ){
   cout << "start calculating the results" << endl;
   if ( !hempName.empty() ){
     ofstream out( hempName );
-    if ( out ){
-      for( auto const& it : hemp ){
-	out << it << endl;
-      }
-      cout << "historical emphasis stored in: " << hempName << endl;
+    for( auto const& it : hemp ){
+      out << it << endl;
     }
-    else {
-      cerr << "unable to create historical emphasis file: " << hempName << endl;
-    }
+    cout << "historical emphasis stored in: " << hempName << endl;
   }
-  string filename = outputPrefix + ".wordfreqlist";
-  string path = dirname( filename ) + "/";
-  if ( !TiCC::createPath( path ) ){
-    cerr << "unable to create a path: " << path << endl;
-    exit(EXIT_FAILURE);
-  }
-  string ng = toString(ngram);
-  filename += "." + ng + ".tsv";
-  create_wf_list( wc, filename, wordTotal, clip, dopercentage );
+  create_wf_list( wc, wf_filename, wordTotal, clip, dopercentage );
   exit( EXIT_SUCCESS );
 }
