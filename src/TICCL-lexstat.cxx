@@ -508,7 +508,6 @@ int main( int argc, const char *argv[] ){
     cerr << "unable to acces the path for '" << lc_file_name << "'" << endl;
     return EXIT_FAILURE;
   }
-  string confusion_file_name = output_name + ".clip" + clipS + ".ld" + depthS + ".charconfus";
   if ( stripdia ){
     diafile = output_name + ".lc.diac";
   }
@@ -529,6 +528,8 @@ int main( int argc, const char *argv[] ){
     create_dia_file( diafile, lchars, hashes );
   }
   if ( depth > 0 ){
+    string confusion_file_name = output_name + ".clip" + clipS
+      + ".ld" + depthS + ".charconfus";
     generate_confusion( confusion_file_name, hashes, depth, full );
   }
   cout << "done!" << endl;

@@ -228,7 +228,6 @@ S_Class classify( const UnicodeString& word,
   int is_digit = 0;
   int is_punct = 0;
   int is_letter = 0;
-  int is_space = 0;
   int is_out = 0;
   int word_len = word.length();
   if ( word_len < 2 ){
@@ -246,7 +245,8 @@ S_Class classify( const UnicodeString& word,
   for ( int i=0; i < word_len; ++i ){
     UChar uchar = word[i];
     if ( u_isspace( uchar ) ){
-      ++is_space; // ignored atm
+      // ignore
+      continue;
     }
     else {
       UnicodeString chars = uchar;
