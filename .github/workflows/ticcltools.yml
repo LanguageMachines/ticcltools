@@ -113,19 +113,7 @@ jobs:
         run: |
           cid=$(echo ${{matrix.compiler}} | cut -d\+ -f1)
           echo "cid=$cid" >> $GITHUB_ENV
-      - name: Notify IRC of failure
-        if: ${{ steps.check.outcome != 'success' }}
-        uses: Gottox/irc-message-action@v2
-        with:
-          server: irc.uvt.nl
-          channel: '#gitlama'
-          nickname: GH-${{ runner.os }}-${{ env.cid }}
-          message: "ticcltools [${{ needs.notification.outputs.branch }}] \
-build with ${{ matrix.compiler }} by ${{ github.actor }} on ${{ matrix.os }}: \
-\u00034FAIL\u0003"
-
-      - name: Notify IRC of succes
-        if: ${{ steps.check.outcome == 'success' }}
+      - name: Notify IRC of succesfull build
         uses: Gottox/irc-message-action@v2
         with:
           server: irc.uvt.nl
