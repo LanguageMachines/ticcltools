@@ -73,6 +73,15 @@ jobs:
                 brew install libtextcat
                 brew install cppcheck
              fi
+      - name: Configure CppCheck
+        run: |
+             if [ "$RUNNER_OS" == "Linux" ]; then
+                cpc_opts="--enable=warning,style --inline-suppr --force -I include -I /usr/local/include --quiet --error-exitcode=0"
+             else
+                cpc_opts="--enable=warning,style --inline-suppr --force -I include --check-level=exhaustive --quiet --error-exitcode=0"
+             fi
+             echo "cpc_opts=$cpc_opts" >> $GITHUB_ENV
+
       - name: install TiccUtils
         env:
           CXX: ${{ matrix.compiler }}
@@ -92,20 +101,11 @@ jobs:
           CXX: ${{ matrix.compiler }}
         run: ./configure
       - name: Static Code-check
-        run: cppcheck --enable=all --suppress=missingIncludeSystem -I include -I /usr/local/include --quiet --error-exitcode=0 .
+        run: cppcheck ${{ env.cpc_opts }} .
       - name: make
         run: make
       - name: install
         run: sudo make install
-      - name: check
-        id: check
-        run: pwd
-        #        env:
-        #          CXX: ${{ matrix.compiler }}
-        #        run: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib make check
-        #        continue-on-error: true
-        #      - name: show log
-        #        run: cat src/test-suite.log
       - id: compiler
         run: |
           cid=$(echo ${{matrix.compiler}} | cut -d\+ -f1)
@@ -117,7 +117,9 @@ jobs:
           server: irc.uvt.nl
           channel: '#gitlama'
           nickname: GH-${{ runner.os }}-${{ env.cid }}
-          message: "ticcltools [${{ needs.notification.outputs.branch }}] build with ${{ matrix.compiler }} by ${{ github.actor }} on ${{ matrix.os }}: \u00034FAIL\u0003"
+          message: "ticcltools [${{ needs.notification.outputs.branch }}] \
+build with ${{ matrix.compiler }} by ${{ github.actor }} on ${{ matrix.os }}: \
+\u00034FAIL\u0003"
 
       - name: Notify IRC of succes
         if: ${{ steps.check.outcome == 'success' }}
@@ -126,4 +128,6 @@ jobs:
           server: irc.uvt.nl
           channel: '#gitlama'
           nickname: GH-${{ runner.os }}-${{ env.cid }}
-          message: "ticcltools [${{ needs.notification.outputs.branch }}] build with ${{ matrix.compiler }} by ${{ github.actor }} on ${{ matrix.os }}: \u00033SUCCESS\u0003"
+          message: "ticcltools [${{ needs.notification.outputs.branch }}] \
+build with ${{ matrix.compiler }} by ${{ github.actor }} on ${{ matrix.os }}: \
+\u00033SUCCESS\u0003"
