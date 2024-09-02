@@ -1,5 +1,5 @@
 AM_CPPFLAGS = -I@top_srcdir@/include
-AM_CXXFLAGS = -std=c++14 -g -W -Wall -pedantic -O3
+AM_CXXFLAGS = -std=c++17 -g -W -Wall -pedantic -O3
 
 bin_PROGRAMS = TICCL-indexer TICCL-indexerNT \
 	TICCL-LDcalc TICCL-unk TICCL-lexstat \
