@@ -3,11 +3,11 @@ name: C/C++ CI
 
 on:
   schedule:
-    - cron: "0 20 5 * 5"  # run test once a month
+    - cron: "1 20 6 * *"  # run test on the 6-th every month at 20:01
   push:
     branches:
      - master
-     - action
+
     paths:
       - configure.ac
       - 'src/**'
@@ -68,6 +68,6 @@ jobs:
         with:
           branch: ${{ github.ref_name }}
           nickname: ${{ env.nick }}
-          step: test
+          step: build
           status: ${{ env.action_status }}
           details: ${{ env.action_details }}
