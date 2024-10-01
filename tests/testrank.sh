@@ -159,6 +159,16 @@ then
     exit
 fi
 
+echo "start TICLL-rank clip=1 creating charconf output"
+
+$bindir/TICCL-rank -t max --alph $datadir/nld.aspell.dict.clip20.lc.chars --charconf $datadir/nld.aspell.dict.clip20.ld2.charconfus --charconfreq $outdir/charconf.out -o $outdir/ngram.ranked --debugfile $outdir/ngram.debug.ranked --artifrq 0 --clip 1 --skipcols=10 $refdir/ngram.ldcalc
+
+if [ $? -ne 0 ]
+then
+    echo "failed in TICLL-rank"
+    exit
+fi
+
 echo "checking RANK results...."
 
 diff $outdir/ngram.ranked $refdir/ngram.rank.sorted > /dev/null 2>&1
@@ -166,6 +176,14 @@ if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"
     echo "using: diff $outdir/ngram.ranked $refdir/ngram.rank.sorted"
+    exit
+fi
+
+diff $outdir/charconf.out $refdir/charconf.out > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    echo "differences in TICLL-rank results"
+    echo "using: diff $outdir/charconf.out $refdir/charconf.out"
     exit
 fi
 
