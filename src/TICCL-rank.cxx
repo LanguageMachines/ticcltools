@@ -381,14 +381,14 @@ void rank_desc_map( const Tmap& desc_map,
   }
   size_t last = desc_map.begin()->first; // start with the longest
   int ranking = 1;                    // it will be ranked 1
-  for ( const auto& rit : desc_map ){
-    if ( rit.first < last ){
+  for ( const auto& [val,index] : desc_map ){
+    if ( val < last ){
       // we find a shorter. so ranking is incremented (meaning LOWER ranking)
-      last = rit.first;
+      last = val;
       ++ranking;
     }
     // set the currect ranking for the rank_record at hand
-    set_val( recs[rit.second], member, ranking );
+    set_val( recs[index], member, ranking );
   }
 }
 
@@ -485,12 +485,12 @@ void rank( vector<rank_record>& recs,
   if ( !ldmap.empty() ){
     int ranking = 1;
     size_t last = ldmap.begin()->first;
-    for ( const auto& sit : ldmap ){
-      if ( sit.first > last ){
-   	last = sit.first;
+    for ( const auto& [val,index] : ldmap ){
+      if ( val > last ){
+   	last = val;
    	++ranking;
       }
-      recs[sit.second].ld_rank = ranking;
+      recs[index].ld_rank = ranking;
     }
   }
   if ( follow ){
@@ -551,13 +551,13 @@ void rank( vector<rank_record>& recs,
   if ( !lower_variantmap.empty() ){
     int ranking = 1;
     int last = lower_variantmap.begin()->first;
-    for ( const auto& it1 : lower_variantmap ){
-      if ( it1.first < last ){
-	last = it1.first;
+    for ( const auto& [count,index] : lower_variantmap ){
+      if ( count < last ){
+	last = count;
 	++ranking;
       }
-      recs[it1.second].variant_count = it1.first;
-      recs[it1.second].variant_rank = ranking;
+      recs[index].variant_count = count;
+      recs[index].variant_rank = ranking;
     }
   }
   if ( follow ){
@@ -643,12 +643,11 @@ void rank( vector<rank_record>& recs,
   }
 
   // now extract the first 'clip' rank_records for every variant, (best ranked)
-  for ( const auto& it : output ){
-    const auto& mm = it.second;
+  for ( const auto& [word,rec_map] : output ){
     int cnt = 0;
     multimap<double,rank_record,std::greater<double>> tmp;
-    for ( const auto& mit : mm ){
-      tmp.insert( make_pair( mit.first, *mit.second ) );
+    for ( const auto& [val,rec] : rec_map ){
+      tmp.insert( make_pair( val, *rec ) );
       if ( ++cnt >= clip ){
 	break;
       }
@@ -656,7 +655,7 @@ void rank( vector<rank_record>& recs,
     // store the result vector
 #pragma omp critical (store)
     {
-      results.insert( make_pair(it.first,tmp) );
+      results.insert( make_pair(word,tmp) );
     }
   }
 
@@ -1224,25 +1223,25 @@ int main( int argc, char **argv ){
     if ( fs.good() ){
       cout << "dumping character confusions into " << freqOutFile << endl;
       multimap<size_t,bitType, std::greater<int> > sorted;
-      for ( const auto& it: char_conf_val_counts ){
-	if ( it.second != 0 ){
+      for ( const auto& [val,freq]: char_conf_val_counts ){
+	if ( freq != 0 ){
 	  // only store non-0 frequencies
-	  sorted.insert( make_pair(it.second,it.first) );
+	  sorted.insert( make_pair(freq,val) );
 	}
       }
-      for ( const auto& it : sorted ){
-	UnicodeString tr = char_conf_val_string[it.second];
+      for ( const auto& [val,index] : sorted ){
+	UnicodeString tr = char_conf_val_string[index];
 	if ( tr.isEmpty() ){
-	  if ( it.second == 0 ){
-	    fs << it.second << "\ttransposition\t" << it.first << endl;
+	  if ( index == 0 ){
+	    fs << index << "\ttransposition\t" << val << endl;
 	  }
 	  else {
-	    cerr << "no translation for char_conf_val: " << it.second << endl;
-	    fs << it.second << "\tmissing\t" << it.first << endl;
+	    cerr << "no translation for char_conf_val: " << index << endl;
+	    fs << index << "\tmissing\t" << val << endl;
 	  }
 	}
 	else {
-	  fs << it.second << "\t" << tr << "\t" << it.first << endl;
+	  fs << index << "\t" << tr << "\t" << val << endl;
 	}
       }
     }
@@ -1252,8 +1251,8 @@ int main( int argc, char **argv ){
   }
 
   vector<wid> work;
-  for ( const auto& it : fileIds ){
-    work.push_back( wid( it.first, it.second ) );
+  for ( const auto& [file,id] : fileIds ){
+    work.push_back( wid( file, id ) );
   }
   count = 0;
 
