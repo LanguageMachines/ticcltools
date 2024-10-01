@@ -302,13 +302,13 @@ int main( int argc, char **argv ){
   multimap<int,UnicodeString,std::greater<int>> desc_parts_freq;
   // sort on highest frequency first.
   // DOES IT REALLY MATTER???
-  for ( const auto& cc : parts_freq ){
-    desc_parts_freq.insert( make_pair(cc.second,cc.first) );
+  for ( const auto& [val,freq] : parts_freq ){
+    desc_parts_freq.insert( make_pair(freq,val) );
   }
   if ( verbosity > 0 ){
     cerr << "The unknown parts:" << endl;
-    for ( const auto& it : desc_parts_freq ){
-      cerr << it.first << "\t" << it.second << endl;
+    for ( const auto& [val,freq] : desc_parts_freq ){
+      cerr << val << "\t" << freq << endl;
     }
   }
 
@@ -387,14 +387,14 @@ int main( int argc, char **argv ){
     set<int> keys;
     // sort on highest frequency first.
     // DOES IT REALLY MATTER???
-    for ( const auto& cc : cc_freqs ){
-      keys.insert(cc.second);
-      desc_cc.insert( make_pair(cc.second,cc.first) );
+    for ( const auto& [val,key] : cc_freqs ){
+      keys.insert(key);
+      desc_cc.insert( make_pair(key,val) );
     }
     if ( show ){
       cerr << "found " << desc_cc.size() << " CC's for: " << unk_part << endl;
-      for ( const auto& it : desc_cc ){
-	cerr << it.first << "\t" << it.second << endl;
+      for ( const auto& [key,val] : desc_cc ){
+	cerr << key << "\t" << val << endl;
       }
     }
     map<int,vector<UnicodeString>,std::greater<int>> desc_cc_vec_map;
@@ -409,21 +409,21 @@ int main( int argc, char **argv ){
     }
     if ( show ){
       cerr << "found " << cc_order.size() << " CC's for: " << unk_part << endl;
-      for ( const auto& it : desc_cc_vec_map ){
-	cerr << it.first << "\t" << it.second << endl;
+      for ( const auto& [val,vec] : desc_cc_vec_map ){
+	cerr << val << "\t" << vec << endl;
       }
     }
-    for ( const auto& dvm_it : desc_cc_vec_map ){
+    for ( const auto& [cc,vec] : desc_cc_vec_map ){
       if ( show ){
-	cerr << "With frequency = " << dvm_it.first << endl;
+	cerr << "With frequency = " << cc << endl;
       }
-      for ( const auto& dcc : dvm_it.second ){
+      for ( const auto& dcc : vec ){
 	UnicodeString cand_cor = dcc;
 	if ( caseless ){
 	  cand_cor.toLower();
 	}
 	if ( show ){
-	  cerr << "BEKIJK: " << cand_cor << "[" << dvm_it.first << "]" << endl;
+	  cerr << "BEKIJK: " << cand_cor << "[" << cc << "]" << endl;
 	}
 	map<UnicodeString,int> uniq;
 	auto it = copy_chain_records.begin();

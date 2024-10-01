@@ -77,7 +77,7 @@ bool wordvec_tester::fill( const string& name ){
     for ( size_t i = 0; i < _dim; ++i ){
       vec[i] /= len;
     }
-    // ansd insert in the vocabulary
+    // and insert in the vocabulary
     vocab.insert( make_pair( word, vec ) );
   }
   fclose(f);
@@ -121,10 +121,10 @@ bool wordvec_tester::lookup( const string& sentence, size_t num_vec,
   // keep de 'num_vec' largest
 
   result.resize( num_vec, {"", 0.0 } );
-  for ( const auto& it: vocab ) {
+  for ( const auto& [word,p_vec]: vocab ) {
     bool hit = false;
     for ( const auto& w_it : words ){
-      if ( w_it == it.first ){
+      if ( w_it == word ){
 	hit = true;
 	break;
       }
@@ -132,7 +132,7 @@ bool wordvec_tester::lookup( const string& sentence, size_t num_vec,
     if ( hit ) continue;
     float dist = 0;
     for ( size_t a = 0; a < _dim; ++a ){
-      dist += vec[a] * it.second[a];
+      dist += vec[a] * p_vec[a];
     }
     for ( size_t a = 0; a < num_vec; ++a ) {
       if (dist > result[a].d ) {
@@ -141,7 +141,7 @@ bool wordvec_tester::lookup( const string& sentence, size_t num_vec,
 	for ( size_t d = num_vec - 1; d > a; d--) {
 	  result[d] = result[d-1];
 	}
-	result[a].w = it.first;
+	result[a].w = word;
 	result[a].d = dist;
 	break;
       }
@@ -194,16 +194,16 @@ bool wordvec_tester::analogy( const vector<string>& words,
   // now compare with ALL the vectors in de vocabulary
   // keep de 'num_vec' largest
   result.resize( num_vec, {"", 0.0 } );
-  for ( const auto& it: vocab ) {
-    if ( it.first == it0->first
-	 || it.first == it1->first
-	 || it.first == it2->first ){
-      //      cerr << "skip " << it.first << endl;
+  for ( const auto& [word,p_vec]: vocab ) {
+    if ( word == it0->first
+	 || word == it1->first
+	 || word == it2->first ){
+      //      cerr << "skip " << word << endl;
       continue;
     }
     float dist = 0;
     for ( size_t a = 0; a < _dim; ++a ){
-      dist += vec[a] * it.second[a];
+      dist += vec[a] * p_vec[a];
     }
     for ( size_t a = 0; a < num_vec; ++a ) {
       if (dist > result[a].d ) {
@@ -212,7 +212,7 @@ bool wordvec_tester::analogy( const vector<string>& words,
 	for ( size_t d = num_vec - 1; d > a; d--) {
 	  result[d] = result[d-1];
 	}
-	result[a].w = it.first;
+	result[a].w = word;
 	result[a].d = dist;
 	break;
       }

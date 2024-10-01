@@ -58,19 +58,19 @@ void create_wf_list( const map<UnicodeString, unsigned int>& wc,
     cerr << "failed to create outputfile '" << filename << "'" << endl;
     exit(EXIT_FAILURE);
   }
-  map<unsigned int, set<UnicodeString> > wf;
-  for ( const auto& cit : wc ){
-    if ( cit.second <= clip ){
-      total -= cit.second;
+  map<unsigned int, set<UnicodeString> > fws;
+  for ( const auto& [word,freq] : wc ){
+    if ( freq <= clip ){
+      total -= freq;
     }
     else {
-      wf[cit.second].insert( cit.first );
+      fws[freq].insert( word );
     }
   }
   unsigned int sum=0;
   unsigned int types=0;
-  auto wit = wf.rbegin();
-  while ( wit != wf.rend() ){
+  auto wit = fws.rbegin();
+  while ( wit != fws.rend() ){
     for( const auto& sit : wit->second ){
       sum += wit->first;
       os << sit << "\t" << wit->first;

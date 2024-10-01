@@ -60,13 +60,13 @@ void create_output( const string& name,
   multimap<size_t,UChar> reverse;
   bitType count = 0;
   bitType out_count = 0;
-  for ( const auto& it : chars ){
-    if ( clip >= 0 && it.second < (size_t)clip ){
-      out_count += it.second;
+  for ( const auto& [ch,freq] : chars ){
+    if ( clip >= 0 && freq < (size_t)clip ){
+      out_count += freq;
     }
     else {
-      count += it.second;
-      reverse.insert( make_pair(it.second,it.first) );
+      count += freq;
+      reverse.insert( make_pair(freq,ch) );
     }
   }
   os << "## Alphabetsize: " << reverse.size() + (separator.isEmpty()?0:1)
@@ -112,9 +112,9 @@ void create_dia_file( const string& filename,
 		      const map<UChar,size_t>& chars,
 		      const map<UnicodeString,bitType>& hashes ){
   ofstream os( filename );
-  for ( const auto& it : chars ){
+  for ( const auto& [c,freq] : chars ){
     UnicodeString us;
-    us += it.first;
+    us += c;
     UnicodeString ss = TiCC::filter_diacritics( us );
     if ( ss != us ){
       auto hit = hashes.find( us );
