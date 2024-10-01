@@ -1065,18 +1065,18 @@ int main( int argc, const char *argv[] ){
     cout << "read a background lexicon with " << back_lexicon.size()
 	 << " entries." << endl;
 
-    for ( const auto& it : back_lexicon ){
-      UnicodeString w = it.first;
-      all_clean_words[w] += it.second;
+    for ( const auto& [word,freq] : back_lexicon ){
+      UnicodeString w = word;
+      all_clean_words[w] += freq;
       w.toLower();
-      decap_clean_words[w] += it.second;
+      decap_clean_words[w] += freq;
     }
   }
   map<UnicodeString,unsigned> fore_lexicon = read_fore_lex( is );
   cout << "start classifying the foreground lexicon with "
        << fore_lexicon.size() << " entries"<< endl;
-  for ( const auto& wf : fore_lexicon ){
-    classify_one_entry( wf.first, wf.second,
+  for ( const auto& [word,freq] : fore_lexicon ){
+    classify_one_entry( word, freq,
 			fore_clean_words, decap_clean_words,
 			unk_words, punct_words,
 			punct_acro_words, compound_acro_words,
@@ -1086,10 +1086,10 @@ int main( int argc, const char *argv[] ){
   cout << "using artifrq=" << artifreq << endl;
   if ( !background_file.empty() ){
     ofstream fcs( fore_clean_file_name );
-    map<unsigned int, set<UnicodeString> > wf;
-    for ( const auto& it : fore_clean_words ){
-      unsigned int freq = it.second;
-      auto back_it = back_lexicon.find( it.first );
+    map<unsigned int, set<UnicodeString> > fw;
+    for ( const auto& [word,f] : fore_clean_words ){
+      unsigned int freq = f;
+      auto back_it = back_lexicon.find( word );
       if ( back_it != back_lexicon.end() ){
 	// add background frequency to the foreground
 	freq += back_it->second;
@@ -1097,30 +1097,29 @@ int main( int argc, const char *argv[] ){
       if ( freq > artifreq && (freq -  artifreq) > artifreq ){
       	freq -= artifreq;
       }
-      wf[freq].insert( it.first );
+      fw[freq].insert( word );
     }
-    auto wit = wf.rbegin();
-    while ( wit != wf.rend() ){
+    auto wit = fw.rbegin();
+    while ( wit != fw.rend() ){
       for ( const auto& sit : wit->second ){
 	fcs << sit << "\t" << wit->first << endl;
       }
       ++wit;
     }
     cout << "created separate " << fore_clean_file_name << endl;
-    for ( const auto& it : fore_clean_words ){
-      unsigned int f1 = all_clean_words[it.first];
-      unsigned int freq = it.second;
+    for ( auto& [word,freq] : fore_clean_words ){
+      unsigned int f1 = all_clean_words[word];
       if ( freq > artifreq && f1 >= artifreq ){
 	freq -= artifreq;
       }
-      all_clean_words[it.first] += freq;
+      all_clean_words[word] += freq;
     }
-    wf.clear();
-    for ( const auto& it : all_clean_words ){
-      wf[it.second].insert( it.first );
+    fw.clear();
+    for ( const auto& [word,freq] : all_clean_words ){
+      fw[freq].insert( word );
     }
-    wit = wf.rbegin();
-    while ( wit != wf.rend() ){
+    wit = fw.rbegin();
+    while ( wit != fw.rend() ){
       for ( const auto& sit : wit->second ){
 	acs << sit << "\t" << wit->first << endl;
       }
@@ -1129,12 +1128,12 @@ int main( int argc, const char *argv[] ){
     cout << "created " << all_clean_file_name << endl;
   }
   else {
-    map<unsigned int, set<UnicodeString> > wf;
-    for ( const auto& it : fore_clean_words ){
-      wf[it.second].insert( it.first );
+    map<unsigned int, set<UnicodeString> > fw;
+    for ( const auto& [word,freq] : fore_clean_words ){
+      fw[freq].insert( word );
     }
-    auto wit = wf.rbegin();
-    while ( wit != wf.rend() ){
+    auto wit = fw.rbegin();
+    while ( wit != fw.rend() ){
       for ( const auto& sit : wit->second ){
 	acs << sit << "\t" << wit->first << endl;
       }
@@ -1142,12 +1141,12 @@ int main( int argc, const char *argv[] ){
     }
     cout << "created " << all_clean_file_name << endl;
   }
-  map<unsigned int, set<UnicodeString> > wf;
-  for ( const auto& uit : unk_words ){
-    wf[uit.second].insert( uit.first );
+  map<unsigned int, set<UnicodeString> > fw_out;
+  for ( const auto& [word,freq] : unk_words ){
+    fw_out[freq].insert( word );
   }
-  auto wit = wf.rbegin();
-  while ( wit != wf.rend() ){
+  auto wit = fw_out.rbegin();
+  while ( wit != fw_out.rend() ){
     for ( const auto& sit : wit->second ){
       unk_s << sit << "\t" << wit->first << endl;
     }
@@ -1156,13 +1155,12 @@ int main( int argc, const char *argv[] ){
   cout << "created " << unk_file_name << endl;
 
   if ( doAcro ){
-    for ( const auto& ait : punct_acro_words ){
-      UnicodeString ps = ait.first;
+    for ( const auto& [ps,acro] : punct_acro_words ){
       UnicodeString us = filter_punct( ps );
       if ( compound_acro_words.find( us ) != compound_acro_words.end() ){
 	// the 'dotted' word is a true acronym
 	// add to the list
-	compound_acro_words[ps] += ait.second;
+	compound_acro_words[ps] += acro;
       }
       else {
 	// mishit: add to the punct file??
@@ -1171,13 +1169,13 @@ int main( int argc, const char *argv[] ){
       }
     }
     ofstream as( acro_file_name );
-    for ( const auto& ait : compound_acro_words ){
-      as << ait.first << "\t" << ait.second << endl;
+    for ( const auto& [ps,ac] : compound_acro_words ){
+      as << ps << "\t" << ac << endl;
     }
     cout << "created " << acro_file_name << endl;
   }
-  for ( const auto& pit : punct_words ){
-    punct_s << pit.first << "\t" << pit.second << endl;
+  for ( const auto& [punc,word] : punct_words ){
+    punct_s << punc << "\t" << word << endl;
   }
   cout << "created " << punct_file_name << endl;
   cout << "done!" << endl;
