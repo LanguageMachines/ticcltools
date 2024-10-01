@@ -50,6 +50,7 @@ bool wordvec_tester::fill( const string& name ){
     return false;
   }
   _dim = dim;
+  cout << "start reading " << words << " vectors, dim=" << dim << endl;
   for ( unsigned b = 0; b < words; b++) {
     string word;
     while (1) {
