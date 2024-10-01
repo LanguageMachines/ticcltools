@@ -53,8 +53,8 @@ void create_wf_list( const map<UnicodeString, unsigned int>& wc,
     exit(EXIT_FAILURE);
   }
   map<unsigned int, set<UnicodeString> > wf;
-  for ( const auto& cit : wc ){
-    wf[cit.second].insert( cit.first );
+  for ( const auto& [word,freq] : wc ){
+    wf[freq].insert(word);
   }
   unsigned int sum=0;
   auto wit = wf.rbegin();
@@ -88,10 +88,10 @@ void dump_quarantine( const string& filename,
     cerr << "failed to create outputfile '" << filename << "'" << endl;
     exit(EXIT_FAILURE);
   }
-  for ( const auto& it : qw ){
-    os << it.first;
-    if ( it.second > 0 ){
-      os << "\t" << it.second;
+  for ( const auto& [word,freq] : qw ){
+    os << word;
+    if ( freq > 0 ){
+      os << "\t" << freq;
     }
     os << endl;
   }

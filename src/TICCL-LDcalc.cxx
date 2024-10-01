@@ -726,8 +726,8 @@ void add_short( ostream& os,
 		const map<UnicodeString,size_t>& freqMap,
 		const map<UnicodeString,size_t>& low_freqMap,
 		int max_ld, size_t threshold ){
-  for ( const auto& entry : dis_count ){
-    vector<UnicodeString> parts = TiCC::split_at( entry.first, "~" );
+  for ( const auto& [word,point] : dis_count ){
+    vector<UnicodeString> parts = TiCC::split_at( word, "~" );
     ld_record rec( parts[0], parts[1],
 		   0, 0,
 		   freqMap, low_freqMap,
@@ -736,7 +736,7 @@ void add_short( ostream& os,
       continue;
     }
     rec.fill_fields( threshold );
-    rec.ngram_point = entry.second;
+    rec.ngram_point = point;
     os << rec.toString() << endl;
   }
 }
@@ -1191,31 +1191,31 @@ int main( int argc, char **argv ){
   add_short( shortf, dis_count, freqMap, low_freqMap, LDvalue, artifreq );
   cout << endl << "creating .ambi file: " << ambiFile << endl;
   ofstream amb( ambiFile );
-  for ( const auto& ambi : dis_map ){
-    amb << ambi.first << "#";
-    for ( const auto& val : ambi.second ){
+  for ( const auto& [word,ambi_set] : dis_map ){
+    amb << word << "#";
+    for ( const auto& val : ambi_set ){
       amb << val << "#";
     }
     amb << endl;
   }
   map<UnicodeString,unsigned int> low_ngramcount;
-  for ( const auto& ng : ngram_count ){
-    UnicodeString lv = ng.first;
+  for ( const auto& [word,count] : ngram_count ){
+    UnicodeString lv = word;
     lv.toLower();
-    low_ngramcount[lv] += ng.second;
+    low_ngramcount[lv] += count;
   }
-  for ( const auto& it : ngram_count ){
-    if ( record_store.find( it.first ) != record_store.end() ){
-      UnicodeString lv = it.first;
+  for ( const auto& [word,count] : ngram_count ){
+    if ( record_store.find( word ) != record_store.end() ){
+      UnicodeString lv = word;
       lv.toLower();
       assert( low_ngramcount.find( lv ) != low_ngramcount.end() );
-      record_store.find(it.first)->second.ngram_point += low_ngramcount[lv];
+      record_store.find(word)->second.ngram_point += low_ngramcount[lv];
     }
     else {
       // Ok, our data seems to be incomplete
       // that is not our problem, so ignore
       if ( verbose > 2 ){
-	cerr << "ignoring " << it.first << endl;
+	cerr << "ignoring " << word << endl;
       }
     }
   }

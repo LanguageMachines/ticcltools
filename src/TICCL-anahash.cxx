@@ -53,12 +53,11 @@ bool do_ngrams = false;
 
 void create_output( ostream& os,
 		    const map<bitType, set<UnicodeString>>& anagrams ){
-  for ( const auto& it : anagrams ){
-    bitType val = it.first;
+  for ( const auto& [val,str_set] : anagrams ){
     os << val << "~";
-    for ( auto const&  s : it.second ){
+    for ( auto const&  s : str_set ){
       os << s;
-      if ( &s != &(*it.second.crbegin()) )
+      if ( s != *str_set.crbegin() )
 	os << "#";
     }
     os << endl;
@@ -167,8 +166,8 @@ map<bitType, set<UnicodeString>>
 extract_foci( const map<UnicodeString,bitType>& freq_list,
 	      const map<UChar,bitType>& alphabet ){
   map<bitType, set<UnicodeString>> foci;
-  for ( const auto& it : freq_list ){
-    UnicodeString word = it.first;
+  for ( const auto& [val,freq] : freq_list ){
+    UnicodeString word = val;
     bitType h = ticcl::hash( word, alphabet );
     if ( do_ngrams ){
       vector<UnicodeString> parts = TiCC::split_at( word, separator );
@@ -201,7 +200,6 @@ extract_foci( const map<UnicodeString,bitType>& freq_list,
       }
     }
     else {
-      bitType freq = it.second;
       if ( freq < artifreq ){
 	word.toLower();
 	const auto l_it = freq_list.find(word);
@@ -390,9 +388,6 @@ int main( int argc, const char *argv[] ){
     cout << "generating foci file: " << foci_file_name << " with " << foci.size() << " entries" << endl;
     ofstream fos( foci_file_name );
     create_output( fos, foci );
-    // for ( const auto& f : foci ){
-    //   fos << f.first << endl;
-    // }
   }
   if ( do_merge ){
     cerr << "merge background corpus: " << backfile << endl;
@@ -400,8 +395,8 @@ int main( int argc, const char *argv[] ){
     read_backgound( bs, anagrams, merged, alphabet );
     string merge_file_name = file_name + ".merged";
     ofstream ms( merge_file_name );
-    for ( const auto& it : merged ){
-      ms << it.first << "\t" << it.second << endl;
+    for ( const auto& [word,freq] : merged ){
+      ms << word << "\t" << freq << endl;
     }
     cerr << "stored merged corpus in " << merge_file_name << endl;
 

@@ -187,13 +187,11 @@ void handle_exp( const experiment& exp,
 
 void output_result( ostream& os,
 		    const map<bitType,set<bitType>>& result ){
-  for ( auto const& rit : result ){
-    os << rit.first << "#";
-    auto it = rit.second.begin();
-    while ( it != rit.second.end() ){
-      os << *it;
-      ++it;
-      if ( it != rit.second.end() ){
+  for ( auto const& [bt,bt_set] : result ){
+    os << bt << "#";
+    for ( const auto& it: bt_set ){
+      os << it;
+      if ( it != *bt_set.rbegin() ){
 	os << ",";
       }
     }
@@ -204,8 +202,8 @@ void output_result( ostream& os,
 
 void output_confusions( ostream& csf,
 			const map<bitType,set<bitType>>& result ){
-  for ( auto const& rit : result ){
-    csf << rit.first << "#" << rit.second.size() << endl;
+  for ( auto const& [bt,bt_set] : result ){
+    csf << bt << "#" << bt_set.size() << endl;
     csf.flush();
   }
 }

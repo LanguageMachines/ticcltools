@@ -97,22 +97,22 @@ UnicodeString chain_class::top_head( const UnicodeString& candidate ){
 }
 
 void chain_class::final_merge(){
-  for ( auto& it : table ){
-    if ( !it.second.empty() ){
+  for ( auto& [word,word_set] : table ){
+    if ( !word_set.empty() ){
       // for all entries that seem to be a 'head'
-      UnicodeString head = top_head( it.first );
-      assert( head != it.first );
+      UnicodeString head = top_head( word );
+      assert( head != word );
       if ( !head.isEmpty() ){
 	// so it has a higher head
 	if ( verbosity > 3 ){
-	  cerr << "merge: " << it.first << it.second << " into "
+	  cerr << "merge: " << word << word_set << " into "
 	       << head << table[head] << endl;
 	}
-	for ( const auto& s : it.second ){
+	for ( const auto& s : word_set ){
 	  table[head].insert( s );
 	  heads[s] = head;
 	}
-	it.second.clear();
+	word_set.clear();
       }
     }
   }
@@ -251,29 +251,29 @@ bool chain_class::fill( const UnicodeString& line, bool nounk ){
 }
 
 void chain_class::debug_info( ostream& db ){
-  for ( const auto& it : heads ){
-    db << "head[" << it.first << "]=" << it.second << endl;
+  for ( const auto& [word,head] : heads ){
+    db << "head[" << word << "]=" << head << endl;
   }
-  for ( const auto& it : table ){
-    db << var_freq[it.first] << " " << it.first
-       << " " << it.second << endl;
+  for ( const auto& [word,word_set] : table ){
+    db << var_freq[word] << " " << word
+       << " " << word_set << endl;
   }
 }
 
 void chain_class::output( const string& out_file ){
   ofstream os( out_file );
   multimap<size_t, string,std::greater<size_t>> out_map;
-  for ( const auto& t_it : table ){
-    for ( const auto& s : t_it.second ){
+  for ( const auto& [word,word_set] : table ){
+    for ( const auto& s : word_set ){
       stringstream oss;
-      oss << s << "#" << var_freq[s] << "#" << t_it.first
-	  << "#" << var_freq[t_it.first];
+      oss << s << "#" << var_freq[s] << "#" << word
+	  << "#" << var_freq[word];
       if ( cc_vals_present ){
-	UnicodeString val = w_cc_conf[s+t_it.first];
+	UnicodeString val = w_cc_conf[s+word];
 	if ( val.isEmpty() ){
-	  //	  cerr << "GEEN waarde voor " << s+t_it.first << endl;
+	  //	  cerr << "GEEN waarde voor " << s+word << endl;
 	  bitType h1 = ticcl::hash(s, alphabet );
-	  bitType h2 = ticcl::hash(t_it.first, alphabet );
+	  bitType h2 = ticcl::hash(word, alphabet );
 	  bitType h_val;
 	  if ( h1 > h2 ){
 	    h_val = h1 - h2;
@@ -282,13 +282,13 @@ void chain_class::output( const string& out_file ){
 	    h_val = h2 - h1;
 	  }
 	  //	  cerr << "h_val=" << h_val << endl;
-	  w_cc_conf[s+t_it.first] = TiCC::toUnicodeString(h_val);
-	  //	  cerr << "nieuwe waarde voor " << s+t_it.first << "=" << w_cc_conf[s+t_it.first] << endl;
+	  w_cc_conf[s+word] = TiCC::toUnicodeString(h_val);
+	  //	  cerr << "nieuwe waarde voor " << s+word << "=" << w_cc_conf[s+word] << endl;
 	}
-	oss << "#" + w_cc_conf[s+t_it.first];
+	oss << "#" + w_cc_conf[s+word];
       }
-      oss << "#" << ld( t_it.first, s, caseless ) << "#C";
-      out_map.insert( make_pair( var_freq[t_it.first], oss.str() ) );
+      oss << "#" << ld( word, s, caseless ) << "#C";
+      out_map.insert( make_pair( var_freq[word], oss.str() ) );
     }
   }
   for ( const auto& t_it : out_map ){
