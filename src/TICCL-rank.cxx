@@ -551,12 +551,12 @@ void rank( vector<rank_record>& recs,
   if ( !lower_variantmap.empty() ){
     int ranking = 1;
     int last = lower_variantmap.begin()->first;
-    for ( const auto& [count,index] : lower_variantmap ){
-      if ( count < last ){
-	last = count;
+    for ( const auto& [cnt,index] : lower_variantmap ){
+      if ( cnt < last ){
+	last = cnt;
 	++ranking;
       }
-      recs[index].variant_count = count;
+      recs[index].variant_count = cnt;
       recs[index].variant_rank = ranking;
     }
   }

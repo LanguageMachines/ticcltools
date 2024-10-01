@@ -1199,12 +1199,12 @@ int main( int argc, char **argv ){
     amb << endl;
   }
   map<UnicodeString,unsigned int> low_ngramcount;
-  for ( const auto& [word,count] : ngram_count ){
+  for ( const auto& [word,cnt] : ngram_count ){
     UnicodeString lv = word;
     lv.toLower();
-    low_ngramcount[lv] += count;
+    low_ngramcount[lv] += cnt;
   }
-  for ( const auto& [word,count] : ngram_count ){
+  for ( const auto& [word,dummy] : ngram_count ){
     if ( record_store.find( word ) != record_store.end() ){
       UnicodeString lv = word;
       lv.toLower();
