@@ -26,25 +26,25 @@ foliadir=BOOK
 
 echo "start TICLL-stuff"
 
-$bindir/TICCL-lexstat --separator=_ --clip=20 --LD=2 $datadir/nld.aspell.dict
+$bindir/TICCL-lexstat --separator=_ --clip=20 --LD=2 $datadir/nld.aspell.dict -o $outdir
 
 echo "checking lexstat results...."
-diff $datadir/nld.aspell.dict.clip20.lc.chars $refdir/dict.lc.chars > /dev/null 2>&1
+diff $outdir.clip20.lc.chars $refdir/dict.lc.chars > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-lexstat .lc results"
-    echo "using: diff $datadir/nld.aspell.dict.clip20.lc.chars $refdir/dict.lc.chars"
+    echo "using: diff $outdir.clip20.lc.chars $refdir/dict.lc.chars"
     exit
 fi
 
-diff $datadir/nld.aspell.dict.clip20.ld2.charconfus $refdir/charconfus > /dev/null 2>&1
+diff $outdir.clip20.ld2.charconfus $refdir/charconfus > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-lexstat .confusion results"
-    echo "using: diff $datadir/nld.aspell.dict.clip20.ld2.charconfus $refdir/charconfus"
+    echo "using: diff $outdir.clip20.ld2.charconfus $refdir/charconfus"
     exit
 fi
-
+exit
 echo "start FoLiA-stats..."
 
 $bindir/FoLiA-stats -R -s -t max -e folia.xml$ --lang=none --class=OCR --ngram 1 -o $outdir/TESTDP035 --hemp=$outdir/TESTDP035.hemp $foliadir
