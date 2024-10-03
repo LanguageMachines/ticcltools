@@ -44,7 +44,7 @@ then
     echo "using: diff $outdir.clip20.ld2.charconfus $refdir/charconfus"
     exit
 fi
-exit
+
 echo "start FoLiA-stats..."
 
 $bindir/FoLiA-stats -R -s -t max -e folia.xml$ --lang=none --class=OCR --ngram 1 -o $outdir/TESTDP035 --hemp=$outdir/TESTDP035.hemp $foliadir
