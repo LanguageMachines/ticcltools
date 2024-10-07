@@ -119,7 +119,7 @@ size_t tel( const xmlNode *node, bool lowercase,
   bool in_emph = false;
   UnicodeString emph_start;
   UnicodeString emph_word;
-  xmlNode *pnt = node->children;
+  const xmlNode *pnt = node->children;
   while ( pnt ){
     //    cerr << "bekijk label: " << (char*)pnt->name << endl;
     cnt += tel( pnt, lowercase, ngram, sep, wc, emps );
