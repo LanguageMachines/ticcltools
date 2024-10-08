@@ -127,12 +127,13 @@ then
 fi
 
 echo "checking INDEXER results...."
-diff $outdir/TESTDP035.tsv.clean.index $refdir/index > /dev/null 2>&1
+LC_ALL=C sort -t# $outdir/TESTDP035.tsv.clean.index > /tmp/index
+diff /tmp/index $refdir/index > /dev/null 2>&1
 
 if [ $? -ne 0 ]
 then
     echo "differences in Ticcl-indexer results"
-    echo "using diff $outdir/TESTDP035.tsv.clean.index $refdir/index"
+    echo "using diff /tmp/index $refdir/index"
     exit
 fi
 
@@ -170,7 +171,7 @@ fi
 
 echo "checking RANK results...."
 
-diff $outdir/TESTDP035.tsv.clean.ldcalc.ranked $refdir/book.ranked 2>&1
+diff $outdir/TESTDP035.tsv.clean.ldcalc.ranked $refdir/book.ranked >/dev/null 2>&1
 if [ $? -ne 0 ]
 then
     echo "differences in TICLL-rank results"
