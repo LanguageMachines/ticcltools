@@ -124,7 +124,7 @@ size_t tel( const xmlNode *node, bool lowercase,
     //    cerr << "bekijk label: " << (char*)pnt->name << endl;
     cnt += tel( pnt, lowercase, ngram, sep, wc, emps );
     if ( pnt->type == XML_TEXT_NODE ){
-      UnicodeString line  = TiCC::UnicodeFromUTF8( TiCC::to_char( pnt->content ) );
+      UnicodeString line  = TiCC::UnicodeFromUTF8( TiCC::TextValue( pnt ) );
       //      cerr << "text: " << line << endl;
       vector<UnicodeString> v = TiCC::split( line );
       for ( const auto& word : v ){
