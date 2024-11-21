@@ -311,8 +311,8 @@ void usage( const string& name ){
 int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
-    opts.set_short_options( "vVho:" );
-    opts.set_long_options( "caseless,alph:,nounk" );
+    opts.add_short_options( "vVho:" );
+    opts.add_long_options( "caseless,alph:,nounk" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){

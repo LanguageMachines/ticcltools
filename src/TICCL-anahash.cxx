@@ -216,8 +216,8 @@ extract_foci( const map<UnicodeString,bitType>& freq_list,
 int main( int argc, const char *argv[] ){
   TiCC::CL_Options opts;
   try {
-    opts.set_short_options( "vVho:" );
-    opts.set_long_options( "alph:,background:,artifrq:,clip:,help,version,ngrams,list,separator:" );
+    opts.add_short_options( "vVho:" );
+    opts.add_long_options( "alph:,background:,artifrq:,clip:,help,version,ngrams,list,separator:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){

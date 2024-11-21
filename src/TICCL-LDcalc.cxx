@@ -799,8 +799,8 @@ map<bitType,set<UnicodeString>> fill_hashmap( istream& is,
 int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
-    opts.set_short_options( "vVho:t:" );
-    opts.set_long_options( "diac:,hist:,nohld,artifrq:,LD:,hash:,clean:,alph:,"
+    opts.add_short_options( "vVho:t:" );
+    opts.add_long_options( "diac:,hist:,nohld,artifrq:,LD:,hash:,clean:,alph:,"
 			   "index:,help,version,threads:,follow:,low:,high:" );
     opts.init( argc, argv );
   }

@@ -877,8 +877,8 @@ void usage( const string& name ){
 int main( int argc, const char *argv[] ){
   TiCC::CL_Options opts;
   try {
-    opts.set_short_options( "vVho:" );
-    opts.set_long_options( "acro,alph:,corpus:,background:,artifrq:,filter:,help,version,hemp:" );
+    opts.add_short_options( "vVho:" );
+    opts.add_long_options( "acro,alph:,corpus:,background:,artifrq:,filter:,help,version,hemp:" );
     opts.parse_args( argc, argv );
   }
   catch( TiCC::OptionError& e ){

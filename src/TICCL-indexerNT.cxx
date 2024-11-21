@@ -211,8 +211,8 @@ void output_confusions( ostream& csf,
 int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
-    opts.set_short_options( "vVho:t:" );
-    opts.set_long_options( "charconf:,hash:,low:,high:,foci:,help,"
+    opts.add_short_options( "vVho:t:" );
+    opts.add_long_options( "charconf:,hash:,low:,high:,foci:,help,"
 			   "version,threads:,confstats:,follow:" );
     opts.init( argc, argv );
   }

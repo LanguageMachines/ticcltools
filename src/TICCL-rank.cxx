@@ -776,8 +776,8 @@ struct wid {
 int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
-    opts.set_short_options( "vVho:t:" );
-    opts.set_long_options( "alph:,debugfile:,skipcols:,charconf:,charconfreq:,"
+    opts.add_short_options( "vVho:t:" );
+    opts.add_long_options( "alph:,debugfile:,skipcols:,charconf:,charconfreq:,"
 			   "artifrq:,"
 			   "subtractartifrqfeature1:,subtractartifrqfeature2:,"
 			   "wordvec:,clip:,numvec:,threads:,verbose,follow:,"

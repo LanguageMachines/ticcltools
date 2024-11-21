@@ -419,8 +419,8 @@ void usage( const string& name ){
 int main( int argc, const char *argv[] ){
   TiCC::CL_Options opts;
   try {
-    opts.set_short_options( "vVho:" );
-    opts.set_long_options( "LD:,clip:,diac,all,separator:,help,verbose,version" );
+    opts.add_short_options( "vVho:" );
+    opts.add_long_options( "LD:,clip:,diac,all,separator:,help,verbose,version" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){

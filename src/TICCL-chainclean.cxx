@@ -115,8 +115,8 @@ vector<UnicodeString> sort( const vector<UnicodeString>& in,
 int main( int argc, char **argv ){
   TiCC::CL_Options opts;
   try {
-    opts.set_short_options( "vVho:" );
-    opts.set_long_options( "lexicon:,artifrq:,follow:,low:,caseless:" );
+    opts.add_short_options( "vVho:" );
+    opts.add_long_options( "lexicon:,artifrq:,follow:,low:,caseless:" );
     opts.init( argc, argv );
   }
   catch( TiCC::OptionError& e ){
