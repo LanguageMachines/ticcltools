@@ -35,7 +35,7 @@
 #include "unicode/uchar.h"
 
 namespace ticcl {
-  typedef uint64_t bitType;
+  using bitType = uint64_t;
 
   const std::string S_SEPARATOR = "_";
   const icu::UnicodeString US_SEPARATOR = "_";
