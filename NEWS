@@ -1,10 +1,14 @@
-ticcltools 0.11 2023-10-28
+ticcltools 0.11 2024-12-16
 [Ko van der Sloot]
-* Now we use NFC endoded Unicode strings everywhere (need ticcutils >= 0.34)
+* require C++17
+* require latest ticcutils
+* Now we use NFC endoded Unicode strings everywhere
 * testrank script results were outdated since 0.10
 * removed dependency on libtar
 * added --follow option to TiCCL-indexer(NT)
-* some code refactoring and cleanup
+* several code refactoring and cleanup
+* adapted tests
+* updated GitHub CI
 
 ticcltools 0.10 2023-02-28
 [Ko van der Sloot]
