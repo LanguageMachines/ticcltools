@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2019 - 2024
+  Copyright (c) 2019 - 2026
   CLST  - Radboud University
 
   This file is part of ticcltools
