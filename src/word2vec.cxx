@@ -52,8 +52,13 @@ bool wordvec_tester::fill( const string& name ){
   _dim = dim;
   cout << "start reading " << words << " vectors, dim=" << dim << endl;
   for ( unsigned b = 0; b < words; b++) {
+    if ( ferror(f) ){
+      cerr << "I/O error" << endl;
+      fclose(f);
+      return false;
+    }
     string word;
-    while (1) {
+    while (!feof(f) ) {
       int kar = fgetc(f);
       if ( feof(f) || kar == EOF || kar == ' ' )
 	break;
@@ -64,7 +69,12 @@ bool wordvec_tester::fill( const string& name ){
     vector<float> vec( _dim );
     for ( size_t a = 0; a < _dim; a++) {
       float val;
-      if ( fread(&val, sizeof(float), 1, f ) != 1 ){
+      if ( ferror(f) ){
+	cerr << "I/O error" << endl;
+	fclose(f);
+	return false;
+      }
+      if ( feof(f) || fread(&val, sizeof(float), 1, f ) != 1 ){
 	cerr << "reading float failed" << endl;
 	exit(1);
       }
@@ -72,8 +82,9 @@ bool wordvec_tester::fill( const string& name ){
     }
     // normalize the vector
     float len = 0;
-    for ( size_t i = 0; i < _dim; ++i )
+    for ( size_t i = 0; i < _dim; ++i ){
       len += vec[i] * vec[i];
+    }
     len = sqrt(len);
     for ( size_t i = 0; i < _dim; ++i ){
       vec[i] /= len;
