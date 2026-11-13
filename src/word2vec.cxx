@@ -60,8 +60,9 @@ bool wordvec_tester::fill( const string& name ){
     string word;
     while (!feof(f) ) {
       int kar = fgetc(f);
-      if ( feof(f) || kar == EOF || kar == ' ' )
+      if ( feof(f) || kar == EOF || kar == ' ' ){
 	break;
+      }
       if ( kar != '\n' ){
 	word += kar;
       }
